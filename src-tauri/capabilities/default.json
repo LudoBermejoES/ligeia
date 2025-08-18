@@ -1,0 +1,19 @@
+{
+  "$schema": "../gen/schemas/capabilities.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": ["main"],
+  "permissions": [
+    "dialog:allow-open",
+    "fs:allow-read-dir", 
+    "fs:allow-read-file",
+    "fs:scope-home-recursive",
+    "fs:scope-download-recursive",
+    "fs:scope-document-recursive", 
+    "fs:scope-desktop-recursive",
+    "fs:scope-audio-recursive",
+    "fs:default",
+    "core:default",
+    "core:path:default"
+  ]
+}

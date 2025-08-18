@@ -1,6 +1,6 @@
-import { invoke } from '@tauri-apps/api/tauri';
-import { open } from '@tauri-apps/api/dialog';
-import { readDir } from '@tauri-apps/api/fs';
+import { invoke } from '@tauri-apps/api/core';
+import { open } from '@tauri-apps/plugin-dialog';
+import { readDir, readFile } from '@tauri-apps/plugin-fs';
 
 class AmbientMixer {
     constructor() {
@@ -46,7 +46,14 @@ class AmbientMixer {
         
         // Master volume
         const masterVolumeSlider = document.getElementById('masterVolumeSlider');
-        masterVolumeSlider.addEventListener('input', (e) => this.setMasterVolume(e.target.value / 100));
+        if (masterVolumeSlider) {
+            masterVolumeSlider.addEventListener('input', (e) => {
+                console.log('Master volume slider changed:', e.target.value);
+                this.setMasterVolume(e.target.value / 100);
+            });
+        } else {
+            console.error('Master volume slider element not found');
+        }
         
         const masterMute = document.getElementById('masterMute');
         masterMute.addEventListener('click', () => this.toggleMasterMute());
@@ -387,8 +394,13 @@ class AmbientMixer {
                 await this.audioContext.resume();
             }
 
+            // Read the audio file as binary data using Tauri's fs plugin
+            const audioData = await readFile(filePath);
+            const blob = new Blob([audioData], { type: this.getAudioMimeType(filePath) });
+            const audioUrl = URL.createObjectURL(blob);
+            
             const audio = new Audio();
-            audio.src = `file://${filePath}`;
+            audio.src = audioUrl;
             audio.loop = pad.isLooping;
             
             const source = this.audioContext.createMediaElementSource(audio);
@@ -425,6 +437,10 @@ class AmbientMixer {
         if (pad.audio) {
             pad.audio.pause();
             pad.audio.currentTime = 0;
+            // Clean up blob URL to prevent memory leaks
+            if (pad.audio.src && pad.audio.src.startsWith('blob:')) {
+                URL.revokeObjectURL(pad.audio.src);
+            }
         }
         
         if (pad.source) {
@@ -517,7 +533,17 @@ class AmbientMixer {
             this.masterGainNode.gain.value = volume;
         }
         
-        document.querySelector('.volume-display').textContent = `${Math.round(volume * 100)}%`;
+        // Update volume display
+        try {
+            const displayElement = document.querySelector('.volume-display');
+            if (displayElement) {
+                displayElement.textContent = `${Math.round(volume * 100)}%`;
+            } else {
+                console.warn('Volume display element not found');
+            }
+        } catch (error) {
+            console.error('Error updating volume display:', error);
+        }
     }
 
     toggleMasterMute() {
@@ -572,6 +598,19 @@ class AmbientMixer {
         }
     }
 
+    getAudioMimeType(filePath) {
+        const extension = filePath.toLowerCase().split('.').pop();
+        const mimeTypes = {
+            'mp3': 'audio/mpeg',
+            'wav': 'audio/wav',
+            'ogg': 'audio/ogg',
+            'flac': 'audio/flac',
+            'aac': 'audio/aac',
+            'm4a': 'audio/mp4'
+        };
+        return mimeTypes[extension] || 'audio/mpeg';
+    }
+
     escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
@@ -583,7 +622,6 @@ class AmbientMixer {
 let ambientMixer;
 document.addEventListener('DOMContentLoaded', () => {
     ambientMixer = new AmbientMixer();
+    // Make ambientMixer globally accessible after initialization
+    window.ambientMixer = ambientMixer;
 });
-
-// Make ambientMixer globally accessible
-window.ambientMixer = ambientMixer;

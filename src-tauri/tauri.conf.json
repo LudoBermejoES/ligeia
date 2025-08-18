@@ -1,29 +1,22 @@
 {
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Ligeia",
+  "version": "0.1.0",
+  "identifier": "com.ligeia.dev",
   "build": {
     "beforeBuildCommand": "",
     "beforeDevCommand": "",
-    "distDir": "../",
-    "devPath": "../",
-    "withGlobalTauri": false
+    "frontendDist": "../"
   },
-  "package": {
-    "productName": "Ligeia",
-    "version": "0.1.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": true
-    },
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "com.ligeia.dev"
-    },
+  "app": {
     "security": {
-      "csp": null
+      "csp": null,
+      "capabilities": ["default"]
     },
+    "withGlobalTauri": false,
     "windows": [
       {
+        "label": "main",
         "fullscreen": false,
         "resizable": true,
         "title": "Ligeia - Ambient Soundscape Mixer",
@@ -33,5 +26,9 @@
         "minHeight": 600
       }
     ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all"
   }
 }

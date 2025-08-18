@@ -3,11 +3,11 @@
     windows_subsystem = "windows"
 )]
 
-use tauri::Manager;
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 use audiotags::Tag;
 use rusqlite::{Connection, params, Result};
+use tauri::{AppHandle, Manager};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AudioFile {
@@ -54,7 +54,7 @@ async fn load_audio_file(file_path: String) -> Result<AudioFile, String> {
 }
 
 #[tauri::command]
-async fn save_audio_file(app_handle: tauri::AppHandle, audio_file: AudioFile) -> Result<i64, String> {
+async fn save_audio_file(app_handle: AppHandle, audio_file: AudioFile) -> Result<i64, String> {
     let state = app_handle.state::<AppState>();
     let conn = state.db.lock().unwrap();
     
@@ -77,7 +77,7 @@ async fn save_audio_file(app_handle: tauri::AppHandle, audio_file: AudioFile) ->
 }
 
 #[tauri::command]
-async fn get_all_audio_files(app_handle: tauri::AppHandle) -> Result<Vec<AudioFile>, String> {
+async fn get_all_audio_files(app_handle: AppHandle) -> Result<Vec<AudioFile>, String> {
     let state = app_handle.state::<AppState>();
     let conn = state.db.lock().unwrap();
     
@@ -109,7 +109,7 @@ async fn get_all_audio_files(app_handle: tauri::AppHandle) -> Result<Vec<AudioFi
 }
 
 #[tauri::command]
-async fn delete_audio_file(app_handle: tauri::AppHandle, id: i64) -> Result<(), String> {
+async fn delete_audio_file(app_handle: AppHandle, id: i64) -> Result<(), String> {
     let state = app_handle.state::<AppState>();
     let conn = state.db.lock().unwrap();
     
@@ -142,13 +142,16 @@ fn create_database() -> Result<Connection> {
     Ok(conn)
 }
 
-fn main() {
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
     let db = create_database().expect("Failed to create database");
     
     tauri::Builder::default()
         .manage(AppState {
             db: Mutex::new(db),
         })
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![
             load_audio_file,
             save_audio_file,
@@ -157,4 +160,8 @@ fn main() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+fn main() {
+    run();
 }
