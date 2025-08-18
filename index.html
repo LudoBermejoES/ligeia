@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ligeia - Ambient Soundscape Mixer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <h1>🌟 Ligeia</h1>
+            <div class="controls">
+                <button id="loadFiles" class="btn btn-primary">📂 Load Sounds</button>
+                <button id="loadDirectory" class="btn btn-secondary">📁 Load Directory</button>
+                <button id="savePreset" class="btn btn-success">💾 Save Preset</button>
+                <button id="loadPreset" class="btn btn-info">📂 Load Preset</button>
+                <button id="stopAll" class="btn btn-danger">⏹️ Stop All</button>
+            </div>
+        </header>
+
+        <main class="main">
+            <div class="sidebar">
+                <h3>Sound Library</h3>
+                <div class="library-stats">
+                    <span id="fileCount">0 sounds loaded</span>
+                </div>
+                
+                <div class="category-filters">
+                    <button class="category-btn active" data-category="all">All</button>
+                    <button class="category-btn" data-category="nature">Nature</button>
+                    <button class="category-btn" data-category="ambient">Ambient</button>
+                    <button class="category-btn" data-category="music">Music</button>
+                    <button class="category-btn" data-category="effects">Effects</button>
+                </div>
+                
+                <div class="library-list" id="libraryList">
+                    <!-- Library items will be populated here -->
+                </div>
+            </div>
+
+            <div class="mixer-area">
+                <div class="mixer-header">
+                    <h3>Soundscape Mixer</h3>
+                    <div class="mixer-info">
+                        <span>Active Layers: <span id="activeLayersCount">0</span></span>
+                        <span>Preset: <span id="currentPreset">Untitled</span></span>
+                    </div>
+                </div>
+
+                <div class="sound-pads-grid" id="soundPadsGrid">
+                    <!-- Sound pads will be populated here -->
+                </div>
+
+                <div class="mixer-controls">
+                    <div class="global-controls">
+                        <div class="master-section">
+                            <label>Master Volume</label>
+                            <div class="volume-group">
+                                <button id="masterMute" class="mute-btn">🔊</button>
+                                <input type="range" id="masterVolumeSlider" min="0" max="100" value="50" class="volume-slider">
+                                <span class="volume-display">50%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="global-actions">
+                            <button id="fadeAllIn" class="btn btn-sm">↗️ Fade All In</button>
+                            <button id="fadeAllOut" class="btn btn-sm">↘️ Fade All Out</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Audio elements container (hidden) -->
+    <div id="audioContainer" style="display: none;"></div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
