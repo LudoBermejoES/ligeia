@@ -374,6 +374,22 @@ body {
     flex: 1;
 }
 
+.sound-pad-artist {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sound-pad-category {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 .sound-pad-status {
     font-size: 1.2rem;
     margin-left: 0.5rem;
