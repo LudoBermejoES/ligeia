@@ -4,6 +4,9 @@
 export class UIController {
     constructor() {
         this.currentCategory = 'all';
+        this.sortable = null;
+        this.cardOrder = new Map(); // Track custom ordering
+        this.isDragging = false; // Flag to prevent re-rendering during drag
     }
 
     initializeEventListeners(eventHandlers) {
@@ -93,16 +96,28 @@ export class UIController {
         const container = this.getElementById('soundPadsGrid');
         if (!container) return;
 
+        // Skip re-rendering if we're currently dragging
+        if (this.isDragging) {
+            console.log('Skipping render during drag operation');
+            return;
+        }
+
         const filteredFiles = Array.from(audioFiles.values()).filter(audioFile => 
             this.currentCategory === 'all' || audioFile.category === this.currentCategory
         );
 
-        container.innerHTML = filteredFiles.map(audioFile => 
+        // Sort by custom order if available, otherwise by default order
+        const sortedFiles = this.applySavedOrder(filteredFiles);
+
+        container.innerHTML = sortedFiles.map(audioFile => 
             this.renderSoundPad(audioFile, soundPads.get(audioFile.file_path))
         ).join('');
 
         // Attach event listeners to new pad elements
         this.attachPadEventListeners(container, soundPads);
+        
+        // Initialize drag and drop
+        this.initializeDragAndDrop(container);
     }
 
     renderSoundPad(audioFile, pad) {
@@ -289,5 +304,112 @@ export class UIController {
 
     getFilenameFromPath(filePath) {
         return filePath.split(/[/\\]/).pop()?.replace(/\.[^/.]+$/, '') || 'Unknown';
+    }
+
+    initializeDragAndDrop(container) {
+        if (!window.Sortable) {
+            console.warn('SortableJS not loaded, drag and drop will not be available');
+            return;
+        }
+
+        // Destroy existing sortable if it exists
+        if (this.sortable) {
+            this.sortable.destroy();
+        }
+
+        this.sortable = window.Sortable.create(container, {
+            animation: 200,
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
+            chosenClass: 'sortable-chosen',
+            
+            // Only allow dragging by the header area to avoid conflicts with controls
+            handle: '.sound-pad-header',
+            
+            // Force fallback mode for CSS Grid compatibility
+            forceFallback: true,
+            fallbackClass: 'sortable-fallback',
+            fallbackOnBody: true,
+            swapThreshold: 0.65,
+            
+            onStart: (evt) => {
+                this.isDragging = true;
+                container.classList.add('sorting-active');
+                console.log('Drag started:', evt.item.dataset.filePath);
+                console.log('Original DOM order before drag:', Array.from(container.children).map(el => el.dataset.filePath));
+            },
+            
+            onEnd: (evt) => {
+                container.classList.remove('sorting-active');
+                console.log('Drag ended, old index:', evt.oldIndex, 'new index:', evt.newIndex);
+                console.log('Final DOM order after drag:', Array.from(container.children).map(el => el.dataset.filePath));
+                
+                // Only save if the position actually changed
+                if (evt.oldIndex !== evt.newIndex) {
+                    this.saveCardOrder(container);
+                } else {
+                    console.log('No position change detected, skipping save');
+                }
+                
+                // Allow re-rendering after a short delay
+                setTimeout(() => {
+                    this.isDragging = false;
+                    console.log('Drag operation complete, re-rendering enabled');
+                }, 100);
+            }
+        });
+    }
+
+    applySavedOrder(audioFiles) {
+        const orderKey = `card-order-${this.currentCategory}`;
+        const savedOrder = localStorage.getItem(orderKey);
+        
+        console.log('Applying saved order for category:', this.currentCategory);
+        console.log('Saved order:', savedOrder);
+        
+        if (!savedOrder) {
+            console.log('No saved order found, using default');
+            return audioFiles;
+        }
+
+        try {
+            const orderArray = JSON.parse(savedOrder);
+            const orderMap = new Map(orderArray.map((filePath, index) => [filePath, index]));
+            
+            const sortedFiles = audioFiles.sort((a, b) => {
+                const orderA = orderMap.get(a.file_path) ?? Number.MAX_SAFE_INTEGER;
+                const orderB = orderMap.get(b.file_path) ?? Number.MAX_SAFE_INTEGER;
+                return orderA - orderB;
+            });
+            
+            console.log('Applied order, sorted files:', sortedFiles.map(f => f.file_path));
+            return sortedFiles;
+        } catch (error) {
+            console.error('Error applying saved card order:', error);
+            return audioFiles;
+        }
+    }
+
+    saveCardOrder(container) {
+        const soundPads = container.querySelectorAll('.sound-pad');
+        const order = Array.from(soundPads).map(pad => pad.dataset.filePath);
+        
+        const orderKey = `card-order-${this.currentCategory}`;
+        console.log('Saving order:', order);
+        console.log('Order key:', orderKey);
+        
+        try {
+            localStorage.setItem(orderKey, JSON.stringify(order));
+            console.log(`Saved card order for category: ${this.currentCategory}`, order);
+        } catch (error) {
+            console.error('Error saving card order:', error);
+        }
+    }
+
+    // Method to reset card order for current category
+    resetCardOrder() {
+        const orderKey = `card-order-${this.currentCategory}`;
+        localStorage.removeItem(orderKey);
+        console.log(`Reset card order for category: ${this.currentCategory}`);
     }
 }

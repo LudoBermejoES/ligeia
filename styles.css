@@ -323,6 +323,39 @@ body {
     padding: 1rem 0;
     overflow-y: auto;
     min-height: 0;
+    position: relative;
+}
+
+/* Drag and Drop States */
+.sound-pads-grid.sorting-active {
+    user-select: none;
+}
+
+.sortable-ghost {
+    opacity: 0.3;
+    transform: rotate(5deg);
+}
+
+.sortable-chosen {
+    transform: scale(1.05);
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.sortable-drag {
+    opacity: 0.8;
+    transform: rotate(5deg);
+    z-index: 999;
+}
+
+.sortable-fallback {
+    display: block !important;
+    opacity: 0.8;
+    transform: rotate(5deg);
+    z-index: 9999;
+    cursor: grabbing !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+    border: 2px solid #4CAF50;
 }
 
 .sound-pad {
@@ -361,6 +394,27 @@ body {
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 0.5rem;
+    cursor: grab;
+    position: relative;
+}
+
+.sound-pad-header:active {
+    cursor: grabbing;
+}
+
+.sound-pad-header::before {
+    content: "⋮⋮";
+    position: absolute;
+    top: 0;
+    right: -8px;
+    opacity: 0.3;
+    font-size: 12px;
+    line-height: 0.5;
+    transition: opacity 0.2s ease;
+}
+
+.sound-pad:hover .sound-pad-header::before {
+    opacity: 0.6;
 }
 
 .sound-pad-title {
