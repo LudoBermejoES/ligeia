@@ -1,19 +1,22 @@
 import { open } from '@tauri-apps/plugin-dialog';
 import { readDir, readFile } from '@tauri-apps/plugin-fs';
+import { invoke } from '@tauri-apps/api/core';
 
 /**
  * FileService - Handles file operations and audio file loading
  */
 export class FileService {
     constructor() {
-        this.audioExtensions = ['.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a'];
+        this.audioExtensions = ['.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.wma', '.m4p'];
         this.mimeTypes = {
             'mp3': 'audio/mpeg',
             'wav': 'audio/wav',
             'ogg': 'audio/ogg',
             'flac': 'audio/flac',
             'aac': 'audio/aac',
-            'm4a': 'audio/mp4'
+            'm4a': 'audio/mp4',
+            'wma': 'audio/x-ms-wma',
+            'm4p': 'audio/mp4'
         };
     }
 
@@ -23,7 +26,7 @@ export class FileService {
                 multiple: true,
                 filters: [{
                     name: 'Audio',
-                    extensions: ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a']
+                    extensions: ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'wma', 'm4p']
                 }]
             });
             
@@ -46,12 +49,13 @@ export class FileService {
 
     async scanDirectory(dirPath) {
         try {
-            const entries = await readDir(dirPath, { recursive: true });
-            const audioFiles = entries.filter(entry => 
-                entry.name && this.isAudioFile(entry.name) && !entry.children
-            );
-            
-            return audioFiles.map(file => file.path);
+            console.log('Scanning directory recursively with Rust backend:', dirPath);
+            // Use the new Rust-based scanning command
+            const audioFiles = await invoke('scan_directory_recursive', {
+                dirPath: dirPath
+            });
+            console.log(`Found ${audioFiles.length} audio files in directory and subdirectories`);
+            return audioFiles;
         } catch (error) {
             console.error('Error scanning directory:', error);
             return [];

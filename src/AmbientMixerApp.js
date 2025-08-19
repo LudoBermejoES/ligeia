@@ -110,11 +110,21 @@ export class AmbientMixerApp {
         try {
             const dirPath = await this.fileService.openDirectoryDialog();
             if (dirPath) {
+                console.log('Loading directory:', dirPath);
+                
+                // Show loading feedback
+                this.uiController.showSuccess('Scanning directory and subdirectories...');
+                
                 const filePaths = await this.fileService.scanDirectory(dirPath);
                 if (filePaths.length > 0) {
+                    console.log(`Processing ${filePaths.length} audio files from directory and subdirectories`);
+                    this.uiController.showSuccess(`Found ${filePaths.length} audio files. Loading...`);
+                    
                     await this.processFiles(filePaths);
+                    
+                    this.uiController.showSuccess(`Successfully loaded ${filePaths.length} audio files from directory and subdirectories!`);
                 } else {
-                    this.uiController.showError('No audio files found in directory');
+                    this.uiController.showError('No audio files found in directory or subdirectories');
                 }
             }
         } catch (error) {
@@ -124,9 +134,29 @@ export class AmbientMixerApp {
     }
 
     async processFiles(filePaths) {
-        const loadingPromises = filePaths.map(filePath => this.processAudioFile(filePath));
-        await Promise.allSettled(loadingPromises);
-        this.updateUI();
+        console.log(`Processing ${filePaths.length} audio files...`);
+        
+        // Process files in batches to avoid overwhelming the system
+        const batchSize = 10;
+        const batches = [];
+        
+        for (let i = 0; i < filePaths.length; i += batchSize) {
+            batches.push(filePaths.slice(i, i + batchSize));
+        }
+        
+        let processedCount = 0;
+        for (const batch of batches) {
+            const loadingPromises = batch.map(filePath => this.processAudioFile(filePath));
+            await Promise.allSettled(loadingPromises);
+            
+            processedCount += batch.length;
+            console.log(`Processed ${processedCount}/${filePaths.length} files`);
+            
+            // Update UI periodically during loading
+            this.updateUI();
+        }
+        
+        console.log(`Finished processing all ${filePaths.length} audio files`);
     }
 
     async processAudioFile(filePath) {

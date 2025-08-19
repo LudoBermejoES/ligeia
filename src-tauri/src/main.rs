@@ -8,6 +8,7 @@ use std::sync::Mutex;
 use id3::{Tag, TagLike};
 use rusqlite::{Connection, params, Result};
 use tauri::{AppHandle, Manager};
+use scan_dir::ScanDir;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AudioFile {
@@ -397,6 +398,30 @@ async fn update_audio_file_tags(file_path: String, updates: AudioFile) -> Result
 }
 
 #[tauri::command]
+async fn scan_directory_recursive(dir_path: String) -> Result<Vec<String>, String> {
+    println!("Scanning directory recursively: {}", dir_path);
+    
+    let audio_extensions = vec!["mp3", "wav", "ogg", "flac", "aac", "m4a", "wma", "m4p"];
+    
+    let audio_files = ScanDir::files().walk(&dir_path, |iter| {
+        iter.filter(|&(_, ref name)| {
+            audio_extensions.iter().any(|ext| {
+                name.to_lowercase().ends_with(&format!(".{}", ext))
+            })
+        })
+        .map(|(entry, _)| entry.path().to_string_lossy().to_string())
+        .collect::<Vec<String>>()
+    }).map_err(|e| format!("Failed to scan directory: {:?}", e))?;
+    
+    println!("Found {} audio files", audio_files.len());
+    for file in &audio_files {
+        println!("Audio file: {}", file);
+    }
+    
+    Ok(audio_files)
+}
+
+#[tauri::command]
 async fn delete_audio_file(app_handle: AppHandle, id: i64) -> Result<(), String> {
     let state = app_handle.state::<AppState>();
     let conn = state.db.lock().unwrap();
@@ -445,7 +470,8 @@ pub fn run() {
             save_audio_file,
             get_all_audio_files,
             delete_audio_file,
-            update_audio_file_tags
+            update_audio_file_tags,
+            scan_directory_recursive
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
