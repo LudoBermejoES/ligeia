@@ -9,8 +9,9 @@ export class PresetManager {
     }
 
     savePreset(soundPads) {
-        const presetName = prompt('Enter preset name:', this.currentPreset);
-        if (!presetName) return false;
+        // TODO: Replace with a proper modal dialog
+        const presetName = `Preset_${Date.now()}`;
+        console.log('Auto-generating preset name:', presetName);
 
         const presetData = {
             name: presetName,
@@ -32,12 +33,16 @@ export class PresetManager {
     async loadPreset(soundPads) {
         const presetNames = Array.from(this.presets.keys());
         if (presetNames.length === 0) {
-            alert('No presets saved yet!');
+            console.log('No presets saved yet!');
             return false;
         }
 
-        const presetName = prompt(`Choose preset:\n${presetNames.join('\n')}`);
-        if (!presetName || !this.presets.has(presetName)) {
+        // TODO: Replace with a proper modal dialog
+        // For now, just load the most recent preset
+        const presetName = presetNames[presetNames.length - 1];
+        console.log('Auto-loading most recent preset:', presetName);
+        
+        if (!this.presets.has(presetName)) {
             return false;
         }
 

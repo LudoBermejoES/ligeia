@@ -433,7 +433,12 @@ export class AmbientMixerApp {
             
         } catch (error) {
             console.error('Failed to update tags:', error);
-            alert('Failed to update tags: ' + error);
+            // Show error in UI without using alert() due to dialog permissions
+            const errorMsg = `Failed to update tags: ${error}`;
+            console.error(errorMsg);
+            
+            // Could implement a toast notification here instead
+            // For now, just log the error - user will see it in console
         }
     }
     
