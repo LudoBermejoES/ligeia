@@ -234,6 +234,113 @@ async fn import_library_data(app_handle: AppHandle, data: ExportData) -> Result<
     Ok(())
 }
 
+#[tauri::command]
+async fn calculate_missing_durations(app_handle: AppHandle) -> Result<String, String> {
+    let state = app_handle.state::<AppState>();
+    let db = state.db.lock().unwrap();
+    
+    // Get all audio files and filter those missing duration or BPM
+    let audio_files = db.get_all_audio_files().map_err(|e| e.to_string())?;
+    let files_to_process: Vec<_> = audio_files
+        .into_iter()
+        .filter(|file| file.duration.is_none() || file.bpm.is_none())
+        .collect();
+    
+    let mut duration_updated = 0u32;
+    let mut bpm_updated = 0u32;
+    let total_files = files_to_process.len();
+    
+    for (index, audio_file) in files_to_process.iter().enumerate() {
+        println!("Processing file {} of {}: {}", index + 1, total_files, audio_file.file_path);
+        
+        // Check what needs to be calculated
+        let needs_duration = audio_file.duration.is_none();
+        let needs_bpm = audio_file.bpm.is_none();
+        
+        if needs_duration && needs_bpm {
+            // Calculate both duration and BPM
+            match AudioHandler::calculate_duration_and_bpm(&audio_file.file_path) {
+                Ok((duration, bpm)) => {
+                    if let Some(id) = audio_file.id {
+                        let bpm_u32 = bpm.map(|b| b.round() as u32);
+                        if let Err(e) = db.update_audio_file_duration_and_bpm(id, duration, bpm_u32) {
+                            eprintln!("Failed to update duration and BPM for {}: {}", audio_file.file_path, e);
+                            continue;
+                        }
+                        
+                        if duration.is_some() {
+                            duration_updated += 1;
+                            println!("Updated duration for {}: {:.2}s", audio_file.file_path, duration.unwrap());
+                        }
+                        if bpm.is_some() {
+                            bpm_updated += 1;
+                            println!("Updated BPM for {}: {:.1}", audio_file.file_path, bpm.unwrap());
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("Failed to calculate duration and BPM for {}: {}", audio_file.file_path, e);
+                    continue;
+                }
+            }
+        } else if needs_duration {
+            // Calculate only duration
+            match AudioHandler::calculate_audio_duration(&audio_file.file_path) {
+                Ok(duration) => {
+                    if let Some(id) = audio_file.id {
+                        if let Err(e) = db.update_audio_file_duration(id, duration) {
+                            eprintln!("Failed to update duration for {}: {}", audio_file.file_path, e);
+                            continue;
+                        }
+                        
+                        duration_updated += 1;
+                        println!("Updated duration for {}: {:.2}s", audio_file.file_path, duration);
+                    }
+                }
+                Err(e) => {
+                    eprintln!("Failed to calculate duration for {}: {}", audio_file.file_path, e);
+                    continue;
+                }
+            }
+        } else if needs_bpm {
+            // Calculate only BPM
+            match AudioHandler::calculate_audio_bpm(&audio_file.file_path) {
+                Ok(bpm) => {
+                    if let Some(id) = audio_file.id {
+                        let bpm_u32 = bpm.round() as u32;
+                        if let Err(e) = db.update_audio_file_bpm(id, bpm_u32) {
+                            eprintln!("Failed to update BPM for {}: {}", audio_file.file_path, e);
+                            continue;
+                        }
+                        
+                        bpm_updated += 1;
+                        println!("Updated BPM for {}: {:.1}", audio_file.file_path, bpm);
+                    }
+                }
+                Err(e) => {
+                    eprintln!("Failed to calculate BPM for {}: {}", audio_file.file_path, e);
+                    continue;
+                }
+            }
+        }
+    }
+    
+    // Return a summary message
+    let mut summary_parts = Vec::new();
+    if duration_updated > 0 {
+        summary_parts.push(format!("{} durations", duration_updated));
+    }
+    if bpm_updated > 0 {
+        summary_parts.push(format!("{} BPMs", bpm_updated));
+    }
+    
+    if summary_parts.is_empty() {
+        Ok("All files already have complete duration and BPM information.".to_string())
+    } else {
+        Ok(format!("Successfully calculated and updated {}.", summary_parts.join(" and ")))
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let db = Database::new().expect("Failed to create database");
@@ -262,7 +369,8 @@ pub fn run() {
             get_all_audio_files_with_tags,
             get_tag_statistics,
             export_library_data,
-            import_library_data
+            import_library_data,
+            calculate_missing_durations
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

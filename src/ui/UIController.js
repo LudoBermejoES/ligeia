@@ -25,6 +25,7 @@ export class UIController {
         // Data management
         this.getElementById('exportData')?.addEventListener('click', eventHandlers.exportData);
         this.getElementById('importData')?.addEventListener('click', eventHandlers.importData);
+        this.getElementById('calculateDurations')?.addEventListener('click', eventHandlers.calculateDurations);
         
         // Global controls
         this.getElementById('stopAll')?.addEventListener('click', eventHandlers.stopAll);

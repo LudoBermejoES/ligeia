@@ -1727,4 +1727,48 @@ impl Database {
         
         Ok(())
     }
+
+    pub fn update_audio_file_duration(&self, id: i64, duration: f64) -> Result<()> {
+        self.conn.execute(
+            "UPDATE audio_files SET duration = ?1 WHERE id = ?2",
+            params![duration, id],
+        )?;
+        Ok(())
+    }
+
+    pub fn update_audio_file_bpm(&self, id: i64, bpm: u32) -> Result<()> {
+        self.conn.execute(
+            "UPDATE audio_files SET bpm = ?1 WHERE id = ?2",
+            params![bpm, id],
+        )?;
+        Ok(())
+    }
+
+    pub fn update_audio_file_duration_and_bpm(&self, id: i64, duration: Option<f64>, bpm: Option<u32>) -> Result<()> {
+        match (duration, bpm) {
+            (Some(d), Some(b)) => {
+                self.conn.execute(
+                    "UPDATE audio_files SET duration = ?1, bpm = ?2 WHERE id = ?3",
+                    params![d, b, id],
+                )?;
+            }
+            (Some(d), None) => {
+                self.conn.execute(
+                    "UPDATE audio_files SET duration = ?1 WHERE id = ?2",
+                    params![d, id],
+                )?;
+            }
+            (None, Some(b)) => {
+                self.conn.execute(
+                    "UPDATE audio_files SET bpm = ?1 WHERE id = ?2",
+                    params![b, id],
+                )?;
+            }
+            (None, None) => {
+                // Nothing to update
+                return Ok(());
+            }
+        }
+        Ok(())
+    }
 }

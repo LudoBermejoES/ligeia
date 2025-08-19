@@ -47,6 +47,7 @@ export class AmbientMixerApp {
             loadPreset: () => this.handleLoadPreset(),
             exportData: () => this.handleExportData(),
             importData: () => this.handleImportData(),
+            calculateDurations: () => this.handleCalculateDurations(),
             stopAll: () => this.handleStopAll(),
             fadeAllIn: () => this.handleFadeAllIn(),
             fadeAllOut: () => this.handleFadeAllOut(),
@@ -348,6 +349,28 @@ export class AmbientMixerApp {
         } catch (error) {
             console.error('Import setup failed:', error);
             this.uiController.showError('Failed to setup import');
+        }
+    }
+
+    async handleCalculateDurations() {
+        try {
+            // Show loading message
+            this.uiController.showSuccess('Calculating missing durations and BPM... This may take a while for large libraries.');
+            
+            // Call the backend to calculate durations and BPM
+            const resultMessage = await invoke('calculate_missing_durations');
+            
+            // Reload the library to show updated durations and BPM
+            this.audioFiles.clear();
+            this.soundPads.clear();
+            await this.loadExistingLibrary();
+            await this.tagSearchController.showAllSounds();
+            
+            // Show the result message from the backend
+            this.uiController.showSuccess(resultMessage);
+        } catch (error) {
+            console.error('Duration and BPM calculation failed:', error);
+            this.uiController.showError(`Failed to calculate durations and BPM: ${error.message}`);
         }
     }
 

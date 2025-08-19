@@ -1,5 +1,12 @@
 use id3::{Tag, TagLike};
 use crate::models::AudioFile;
+use symphonia::core::formats::FormatOptions;
+use symphonia::core::io::MediaSourceStream;
+use symphonia::core::meta::MetadataOptions;
+use symphonia::core::probe::Hint;
+use symphonia::core::audio::SampleBuffer;
+use std::fs::File;
+use aubio_rs::{Tempo, OnsetMode};
 
 pub struct AudioHandler;
 
@@ -219,5 +226,268 @@ impl AudioHandler {
             .map_err(|e| format!("Failed to write tags: {}", e))?;
         
         Ok(())
+    }
+
+    pub fn calculate_audio_duration(file_path: &str) -> Result<f64, String> {
+        // Open the media source
+        let src = File::open(file_path)
+            .map_err(|e| format!("Failed to open file: {}", e))?;
+        
+        // Create the media source stream
+        let mss = MediaSourceStream::new(Box::new(src), Default::default());
+        
+        // Create a probe hint using the file extension
+        let mut hint = Hint::new();
+        if let Some(extension) = std::path::Path::new(file_path).extension() {
+            if let Some(ext_str) = extension.to_str() {
+                hint.with_extension(ext_str);
+            }
+        }
+        
+        // Use the default options for metadata and format readers
+        let meta_opts: MetadataOptions = Default::default();
+        let fmt_opts: FormatOptions = Default::default();
+        
+        // Probe the media source
+        let probed = symphonia::default::get_probe()
+            .format(&hint, mss, &fmt_opts, &meta_opts)
+            .map_err(|e| format!("Failed to probe format: {}", e))?;
+        
+        // Get the instantiated format reader
+        let format = probed.format;
+        
+        // Find the first audio track with a known duration
+        let track = format
+            .tracks()
+            .iter()
+            .find(|t| t.codec_params.codec != symphonia::core::codecs::CODEC_TYPE_NULL)
+            .ok_or("No suitable audio track found")?;
+        
+        let track_id = track.id;
+        
+        // Calculate duration if we have the necessary information
+        if let (Some(n_frames), Some(sample_rate)) = (
+            track.codec_params.n_frames,
+            track.codec_params.sample_rate,
+        ) {
+            let duration_seconds = n_frames as f64 / sample_rate as f64;
+            Ok(duration_seconds)
+        } else {
+            // If we can't get duration from metadata, count frames
+            Self::calculate_duration_by_decoding(format, track_id)
+        }
+    }
+
+    fn calculate_duration_by_decoding(
+        mut format: Box<dyn symphonia::core::formats::FormatReader>,
+        track_id: u32,
+    ) -> Result<f64, String> {
+        // Get codec parameters
+        let track = format
+            .tracks()
+            .iter()
+            .find(|t| t.id == track_id)
+            .ok_or("Track not found")?;
+        
+        let codec_params = &track.codec_params;
+        let sample_rate = codec_params.sample_rate.ok_or("No sample rate found")?;
+        
+        // Create decoder
+        let mut decoder = symphonia::default::get_codecs()
+            .make(&codec_params, &Default::default())
+            .map_err(|e| format!("Failed to create decoder: {}", e))?;
+        
+        let mut total_frames = 0u64;
+        
+        // Decode packets and count frames
+        loop {
+            // Get the next packet from the media format
+            let packet = match format.next_packet() {
+                Ok(packet) => packet,
+                Err(symphonia::core::errors::Error::ResetRequired) => {
+                    // The track list has been changed. Re-examine it and create a new set of decoders,
+                    // then restart the decode loop. This is an advanced feature that may not be
+                    // implemented in all format readers.
+                    break;
+                }
+                Err(symphonia::core::errors::Error::IoError(e)) 
+                    if e.kind() == std::io::ErrorKind::UnexpectedEof => {
+                    // End of stream
+                    break;
+                }
+                Err(e) => return Err(format!("Decode error: {}", e)),
+            };
+            
+            // If the packet does not belong to the selected track, skip over it
+            if packet.track_id() != track_id {
+                continue;
+            }
+            
+            // Decode the packet into audio samples
+            match decoder.decode(&packet) {
+                Ok(decoded) => {
+                    // Count the frames in this packet
+                    total_frames += decoded.frames() as u64;
+                }
+                Err(symphonia::core::errors::Error::IoError(e)) 
+                    if e.kind() == std::io::ErrorKind::UnexpectedEof => {
+                    // End of stream
+                    break;
+                }
+                Err(symphonia::core::errors::Error::DecodeError(_)) => {
+                    // Decode error, skip this packet
+                    continue;
+                }
+                Err(e) => return Err(format!("Decode error: {}", e)),
+            }
+        }
+        
+        // Calculate duration from total frames and sample rate
+        let duration_seconds = total_frames as f64 / sample_rate as f64;
+        Ok(duration_seconds)
+    }
+
+    pub fn calculate_audio_bpm(file_path: &str) -> Result<f32, String> {
+        // Open the media source
+        let src = File::open(file_path)
+            .map_err(|e| format!("Failed to open file: {}", e))?;
+        
+        // Create the media source stream
+        let mss = MediaSourceStream::new(Box::new(src), Default::default());
+        
+        // Create a probe hint using the file extension
+        let mut hint = Hint::new();
+        if let Some(extension) = std::path::Path::new(file_path).extension() {
+            if let Some(ext_str) = extension.to_str() {
+                hint.with_extension(ext_str);
+            }
+        }
+        
+        // Use the default options for metadata and format readers
+        let meta_opts: MetadataOptions = Default::default();
+        let fmt_opts: FormatOptions = Default::default();
+        
+        // Probe the media source
+        let probed = symphonia::default::get_probe()
+            .format(&hint, mss, &fmt_opts, &meta_opts)
+            .map_err(|e| format!("Failed to probe format: {}", e))?;
+        
+        // Get the instantiated format reader
+        let mut format = probed.format;
+        
+        // Find the first audio track
+        let track = format
+            .tracks()
+            .iter()
+            .find(|t| t.codec_params.codec != symphonia::core::codecs::CODEC_TYPE_NULL)
+            .ok_or("No suitable audio track found")?;
+        
+        let track_id = track.id;
+        let codec_params = &track.codec_params;
+        let sample_rate = codec_params.sample_rate.ok_or("No sample rate found")?;
+        
+        // Create decoder
+        let mut decoder = symphonia::default::get_codecs()
+            .make(&codec_params, &Default::default())
+            .map_err(|e| format!("Failed to create decoder: {}", e))?;
+        
+        // Initialize aubio tempo detection
+        let mut tempo = Tempo::new(OnsetMode::Energy, 1024, 512, sample_rate)
+            .map_err(|e| format!("Failed to create tempo detector: {:?}", e))?;
+        
+        // Get channels
+        let channels = codec_params.channels.unwrap_or(symphonia::core::audio::Channels::FRONT_LEFT | symphonia::core::audio::Channels::FRONT_RIGHT);
+        
+        // Create signal spec for sample buffer using simple constructor
+        let spec = symphonia::core::audio::SignalSpec::new(sample_rate, channels);
+        
+        // Sample buffer for f32 samples
+        let mut sample_buf = SampleBuffer::<f32>::new(
+            codec_params.n_frames.unwrap_or(1024) as u64,
+            spec
+        );
+        
+        let mut total_samples_processed = 0;
+        let max_samples = sample_rate * 60; // Process up to 60 seconds for BPM detection
+        
+        // Process packets for BPM detection
+        loop {
+            if total_samples_processed >= max_samples {
+                break; // Process enough audio for reliable BPM detection
+            }
+            
+            // Get the next packet from the media format
+            let packet = match format.next_packet() {
+                Ok(packet) => packet,
+                Err(symphonia::core::errors::Error::ResetRequired) => break,
+                Err(symphonia::core::errors::Error::IoError(e)) 
+                    if e.kind() == std::io::ErrorKind::UnexpectedEof => break,
+                Err(_) => continue,
+            };
+            
+            // If the packet does not belong to the selected track, skip over it
+            if packet.track_id() != track_id {
+                continue;
+            }
+            
+            // Decode the packet into audio samples
+            match decoder.decode(&packet) {
+                Ok(decoded) => {
+                    // Store frame count before moving decoded
+                    let frames = decoded.frames();
+                    
+                    // Convert to f32 samples
+                    sample_buf.copy_interleaved_ref(decoded);
+                    let samples = sample_buf.samples();
+                    
+                    // Process samples in chunks suitable for aubio (hop size = 512)
+                    for chunk in samples.chunks(512) {
+                        if chunk.len() == 512 {
+                            tempo.do_result(chunk)
+                                .map_err(|e| format!("Failed to process tempo: {:?}", e))?;
+                        }
+                    }
+                    
+                    total_samples_processed += frames as u32;
+                }
+                Err(symphonia::core::errors::Error::IoError(e)) 
+                    if e.kind() == std::io::ErrorKind::UnexpectedEof => break,
+                Err(symphonia::core::errors::Error::DecodeError(_)) => continue,
+                Err(_) => continue,
+            }
+        }
+        
+        // Get the detected BPM
+        let bpm = tempo.get_bpm();
+        
+        if bpm > 0.0 && bpm < 300.0 { // Reasonable BPM range
+            Ok(bpm)
+        } else {
+            Err("Could not detect valid BPM".to_string())
+        }
+    }
+
+    pub fn calculate_duration_and_bpm(file_path: &str) -> Result<(Option<f64>, Option<f32>), String> {
+        let duration = match Self::calculate_audio_duration(file_path) {
+            Ok(d) => Some(d),
+            Err(e) => {
+                eprintln!("Failed to calculate duration for {}: {}", file_path, e);
+                None
+            }
+        };
+        
+        let bpm = match Self::calculate_audio_bpm(file_path) {
+            Ok(b) => Some(b),
+            Err(e) => {
+                eprintln!("Failed to calculate BPM for {}: {}", file_path, e);
+                None
+            }
+        };
+        
+        if duration.is_none() && bpm.is_none() {
+            Err("Failed to calculate both duration and BPM".to_string())
+        } else {
+            Ok((duration, bpm))
+        }
     }
 }
