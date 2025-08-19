@@ -46,8 +46,7 @@ export class AmbientMixerApp {
             fadeAllIn: () => this.handleFadeAllIn(),
             fadeAllOut: () => this.handleFadeAllOut(),
             setMasterVolume: (volume) => this.handleSetMasterVolume(volume),
-            toggleMasterMute: () => this.handleToggleMasterMute(),
-            setCategory: (category) => this.handleSetCategory(category)
+            toggleMasterMute: () => this.handleToggleMasterMute()
         };
     }
 
@@ -102,6 +101,9 @@ export class AmbientMixerApp {
             // Load existing audio library
             await this.loadExistingLibrary();
 
+            // Initialize tag search to show all files
+            await this.tagSearchController.showAllSounds();
+
             console.log('Ambient Mixer initialized successfully');
             return true;
         } catch (error) {
@@ -115,11 +117,11 @@ export class AmbientMixerApp {
         try {
             const audioFiles = await this.databaseService.getAllAudioFiles();
             for (const audioFile of audioFiles) {
-                audioFile.category = this.databaseService.categorizeAudioFile(audioFile);
                 this.audioFiles.set(audioFile.file_path, audioFile);
                 this.createSoundPad(audioFile);
             }
-            this.updateUI();
+            // Update only library stats, not the full UI (tag search will handle sound pad rendering)
+            this.uiController.updateLibraryStats(this.audioFiles.size);
         } catch (error) {
             console.error('Error loading existing library:', error);
         }
@@ -183,11 +185,16 @@ export class AmbientMixerApp {
             processedCount += batch.length;
             console.log(`Processed ${processedCount}/${filePaths.length} files`);
             
-            // Update UI periodically during loading
-            this.updateUI();
+            // Update library stats periodically during loading
+            this.uiController.updateLibraryStats(this.audioFiles.size);
         }
         
         console.log(`Finished processing all ${filePaths.length} audio files`);
+        
+        // Refresh the search results to include new files
+        if (this.tagSearchController) {
+            await this.tagSearchController.showAllSounds();
+        }
     }
 
     async processAudioFile(filePath) {
@@ -204,9 +211,6 @@ export class AmbientMixerApp {
             // Save to database
             const id = await this.databaseService.saveAudioFile(audioFile);
             audioFile.id = id;
-            
-            // Categorize
-            audioFile.category = this.databaseService.categorizeAudioFile(audioFile);
             
             // Add to collection
             this.audioFiles.set(filePath, audioFile);
@@ -225,8 +229,7 @@ export class AmbientMixerApp {
                 duration: null,
                 genre: null,
                 year: null,
-                track_number: null,
-                category: 'effects'
+                track_number: null
             };
             
             try {
@@ -300,10 +303,6 @@ export class AmbientMixerApp {
         this.uiController.updateMasterMuteButton(isMuted);
     }
 
-    handleSetCategory(category) {
-        this.uiController.updateCategoryFilter(category);
-        this.updateUI();
-    }
 
     async handlePadToggle(pad, element, padElement) {
         const filePath = pad.audioFile.file_path;
@@ -409,6 +408,9 @@ export class AmbientMixerApp {
             return;
         }
         
+        // Update the track info in the modal header
+        this.updateEditingTrackInfo(audioFile);
+        
         // Populate the form with current values
         this.populateTagForm(audioFile);
         
@@ -416,6 +418,35 @@ export class AmbientMixerApp {
         const modal = document.getElementById('tagEditorModal');
         if (modal) {
             modal.style.display = 'flex';
+        }
+    }
+    
+    updateEditingTrackInfo(audioFile) {
+        const trackNameElement = document.getElementById('editingTrackName');
+        const trackPathElement = document.getElementById('editingTrackPath');
+        
+        if (trackNameElement) {
+            // Use title if available, otherwise extract just the filename from path
+            let displayName;
+            if (audioFile.title && audioFile.title.trim() !== '') {
+                displayName = audioFile.title;
+            } else {
+                // Extract filename only (without extension)
+                const fullPath = audioFile.file_path;
+                const filename = fullPath.split(/[/\\]/).pop(); // Get last part after / or \
+                displayName = filename ? filename.replace(/\.[^/.]+$/, '') : 'Unknown Track'; // Remove extension
+            }
+            trackNameElement.textContent = displayName;
+        }
+        
+        if (trackPathElement) {
+            // Show the file path (shortened if too long)
+            const path = audioFile.file_path;
+            const maxLength = 80;
+            const displayPath = path.length > maxLength ? 
+                '...' + path.substring(path.length - maxLength + 3) : 
+                path;
+            trackPathElement.textContent = displayPath;
         }
     }
     
@@ -511,6 +542,13 @@ export class AmbientMixerApp {
         
         // Clear form
         document.getElementById('tagEditorForm')?.reset();
+        
+        // Clear track info
+        const trackNameElement = document.getElementById('editingTrackName');
+        const trackPathElement = document.getElementById('editingTrackPath');
+        if (trackNameElement) trackNameElement.textContent = 'Unknown Track';
+        if (trackPathElement) trackPathElement.textContent = '';
+        
         this.currentEditingFile = null;
     }
     
@@ -547,7 +585,7 @@ export class AmbientMixerApp {
             }
         });
         
-        // Update the UI with filtered results
+        // Update the UI with filtered results (even if empty)
         this.uiController.renderSoundPadsGrid(filteredAudioFiles, this.soundPads);
         
         // Update mixer info with filtered count

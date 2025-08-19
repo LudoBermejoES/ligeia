@@ -40,25 +40,4 @@ export class DatabaseService {
         }
     }
 
-    categorizeAudioFile(audioFile) {
-        const title = (audioFile.title || '').toLowerCase();
-        const filename = audioFile.file_path?.toLowerCase() || '';
-        
-        const categories = {
-            nature: ['rain', 'wind', 'forest', 'ocean', 'storm', 'bird', 'water', 'stream'],
-            ambient: ['ambient', 'drone', 'pad', 'texture', 'atmosphere'],
-            music: ['music', 'song', 'melody', 'harmony', 'chord'],
-            effects: ['effect', 'fx', 'sound', 'noise', 'click', 'boom']
-        };
-
-        for (const [category, keywords] of Object.entries(categories)) {
-            if (keywords.some(keyword => 
-                title.includes(keyword) || filename.includes(keyword)
-            )) {
-                return category;
-            }
-        }
-
-        return 'effects';
-    }
 }

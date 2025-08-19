@@ -4,7 +4,6 @@
 export class UIController {
     constructor(templateService = null) {
         this.templateService = templateService;
-        this.currentCategory = 'all';
         this.sortable = null;
         this.cardOrder = new Map(); // Track custom ordering
         this.isDragging = false; // Flag to prevent re-rendering during drag
@@ -39,11 +38,6 @@ export class UIController {
         
         // Master mute
         this.getElementById('masterMute')?.addEventListener('click', eventHandlers.toggleMasterMute);
-        
-        // Category filters
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => eventHandlers.setCategory(e.target.dataset.category));
-        });
     }
 
     getElementById(id) {
@@ -82,13 +76,6 @@ export class UIController {
         }
     }
 
-    updateCategoryFilter(category) {
-        this.currentCategory = category;
-        
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.category === category);
-        });
-    }
 
     updateMixerInfo(playingCount) {
         const infoElement = document.querySelector('.mixer-info');
@@ -107,12 +94,10 @@ export class UIController {
             return;
         }
 
-        const filteredFiles = Array.from(audioFiles.values()).filter(audioFile => 
-            this.currentCategory === 'all' || audioFile.category === this.currentCategory
-        );
+        const allFiles = Array.from(audioFiles.values());
 
         // Sort by custom order if available, otherwise by default order
-        const sortedFiles = this.applySavedOrder(filteredFiles);
+        const sortedFiles = this.applySavedOrder(allFiles);
 
         container.innerHTML = sortedFiles.map(audioFile => 
             this.renderSoundPad(audioFile, soundPads.get(audioFile.file_path))
@@ -139,7 +124,6 @@ export class UIController {
             filePath: audioFile.file_path,
             title: title,
             artist: artist,
-            category: audioFile.category,
             isPlaying: isPlaying,
             isActive: isPlaying,
             isMuted: isMuted,
@@ -161,7 +145,6 @@ export class UIController {
                         <div class="sound-pad-title">${this.escapeHtml(title)}</div>
                         <div class="sound-pad-meta">
                             <span class="sound-pad-artist">${this.escapeHtml(artist)}</span>
-                            <span class="sound-pad-category">${audioFile.category}</span>
                             <button class="edit-tags-btn" data-action="edit-tags" title="Edit Tags">
                                 ✏️
                             </button>
@@ -191,6 +174,12 @@ export class UIController {
                         <span class="volume-display-pad">${Math.round(volume * 100)}%</span>
                     </div>
                 </div>
+                
+                ${templateData.rpgTags && templateData.rpgTags.length > 0 ? `
+                <div class="sound-pad-tags">
+                    ${templateData.rpgTags.map(tag => `<span class="tag-chip tag-${tag.tagType}">${this.escapeHtml(tag.tagValue)}</span>`).join('')}
+                </div>
+                ` : ''}
             </div>
         `;
     }
@@ -466,10 +455,10 @@ export class UIController {
     }
 
     applySavedOrder(audioFiles) {
-        const orderKey = `card-order-${this.currentCategory}`;
+        const orderKey = 'card-order-all';
         const savedOrder = localStorage.getItem(orderKey);
         
-        console.log('Applying saved order for category:', this.currentCategory);
+        console.log('Applying saved order');
         console.log('Saved order:', savedOrder);
         
         if (!savedOrder) {
@@ -499,22 +488,22 @@ export class UIController {
         const soundPads = container.querySelectorAll('.sound-pad');
         const order = Array.from(soundPads).map(pad => pad.dataset.filePath);
         
-        const orderKey = `card-order-${this.currentCategory}`;
+        const orderKey = 'card-order-all';
         console.log('Saving order:', order);
         console.log('Order key:', orderKey);
         
         try {
             localStorage.setItem(orderKey, JSON.stringify(order));
-            console.log(`Saved card order for category: ${this.currentCategory}`, order);
+            console.log('Saved card order:', order);
         } catch (error) {
             console.error('Error saving card order:', error);
         }
     }
 
-    // Method to reset card order for current category
+    // Method to reset card order
     resetCardOrder() {
-        const orderKey = `card-order-${this.currentCategory}`;
+        const orderKey = 'card-order-all';
         localStorage.removeItem(orderKey);
-        console.log(`Reset card order for category: ${this.currentCategory}`);
+        console.log('Reset card order');
     }
 }

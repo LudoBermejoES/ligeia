@@ -269,25 +269,6 @@ body {
     margin-bottom: 1rem;
 }
 
-.category-btn {
-    padding: 0.4rem 0.8rem;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    background: transparent;
-    color: #fff;
-    border-radius: 15px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.category-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.category-btn.active {
-    background: #4CAF50;
-    border-color: #4CAF50;
-}
 
 /* Mixer Area */
 .mixer-area {
@@ -476,18 +457,6 @@ body {
     white-space: nowrap;
     flex: 1;
     min-width: 0;
-}
-
-.sound-pad-category {
-    font-size: 0.6rem;
-    color: rgba(255, 255, 255, 0.5);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 0.15rem 0.4rem;
-    border-radius: 8px;
-    margin-right: 0.25rem;
-    flex-shrink: 0;
 }
 
 .sound-pad-status {
@@ -849,6 +818,31 @@ body {
 
 .modal-close:hover {
     background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-title-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.editing-track-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.track-name {
+    color: #4CAF50;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.track-path {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    font-family: monospace;
+    word-break: break-all;
 }
 
 .modal-body {

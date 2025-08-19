@@ -38,13 +38,8 @@
                     <span id="fileCount">0 sounds loaded</span>
                 </div>
                 
-                <div class="category-filters">
-                    <button class="category-btn active" data-category="all">All</button>
-                    <button class="category-btn" data-category="nature">Nature</button>
-                    <button class="category-btn" data-category="ambient">Ambient</button>
-                    <button class="category-btn" data-category="music">Music</button>
-                    <button class="category-btn" data-category="effects">Effects</button>
-                </div>
+                <!-- RPG Tag Search Interface will be populated here -->
+                <div id="tagSearchContainer"></div>
                 
                 <div class="library-list" id="libraryList">
                     <!-- Library items will be populated here -->
@@ -92,7 +87,13 @@
     <div id="tagEditorModal" class="modal-overlay" style="display: none;">
         <div class="modal-container">
             <div class="modal-header">
-                <h2>Edit Audio Tags</h2>
+                <div class="modal-title-section">
+                    <h2>Edit Audio Tags</h2>
+                    <div class="editing-track-info">
+                        <span class="track-name" id="editingTrackName">Unknown Track</span>
+                        <span class="track-path" id="editingTrackPath"></span>
+                    </div>
+                </div>
                 <button class="modal-close" id="closeTagEditor">×</button>
             </div>
             <div class="modal-body">

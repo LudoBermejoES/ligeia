@@ -29,17 +29,30 @@ export class TagSearchController {
             searchContainer.id = 'tagSearchContainer';
             searchContainer.className = 'tag-search-container';
             
-            // Insert after category filters
-            const categoryFilters = document.querySelector('.category-filters');
-            if (categoryFilters) {
-                categoryFilters.insertAdjacentElement('afterend', searchContainer);
+            // Insert into sidebar
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                const existingContainer = sidebar.querySelector('#tagSearchContainer');
+                if (existingContainer) {
+                    existingContainer.remove();
+                }
+                // Insert after library stats
+                const libraryStats = sidebar.querySelector('.library-stats');
+                if (libraryStats) {
+                    libraryStats.insertAdjacentElement('afterend', searchContainer);
+                } else {
+                    sidebar.appendChild(searchContainer);
+                }
             }
         }
 
         searchContainer.innerHTML = `
             <div class="tag-search-header">
                 <h4>🏷️ RPG Tag Filters</h4>
-                <button id="clearTagFilters" class="btn btn-sm btn-secondary">Clear All</button>
+                <div class="search-actions">
+                    <button id="showAllSounds" class="btn btn-sm btn-primary">Show All</button>
+                    <button id="clearTagFilters" class="btn btn-sm btn-secondary">Clear Filters</button>
+                </div>
             </div>
             
             <div class="search-mode-toggle">
@@ -82,6 +95,11 @@ export class TagSearchController {
     }
 
     setupEventListeners() {
+        // Show all button
+        document.getElementById('showAllSounds')?.addEventListener('click', () => {
+            this.showAllSounds();
+        });
+
         // Clear filters button
         document.getElementById('clearTagFilters')?.addEventListener('click', () => {
             this.clearAllFilters();
@@ -174,6 +192,12 @@ export class TagSearchController {
                     this.matchAll
                 );
             }
+            
+            console.log(`Search completed: ${results.length} files found with filters:`, {
+                activeTagTypes,
+                activeTagValues,
+                matchAll: this.matchAll
+            });
 
             // Update results count
             this.updateResultsCount(results.length);
@@ -189,6 +213,23 @@ export class TagSearchController {
         }
     }
 
+    async showAllSounds() {
+        // Clear all filters and show all sounds
+        this.clearAllFilters();
+        
+        // Get all files and pass them to show everything
+        try {
+            const allFiles = await this.tagService.getAllAudioFilesWithTags();
+            if (this.onSearchResults) {
+                this.onSearchResults(allFiles);
+            }
+            this.updateResultsCount(allFiles.length);
+        } catch (error) {
+            console.error('Error getting all files:', error);
+            this.updateResultsCount(0);
+        }
+    }
+
     clearAllFilters() {
         // Clear all filter sets
         Object.values(this.currentFilters).forEach(filterSet => {
@@ -200,8 +241,8 @@ export class TagSearchController {
             chip.classList.remove('active');
         });
 
-        // Perform search to show all files
-        this.performSearch();
+        // Update results count
+        this.updateResultsCount(0);
     }
 
     updateResultsCount(count) {
