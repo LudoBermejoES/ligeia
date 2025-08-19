@@ -26,6 +26,7 @@
                 <button id="loadDirectory" class="btn btn-secondary">📁 Load Directory (Recursive)</button>
                 <button id="savePreset" class="btn btn-success">💾 Save Preset</button>
                 <button id="loadPreset" class="btn btn-info">📂 Load Preset</button>
+                <button id="bulkTagEditor" class="btn btn-warning">🏷️ Bulk Tag Editor</button>
                 <button id="stopAll" class="btn btn-danger">⏹️ Stop All</button>
             </div>
         </header>
@@ -212,6 +213,75 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="cancelTagEdit">Cancel</button>
                 <button type="button" class="btn btn-primary" id="saveTagEdit">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Tag Editor Modal -->
+    <div id="bulkTagEditorModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container bulk-tag-modal">
+            <div class="modal-header">
+                <h2>Bulk Tag Editor</h2>
+                <button class="modal-close" id="closeBulkTagEditor">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="bulk-tag-content">
+                    <!-- File Selection Panel -->
+                    <div class="file-selection-panel">
+                        <h3>Select Audio Files</h3>
+                        <div class="selection-controls">
+                            <button id="selectAllFiles" class="btn btn-sm btn-secondary">Select All</button>
+                            <button id="clearSelection" class="btn btn-sm btn-secondary">Clear Selection</button>
+                            <span class="selection-count">0 files selected</span>
+                        </div>
+                        <div class="file-list-container">
+                            <div id="bulkTagFileList" class="file-list">
+                                <!-- File list will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tag Editor Panel -->
+                    <div class="tag-editor-panel">
+                        <h3>RPG Audio Tags</h3>
+                        
+                        <!-- Genre Tags -->
+                        <div class="tag-category">
+                            <h4>Genre</h4>
+                            <div class="tag-vocabulary" id="genreVocabulary">
+                                <!-- Genre tags will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Mood Tags -->
+                        <div class="tag-category">
+                            <h4>Mood</h4>
+                            <div class="tag-vocabulary" id="moodVocabulary">
+                                <!-- Mood tags will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Occasion Tags -->
+                        <div class="tag-category">
+                            <h4>Occasion</h4>
+                            <div class="tag-vocabulary" id="occasionVocabulary">
+                                <!-- Occasion tags will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Keyword Tags -->
+                        <div class="tag-category">
+                            <h4>Keywords</h4>
+                            <div class="tag-vocabulary" id="keywordVocabulary">
+                                <!-- Keyword tags will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelBulkTagEdit">Cancel</button>
+                <button type="button" class="btn btn-primary" id="applyBulkTags">Apply Tags</button>
             </div>
         </div>
     </div>

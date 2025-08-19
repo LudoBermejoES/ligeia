@@ -1,0 +1,223 @@
+use id3::{Tag, TagLike};
+use crate::models::AudioFile;
+
+pub struct AudioHandler;
+
+impl AudioHandler {
+    pub fn load_audio_file_metadata(file_path: &str) -> Result<AudioFile, String> {
+        let mut audio_file = AudioFile {
+            id: None,
+            file_path: file_path.to_string(),
+            // Initialize all fields as None
+            title: None,
+            artist: None,
+            album: None,
+            album_artist: None,
+            genre: None,
+            year: None,
+            date: None,
+            track_number: None,
+            total_tracks: None,
+            disc_number: None,
+            total_discs: None,
+            duration: None,
+            composer: None,
+            conductor: None,
+            lyricist: None,
+            original_artist: None,
+            remixer: None,
+            arranger: None,
+            engineer: None,
+            producer: None,
+            dj_mixer: None,
+            mixer: None,
+            content_group: None,
+            subtitle: None,
+            initial_key: None,
+            bpm: None,
+            language: None,
+            media_type: None,
+            original_filename: None,
+            original_lyricist: None,
+            original_release_time: None,
+            playlist_delay: None,
+            recording_time: None,
+            release_time: None,
+            tagging_time: None,
+            encoding_time: None,
+            encoding_settings: None,
+            encoded_by: None,
+            copyright: None,
+            file_owner: None,
+            internet_radio_station_name: None,
+            internet_radio_station_owner: None,
+            isrc: None,
+            publisher: None,
+            mood: None,
+            occasion: None,
+            tempo: None,
+            content_type: None,
+            category: None,
+        };
+
+        if let Ok(tag) = Tag::read_from_path(file_path) {
+            // Basic tags
+            audio_file.title = tag.title().map(|s| s.to_string());
+            audio_file.artist = tag.artist().map(|s| s.to_string());
+            audio_file.album = tag.album().map(|s| s.to_string());
+            audio_file.album_artist = tag.album_artist().map(|s| s.to_string());
+            audio_file.genre = tag.genre().map(|s| s.to_string());
+            audio_file.year = tag.year().map(|y| y as i32);
+            audio_file.date = tag.date_recorded().map(|d| d.to_string());
+            audio_file.track_number = tag.track();
+            audio_file.total_tracks = tag.total_tracks();
+            audio_file.disc_number = tag.disc();
+            audio_file.total_discs = tag.total_discs();
+            
+            // Duration from file analysis (not from tag)  
+            audio_file.duration = tag.duration().map(|d| d as f64);
+            
+            // Extended tags
+            for frame in tag.frames() {
+                match frame.id() {
+                    "TCOM" => audio_file.composer = frame.content().text().map(|s| s.to_string()),
+                    "TPE3" => audio_file.conductor = frame.content().text().map(|s| s.to_string()),
+                    "TEXT" => audio_file.lyricist = frame.content().text().map(|s| s.to_string()),
+                    "TOPE" => audio_file.original_artist = frame.content().text().map(|s| s.to_string()),
+                    "TPE4" => audio_file.remixer = frame.content().text().map(|s| s.to_string()),
+                    "TIPL" => {
+                        // Involved people list - could contain arranger, engineer, producer, etc.
+                        if let Some(text) = frame.content().text() {
+                            if text.to_lowercase().contains("arranger") {
+                                audio_file.arranger = Some(text.to_string());
+                            } else if text.to_lowercase().contains("engineer") {
+                                audio_file.engineer = Some(text.to_string());
+                            } else if text.to_lowercase().contains("producer") {
+                                audio_file.producer = Some(text.to_string());
+                            } else if text.to_lowercase().contains("dj") {
+                                audio_file.dj_mixer = Some(text.to_string());
+                            } else if text.to_lowercase().contains("mix") {
+                                audio_file.mixer = Some(text.to_string());
+                            }
+                        }
+                    },
+                    "TIT1" => audio_file.content_group = frame.content().text().map(|s| s.to_string()),
+                    "TIT3" => audio_file.subtitle = frame.content().text().map(|s| s.to_string()),
+                    "TKEY" => audio_file.initial_key = frame.content().text().map(|s| s.to_string()),
+                    "TBPM" => audio_file.bpm = frame.content().text().and_then(|s| s.parse().ok()),
+                    "TLAN" => audio_file.language = frame.content().text().map(|s| s.to_string()),
+                    "TMED" => audio_file.media_type = frame.content().text().map(|s| s.to_string()),
+                    "TOFN" => audio_file.original_filename = frame.content().text().map(|s| s.to_string()),
+                    "TOLY" => audio_file.original_lyricist = frame.content().text().map(|s| s.to_string()),
+                    "TORY" => audio_file.original_release_time = frame.content().text().map(|s| s.to_string()),
+                    "TDLY" => audio_file.playlist_delay = frame.content().text().and_then(|s| s.parse().ok()),
+                    "TDRC" => audio_file.recording_time = frame.content().text().map(|s| s.to_string()),
+                    "TDRL" => audio_file.release_time = frame.content().text().map(|s| s.to_string()),
+                    "TDTG" => audio_file.tagging_time = frame.content().text().map(|s| s.to_string()),
+                    "TDEN" => audio_file.encoding_time = frame.content().text().map(|s| s.to_string()),
+                    "TSSE" => audio_file.encoding_settings = frame.content().text().map(|s| s.to_string()),
+                    "TENC" => audio_file.encoded_by = frame.content().text().map(|s| s.to_string()),
+                    "TCOP" => audio_file.copyright = frame.content().text().map(|s| s.to_string()),
+                    "TOWN" => audio_file.file_owner = frame.content().text().map(|s| s.to_string()),
+                    "TRSN" => audio_file.internet_radio_station_name = frame.content().text().map(|s| s.to_string()),
+                    "TRSO" => audio_file.internet_radio_station_owner = frame.content().text().map(|s| s.to_string()),
+                    "TSRC" => audio_file.isrc = frame.content().text().map(|s| s.to_string()),
+                    "TPUB" => audio_file.publisher = frame.content().text().map(|s| s.to_string()),
+                    "TMOO" => audio_file.mood = frame.content().text().map(|s| s.to_string()),
+                    _ => {} // Ignore unknown frames
+                }
+            }
+        }
+
+        Ok(audio_file)
+    }
+
+    pub fn update_audio_file_tags(file_path: &str, updates: &AudioFile) -> Result<(), String> {
+        let mut tag = Tag::read_from_path(file_path).unwrap_or_else(|_| Tag::new());
+        
+        // Update basic tags
+        if let Some(title) = &updates.title {
+            tag.set_title(title);
+        }
+        if let Some(artist) = &updates.artist {
+            tag.set_artist(artist);
+        }
+        if let Some(album) = &updates.album {
+            tag.set_album(album);
+        }
+        if let Some(album_artist) = &updates.album_artist {
+            tag.set_album_artist(album_artist);
+        }
+        if let Some(genre) = &updates.genre {
+            tag.set_genre(genre);
+        }
+        if let Some(year) = updates.year {
+            tag.set_year(year);
+        }
+        if let Some(track) = updates.track_number {
+            tag.set_track(track);
+        }
+        if let Some(total_tracks) = updates.total_tracks {
+            tag.set_total_tracks(total_tracks);
+        }
+        if let Some(disc) = updates.disc_number {
+            tag.set_disc(disc);
+        }
+        if let Some(total_discs) = updates.total_discs {
+            tag.set_total_discs(total_discs);
+        }
+        
+        // Update extended tags using frame manipulation
+        if let Some(composer) = &updates.composer {
+            tag.set_text("TCOM", composer);
+        }
+        if let Some(conductor) = &updates.conductor {
+            tag.set_text("TPE3", conductor);
+        }
+        if let Some(lyricist) = &updates.lyricist {
+            tag.set_text("TEXT", lyricist);
+        }
+        if let Some(original_artist) = &updates.original_artist {
+            tag.set_text("TOPE", original_artist);
+        }
+        if let Some(remixer) = &updates.remixer {
+            tag.set_text("TPE4", remixer);
+        }
+        if let Some(content_group) = &updates.content_group {
+            tag.set_text("TIT1", content_group);
+        }
+        if let Some(subtitle) = &updates.subtitle {
+            tag.set_text("TIT3", subtitle);
+        }
+        if let Some(initial_key) = &updates.initial_key {
+            tag.set_text("TKEY", initial_key);
+        }
+        if let Some(bpm) = updates.bpm {
+            tag.set_text("TBPM", &bpm.to_string());
+        }
+        if let Some(language) = &updates.language {
+            tag.set_text("TLAN", language);
+        }
+        if let Some(media_type) = &updates.media_type {
+            tag.set_text("TMED", media_type);
+        }
+        if let Some(copyright) = &updates.copyright {
+            tag.set_text("TCOP", copyright);
+        }
+        if let Some(encoded_by) = &updates.encoded_by {
+            tag.set_text("TENC", encoded_by);
+        }
+        if let Some(publisher) = &updates.publisher {
+            tag.set_text("TPUB", publisher);
+        }
+        if let Some(mood) = &updates.mood {
+            tag.set_text("TMOO", mood);
+        }
+        
+        // Write the updated tag back to the file
+        tag.write_to_path(file_path, id3::Version::Id3v24)
+            .map_err(|e| format!("Failed to write tags: {}", e))?;
+        
+        Ok(())
+    }
+}

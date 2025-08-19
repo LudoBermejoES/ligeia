@@ -1,9 +1,12 @@
 import { AudioService } from './services/AudioService.js';
 import { FileService } from './services/FileService.js';
 import { DatabaseService } from './services/DatabaseService.js';
+import { TagService } from './services/TagService.js';
 import { SoundPad } from './models/SoundPad.js';
 import { PresetManager } from './models/PresetManager.js';
 import { UIController } from './ui/UIController.js';
+import { BulkTagEditorController } from './ui/BulkTagEditorController.js';
+import { TagSearchController } from './ui/TagSearchController.js';
 
 /**
  * AmbientMixerApp - Main application controller
@@ -15,12 +18,16 @@ export class AmbientMixerApp {
         this.audioService = new AudioService();
         this.fileService = new FileService();
         this.databaseService = new DatabaseService();
+        this.tagService = new TagService();
         
         // Models
         this.presetManager = new PresetManager();
         
         // UI
         this.uiController = new UIController();
+        this.bulkTagEditorController = null; // Will be initialized after tagService
+        this.tagSearchController = null; // Will be initialized after tagService
+        this.templateService = null; // Will be injected by main-template.js
         
         // State
         this.audioFiles = new Map();
@@ -51,6 +58,30 @@ export class AmbientMixerApp {
             if (!audioInitialized) {
                 throw new Error('Failed to initialize audio service');
             }
+
+            // Initialize tag service
+            const tagInitialized = await this.tagService.initialize();
+            if (!tagInitialized) {
+                console.warn('Failed to initialize tag service - bulk tagging will be disabled');
+            }
+
+            // Set template service in UI controller if available
+            if (this.templateService) {
+                this.uiController.setTemplateService(this.templateService);
+                console.log('Template service integrated with UI controller');
+            }
+
+            // Initialize bulk tag editor controller after tag service
+            this.bulkTagEditorController = new BulkTagEditorController(this.tagService);
+
+            // Initialize tag search controller
+            this.tagSearchController = new TagSearchController(
+                this.tagService,
+                (searchResults) => this.handleSearchResults(searchResults)
+            );
+
+            // Load tag filters
+            await this.tagSearchController.loadTagFilters();
 
             // Load presets from storage
             this.presetManager.loadFromStorage();
@@ -503,11 +534,35 @@ export class AmbientMixerApp {
         };
     }
 
+    handleSearchResults(searchResults) {
+        console.log(`Search returned ${searchResults.length} results`);
+        
+        // Create a filtered map of audio files based on search results
+        const filteredAudioFiles = new Map();
+        
+        searchResults.forEach(result => {
+            const audioFile = result.audio_file;
+            if (audioFile && audioFile.file_path) {
+                filteredAudioFiles.set(audioFile.file_path, audioFile);
+            }
+        });
+        
+        // Update the UI with filtered results
+        this.uiController.renderSoundPadsGrid(filteredAudioFiles, this.soundPads);
+        
+        // Update mixer info with filtered count
+        const playingCount = Array.from(this.soundPads.values())
+            .filter(pad => pad.isPlaying && filteredAudioFiles.has(pad.audioFile.file_path))
+            .length;
+        this.uiController.updateMixerInfo(playingCount);
+    }
+
     getServices() {
         return {
             audio: this.audioService,
             file: this.fileService,
-            database: this.databaseService
+            database: this.databaseService,
+            tag: this.tagService
         };
     }
 }

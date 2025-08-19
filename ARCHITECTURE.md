@@ -32,12 +32,26 @@ src/
 ├── services/
 │   ├── AudioService.js         # Web Audio API management
 │   ├── FileService.js          # File operations & Tauri integration
-│   └── DatabaseService.js      # Database operations
+│   ├── DatabaseService.js      # Database operations
+│   └── TagService.js           # RPG tag management & vocabulary
 ├── models/
 │   ├── SoundPad.js            # Sound pad entity
 │   └── PresetManager.js       # Preset management
 └── ui/
-    └── UIController.js        # DOM manipulation & UI updates
+    ├── UIController.js         # DOM manipulation & UI updates
+    ├── BulkTagEditorController.js # Bulk tagging interface
+    └── TagSearchController.js  # Tag-based search & filtering
+```
+
+**Rust Backend (src-tauri/src/):**
+```
+src-tauri/src/
+├── main.rs                    # Main entry point & Tauri commands
+├── models.rs                  # Data structures (AudioFile, RpgTag, etc.)
+├── database.rs                # Database operations & schema
+├── audio_handler.rs           # Audio metadata processing
+├── tag_manager.rs             # RPG tag management logic
+└── file_scanner.rs            # Recursive directory scanning
 ```
 
 ## Components Description
@@ -75,6 +89,15 @@ src/
   - Audio file categorization
   - Database error handling
 
+### 🏷️ **TagService** (Service Layer)
+- **Purpose**: Manages RPG audio tag operations and vocabulary
+- **Responsibilities**:
+  - Load and manage tag vocabulary (Genre, Mood, Occasion, Keywords)
+  - Add/remove RPG tags from audio files
+  - Bulk tag operations for multiple files
+  - Tag-based search and filtering
+  - Tag validation against controlled vocabulary
+
 ### 🎵 **SoundPad** (Model)
 - **Purpose**: Represents an individual sound pad
 - **Responsibilities**:
@@ -99,32 +122,107 @@ src/
   - Manage category filtering
   - Display error/success messages
 
+### 🏷️ **BulkTagEditorController** (View Layer)
+- **Purpose**: Manages the bulk tag editor modal interface
+- **Responsibilities**:
+  - Handle file selection for bulk operations
+  - Display tag vocabulary with interactive chips
+  - Manage tag selection and application
+  - Coordinate with TagService for bulk operations
+
+### 🔍 **TagSearchController** (View Layer)
+- **Purpose**: Handles tag-based search and filtering interface
+- **Responsibilities**:
+  - Render tag filter interface in sidebar
+  - Handle tag selection for filtering
+  - Manage AND/OR search logic
+  - Update search results and counts
+  - Coordinate with TagService for search operations
+
+## Rust Backend Architecture
+
+### 🦀 **Modular Rust Backend**
+The Rust backend has been refactored into a modular architecture:
+
+#### **models.rs**
+- Defines core data structures: `AudioFile`, `RpgTag`, `TagVocabulary`
+- Handles serialization/deserialization for Tauri communication
+- Provides data validation and type safety
+
+#### **database.rs** 
+- Manages SQLite database operations
+- Implements comprehensive schema with indexes
+- Handles CRUD operations for audio files and RPG tags
+- Manages tag vocabulary and controlled vocabularies
+
+#### **audio_handler.rs**
+- Processes audio file metadata using ID3 tags
+- Handles all ID3v2.4 tag reading and writing
+- Manages audio file format detection
+
+#### **tag_manager.rs**
+- Implements RPG tag business logic
+- Manages tag validation against vocabulary
+- Handles bulk tag operations
+- Provides tag statistics and search functionality
+
+#### **file_scanner.rs**
+- Implements recursive directory scanning
+- Handles audio file detection by extension
+- Optimized for performance with large directories
+
+## Key Features & Capabilities
+
+### 🏷️ **RPG Audio Tagging System**
+- **Controlled Vocabulary**: Pre-defined tags for Genre, Mood, Occasion, and Keywords
+- **Bulk Tagging**: Apply multiple tags to multiple files simultaneously
+- **Tag Search & Filtering**: Find audio files by their RPG tags with AND/OR logic
+- **Tag Persistence**: Tags stored in both database and ID3 metadata
+- **Vocabulary Management**: Extensible tag system with descriptions
+
+### 🎵 **Enhanced Audio Management**
+- **Comprehensive Metadata**: Full ID3v2.4 tag support
+- **Recursive Directory Loading**: Automatically discover audio files in subdirectories
+- **Advanced Search**: Filter by traditional metadata and RPG tags
+- **Drag & Drop Organization**: Reorder sound cards with persistence
+
+### 🔍 **Search & Discovery**
+- **Multi-Tag Filtering**: Combine multiple tag types for precise searches
+- **Real-time Results**: Instant filtering as tags are selected/deselected
+- **Search Mode Toggle**: Choose between "Any tags" (OR) or "All tags" (AND) logic
+- **Visual Feedback**: Clear indication of active filters and result counts
+
 ## Key Benefits of This Architecture
 
 ### 🔧 **Maintainability**
 - **Single Responsibility**: Each class has a clear, focused purpose
 - **Loose Coupling**: Services are independent and can be easily modified
 - **Clear Dependencies**: Import/export structure shows relationships
+- **Modular Rust Backend**: Separation of concerns in both frontend and backend
 
 ### 🧪 **Testability**
 - **Service Isolation**: Each service can be unit tested independently
 - **Dependency Injection**: Services can be mocked for testing
 - **Pure Functions**: Many methods are stateless and predictable
+- **Rust Type Safety**: Compile-time guarantees for backend logic
 
 ### 📈 **Scalability**
 - **Modular Design**: New features can be added without affecting existing code
 - **Service Extension**: New services can be added easily
 - **Component Reusability**: Models and services can be reused
+- **Database Optimization**: Proper indexing for performance at scale
 
 ### 🚀 **Performance**
 - **Lazy Loading**: Services are only initialized when needed
 - **Resource Management**: Proper cleanup prevents memory leaks
 - **Event Delegation**: Efficient DOM event handling
+- **Optimized Queries**: Database indexes for fast tag searches
 
 ### 🔄 **Error Handling**
 - **Service Level**: Each service handles its own errors
 - **Graceful Degradation**: Application continues working if non-critical services fail
 - **User Feedback**: Clear error messages through UI controller
+- **Rust Safety**: Memory safety and error handling at the system level
 
 ## Usage Examples
 

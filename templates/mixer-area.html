@@ -1,0 +1,31 @@
+<div class="mixer-area">
+    <div class="mixer-header">
+        <h3>Soundscape Mixer</h3>
+        <div class="mixer-info">
+            <span>Active Layers: <span id="activeLayersCount">{{activeLayersCount}}</span></span>
+            <span>Preset: <span id="currentPreset">{{currentPreset}}</span></span>
+        </div>
+    </div>
+
+    <div class="sound-pads-grid" id="soundPadsGrid">
+        <!-- Sound pads will be populated here -->
+    </div>
+
+    <div class="mixer-controls">
+        <div class="global-controls">
+            <div class="master-section">
+                <label>Master Volume</label>
+                <div class="volume-group">
+                    <button id="masterMute" class="mute-btn">🔊</button>
+                    <input type="range" id="masterVolumeSlider" min="0" max="100" value="{{masterVolume}}" class="volume-slider">
+                    <span class="volume-display">{{masterVolume}}%</span>
+                </div>
+            </div>
+            
+            <div class="global-actions">
+                <button id="fadeAllIn" class="btn btn-sm">↗️ Fade All In</button>
+                <button id="fadeAllOut" class="btn btn-sm">↘️ Fade All Out</button>
+            </div>
+        </div>
+    </div>
+</div>

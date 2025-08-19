@@ -2,11 +2,16 @@
  * UIController - Handles all UI updates and DOM manipulation
  */
 export class UIController {
-    constructor() {
+    constructor(templateService = null) {
+        this.templateService = templateService;
         this.currentCategory = 'all';
         this.sortable = null;
         this.cardOrder = new Map(); // Track custom ordering
         this.isDragging = false; // Flag to prevent re-rendering during drag
+    }
+
+    setTemplateService(templateService) {
+        this.templateService = templateService;
     }
 
     initializeEventListeners(eventHandlers) {
@@ -124,11 +129,31 @@ export class UIController {
         const isPlaying = pad?.isPlaying || false;
         const isLooping = pad?.isLooping || false;
         const isMuted = pad?.isMuted || false;
-        const volume = pad?.volume || 0.5;
+        const volume = Math.round((pad?.volume || 0.5) * 100);
         
         const title = audioFile.title || this.getFilenameFromPath(audioFile.file_path);
         const artist = audioFile.artist || 'Unknown Artist';
         
+        // Prepare template data
+        const templateData = {
+            filePath: audioFile.file_path,
+            title: title,
+            artist: artist,
+            category: audioFile.category,
+            isPlaying: isPlaying,
+            isActive: isPlaying,
+            isMuted: isMuted,
+            isLooping: isLooping,
+            volume: volume,
+            rpgTags: audioFile.rpgTags || []
+        };
+
+        // Use template service if available, otherwise fall back to inline HTML
+        if (this.templateService && this.templateService.hasTemplate('sound-pad')) {
+            return this.templateService.render('sound-pad', templateData);
+        }
+
+        // Fallback inline template
         return `
             <div class="sound-pad ${isPlaying ? 'active' : ''} ${isMuted ? 'muted' : ''}" data-file-path="${this.escapeHtml(audioFile.file_path)}">
                 <div class="sound-pad-header">
@@ -306,13 +331,74 @@ export class UIController {
 
     showError(message) {
         console.error(message);
-        // Could implement a toast notification system here
-        // Removed alert() due to dialog permission issues in Tauri
+        this.showNotification('error', message);
     }
 
     showSuccess(message) {
         console.log(message);
-        // Could implement a toast notification system here
+        this.showNotification('success', message, true);
+    }
+
+    showNotification(type, message, autoHide = false) {
+        const container = document.getElementById('notifications-container');
+        if (!container) {
+            console.warn('Notifications container not found, falling back to console');
+            console.log(`${type.toUpperCase()}: ${message}`);
+            return;
+        }
+
+        const notificationData = {
+            type,
+            message,
+            autoHide,
+            closable: true,
+            icon: this.getNotificationIcon(type)
+        };
+
+        let notification;
+        if (this.templateService && this.templateService.hasTemplate('notification')) {
+            notification = this.templateService.renderToElement('notification', notificationData);
+        } else {
+            // Fallback notification
+            notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <span class="notification-icon">${notificationData.icon}</span>
+                    <span class="notification-message">${this.escapeHtml(message)}</span>
+                </div>
+                <button class="notification-close">×</button>
+            `;
+        }
+
+        container.appendChild(notification);
+
+        // Add close functionality
+        const closeBtn = notification.querySelector('.notification-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                notification.remove();
+            });
+        }
+
+        // Auto-hide after 3 seconds if specified
+        if (autoHide) {
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+    }
+
+    getNotificationIcon(type) {
+        const icons = {
+            'success': '✅',
+            'error': '❌',
+            'warning': '⚠️',
+            'info': 'ℹ️'
+        };
+        return icons[type] || 'ℹ️';
     }
 
     escapeHtml(text) {
