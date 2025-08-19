@@ -25,6 +25,9 @@ export class AmbientMixerApp {
         // State
         this.audioFiles = new Map();
         this.soundPads = new Map();
+        this.currentEditingFile = null;
+        this.updateUIThrottled = this.throttle(this.updateUI.bind(this), 100);
+        this.lastToggleTime = new Map(); // Track last toggle time per pad to prevent rapid toggling
         
         // Bind event handlers
         this.eventHandlers = {
@@ -58,6 +61,12 @@ export class AmbientMixerApp {
             // Setup pad toggle handler
             this.uiController.onPadToggle = (pad, element, padElement) => 
                 this.handlePadToggle(pad, element, padElement);
+            
+            // Setup edit tags handler
+            this.uiController.onEditTags = (filePath) => this.handleEditTags(filePath);
+            
+            // Set up tag editor modal handlers
+            this.initializeTagEditor();
 
             // Load existing audio library
             await this.loadExistingLibrary();
@@ -236,7 +245,21 @@ export class AmbientMixerApp {
     }
 
     async handlePadToggle(pad, element, padElement) {
+        const filePath = pad.audioFile.file_path;
+        const now = Date.now();
+        const lastToggle = this.lastToggleTime.get(filePath) || 0;
+        
+        // Prevent rapid toggling (less than 300ms between clicks)
+        if (now - lastToggle < 300) {
+            console.log('Ignoring rapid toggle for:', filePath);
+            return;
+        }
+        
+        this.lastToggleTime.set(filePath, now);
+        
         try {
+            console.log(`Toggling pad ${filePath}: currently ${pad.isPlaying ? 'playing' : 'stopped'}`);
+            
             if (pad.isPlaying) {
                 pad.stop();
                 this.uiController.updatePadPlayButton(element, false);
@@ -244,6 +267,7 @@ export class AmbientMixerApp {
                 // Update status icon
                 const statusElement = padElement.querySelector('.sound-pad-status');
                 if (statusElement) statusElement.textContent = '⏸️';
+                console.log('Stopped pad:', filePath);
             } else {
                 await pad.play();
                 this.uiController.updatePadPlayButton(element, true);
@@ -251,9 +275,11 @@ export class AmbientMixerApp {
                 // Update status icon
                 const statusElement = padElement.querySelector('.sound-pad-status');
                 if (statusElement) statusElement.textContent = '▶️';
+                console.log('Started pad:', filePath);
             }
             
-            this.updateUI();
+            // No need to call updateUI() - we've already updated the specific elements
+            // updateUI() would re-render the entire grid and cause conflicts
         } catch (error) {
             console.error(`Error toggling pad ${pad.audioFile.file_path}:`, error);
             this.uiController.showError(`Failed to play audio: ${error.message}`);
@@ -280,6 +306,166 @@ export class AmbientMixerApp {
 
     getAudioFiles() {
         return this.audioFiles;
+    }
+    
+    // Tag Editor functionality
+    initializeTagEditor() {
+        const modal = document.getElementById('tagEditorModal');
+        const closeBtn = document.getElementById('closeTagEditor');
+        const cancelBtn = document.getElementById('cancelTagEdit');
+        const saveBtn = document.getElementById('saveTagEdit');
+        
+        // Close modal handlers
+        closeBtn?.addEventListener('click', () => this.closeTagEditor());
+        cancelBtn?.addEventListener('click', () => this.closeTagEditor());
+        
+        // Save tags handler
+        saveBtn?.addEventListener('click', () => this.saveTagChanges());
+        
+        // Close on overlay click
+        modal?.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.closeTagEditor();
+            }
+        });
+        
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal?.style.display !== 'none') {
+                this.closeTagEditor();
+            }
+        });
+    }
+    
+    async handleEditTags(filePath) {
+        console.log('Edit tags for:', filePath);
+        this.currentEditingFile = filePath;
+        
+        // Get the audio file data
+        const audioFile = this.audioFiles.get(filePath);
+        if (!audioFile) {
+            console.error('Audio file not found:', filePath);
+            return;
+        }
+        
+        // Populate the form with current values
+        this.populateTagForm(audioFile);
+        
+        // Show the modal
+        const modal = document.getElementById('tagEditorModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    }
+    
+    populateTagForm(audioFile) {
+        console.log('Populating form with audioFile:', audioFile);
+        
+        const fields = [
+            'title', 'artist', 'album', 'album_artist', 'genre', 'year',
+            'track_number', 'total_tracks', 'composer', 'conductor',
+            'producer', 'remixer', 'bpm', 'initial_key', 'mood',
+            'language', 'copyright', 'publisher'
+        ];
+        
+        fields.forEach(field => {
+            const element = document.getElementById(`tag-${field.replace('_', '-')}`);
+            console.log(`Field ${field}: value=${audioFile[field]}, element=`, element);
+            
+            if (element && audioFile[field] !== undefined && audioFile[field] !== null) {
+                element.value = audioFile[field];
+                console.log(`Set ${field} to:`, audioFile[field]);
+            } else {
+                // Clear the field if no value
+                if (element) {
+                    element.value = '';
+                }
+            }
+        });
+    }
+    
+    async saveTagChanges() {
+        if (!this.currentEditingFile) {
+            console.error('No file currently being edited');
+            return;
+        }
+        
+        // Collect form data
+        const formData = new FormData(document.getElementById('tagEditorForm'));
+        const updates = {};
+        
+        // Convert form data to updates object
+        for (const [key, value] of formData.entries()) {
+            if (value.trim() !== '') {
+                if (['year', 'track_number', 'total_tracks', 'bpm'].includes(key)) {
+                    updates[key] = parseInt(value) || null;
+                } else {
+                    updates[key] = value.trim();
+                }
+            } else {
+                updates[key] = null;
+            }
+        }
+        
+        // Add file path for the backend
+        updates.file_path = this.currentEditingFile;
+        
+        try {
+            // Call the backend to update tags
+            await window.__TAURI__.core.invoke('update_audio_file_tags', {
+                filePath: this.currentEditingFile,
+                updates: updates
+            });
+            
+            console.log('Tags updated successfully');
+            
+            // Update local data
+            const audioFile = this.audioFiles.get(this.currentEditingFile);
+            if (audioFile) {
+                Object.assign(audioFile, updates);
+            }
+            
+            // Refresh the UI
+            this.updateUI();
+            
+            // Close the modal
+            this.closeTagEditor();
+            
+        } catch (error) {
+            console.error('Failed to update tags:', error);
+            alert('Failed to update tags: ' + error);
+        }
+    }
+    
+    closeTagEditor() {
+        const modal = document.getElementById('tagEditorModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        
+        // Clear form
+        document.getElementById('tagEditorForm')?.reset();
+        this.currentEditingFile = null;
+    }
+    
+    // Utility function to throttle rapid UI updates
+    throttle(func, delay) {
+        let timeoutId;
+        let lastExecTime = 0;
+        return function (...args) {
+            const currentTime = Date.now();
+            
+            if (currentTime - lastExecTime > delay) {
+                func.apply(this, args);
+                lastExecTime = currentTime;
+            } else {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    func.apply(this, args);
+                    lastExecTime = Date.now();
+                }, delay);
+            }
+        };
     }
 
     getServices() {

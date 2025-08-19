@@ -13,4 +13,4 @@ tauri-plugin-fs = "2.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 rusqlite = { version = "0.33", features = ["bundled"] }
-audiotags = "0.5"
+id3 = "1.13"

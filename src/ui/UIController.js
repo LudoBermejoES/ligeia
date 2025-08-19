@@ -132,10 +132,15 @@ export class UIController {
         return `
             <div class="sound-pad ${isPlaying ? 'active' : ''} ${isMuted ? 'muted' : ''}" data-file-path="${this.escapeHtml(audioFile.file_path)}">
                 <div class="sound-pad-header">
-                    <div>
+                    <div class="sound-pad-info">
                         <div class="sound-pad-title">${this.escapeHtml(title)}</div>
-                        <div class="sound-pad-artist">${this.escapeHtml(artist)}</div>
-                        <div class="sound-pad-category">${audioFile.category}</div>
+                        <div class="sound-pad-meta">
+                            <span class="sound-pad-artist">${this.escapeHtml(artist)}</span>
+                            <span class="sound-pad-category">${audioFile.category}</span>
+                            <button class="edit-tags-btn" data-action="edit-tags" title="Edit Tags">
+                                ✏️
+                            </button>
+                        </div>
                     </div>
                     <div class="sound-pad-status">${isPlaying ? '▶️' : '⏸️'}</div>
                 </div>
@@ -180,6 +185,12 @@ export class UIController {
                 const action = e.target.dataset.action;
                 
                 if (!filePath || !action) return;
+                
+                // Stop event propagation to prevent drag conflicts, but only for button actions
+                if (e.target.matches('button, input[type="range"]')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
                 
                 const pad = soundPads.get(filePath);
                 if (!pad) {
@@ -248,6 +259,14 @@ export class UIController {
                         }
                     }
                     break;
+                case 'edit-tags':
+                    if (this.onEditTags && typeof this.onEditTags === 'function') {
+                        const filePath = padElement.dataset.filePath;
+                        this.onEditTags(filePath);
+                    } else {
+                        console.warn('No edit tags handler configured');
+                    }
+                    break;
                 default:
                     console.warn('Unknown pad action:', action);
             }
@@ -288,7 +307,7 @@ export class UIController {
     showError(message) {
         console.error(message);
         // Could implement a toast notification system here
-        alert(message);
+        // Removed alert() due to dialog permission issues in Tauri
     }
 
     showSuccess(message) {
@@ -323,8 +342,8 @@ export class UIController {
             dragClass: 'sortable-drag',
             chosenClass: 'sortable-chosen',
             
-            // Only allow dragging by the header area to avoid conflicts with controls
-            handle: '.sound-pad-header',
+            // Only allow dragging by the title area to avoid conflicts with buttons
+            handle: '.sound-pad-title',
             
             // Force fallback mode for CSS Grid compatibility
             forceFallback: true,
