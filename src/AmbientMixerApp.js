@@ -1,3 +1,6 @@
+import { invoke } from '@tauri-apps/api/core';
+import { save } from '@tauri-apps/plugin-dialog';
+import { writeTextFile } from '@tauri-apps/plugin-fs';
 import { AudioService } from './services/AudioService.js';
 import { FileService } from './services/FileService.js';
 import { DatabaseService } from './services/DatabaseService.js';
@@ -42,6 +45,8 @@ export class AmbientMixerApp {
             loadDirectory: () => this.handleLoadDirectory(),
             savePreset: () => this.handleSavePreset(),
             loadPreset: () => this.handleLoadPreset(),
+            exportData: () => this.handleExportData(),
+            importData: () => this.handleImportData(),
             stopAll: () => this.handleStopAll(),
             fadeAllIn: () => this.handleFadeAllIn(),
             fadeAllOut: () => this.handleFadeAllOut(),
@@ -266,6 +271,83 @@ export class AmbientMixerApp {
         if (success) {
             this.updateUI();
             this.uiController.showSuccess('Preset loaded successfully');
+        }
+    }
+
+    async handleExportData() {
+        try {
+            const exportData = await invoke('export_library_data');
+            
+            // Open save dialog
+            const filePath = await save({
+                title: 'Export Ligeia Library',
+                defaultPath: `ligeia-library-${new Date().toISOString().split('T')[0]}.json`,
+                filters: [{
+                    name: 'JSON',
+                    extensions: ['json']
+                }]
+            });
+            
+            if (!filePath) {
+                // User cancelled the dialog
+                return;
+            }
+            
+            // Write JSON data to the selected file
+            const jsonString = JSON.stringify(exportData, null, 2); // Pretty format with indentation
+            await writeTextFile(filePath, jsonString);
+            
+            this.uiController.showSuccess(`Exported ${exportData.files.length} files with ${exportData.tags.length} tags to ${filePath}`);
+        } catch (error) {
+            console.error('Export failed:', error);
+            this.uiController.showError('Failed to export library data');
+        }
+    }
+
+    async handleImportData() {
+        try {
+            // Create file input
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = async (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                try {
+                    const text = await file.text();
+                    const importData = JSON.parse(text);
+                    
+                    // Validate data structure
+                    if (!importData.version || !importData.files || !importData.tags) {
+                        throw new Error('Invalid file format');
+                    }
+                    
+                    // Show confirmation
+                    const confirmed = confirm(`Import ${importData.files.length} files with ${importData.tags.length} tags? This will clear your current library.`);
+                    if (!confirmed) return;
+                    
+                    // Import data
+                    await invoke('import_library_data', { data: importData });
+                    
+                    // Reload the library
+                    this.audioFiles.clear();
+                    this.soundPads.clear();
+                    await this.loadExistingLibrary();
+                    await this.tagSearchController.showAllSounds();
+                    
+                    this.uiController.showSuccess(`Imported ${importData.files.length} files with ${importData.tags.length} tags successfully!`);
+                } catch (error) {
+                    console.error('Import failed:', error);
+                    this.uiController.showError(`Failed to import library data: ${error.message}`);
+                }
+            };
+            
+            input.click();
+        } catch (error) {
+            console.error('Import setup failed:', error);
+            this.uiController.showError('Failed to setup import');
         }
     }
 
@@ -504,7 +586,7 @@ export class AmbientMixerApp {
         
         try {
             // Call the backend to update tags
-            await window.__TAURI__.core.invoke('update_audio_file_tags', {
+            await invoke('update_audio_file_tags', {
                 filePath: this.currentEditingFile,
                 updates: updates
             });

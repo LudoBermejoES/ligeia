@@ -22,6 +22,10 @@ export class UIController {
         this.getElementById('savePreset')?.addEventListener('click', eventHandlers.savePreset);
         this.getElementById('loadPreset')?.addEventListener('click', eventHandlers.loadPreset);
         
+        // Data management
+        this.getElementById('exportData')?.addEventListener('click', eventHandlers.exportData);
+        this.getElementById('importData')?.addEventListener('click', eventHandlers.importData);
+        
         // Global controls
         this.getElementById('stopAll')?.addEventListener('click', eventHandlers.stopAll);
         this.getElementById('fadeAllIn')?.addEventListener('click', eventHandlers.fadeAllIn);

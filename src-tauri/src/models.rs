@@ -104,3 +104,36 @@ pub struct AudioFileWithTags {
     pub audio_file: AudioFile,
     pub rpg_tags: Vec<RpgTag>,
 }
+
+// Export/Import structures with readable labels
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ExportData {
+    pub version: u8,
+    pub files: Vec<ExportAudioFile>,
+    pub tags: Vec<ExportRpgTag>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ExportAudioFile {
+    pub id: Option<i64>,
+    pub file_path: String,
+    pub title: Option<String>,
+    pub artist: Option<String>,
+    pub album: Option<String>,
+    pub genre: Option<String>,
+    pub year: Option<i32>,
+    pub duration: Option<f64>,
+    pub album_artist: Option<String>,
+    pub track_number: Option<u32>,
+    pub bpm: Option<u32>,
+    pub initial_key: Option<String>,
+    pub mood: Option<String>,
+    pub language: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ExportRpgTag {
+    pub audio_file_id: i64,
+    pub tag_type: String,
+    pub tag_value: String,
+}

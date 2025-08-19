@@ -5,8 +5,10 @@
   "windows": ["main"],
   "permissions": [
     "dialog:allow-open",
+    "dialog:allow-save",
     "fs:allow-read-dir", 
     "fs:allow-read-file",
+    "fs:allow-write-text-file",
     "fs:scope-home-recursive",
     "fs:scope-download-recursive",
     "fs:scope-document-recursive", 
