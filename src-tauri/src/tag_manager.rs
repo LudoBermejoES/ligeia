@@ -22,9 +22,10 @@ impl TagManager {
     pub fn add_rpg_tag(&self, audio_file_id: i64, tag_type: &str, tag_value: &str) -> Result<i64, String> {
         let db = self.db.lock().unwrap();
         
-        // Validate tag type and value against vocabulary
+        // Auto-add tag to vocabulary if it doesn't exist (for import compatibility)
         if !self.is_valid_tag(&db, tag_type, tag_value)? {
-            return Err(format!("Invalid tag: {} = {}", tag_type, tag_value));
+            // Add the tag type and value to vocabulary
+            self.auto_add_tag_to_vocabulary(&db, tag_type, tag_value)?;
         }
         
         db.add_rpg_tag(audio_file_id, tag_type, tag_value).map_err(|e| e.to_string())
@@ -119,6 +120,13 @@ impl TagManager {
     fn is_valid_tag(&self, db: &Database, tag_type: &str, tag_value: &str) -> Result<bool, String> {
         let vocabulary = db.get_tag_vocabulary(Some(tag_type)).map_err(|e| e.to_string())?;
         Ok(vocabulary.iter().any(|v| v.tag_value == tag_value && v.is_active))
+    }
+
+    fn auto_add_tag_to_vocabulary(&self, db: &Database, tag_type: &str, tag_value: &str) -> Result<(), String> {
+        // Add the tag value to vocabulary if it doesn't exist
+        db.add_tag_vocabulary(tag_type, tag_value, Some(&format!("Auto-added {} tag", tag_type)), None, true)
+            .map_err(|e| e.to_string())?;
+        Ok(())
     }
 
     fn count_files_with_tag_type(&self, _db: &Database, _tag_type: &str) -> Result<u32, String> {

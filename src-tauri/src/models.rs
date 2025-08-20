@@ -107,13 +107,29 @@ pub struct AudioFileWithTags {
 
 // Export/Import structures with readable labels
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(default)]
 pub struct ExportData {
     pub version: u8,
     pub files: Vec<ExportAudioFile>,
     pub tags: Vec<ExportRpgTag>,
+    // Enhanced vocabulary field (optional for backwards compatibility)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tag_vocabulary: Option<serde_json::Value>, // Store as JSON for flexibility
+}
+
+impl Default for ExportData {
+    fn default() -> Self {
+        ExportData {
+            version: 1,
+            files: Vec::new(),
+            tags: Vec::new(),
+            tag_vocabulary: None,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(default)]
 pub struct ExportAudioFile {
     pub id: Option<i64>,
     pub file_path: String,
@@ -129,6 +145,37 @@ pub struct ExportAudioFile {
     pub initial_key: Option<String>,
     pub mood: Option<String>,
     pub language: Option<String>,
+    // Enhanced RPG fields (optional for backwards compatibility)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rpg_occasion: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rpg_keywords: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rpg_quality: Option<String>,
+}
+
+impl Default for ExportAudioFile {
+    fn default() -> Self {
+        ExportAudioFile {
+            id: None,
+            file_path: String::new(),
+            title: None,
+            artist: None,
+            album: None,
+            genre: None,
+            year: None,
+            duration: None,
+            album_artist: None,
+            track_number: None,
+            bpm: None,
+            initial_key: None,
+            mood: None,
+            language: None,
+            rpg_occasion: None,
+            rpg_keywords: None,
+            rpg_quality: None,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

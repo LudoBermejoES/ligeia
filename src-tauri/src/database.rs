@@ -1556,6 +1556,15 @@ impl Database {
     }
 
     // Tag vocabulary operations
+    pub fn add_tag_vocabulary(&self, tag_type: &str, tag_value: &str, description: Option<&str>, parent_tag: Option<&str>, is_active: bool) -> Result<()> {
+        self.conn.execute(
+            "INSERT OR IGNORE INTO tag_vocabulary (tag_type, tag_value, description, parent_tag, is_active)
+             VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![tag_type, tag_value, description, parent_tag, is_active],
+        )?;
+        Ok(())
+    }
+
     pub fn get_tag_vocabulary(&self, tag_type: Option<&str>) -> Result<Vec<TagVocabulary>> {
         let (query, params): (String, Vec<&str>) = match tag_type {
             Some(t) => (

@@ -374,6 +374,21 @@ Alright—here’s a **deep, software-ready taxonomy** for RPG audio. It’s des
 - **Stems**: if you store stems, mirror all parent tags, add `util:stem-*`.
 - **QA**: lint new tags against the dictionary; flag unrecognized slugs.
 
+## 10) Suggested tagging.
+
+| RPG Concept | ID3v2.4 Frame   | Example Value                       |
+| ----------- | --------------- | ----------------------------------- |
+| Title       | `TIT2`          | Epic Battle                         |
+| Artist      | `TPE1`          | W. A. Production                    |
+| Album       | `TALB`          | Cinematic Horror Sounds & FX        |
+| Genre       | `TCON`          | Cinematic; Horror; Sound Design; FX |
+| Mood        | `TMOO`          | Tense; Atmospheric; Ominous         |
+| Occasion    | `TXXX:Occasion` | Combat; Chase; Boss Fight           |
+| Keywords    | `TXXX:Keywords` | Dragon; Dungeon; Hell; Underwater   |
+| Quality     | `TXXX:Quality`  | High                                |
+| Tempo / BPM | `TBPM`          | 120                                 |
+
+
 ---
 
 If you want, I can package this into a **downloadable `.md`** and/or a **ready-to-use JSON dictionary** for your app (with `slug`, `label`, `parents`, `synonyms`).

@@ -1,4 +1,4 @@
-use id3::{Tag, TagLike};
+use id3::{Tag, TagLike, Frame, Content, frame::ExtendedText};
 use crate::models::AudioFile;
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
@@ -224,6 +224,64 @@ impl AudioHandler {
         // Write the updated tag back to the file
         tag.write_to_path(file_path, id3::Version::Id3v24)
             .map_err(|e| format!("Failed to write tags: {}", e))?;
+        
+        Ok(())
+    }
+
+    pub fn write_rpg_tags_to_file(file_path: &str, rpg_tags: &[(String, Vec<String>)]) -> Result<(), String> {
+        let mut tag = Tag::read_from_path(file_path).unwrap_or_else(|_| Tag::new());
+        
+        // Remove existing RPG TXXX frames first
+        tag.remove("TXXX:Occasion");
+        tag.remove("TXXX:Keywords");
+        tag.remove("TXXX:Quality");
+        
+        // Group tags by type
+        let mut occasions = Vec::new();
+        let mut keywords = Vec::new();
+        let mut quality = None;
+        
+        for (tag_type, tag_values) in rpg_tags {
+            match tag_type.as_str() {
+                "occasion" => occasions.extend(tag_values.clone()),
+                "keyword" => keywords.extend(tag_values.clone()),
+                "quality" => quality = tag_values.first().cloned(),
+                _ => {} // Skip other tag types
+            }
+        }
+        
+        // Write TXXX:Occasion (semicolon-separated as per TAGS.md)
+        if !occasions.is_empty() {
+            let occasion_value = occasions.join("; ");
+            let extended_text = ExtendedText {
+                description: "Occasion".to_string(),
+                value: occasion_value,
+            };
+            tag.add_frame(Frame::with_content("TXXX", Content::ExtendedText(extended_text)));
+        }
+        
+        // Write TXXX:Keywords (semicolon-separated as per TAGS.md)
+        if !keywords.is_empty() {
+            let keywords_value = keywords.join("; ");
+            let extended_text = ExtendedText {
+                description: "Keywords".to_string(),
+                value: keywords_value,
+            };
+            tag.add_frame(Frame::with_content("TXXX", Content::ExtendedText(extended_text)));
+        }
+        
+        // Write TXXX:Quality
+        if let Some(quality_value) = quality {
+            let extended_text = ExtendedText {
+                description: "Quality".to_string(),
+                value: quality_value,
+            };
+            tag.add_frame(Frame::with_content("TXXX", Content::ExtendedText(extended_text)));
+        }
+        
+        // Write the updated tag back to the file
+        tag.write_to_path(file_path, id3::Version::Id3v24)
+            .map_err(|e| format!("Failed to write RPG tags: {}", e))?;
         
         Ok(())
     }
