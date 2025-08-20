@@ -5,26 +5,23 @@
 
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
-use chrono::Utc;
+
 
 mod models;
 mod database;
 mod audio_handler;
 mod tag_manager;
 mod file_scanner;
-mod logger;
 
 use models::*;
 use database::Database;
 use audio_handler::AudioHandler;
 use tag_manager::TagManager;
 use file_scanner::FileScanner;
-use logger::Logger;
 
 struct AppState {
     db: Mutex<Database>,
     tag_manager: TagManager,
-    logger: Logger,
 }
 
 #[tauri::command]
@@ -41,6 +38,9 @@ async fn save_audio_file(app_handle: AppHandle, audio_file: AudioFile) -> Result
 
 #[tauri::command]
 async fn get_all_audio_files(app_handle: AppHandle) -> Result<Vec<AudioFile>, String> {
+    // Test unified logging system
+    log::info!("Frontend requested all audio files - unified logging test successful!");
+    
     let state = app_handle.state::<AppState>();
     let db = state.db.lock().unwrap();
     db.get_all_audio_files().map_err(|e| e.to_string())
@@ -78,10 +78,7 @@ async fn write_rpg_tags_to_file(app_handle: AppHandle, file_path: String) -> Res
         // Write RPG tags to the actual audio file
         AudioHandler::write_rpg_tags_to_file(&file_path, &rpg_tag_tuples)?;
         
-        state.logger.log_info("rpg_tags", "Successfully wrote RPG tags to file", Some(serde_json::json!({
-            "file_path": file_path,
-            "tag_count": rpg_tag_tuples.len()
-        })));
+        log::info!("Successfully wrote RPG tags to file: {}, tag_count: {}", file_path, rpg_tag_tuples.len());
     }
     
     Ok(())
@@ -153,14 +150,12 @@ async fn export_library_data(app_handle: AppHandle) -> Result<ExportData, String
     let state = app_handle.state::<AppState>();
     let _db = state.db.lock().unwrap();
     
-    state.logger.log_info("export", "Starting library export", None);
+    log::info!("Starting library export");
     
     // Get all audio files with their RPG tags
     let tag_results = state.tag_manager.get_all_audio_files_with_tags().map_err(|e| e.to_string())?;
     
-    state.logger.log_info("export", "Retrieved files with tags", Some(serde_json::json!({
-        "file_count": tag_results.len()
-    })));
+    log::info!("Retrieved files with tags, file_count: {}", tag_results.len());
     
     // Convert to enhanced export format
     let mut export_files = Vec::new();
@@ -251,17 +246,12 @@ async fn export_library_data(app_handle: AppHandle) -> Result<ExportData, String
             }))
         },
         Err(e) => {
-            state.logger.log_error("export", "Failed to get tag vocabulary", Some(serde_json::json!({
-                "error": e.to_string()
-            })));
+            log::error!("Failed to get tag vocabulary, error: {}", e.to_string());
             None
         }
     };
     
-    state.logger.log_info("export", "Export completed successfully", Some(serde_json::json!({
-        "files_exported": export_files.len(),
-        "has_vocabulary": tag_vocabulary.is_some()
-    })));
+    log::info!("Export completed successfully, files_exported: {}, has_vocabulary: {}", export_files.len(), tag_vocabulary.is_some());
     
     Ok(ExportData {
         version: 1,
@@ -276,22 +266,15 @@ async fn import_library_data(app_handle: AppHandle, data: ExportData) -> Result<
     let state = app_handle.state::<AppState>();
     let db = state.db.lock().unwrap();
     
-    state.logger.log_info("import", "Starting library import", Some(serde_json::json!({
-        "version": data.version,
-        "files_count": data.files.len(),
-        "tags_count": data.tags.len(),
-        "has_vocabulary": data.tag_vocabulary.is_some()
-    })));
+    log::info!("Starting library import, version: {}, files_count: {}, tags_count: {}, has_vocabulary: {}", data.version, data.files.len(), data.tags.len(), data.tag_vocabulary.is_some());
     
     // Clear existing data
-    state.logger.log_info("import", "Clearing existing data", None);
+    log::info!("Clearing existing data");
     db.clear_all_data().map_err(|e| {
-        state.logger.log_error("import", "Failed to clear existing data", Some(serde_json::json!({
-            "error": e.to_string()
-        })));
+        log::error!("Failed to clear existing data, error: {}", e.to_string());
         e.to_string()
     })?;
-    state.logger.log_info("import", "Existing data cleared successfully", None);
+    log::info!("Existing data cleared successfully");
     
     let mut files_imported = 0;
     let mut tags_imported = 0;
@@ -299,18 +282,10 @@ async fn import_library_data(app_handle: AppHandle, data: ExportData) -> Result<
     let mut rpg_keywords_imported = 0;
     
     // Import audio files
-    state.logger.log_info("import", "Starting file import", Some(serde_json::json!({
-        "total_files": data.files.len()
-    })));
+    log::info!("Starting file import, total_files: {}", data.files.len());
     
     for (index, export_file) in data.files.iter().enumerate() {
-        state.logger.log_debug("import", &format!("Processing file {} of {}", index + 1, data.files.len()), Some(serde_json::json!({
-            "file_path": export_file.file_path,
-            "title": export_file.title,
-            "id": export_file.id,
-            "has_rpg_occasion": export_file.rpg_occasion.is_some(),
-            "has_rpg_keywords": export_file.rpg_keywords.is_some()
-        })));
+        log::debug!("Processing file {} of {}, file_path: {}, title: {:?}, id: {:?}, has_rpg_occasion: {}, has_rpg_keywords: {}", index + 1, data.files.len(), export_file.file_path, export_file.title, export_file.id, export_file.rpg_occasion.is_some(), export_file.rpg_keywords.is_some());
         
         let audio_file = AudioFile {
             id: None, // Let database assign new IDs
@@ -368,19 +343,12 @@ async fn import_library_data(app_handle: AppHandle, data: ExportData) -> Result<
         };
         
         let new_id = db.save_audio_file(&audio_file).map_err(|e| {
-            state.logger.log_error("import", "Failed to save audio file", Some(serde_json::json!({
-                "file_path": export_file.file_path,
-                "error": e.to_string()
-            })));
+            log::error!("Failed to save audio file, file_path: {}, error: {}", export_file.file_path, e.to_string());
             e.to_string()
         })?;
         
         files_imported += 1;
-        state.logger.log_debug("import", "Audio file saved", Some(serde_json::json!({
-            "old_id": export_file.id,
-            "new_id": new_id,
-            "file_path": export_file.file_path
-        })));
+        log::debug!("Audio file saved, old_id: {:?}, new_id: {}, file_path: {}", export_file.id, new_id, export_file.file_path);
         
         // Process genre field as semicolon/comma-separated tags
         if let Some(genre_str) = &export_file.genre {
@@ -391,27 +359,16 @@ async fn import_library_data(app_handle: AppHandle, data: ExportData) -> Result<
                 .map(|s| s.to_string())
                 .collect();
             
-            state.logger.log_debug("import", "Processing genre tags", Some(serde_json::json!({
-                "file_path": export_file.file_path,
-                "genre_string": genre_str,
-                "split_tags": genre_tags
-            })));
+            log::debug!("Processing genre tags, file_path: {}, genre_string: {}, split_tags: {:?}", export_file.file_path, genre_str, genre_tags);
             
             for genre_tag in genre_tags {
                 match state.tag_manager.add_rpg_tag(new_id, "genre", &genre_tag) {
                     Ok(_) => {
                         tags_imported += 1;
-                        state.logger.log_debug("import", "Genre tag added", Some(serde_json::json!({
-                            "file_id": new_id,
-                            "genre": genre_tag
-                        })));
+                        log::debug!("Genre tag added, file_id: {}, genre: {}", new_id, genre_tag);
                     },
                     Err(e) => {
-                        state.logger.log_error("import", "Failed to add genre tag", Some(serde_json::json!({
-                            "file_id": new_id,
-                            "genre": genre_tag,
-                            "error": e.to_string()
-                        })));
+                        log::error!("Failed to add genre tag, file_id: {}, genre: {}, error: {}", new_id, genre_tag, e.to_string());
                     }
                 }
             }
@@ -426,27 +383,16 @@ async fn import_library_data(app_handle: AppHandle, data: ExportData) -> Result<
                 .map(|s| s.to_string())
                 .collect();
             
-            state.logger.log_debug("import", "Processing mood tags", Some(serde_json::json!({
-                "file_path": export_file.file_path,
-                "mood_string": mood_str,
-                "split_tags": mood_tags
-            })));
+            log::debug!("Processing mood tags, file_path: {}, mood_string: {}, split_tags: {:?}", export_file.file_path, mood_str, mood_tags);
             
             for mood_tag in mood_tags {
                 match state.tag_manager.add_rpg_tag(new_id, "mood", &mood_tag) {
                     Ok(_) => {
                         tags_imported += 1;
-                        state.logger.log_debug("import", "Mood tag added", Some(serde_json::json!({
-                            "file_id": new_id,
-                            "mood": mood_tag
-                        })));
+                        log::debug!("Mood tag added, file_id: {}, mood: {}", new_id, mood_tag);
                     },
                     Err(e) => {
-                        state.logger.log_error("import", "Failed to add mood tag", Some(serde_json::json!({
-                            "file_id": new_id,
-                            "mood": mood_tag,
-                            "error": e.to_string()
-                        })));
+                        log::error!("Failed to add mood tag, file_id: {}, mood: {}, error: {}", new_id, mood_tag, e.to_string());
                     }
                 }
             }
@@ -458,83 +404,48 @@ async fn import_library_data(app_handle: AppHandle, data: ExportData) -> Result<
             .filter(|tag| tag.tag_type != "genre" && tag.tag_type != "mood" && tag.tag_type != "occasion" && tag.tag_type != "keyword" && tag.tag_type != "quality") // Avoid duplicates
             .collect();
             
-        state.logger.log_debug("import", "Processing traditional RPG tags (excluding genre/mood/occasion/keyword/quality)", Some(serde_json::json!({
-            "file_path": export_file.file_path,
-            "matching_tags_count": matching_tags.len(),
-            "original_file_id": export_file.id
-        })));
+        log::debug!("Processing traditional RPG tags (excluding genre/mood/occasion/keyword/quality), file_path: {}, matching_tags_count: {}, original_file_id: {:?}", export_file.file_path, matching_tags.len(), export_file.id);
         
         for export_tag in matching_tags {
             match state.tag_manager.add_rpg_tag(new_id, &export_tag.tag_type, &export_tag.tag_value) {
                 Ok(_) => {
                     tags_imported += 1;
-                    state.logger.log_debug("import", "RPG tag added", Some(serde_json::json!({
-                        "file_id": new_id,
-                        "tag_type": export_tag.tag_type,
-                        "tag_value": export_tag.tag_value
-                    })));
+                    log::debug!("RPG tag added, file_id: {}, tag_type: {}, tag_value: {}", new_id, export_tag.tag_type, export_tag.tag_value);
                 },
                 Err(e) => {
-                    state.logger.log_error("import", "Failed to add RPG tag", Some(serde_json::json!({
-                        "file_id": new_id,
-                        "tag_type": export_tag.tag_type,
-                        "tag_value": export_tag.tag_value,
-                        "error": e.to_string()
-                    })));
+                    log::error!("Failed to add RPG tag, file_id: {}, tag_type: {}, tag_value: {}, error: {}", new_id, export_tag.tag_type, export_tag.tag_value, e.to_string());
                 }
             }
         }
         
         // Import enhanced RPG fields as tags
         if let Some(occasions) = &export_file.rpg_occasion {
-            state.logger.log_debug("import", "Processing RPG occasions", Some(serde_json::json!({
-                "file_path": export_file.file_path,
-                "occasions_count": occasions.len(),
-                "occasions": occasions
-            })));
+            log::debug!("Processing RPG occasions, file_path: {}, occasions_count: {}, occasions: {:?}", export_file.file_path, occasions.len(), occasions);
             
             for occasion in occasions {
                 match state.tag_manager.add_rpg_tag(new_id, "occasion", occasion) {
                     Ok(_) => {
                         rpg_occasions_imported += 1;
-                        state.logger.log_debug("import", "RPG occasion added", Some(serde_json::json!({
-                            "file_id": new_id,
-                            "occasion": occasion
-                        })));
+                        log::debug!("RPG occasion added, file_id: {}, occasion: {}", new_id, occasion);
                     },
                     Err(e) => {
-                        state.logger.log_error("import", "Failed to add RPG occasion", Some(serde_json::json!({
-                            "file_id": new_id,
-                            "occasion": occasion,
-                            "error": e.to_string()
-                        })));
+                        log::error!("Failed to add RPG occasion, file_id: {}, occasion: {}, error: {}", new_id, occasion, e.to_string());
                     }
                 }
             }
         }
         
         if let Some(keywords) = &export_file.rpg_keywords {
-            state.logger.log_debug("import", "Processing RPG keywords", Some(serde_json::json!({
-                "file_path": export_file.file_path,
-                "keywords_count": keywords.len(),
-                "keywords": keywords
-            })));
+            log::debug!("Processing RPG keywords, file_path: {}, keywords_count: {}, keywords: {:?}", export_file.file_path, keywords.len(), keywords);
             
             for keyword in keywords {
                 match state.tag_manager.add_rpg_tag(new_id, "keyword", keyword) {
                     Ok(_) => {
                         rpg_keywords_imported += 1;
-                        state.logger.log_debug("import", "RPG keyword added", Some(serde_json::json!({
-                            "file_id": new_id,
-                            "keyword": keyword
-                        })));
+                        log::debug!("RPG keyword added, file_id: {}, keyword: {}", new_id, keyword);
                     },
                     Err(e) => {
-                        state.logger.log_error("import", "Failed to add RPG keyword", Some(serde_json::json!({
-                            "file_id": new_id,
-                            "keyword": keyword,
-                            "error": e.to_string()
-                        })));
+                        log::error!("Failed to add RPG keyword, file_id: {}, keyword: {}, error: {}", new_id, keyword, e.to_string());
                     }
                 }
             }
@@ -542,37 +453,21 @@ async fn import_library_data(app_handle: AppHandle, data: ExportData) -> Result<
         
         // Import quality if available
         if let Some(quality) = &export_file.rpg_quality {
-            state.logger.log_debug("import", "Processing RPG quality", Some(serde_json::json!({
-                "file_path": export_file.file_path,
-                "quality": quality
-            })));
+            log::debug!("Processing RPG quality, file_path: {}, quality: {}", export_file.file_path, quality);
             
             match state.tag_manager.add_rpg_tag(new_id, "quality", quality) {
                 Ok(_) => {
                     tags_imported += 1;
-                    state.logger.log_debug("import", "RPG quality added", Some(serde_json::json!({
-                        "file_id": new_id,
-                        "quality": quality
-                    })));
+                    log::debug!("RPG quality added, file_id: {}, quality: {}", new_id, quality);
                 },
                 Err(e) => {
-                    state.logger.log_error("import", "Failed to add RPG quality", Some(serde_json::json!({
-                        "file_id": new_id,
-                        "quality": quality,
-                        "error": e.to_string()
-                    })));
+                    log::error!("Failed to add RPG quality, file_id: {}, quality: {}, error: {}", new_id, quality, e.to_string());
                 }
             }
         }
     }
     
-    state.logger.log_info("import", "Library import completed successfully", Some(serde_json::json!({
-        "files_imported": files_imported,
-        "traditional_tags_imported": tags_imported,
-        "rpg_occasions_imported": rpg_occasions_imported,
-        "rpg_keywords_imported": rpg_keywords_imported,
-        "total_tags_imported": tags_imported + rpg_occasions_imported + rpg_keywords_imported
-    })));
+    log::info!("Library import completed successfully, files_imported: {}, traditional_tags_imported: {}, rpg_occasions_imported: {}, rpg_keywords_imported: {}, total_tags_imported: {}", files_imported, tags_imported, rpg_occasions_imported, rpg_keywords_imported, tags_imported + rpg_occasions_imported + rpg_keywords_imported);
     
     Ok(())
 }
@@ -684,20 +579,30 @@ async fn calculate_missing_durations(app_handle: AppHandle) -> Result<String, St
     }
 }
 
+use tauri_plugin_log::{Target, TargetKind};
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let db = Database::new().expect("Failed to create database");
     let tag_manager = TagManager::new().expect("Failed to create tag manager");
-    let logger = Logger::new().expect("Failed to create logger");
     
     tauri::Builder::default()
         .manage(AppState {
             db: Mutex::new(db),
             tag_manager,
-            logger,
         })
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .level(log::LevelFilter::Debug)
+                .targets([
+                    Target::new(TargetKind::Stdout),
+                    Target::new(TargetKind::LogDir { file_name: Some("ligeia".into()) }),
+                    Target::new(TargetKind::Webview),
+                ])
+                .build(),
+        )
         .invoke_handler(tauri::generate_handler![
             load_audio_file,
             save_audio_file,

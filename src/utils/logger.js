@@ -1,102 +1,71 @@
-import { writeTextFile, readTextFile, exists, mkdir } from '@tauri-apps/plugin-fs';
+import { trace, debug, info, warn, error, attachConsole } from '@tauri-apps/plugin-log';
 
-class FrontendLogger {
+class UnifiedLogger {
     constructor() {
-        this.logBuffer = [];
-        this.logDir = '/Users/ludo/code/ligeia/logs'; // Use absolute path for now
         this.isReady = false;
         this.init();
     }
 
     async init() {
-        return;
         try {
-            // Check if logs directory exists, create if not
-            const dirExists = await exists(this.logDir);
-            if (!dirExists) {
-                await mkdir(this.logDir, { recursive: true });
-            }
+            // Attach console logging for development - this enables logs to show in browser dev tools
+            await attachConsole();
             this.isReady = true;
-            
-            // Flush any buffered logs
-            for (const bufferedLog of this.logBuffer) {
-                await this.writeLogToFile(bufferedLog);
-            }
-            this.logBuffer = [];
+            console.log('Unified logger initialized with tauri-plugin-log');
         } catch (error) {
-            console.error('Failed to initialize frontend logger:', error);
+            console.error('Failed to initialize unified logger:', error);
         }
     }
 
-    log(level, component, message, data = null) {
-        return;
-        const timestamp = new Date().toISOString();
-        const logEntry = {
-            timestamp,
-            level: level.toUpperCase(),
-            component,
-            message,
-            data
-        };
-
-        // Always log to console
-        const consoleMessage = `[${level.toUpperCase()}] ${component}: ${message}`;
-        if (level === 'error') {
-            console.error(consoleMessage, data);
-        } else if (level === 'warn') {
-            console.warn(consoleMessage, data);
-        } else if (level === 'debug') {
-            console.debug(consoleMessage, data);
-        } else {
-            console.log(consoleMessage, data);
-        }
-
-        // Write to file
-        if (this.isReady) {
-            this.writeLogToFile(logEntry);
-        } else {
-            this.logBuffer.push(logEntry);
-        }
-    }
-
-    async writeLogToFile(logEntry) {
-        try {
-            const date = new Date().toISOString().split('T')[0];
-            const filename = `${this.logDir}/ligeia-frontend-${date}.log`;
-            const logLine = JSON.stringify(logEntry) + '\n';
-            
-            // Append to file
-            const fileExists = await exists(filename);
-            if (fileExists) {
-                // Read existing content and append
-                const existingContent = await readTextFile(filename).catch(() => '');
-                await writeTextFile(filename, existingContent + logLine);
-            } else {
-                await writeTextFile(filename, logLine);
-            }
-        } catch (error) {
-            console.error('Failed to write log to file:', error);
-        }
-    }
-
+    // Wrapper methods to maintain your current API
     info(component, message, data = null) {
-        this.log('info', component, message, data);
+        const formattedMessage = `${component}: ${message}`;
+        if (data) {
+            info(formattedMessage, { keyValues: data });
+        } else {
+            info(formattedMessage);
+        }
     }
 
     error(component, message, data = null) {
-        this.log('error', component, message, data);
+        const formattedMessage = `${component}: ${message}`;
+        if (data) {
+            error(formattedMessage, { keyValues: data });
+        } else {
+            error(formattedMessage);
+        }
     }
 
     warn(component, message, data = null) {
-        this.log('warn', component, message, data);
+        const formattedMessage = `${component}: ${message}`;
+        if (data) {
+            warn(formattedMessage, { keyValues: data });
+        } else {
+            warn(formattedMessage);
+        }
     }
 
     debug(component, message, data = null) {
-        this.log('debug', component, message, data);
+        const formattedMessage = `${component}: ${message}`;
+        if (data) {
+            debug(formattedMessage, { keyValues: data });
+        } else {
+            debug(formattedMessage);
+        }
+    }
+
+    // Additional method for trace logging
+    trace(component, message, data = null) {
+        const formattedMessage = `${component}: ${message}`;
+        if (data) {
+            trace(formattedMessage, { keyValues: data });
+        } else {
+            trace(formattedMessage);
+        }
     }
 }
 
 // Create global logger instance
-const logger = new FrontendLogger();
+const logger = new UnifiedLogger();
 
 export default logger;
