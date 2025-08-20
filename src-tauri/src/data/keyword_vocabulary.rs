@@ -1,0 +1,52 @@
+[
+    // Biomes & Locations
+    ("keyword", "loc:forest", Some("Forest environments"), None::<&str>),
+    ("keyword", "loc:desert", Some("Desert environments"), None::<&str>),
+    ("keyword", "loc:mountain", Some("Mountain environments"), None::<&str>),
+    ("keyword", "loc:ocean", Some("Ocean environments"), None::<&str>),
+    ("keyword", "loc:cave", Some("Cave environments"), None::<&str>),
+    ("keyword", "loc:swamp", Some("Swamp environments"), None::<&str>),
+    ("keyword", "loc:city", Some("Urban environments"), None::<&str>),
+    ("keyword", "loc:village", Some("Small settlements"), None::<&str>),
+    ("keyword", "loc:dungeon", Some("Underground complexes"), None::<&str>),
+    ("keyword", "loc:castle", Some("Fortress structures"), None::<&str>),
+    ("keyword", "loc:tavern", Some("Drinking establishments"), None::<&str>),
+    ("keyword", "loc:temple", Some("Religious buildings"), None::<&str>),
+    ("keyword", "loc:derelict", Some("Abandoned structures"), None::<&str>),
+    
+    // Utility Tags
+    ("keyword", "util:loopable", Some("Seamlessly loops"), None::<&str>),
+    ("keyword", "util:one-shot", Some("Single use event"), None::<&str>),
+    ("keyword", "util:stinger", Some("Brief punctuation"), None::<&str>),
+    ("keyword", "util:transition", Some("Scene changes"), None::<&str>),
+    ("keyword", "util:ambient-base", Some("Background layer"), None::<&str>),
+    ("keyword", "util:music-layer", Some("Melodic layer"), None::<&str>),
+    ("keyword", "util:rhythm-layer", Some("Percussion layer"), None::<&str>),
+    ("keyword", "util:intro", Some("Opening segment"), None::<&str>),
+    ("keyword", "util:outro", Some("Closing segment"), None::<&str>),
+    ("keyword", "util:buildable", Some("Can layer with others"), None::<&str>),
+    
+    // Creatures
+    ("keyword", "creature:dragon", Some("Dragons"), None::<&str>),
+    ("keyword", "creature:undead", Some("Undead creatures"), None::<&str>),
+    ("keyword", "creature:beast", Some("Natural animals"), None::<&str>),
+    ("keyword", "creature:fey", Some("Fae creatures"), None::<&str>),
+    ("keyword", "creature:demon", Some("Demonic entities"), None::<&str>),
+    ("keyword", "creature:angel", Some("Celestial beings"), None::<&str>),
+    ("keyword", "creature:construct", Some("Constructs"), None::<&str>),
+    ("keyword", "creature:elemental", Some("Elemental beings"), None::<&str>),
+    ("keyword", "creature:giant", Some("Giant creatures"), None::<&str>),
+    ("keyword", "creature:humanoid", Some("Human-like beings"), None::<&str>),
+    
+    // Style & Aesthetic
+    ("keyword", "style:cinematic", Some("Film-like quality"), None::<&str>),
+    ("keyword", "style:medieval", Some("Medieval period"), None::<&str>),
+    ("keyword", "style:modern", Some("Contemporary"), None::<&str>),
+    ("keyword", "style:futuristic", Some("Science fiction"), None::<&str>),
+    ("keyword", "style:tribal", Some("Primitive cultures"), None::<&str>),
+    ("keyword", "style:ethereal", Some("Otherworldly"), None::<&str>),
+    ("keyword", "style:minimalist", Some("Sparse and simple"), None::<&str>),
+    ("keyword", "style:epic", Some("Grand and heroic"), None::<&str>),
+    ("keyword", "style:intimate", Some("Personal and close"), None::<&str>),
+    ("keyword", "style:retro", Some("Nostalgic throwback"), None::<&str>),
+]
