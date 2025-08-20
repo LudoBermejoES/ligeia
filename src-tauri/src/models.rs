@@ -184,3 +184,68 @@ pub struct ExportRpgTag {
     pub tag_type: String,
     pub tag_value: String,
 }
+
+// Atmosphere models
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Atmosphere {
+    pub id: Option<i64>,
+    pub name: String,
+    pub title: String,
+    pub description: String,
+    pub category: String,              // e.g., "Unreal atmospheres"
+    pub subcategory: String,           // e.g., "Horror"
+    pub subsubcategory: Option<String>, // e.g., specific theme
+    pub keywords: Vec<String>,         // Tags separated by comma
+    pub background_image: Option<String>, // Path or URL to background image
+    pub author_image: Option<String>,  // Author of the image
+    pub is_public: bool,               // Whether atmosphere is public
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AtmosphereSoundMapping {
+    pub id: Option<i64>,
+    pub atmosphere_id: i64,
+    pub audio_file_id: i64,
+    pub volume: f32,        // Individual volume for this sound in atmosphere
+    pub is_looping: bool,   // Whether this sound loops in atmosphere
+    pub is_muted: bool,     // Whether this sound is muted in atmosphere
+    pub created_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AtmosphereWithSounds {
+    pub atmosphere: Atmosphere,
+    pub sounds: Vec<AtmosphereSoundMapping>,
+    pub audio_files: Vec<AudioFile>, // The actual audio file data
+}
+
+// Categories for dropdowns - these could be loaded from a file or database
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AtmosphereCategory {
+    pub id: i64,
+    pub name: String,
+    pub parent_id: Option<i64>,
+}
+
+impl Default for Atmosphere {
+    fn default() -> Self {
+        let now = chrono::Utc::now().to_rfc3339();
+        Atmosphere {
+            id: None,
+            name: String::new(),
+            title: String::new(),
+            description: String::new(),
+            category: String::new(),
+            subcategory: String::new(),
+            subsubcategory: None,
+            keywords: Vec::new(),
+            background_image: None,
+            author_image: None,
+            is_public: false,
+            created_at: now.clone(),
+            updated_at: now,
+        }
+    }
+}

@@ -1,17 +1,19 @@
 use rusqlite::{Connection, Result};
-use crate::models::{AudioFile, RpgTag, TagVocabulary, AudioFileWithTags};
+use crate::models::{AudioFile, RpgTag, TagVocabulary, AudioFileWithTags, Atmosphere, AtmosphereWithSounds, AtmosphereSoundMapping, AtmosphereCategory};
 
 pub mod schema;
 pub mod audio_files;
 pub mod rpg_tags;
 pub mod vocabulary;
 pub mod search;
+pub mod atmospheres;
 
 pub use schema::SchemaManager;
 pub use audio_files::AudioFileRepository;
 pub use rpg_tags::RpgTagRepository;
 pub use vocabulary::VocabularyRepository;
 pub use search::SearchRepository;
+pub use atmospheres::AtmosphereRepository;
 
 /// Main database struct that coordinates all repositories
 pub struct Database {
@@ -21,6 +23,7 @@ pub struct Database {
     pub rpg_tags: RpgTagRepository,
     pub vocabulary: VocabularyRepository,
     pub search: SearchRepository,
+    pub atmospheres: AtmosphereRepository,
 }
 
 impl Database {
@@ -32,6 +35,7 @@ impl Database {
         let rpg_tags = RpgTagRepository::new();
         let vocabulary = VocabularyRepository::new();
         let search = SearchRepository::new();
+        let atmospheres = AtmosphereRepository::new();
         
         let db = Database {
             conn,
@@ -40,11 +44,13 @@ impl Database {
             rpg_tags,
             vocabulary,
             search,
+            atmospheres,
         };
         
         // Initialize schema and vocabulary
         db.schema.create_tables(&db.conn)?;
         db.vocabulary.initialize_tag_vocabulary(&db.conn)?;
+        db.atmospheres.create_tables(&db.conn)?;
         
         Ok(db)
     }
@@ -114,5 +120,43 @@ impl Database {
 
     pub fn search_files_by_tags(&self, tag_types: Option<&[String]>, tag_values: Option<&[String]>, match_all: bool) -> Result<Vec<AudioFileWithTags>> {
         self.search.search_by_tags(&self.conn, tag_types, tag_values, match_all)
+    }
+
+    // Atmosphere methods
+    
+    pub fn save_atmosphere(&self, atmosphere: &Atmosphere) -> Result<i64> {
+        self.atmospheres.save(&self.conn, atmosphere)
+    }
+
+    pub fn get_all_atmospheres(&self) -> Result<Vec<Atmosphere>> {
+        self.atmospheres.get_all(&self.conn)
+    }
+
+    pub fn get_atmosphere_by_id(&self, id: i64) -> Result<Atmosphere> {
+        self.atmospheres.get_by_id(&self.conn, id)
+    }
+
+    pub fn delete_atmosphere(&self, id: i64) -> Result<()> {
+        self.atmospheres.delete(&self.conn, id)
+    }
+
+    pub fn add_sound_to_atmosphere(&self, atmosphere_id: i64, audio_file_id: i64, volume: f32, is_looping: bool) -> Result<i64> {
+        self.atmospheres.add_sound(&self.conn, atmosphere_id, audio_file_id, volume, is_looping)
+    }
+
+    pub fn remove_sound_from_atmosphere(&self, atmosphere_id: i64, audio_file_id: i64) -> Result<()> {
+        self.atmospheres.remove_sound(&self.conn, atmosphere_id, audio_file_id)
+    }
+
+    pub fn update_atmosphere_sound(&self, atmosphere_id: i64, audio_file_id: i64, volume: f32, is_looping: bool, is_muted: bool) -> Result<()> {
+        self.atmospheres.update_sound(&self.conn, atmosphere_id, audio_file_id, volume, is_looping, is_muted)
+    }
+
+    pub fn get_atmosphere_with_sounds(&self, atmosphere_id: i64) -> Result<AtmosphereWithSounds> {
+        self.atmospheres.get_with_sounds(&self.conn, atmosphere_id)
+    }
+
+    pub fn get_atmosphere_categories(&self) -> Result<Vec<AtmosphereCategory>> {
+        self.atmospheres.get_categories(&self.conn)
     }
 }
