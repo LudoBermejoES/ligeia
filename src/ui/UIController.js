@@ -18,12 +18,6 @@ export class UIController {
         this.getElementById('loadFiles')?.addEventListener('click', eventHandlers.loadFiles);
         this.getElementById('loadDirectory')?.addEventListener('click', eventHandlers.loadDirectory);
         
-        // Preset management
-        this.getElementById('savePreset')?.addEventListener('click', eventHandlers.savePreset);
-        this.getElementById('loadPreset')?.addEventListener('click', eventHandlers.loadPreset);
-        
-        // Data management
-        this.getElementById('exportData')?.addEventListener('click', eventHandlers.exportData);
         this.getElementById('importData')?.addEventListener('click', eventHandlers.importData);
         this.getElementById('calculateDurations')?.addEventListener('click', eventHandlers.calculateDurations);
         

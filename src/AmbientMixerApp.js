@@ -6,7 +6,6 @@ import { FileService } from './services/FileService.js';
 import { DatabaseService } from './services/DatabaseService.js';
 import { TagService } from './services/TagService.js';
 import { SoundPad } from './models/SoundPad.js';
-import { PresetManager } from './models/PresetManager.js';
 import { UIController } from './ui/UIController.js';
 import { BulkTagEditorController } from './ui/BulkTagEditorController.js';
 import { TagSearchController } from './ui/TagSearchController.js';
@@ -23,9 +22,6 @@ export class AmbientMixerApp {
         this.fileService = new FileService();
         this.databaseService = new DatabaseService();
         this.tagService = new TagService();
-        
-        // Models
-        this.presetManager = new PresetManager();
         
         // UI
         this.uiController = new UIController();
@@ -44,8 +40,6 @@ export class AmbientMixerApp {
         this.eventHandlers = {
             loadFiles: () => this.handleLoadFiles(),
             loadDirectory: () => this.handleLoadDirectory(),
-            savePreset: () => this.handleSavePreset(),
-            loadPreset: () => this.handleLoadPreset(),
             exportData: () => this.handleExportData(),
             importData: () => this.handleImportData(),
             calculateDurations: () => this.handleCalculateDurations(),
@@ -91,9 +85,6 @@ export class AmbientMixerApp {
             // Load tag filters
             await this.tagSearchController.loadTagFilters();
 
-            // Load presets from storage
-            this.presetManager.loadFromStorage();
-
             // Setup UI event listeners
             this.uiController.initializeEventListeners(this.eventHandlers);
             
@@ -128,7 +119,7 @@ export class AmbientMixerApp {
             const audioFiles = await this.databaseService.getAllAudioFiles();
             logger.info('library', 'Audio files retrieved from database', { 
                 count: audioFiles.length,
-                sampleFiles: audioFiles.slice(0, 3).map(f => ({ 
+                sampleFiles: audioFiles.slice(0, 3).map(f => ({
                     id: f.id, 
                     file_path: f.file_path, 
                     title: f.title 
@@ -521,7 +512,7 @@ export class AmbientMixerApp {
             // Create a proper modal dialog that waits for user response
             const modal = document.createElement('div');
             modal.className = 'modal-overlay import-confirmation-modal';
-            modal.style.cssText = `
+            modal.style.cssText = '
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -532,17 +523,17 @@ export class AmbientMixerApp {
                 align-items: center;
                 justify-content: center;
                 z-index: 10000;
-            `;
+            ';
 
             const dialog = document.createElement('div');
             dialog.className = 'modal-container';
-            dialog.style.cssText = `
+            dialog.style.cssText = '
                 background: white;
                 padding: 2rem;
                 border-radius: 8px;
                 max-width: 500px;
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            `;
+            ';
 
             dialog.innerHTML = `
                 <h2 style="margin-top: 0; color: #333;">Confirm Import</h2>
@@ -781,7 +772,7 @@ export class AmbientMixerApp {
             } else {
                 // Extract filename only (without extension)
                 const fullPath = audioFile.file_path;
-                const filename = fullPath.split(/[/\\]/).pop(); // Get last part after / or \
+                const filename = fullPath.split(/[/\]/).pop(); // Get last part after / or \
                 displayName = filename ? filename.replace(/\.[^/.]+$/, '') : 'Unknown Track'; // Remove extension
             }
             trackNameElement.textContent = displayName;
