@@ -117,7 +117,7 @@ async fn export_library_data(app_handle: AppHandle) -> Result<ExportData, String
 
 #[tauri::command]
 async fn import_library_data(app_handle: AppHandle, data: ExportData) -> Result<(), String> {
-    ImportExportHandler::import_library_data(app_handle, data
+    ImportExportHandler::import_library_data(app_handle, data)
 }
 
 // Atmosphere Commands
