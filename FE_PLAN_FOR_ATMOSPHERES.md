@@ -1,126 +1,191 @@
-# Frontend Plan: Atmospheres Feature
+# Frontend Plan: Atmospheres Feature (Enhanced)
 
-This document outlines the plan for implementing the frontend components and logic for the "Atmospheres" feature in Ligeia. The backend is fully implemented; this plan focuses on creating the user-facing interface to interact with it.
+Rich preset management ("Atmospheres") for saving, loading, updating, and organizing soundscapes with smooth UX, resilience, and future extensibility.
 
-## 1. Objective
+---
+## 1. Objectives
+Create a robust, low-friction interface to:
+- Save current active pads (volume, loop, mute) as an Atmosphere
+- Load & optionally crossfade into saved Atmospheres
+- Update or duplicate existing Atmospheres
+- Organize by category and quickly browse
+- Lay groundwork for future tagging, search, export, versioning
 
-To build a complete, user-friendly interface for creating, saving, loading, and managing "Atmospheres," which are saved presets of soundscapes.
+Success criteria:
+- Load time < 200ms JS orchestration (excluding audio decode)
+- Crossfade optional & cancelable
+- Partial-load tolerated (missing files) with warning
+- No regression to existing mixer/tag features
 
-## 2. Key Features
+---
+## 2. Data Model (Frontend Shape)
+Atmosphere:
+```
+{
+    id, name, description?, category?, subcategory?, created_at, updated_at,
+    background_image?, author_image?, is_public?,
+    sounds: [ { audio_file_id, volume (0–1), is_looping, is_muted } ]
+}
+```
+Local structures:
+- `this.atmospheres: Atmosphere[]`
+- `this.atmosphereIndex: Map<number, Atmosphere>`
+- `this.activeAtmosphereId: number | null`
 
-- **View Atmospheres**: Display a list of all saved atmospheres, grouped by category, in the sidebar.
-- **Save Atmosphere**: Save the current mix of active sounds (including their individual volume and loop settings) as a new atmosphere.
-- **Load Atmosphere**: Load a saved atmosphere, replacing the current soundscape with the one from the atmosphere.
-- **Delete Atmosphere**: Remove an atmosphere from the library.
-- **UI Feedback**: Provide clear notifications for all actions (save, load, delete).
+Normalization: Audio file metadata remains in existing `audioFiles` Map; sounds array references by id.
 
-## 3. Component & File Modifications
+---
+## 3. Service Layer (`DatabaseService.js`)
+Add invoke wrappers (map snake_case -> camelCase on return if needed):
+- `getAtmosphereCategories()`
+- `getAllAtmospheres()`
+- `getAtmosphereWithSounds(id)`
+- `saveAtmosphere(atmosphere)` (create/update by presence of `id`)
+- `deleteAtmosphere(id)`
+- (Future) `duplicateAtmosphere(id, overrides?)`
 
-### 3.1. `index.html` - HTML Structure
+All methods return Promises; errors surface with standardized message to UI controller.
 
-- **Atmosphere Panel**: A new section will be added to the sidebar (`<div class="sidebar-section">`) to display the list of atmospheres.
-  ```html
-  <!-- Inside the sidebar -->
-  <div class="sidebar-section">
-      <h3>Atmospheres</h3>
-      <div id="atmosphereList" class="atmosphere-list">
-          <!-- Atmospheres will be dynamically rendered here -->
-      </div>
-  </div>
-  ```
-- **Save Atmosphere Button**: A new button will be added to the main header controls.
-  ```html
-  <!-- Inside the header controls -->
-  <button id="saveAtmosphere" class="btn btn-primary">💾 Save Atmosphere</button>
-  ```
-- **Save Atmosphere Modal**: A new modal will be added to the end of the `<body>` for capturing atmosphere details.
-  ```html
-  <div id="saveAtmosphereModal" class="modal-overlay" style="display:none;">
-      <div class="modal-container">
-          <h2>Save Atmosphere</h2>
-          <form id="saveAtmosphereForm">
-              <label for="atmosphereName">Name:</label>
-              <input type="text" id="atmosphereName" required>
-              
-              <label for="atmosphereDescription">Description:</label>
-              <textarea id="atmosphereDescription"></textarea>
-              
-              <label for="atmosphereCategory">Category:</label>
-              <select id="atmosphereCategory"></select>
-              
-              <div class="modal-actions">
-                  <button type="button" id="cancelSaveAtmosphere">Cancel</button>
-                  <button type="submit">Save</button>
-              </div>
-          </form>
-      </div>
-  </div>
-  ```
+---
+## 4. UI / UX Design
+Sidebar Section:
+- Collapsible categories (accordion); uncategorized bucket `_Other`
+- Each item: name, sound-count badge, actions: Load ▶, Edit ✎, Delete 🗑
+- Active atmosphere highlighted (accent border or glow)
 
-### 3.2. `src/services/DatabaseService.js` - Backend Integration
+Save / Update Modal:
+- Fields: Name*, Description, Category (select + “+” inline add), Include muted sounds (checkbox), Crossfade on future load (checkbox, persisted in localStorage), Buttons: Cancel / Save (or Update / Save As New)
+- Mode aware: create vs edit vs “save as new”
 
-This service will be extended with new methods to call the Rust backend's atmosphere commands.
+Load Behavior:
+- Option to crossfade (default ON, configurable) over N ms (default 1200ms)
+- Graceful cancellation if a new load triggers mid-fade
+- Missing files reported; others still load
 
-- `getAtmosphereCategories()`: Fetches all categories for the save modal dropdown.
-- `getAllAtmospheres()`: Gets the list of all saved atmospheres.
-- `getAtmosphereWithSounds(id)`: Retrieves a single atmosphere and its associated sound data.
-- `saveAtmosphere(atmosphere)`: Saves a new or updates an existing atmosphere.
-- `deleteAtmosphere(id)`: Deletes an atmosphere.
-- `addSoundToAtmosphere(atmosphereId, audioFileId, volume, isLooping)`
-- `removeSoundFromAtmosphere(atmosphereId, audioFileId)`
+Delete Confirmation:
+- Lightweight inline confirm (small overlay or inline expansion) before permanent removal
 
-### 3.3. `src/ui/UIController.js` - DOM Manipulation
+Keyboard & A11y:
+- Focus trap in modal; Esc closes; Enter submits
+- Button labels have aria-labels describing action (e.g. “Load atmosphere Forest Dawn”)
 
-New methods will be added to manage the UI for the atmospheres feature.
+Notifications:
+- Success, warning (partial load), error standardized via existing notification system
 
-- `renderAtmosphereList(atmospheres)`: Renders the list of atmospheres in the sidebar. Each item will have "Load" and "Delete" buttons.
-- `showSaveAtmosphereModal(categories)`: Displays the modal and populates the category dropdown.
-- `hideSaveAtmosphereModal()`: Hides the modal and resets the form.
-- Event listeners for the new buttons (`saveAtmosphere`, `loadAtmosphere`, `deleteAtmosphere`).
+---
+## 5. Application Logic (`AmbientMixerApp`)
+New state:
+```
+this.atmospheres = []
+this.atmosphereIndex = new Map()
+this.activeAtmosphereId = null
+```
+Core methods:
+- `refreshAtmospheres()` – fetch + rebuild index + render
+- `buildCurrentAtmospherePayload(formData)` – derive sounds list from active pads
+- `handleShowSaveAtmosphereModal(mode)` – open with context
+- `handleSaveAtmosphere(formData, mode)` – create/update/save-as-new
+- `handleLoadAtmosphere(id, { crossfadeMs })`
+- `handleDeleteAtmosphere(id)` – optimistic removal with rollback on error
+- `applyAtmosphereSounds(atmo, options)` – executes load/crossfade logic
+- `setActiveAtmosphere(id)` – update highlight & state
 
-### 3.4. `src/AmbientMixerApp.js` - Application Logic
+Crossfade outline:
+1. Snapshot current playing pads (with current volume)
+2. Prepare target pads (ensure instances exist; set starting volume 0 if fading in)
+3. Animate over `crossfadeMs` using `requestAnimationFrame` (avoid setInterval jitter)
+4. On completion, stop pads not in target (unless user aborted mid-fade)
+5. If a new load starts, mark previous fade token canceled
 
-The main controller will be updated to handle the state and logic.
+Edge cases:
+- Atmosphere has 0 sounds → just stop others & notify
+- Missing audio file → log + warning badge
+- Duplicate name on create → warn; user can confirm overwrite OR choose “Save As New”
 
-- **New State**: `this.atmospheres = []` will be added to store the list of atmospheres.
-- **Initialization**: In `initialize()`, the app will call `databaseService.getAllAtmospheres()` and then `uiController.renderAtmosphereList()` to display them on startup.
-- **New Handlers**:
-    - `handleShowSaveAtmosphereModal()`: Gathers active sounds and shows the save modal.
-    - `handleSaveAtmosphere(formData)`: Constructs the atmosphere object from the form data and the current sound pad states, calls the database service, and refreshes the UI.
-    - `handleLoadAtmosphere(atmosphereId)`:
-        1. Stops all currently playing sounds.
-        2. Calls `databaseService.getAtmosphereWithSounds(atmosphereId)`.
-        3. For each sound in the loaded atmosphere, finds the corresponding `SoundPad`.
-        4. Sets the volume and loop status on the `SoundPad`.
-        5. Plays the `SoundPad`.
-    - `handleDeleteAtmosphere(atmosphereId)`: Calls the database service to delete the atmosphere and then re-renders the list.
+---
+## 6. UI Controller Additions (`UIController.js`)
+Methods:
+- `renderAtmosphereList(grouped)`
+- `highlightActiveAtmosphere(id)`
+- `showSaveAtmosphereModal({ mode, categories, initial })`
+- `hideSaveAtmosphereModal()`
+- `bindAtmosphereEvents(handlers)` – delegates clicks for Load/Edit/Delete
 
-## 4. Implementation Roadmap
+Rendering responsibility separation: grouping done in app logic; UI method only transforms to DOM.
 
-1.  **Step 1: Backend Integration (`DatabaseService.js`)**
-    - Add all the new `invoke` functions for every atmosphere command exposed by the Rust backend.
+---
+## 7. Styling (`styles.css`)
+Add classes:
+- `.atmosphere-section`, `.atmo-category`, `.atmo-category-header`, `.atmo-items`
+- `.atmo-item`, `.atmo-item.active`, `.atmo-item-actions`
+- `.atmo-badge` (sound count)
+- Modal reuse existing pattern plus small adjustments for new fields
 
-2.  **Step 2: HTML Scaffolding (`index.html`)**
-    - Add the HTML for the sidebar panel, the "Save Atmosphere" button, and the save modal as described above.
+---
+## 8. Error & Resilience Strategy
+| Operation | Failure Modes | Strategy |
+|-----------|---------------|----------|
+| Fetch list | Backend down | Show cached (if available) + retry button |
+| Save | Validation, DB err | Inline field error + toast |
+| Load | Missing files | Partial apply + warning listing missing names |
+| Delete | Race condition | Reload list if not found; toast on failure |
+| Crossfade | Audio interruption | Fallback to hard switch |
 
-3.  **Step 3: UI Rendering (`UIController.js`)**
-    - Implement `renderAtmosphereList` to generate the HTML for each atmosphere item, including Load/Delete buttons with appropriate `data-atmosphere-id` attributes.
-    - In `AmbientMixerApp.js`, fetch the atmospheres during `initialize()` and call the new render function.
+All service calls wrapped; errors pass normalized shape `{ action, message, details? }`.
 
-4.  **Step 4: Save Functionality**
-    - In `AmbientMixerApp.js`, create `handleShowSaveAtmosphereModal` and `handleSaveAtmosphere`.
-    - In `UIController.js`, implement `showSaveAtmosphereModal` and `hideSaveAtmosphereModal`.
-    - Wire up the "Save Atmosphere" button and the modal form submission to the new handlers. The save logic should collect all active `SoundPad`s and their states.
+---
+## 9. Performance & Scalability
+- Batch DOM updates (fragment + single insert)
+- Avoid full re-render on highlight change
+- Debounce sequential saves (300ms)
+- Prepare for virtualization if atmospheres > 200 (future hook point)
+- Crossfade: minimize allocations; reuse arrays
 
-5.  **Step 5: Load Functionality**
-    - In `AmbientMixerApp.js`, implement `handleLoadAtmosphere`. This is the most complex part, as it involves stopping the current sounds and starting new ones based on the loaded data.
-    - Add an event listener in `UIController.js` that delegates clicks on the "Load" buttons in the atmosphere list to this handler.
+---
+## 10. Testing / Verification
+Scenarios:
+1. Create new atmosphere (active pads >0) → appears in list
+2. Update existing (change volume) → reload & verify volumes match ±1%
+3. Load with crossfade ON vs OFF
+4. Partial load (simulate missing file) → warning + remaining load ok
+5. Delete active atmosphere → highlight cleared
+6. Rapid successive loads → only last applies; no JS errors
+7. Cancel modal → no side effects
 
-6.  **Step 6: Delete Functionality**
-    - In `AmbientMixerApp.js`, implement `handleDeleteAtmosphere`.
-    - Add a click delegate in `UIController.js` for the "Delete" buttons.
+Manual smoke scripts + optional lightweight dev helper (log diff between current pads & atmosphere).
 
-7.  **Step 7: Styling (`styles.css`)**
-    - Add CSS rules to style the new atmosphere list, buttons, and the save modal to match the application's existing theme.
+---
+## 11. Implementation Phases
+1. Service methods + empty sidebar scaffold
+2. Fetch & render list (no load logic yet)
+3. Save modal (create only)
+4. Load (basic hard switch)
+5. Delete + confirmation
+6. Update / Save As New modes
+7. Crossfade implementation & cancellation
+8. UX polish (category accordion, active highlight, badges)
+9. Edge handling & notifications refinement
+10. Testing & small performance passes
 
-This plan provides a clear path to integrating the atmospheres feature into the frontend in a way that is consistent with the existing application architecture.
+Each phase leaves app functional; feature flags (simple booleans) can gate incomplete steps if needed.
+
+---
+## 12. Future Extensions (Planned but Deferred)
+- Atmosphere tagging & search
+- Export/import embedded with library export
+- Favorites & pinning
+- Recent atmospheres quick bar
+- Version history & diffing
+- Scheduling / sequencing atmospheres
+
+---
+## 13. Open Questions (Track & Resolve During Implementation)
+- Should pad ordering be saved/restored? (Current: NOT stored; option to add later.)
+- Persist crossfade preference per user? (Plan: localStorage key `atmoCrossfadeMs`)
+- Include global master volume in atmosphere? (Initial: NO; maybe optional later.)
+
+---
+## 14. Summary
+This enhanced plan adds richer UX, resilience, performance awareness, and a phased path. It builds on existing architecture minimizing refactors while setting clear seams for future growth.
+
+Next actionable step: implement Phase 1 (service methods + scaffold) followed by incremental UI integration.
