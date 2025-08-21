@@ -1,0 +1,32 @@
+<div id="bulkTagEditorModal" class="modal-overlay" style="display: none;">
+  <div class="modal-container bulk-tag-modal">
+    <div class="modal-header">
+      <h2>Bulk Tag Editor</h2>
+      <button class="modal-close" id="closeBulkTagEditor">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="bulk-tag-content">
+        <div class="file-selection-panel">
+          <h3>Select Audio Files</h3>
+          <div class="selection-controls">
+            <button id="selectAllFiles" class="btn btn-sm btn-secondary">Select All</button>
+            <button id="clearSelection" class="btn btn-sm btn-secondary">Clear Selection</button>
+            <span class="selection-count">0 files selected</span>
+          </div>
+          <div class="file-list-container"><div id="bulkTagFileList" class="file-list"></div></div>
+        </div>
+        <div class="tag-editor-panel">
+          <h3>RPG Audio Tags</h3>
+          <div class="tag-category"><h4>Genre</h4><div class="tag-vocabulary" id="genreVocabulary"></div></div>
+          <div class="tag-category"><h4>Mood</h4><div class="tag-vocabulary" id="moodVocabulary"></div></div>
+          <div class="tag-category"><h4>Occasion</h4><div class="tag-vocabulary" id="occasionVocabulary"></div></div>
+          <div class="tag-category"><h4>Keywords</h4><div class="tag-vocabulary" id="keywordVocabulary"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" id="cancelBulkTagEdit">Cancel</button>
+      <button type="button" class="btn btn-primary" id="applyBulkTags">Apply Tags</button>
+    </div>
+  </div>
+</div>

@@ -10,18 +10,20 @@ The application follows a **Model-View-Controller (MVC)** pattern with additiona
 
 ```
 ┌─────────────────┐
-│   Entry Point   │ main-refactored.js
+│   Entry Point   │ main-template.js
 └─────────┬───────┘
-          │
+      │ (loads static HTML partials)
 ┌─────────▼───────┐
 │ App Controller  │ AmbientMixerApp.js
 └─────────┬───────┘
-          │
-    ┌─────┼─────┐
-    │     │     │
+      │
+  ┌─────┼─────┐
+  │     │     │
 ┌───▼──┐ ┌▼──┐ ┌▼──────┐
 │Models│ │UI │ │Services│
 └──────┘ └───┘ └───────┘
+      │
+    (TemplateLoader → injects partials: header, sidebar, mixer, modals)
 ```
 
 ## Directory Structure
@@ -37,6 +39,7 @@ src/
 ├── models/
 │   ├── SoundPad.js            # Sound pad entity
 │   └── PresetManager.js       # Preset management
+├── templates/TemplateLoader.js # Lightweight cached partial fetcher
 └── ui/
     ├── UIController.js         # DOM manipulation & UI updates
     ├── BulkTagEditorController.js # Bulk tagging interface

@@ -1,325 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>Ligeia - Ambient Soundscape Mixer</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script type="importmap">
     {
-      "imports": {
-        "@tauri-apps/api/core": "./node_modules/@tauri-apps/api/core.js",
-        "@tauri-apps/api/path": "./node_modules/@tauri-apps/api/path.js",
-        "@tauri-apps/api/event": "./node_modules/@tauri-apps/api/event.js",
-        "@tauri-apps/api/window": "./node_modules/@tauri-apps/api/window.js",
-        "@tauri-apps/api/app": "./node_modules/@tauri-apps/api/app.js",
-        "@tauri-apps/plugin-dialog": "./node_modules/@tauri-apps/plugin-dialog/dist-js/index.js",
-        "@tauri-apps/plugin-fs": "./node_modules/@tauri-apps/plugin-fs/dist-js/index.js",
-        "@tauri-apps/plugin-log": "./node_modules/@tauri-apps/plugin-log/dist-js/index.js"
-      }
+        "imports": {
+            "@tauri-apps/api/core": "./node_modules/@tauri-apps/api/core.js",
+            "@tauri-apps/api/path": "./node_modules/@tauri-apps/api/path.js",
+            "@tauri-apps/api/event": "./node_modules/@tauri-apps/api/event.js",
+            "@tauri-apps/api/window": "./node_modules/@tauri-apps/api/window.js",
+            "@tauri-apps/api/app": "./node_modules/@tauri-apps/api/app.js",
+            "@tauri-apps/plugin-dialog": "./node_modules/@tauri-apps/plugin-dialog/dist-js/index.js",
+            "@tauri-apps/plugin-fs": "./node_modules/@tauri-apps/plugin-fs/dist-js/index.js",
+            "@tauri-apps/plugin-log": "./node_modules/@tauri-apps/plugin-log/dist-js/index.js"
+        }
     }
     </script>
-    
-    <!-- Initialize Tauri API for better compatibility -->
     <script>
-      window.__TAURI_INTERNALS__ = window.__TAURI_INTERNALS__ || {};
+        window.__TAURI_INTERNALS__ = window.__TAURI_INTERNALS__ || {};
     </script>
 </head>
 <body>
     <div class="app">
-        <header class="header">
-            <h1>🌟 Ligeia</h1>
-            <div class="controls">
-                <button id="loadFiles" class="btn btn-primary">📂 Load Sounds</button>
-                <button id="loadDirectory" class="btn btn-secondary">📁 Load Directory (Recursive)</button>
-                <button id="bulkTagEditor" class="btn btn-warning">🏷️ Bulk Tag Editor</button>
-                <button id="exportData" class="btn btn-outline">📤 Export Library</button>
-                <button id="importData" class="btn btn-outline">📥 Import Library</button>
-                <button id="calculateDurations" class="btn btn-outline">⏱️ Calculate Durations</button>
-                <button id="stopAll" class="btn btn-danger">⏹️ Stop All</button>
-            </div>
-        </header>
-
+        <div id="header-container"></div>
         <main class="main">
-            <div class="sidebar">
-                <h3>Sound Library</h3>
-                <div class="library-stats">
-                    <span id="fileCount">0 sounds loaded</span>
-                </div>
-                
-                <!-- RPG Tag Search Interface will be populated here -->
-                <div id="tagSearchContainer"></div>
-                
-                <div class="library-list" id="libraryList">
-                    <!-- Library items will be populated here -->
-                </div>
-            </div>
-
-            <div class="mixer-area">
-                <div class="mixer-header">
-                    <h3>Soundscape Mixer</h3>
-                    <div class="mixer-info">
-                        <span>Active Layers: <span id="activeLayersCount">0</span></span>
-                    </div>
-                </div>
-
-                <div class="sound-pads-grid" id="soundPadsGrid">
-                    <!-- Sound pads will be populated here -->
-                </div>
-
-                <div class="mixer-controls">
-                    <div class="global-controls">
-                        <div class="master-section">
-                            <label>Master Volume</label>
-                            <div class="volume-group">
-                                <button id="masterMute" class="mute-btn">🔊</button>
-                                <input type="range" id="masterVolumeSlider" min="0" max="100" value="50" class="volume-slider">
-                                <span class="volume-display">50%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="global-actions">
-                            <button id="fadeAllIn" class="btn btn-sm">↗️ Fade All In</button>
-                            <button id="fadeAllOut" class="btn btn-sm">↘️ Fade All Out</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div id="sidebar-container"></div>
+            <div id="mixer-container"></div>
         </main>
     </div>
-
-    <!-- Audio elements container (hidden) -->
-    <div id="audioContainer" style="display: none;"></div>
-
-    <!-- Tag Editor Modal -->
-    <div id="tagEditorModal" class="modal-overlay" style="display: none;">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title-section">
-                    <h2>Edit Audio Tags</h2>
-                    <div class="editing-track-info">
-                        <span class="track-name" id="editingTrackName">Unknown Track</span>
-                        <span class="track-path" id="editingTrackPath"></span>
-                    </div>
-                </div>
-                <button class="modal-close" id="closeTagEditor">×</button>
-            </div>
-            <div class="modal-body">
-                <form id="tagEditorForm">
-                    <div class="tag-sections">
-                        <!-- Basic Information -->
-                        <div class="tag-section">
-                            <h3>Basic Information</h3>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="tag-title">Title</label>
-                                    <input type="text" id="tag-title" name="title">
-                                </div>
-                                <div class="form-group">
-                                    <label for="tag-artist">Artist</label>
-                                    <input type="text" id="tag-artist" name="artist">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="tag-album">Album</label>
-                                    <input type="text" id="tag-album" name="album">
-                                </div>
-                                <div class="form-group">
-                                    <label for="tag-album-artist">Album Artist</label>
-                                    <input type="text" id="tag-album-artist" name="album_artist">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="tag-genre">Genre (semicolon-separated)</label>
-                                    <input type="text" id="tag-genre" name="genre" placeholder="ambient; horror; orchestral:cinematic">
-                                </div>
-                                <div class="form-group">
-                                    <label for="tag-year">Year</label>
-                                    <input type="number" id="tag-year" name="year">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="tag-track-number">Track #</label>
-                                    <input type="number" id="tag-track-number" name="track_number">
-                                </div>
-                                <div class="form-group">
-                                    <label for="tag-total-tracks">Total Tracks</label>
-                                    <input type="number" id="tag-total-tracks" name="total_tracks">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Credits -->
-                        <div class="tag-section">
-                            <h3>Credits</h3>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="tag-composer">Composer</label>
-                                    <input type="text" id="tag-composer" name="composer">
-                                </div>
-                                <div class="form-group">
-                                    <label for="tag-conductor">Conductor</label>
-                                    <input type="text" id="tag-conductor" name="conductor">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="tag-producer">Producer</label>
-                                    <input type="text" id="tag-producer" name="producer">
-                                </div>
-                                <div class="form-group">
-                                    <label for="tag-remixer">Remixer</label>
-                                    <input type="text" id="tag-remixer" name="remixer">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Content -->
-                        <div class="tag-section">
-                            <h3>Content</h3>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="tag-bpm">BPM</label>
-                                    <input type="number" id="tag-bpm" name="bpm">
-                                </div>
-                                <div class="form-group">
-                                    <label for="tag-initial-key">Key</label>
-                                    <input type="text" id="tag-initial-key" name="initial_key">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="tag-mood">Mood (semicolon-separated)</label>
-                                    <input type="text" id="tag-mood" name="mood" placeholder="ominous; atmospheric; mysterious">
-                                </div>
-                                <div class="form-group">
-                                    <label for="tag-language">Language</label>
-                                    <input type="text" id="tag-language" name="language">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Legal -->
-                        <div class="tag-section">
-                            <h3>Legal & Copyright</h3>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="tag-copyright">Copyright</label>
-                                    <input type="text" id="tag-copyright" name="copyright">
-                                </div>
-                                <div class="form-group">
-                                    <label for="tag-publisher">Publisher</label>
-                                    <input type="text" id="tag-publisher" name="publisher">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- RPG Tags -->
-                        <div class="tag-section">
-                            <h3>RPG Tags (TXXX Frames)</h3>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="tag-rpg-occasions">Occasions (semicolon-separated)</label>
-                                    <input type="text" id="tag-rpg-occasions" name="rpg_occasions" placeholder="exploration; combat; scene-transition">
-                                </div>
-                                <div class="form-group">
-                                    <label for="tag-rpg-quality">Quality</label>
-                                    <input type="text" id="tag-rpg-quality" name="rpg_quality" placeholder="High">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group full-width">
-                                    <label for="tag-rpg-keywords">Keywords (semicolon-separated)</label>
-                                    <input type="text" id="tag-rpg-keywords" name="rpg_keywords" placeholder="biome:forest; util:loopable; style:cinematic">
-                                </div>
-                            </div>
-                            <div class="rpg-note">
-                                <small>Note: These will be written as TXXX:Occasion, TXXX:Keywords, and TXXX:Quality frames in the audio file according to TAGS.md specification.</small>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelTagEdit">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveTagEdit">Save Changes</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bulk Tag Editor Modal -->
-    <div id="bulkTagEditorModal" class="modal-overlay" style="display: none;">
-        <div class="modal-container bulk-tag-modal">
-            <div class="modal-header">
-                <h2>Bulk Tag Editor</h2>
-                <button class="modal-close" id="closeBulkTagEditor">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="bulk-tag-content">
-                    <!-- File Selection Panel -->
-                    <div class="file-selection-panel">
-                        <h3>Select Audio Files</h3>
-                        <div class="selection-controls">
-                            <button id="selectAllFiles" class="btn btn-sm btn-secondary">Select All</button>
-                            <button id="clearSelection" class="btn btn-sm btn-secondary">Clear Selection</button>
-                            <span class="selection-count">0 files selected</span>
-                        </div>
-                        <div class="file-list-container">
-                            <div id="bulkTagFileList" class="file-list">
-                                <!-- File list will be populated here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tag Editor Panel -->
-                    <div class="tag-editor-panel">
-                        <h3>RPG Audio Tags</h3>
-                        
-                        <!-- Genre Tags -->
-                        <div class="tag-category">
-                            <h4>Genre</h4>
-                            <div class="tag-vocabulary" id="genreVocabulary">
-                                <!-- Genre tags will be populated here -->
-                            </div>
-                        </div>
-
-                        <!-- Mood Tags -->
-                        <div class="tag-category">
-                            <h4>Mood</h4>
-                            <div class="tag-vocabulary" id="moodVocabulary">
-                                <!-- Mood tags will be populated here -->
-                            </div>
-                        </div>
-
-                        <!-- Occasion Tags -->
-                        <div class="tag-category">
-                            <h4>Occasion</h4>
-                            <div class="tag-vocabulary" id="occasionVocabulary">
-                                <!-- Occasion tags will be populated here -->
-                            </div>
-                        </div>
-
-                        <!-- Keyword Tags -->
-                        <div class="tag-category">
-                            <h4>Keywords</h4>
-                            <div class="tag-vocabulary" id="keywordVocabulary">
-                                <!-- Keyword tags will be populated here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelBulkTagEdit">Cancel</button>
-                <button type="button" class="btn btn-primary" id="applyBulkTags">Apply Tags</button>
-            </div>
-        </div>
-    </div>
-
-    <script type="module" src="main-refactored.js"></script>
+    <div id="audioContainer" class="hidden"></div>
+    <div id="modals-container"></div>
+    <div id="notifications-container" class="notifications-container"></div>
+    <script type="module" src="main-template.js"></script>
 </body>
 </html>

@@ -94,6 +94,7 @@ Ligeia automatically categorizes your sounds:
 
 ### Architecture
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
+- **Templating**: Lightweight runtime partial loader (`main-template.js` + static HTML partials in `templates/`)
 - **Backend**: Rust with Tauri framework
 - **Audio**: Web Audio API for real-time mixing
 - **Database**: SQLite for metadata storage
@@ -102,15 +103,29 @@ Ligeia automatically categorizes your sounds:
 ### File Structure
 ```
 ligeia/
-├── index.html          # Main application interface
-├── main.js             # Core application logic
-├── styles.css          # UI styling and animations
-├── package.json        # Node.js dependencies
-└── src-tauri/          # Rust backend
-    ├── src/main.rs     # Tauri backend logic
-    ├── Cargo.toml      # Rust dependencies
-    └── tauri.conf.json # Tauri configuration
+├── index.html                 # Minimal shell with import map & mount points
+├── main-template.js           # Bootstrap: loads partials then initializes app
+├── templates/                 # Static HTML partials (header, sidebar, mixer, modals)
+│   ├── header.html
+│   ├── sidebar.html
+│   ├── mixer-area.html
+│   └── modals/
+│       ├── tag-editor.html
+│       └── bulk-tag-editor.html
+├── src/                       # Frontend source
+│   ├── AmbientMixerApp.js
+│   ├── templates/TemplateLoader.js
+│   ├── ui/...
+│   └── services/...
+├── styles.css                 # UI styling and animations
+├── package.json               # Node.js dependencies
+└── src-tauri/                 # Rust backend
+    ├── src/main.rs            # Tauri backend logic
+    ├── Cargo.toml             # Rust dependencies
+    └── tauri.conf.json        # Tauri configuration
 ```
+
+The runtime loader fetches each partial once, caches it, and injects HTML into dedicated container nodes (`#header-container`, `#sidebar-container`, `#mixer-container`, `#modals-container`). This keeps `index.html` small and focused while avoiding a heavy template engine.
 
 ### Audio Processing
 - **Simultaneous playback** of unlimited audio files

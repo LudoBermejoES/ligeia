@@ -26,7 +26,7 @@ Ligeia features a completely **refactored and modular architecture** from the or
 
 The frontend follows a **Model-View-Controller (MVC)** pattern with an additional **Service Layer**.
 
--   **Entry Point**: `main-refactored.js` initializes the main application controller.
+-   **Entry Point**: `main-template.js` loads HTML partials (header, sidebar, mixer, modals) then initializes the main application controller.
 -   **Main Controller** (`src/AmbientMixerApp.js`): Orchestrates all services, manages application state, and handles user interactions.
 -   **Services** (`src/services/`):
     -   `AudioService.js`: Manages all Web Audio API operations, including the `AudioContext`, master gain, and audio source creation.
@@ -156,11 +156,12 @@ src-tauri/src/
 ### Project Structure:
 ```
 /
-├── main.js                    # Legacy monolithic application logic
-├── main-refactored.js         # New entry point for the refactored app
+├── main.js                    # Legacy monolithic application logic (legacy)
+├── main-template.js           # Current entry point (partial loader + bootstrap)
+├── templates/                 # Static HTML partials (header, sidebar, mixer-area, modals)
 ├── src/                       # Frontend source code (modular architecture)
 ├── src-tauri/                 # Tauri Rust backend (modular architecture)
-├── index.html                 # Main HTML with bulk tag editor modal
+├── index.html                 # Minimal shell + import map + mount points
 ├── styles.css                 # Enhanced CSS with tag interface styles
 ├── ARCHITECTURE.md            # Detailed architecture documentation
 ├── TESTING.md                 # Comprehensive testing guide

@@ -12,6 +12,8 @@ body {
     overflow: hidden;
 }
 
+.hidden { display: none !important; }
+
 .app {
     height: 100vh;
     display: flex;
@@ -309,6 +311,7 @@ body {
 
 /* Drag and Drop States */
 .sound-pads-grid.sorting-active {
+    -webkit-user-select: none;
     user-select: none;
 }
 
@@ -350,6 +353,7 @@ body {
     min-height: 150px;
     display: flex;
     flex-direction: column;
+    -webkit-user-select: none;
     user-select: none;
 }
 
@@ -767,6 +771,7 @@ body {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.8);
+    -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
     z-index: 10000;
     display: flex;
@@ -1069,6 +1074,7 @@ body {
     font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    -webkit-user-select: none;
     user-select: none;
 }
 
@@ -1199,6 +1205,7 @@ body {
     font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    -webkit-user-select: none;
     user-select: none;
 }
 
@@ -1308,6 +1315,7 @@ body {
     padding: 1rem;
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     animation: slideIn 0.3s ease-out;
     border-left: 4px solid;
