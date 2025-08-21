@@ -15,8 +15,8 @@ impl AtmosphereHandler {
         let state = app_handle.state::<AppState>();
         let db = state.db.lock().unwrap();
         
-        log::info!("Saving atmosphere: name={}, category={}, subcategory={}", 
-                  atmosphere.name, atmosphere.category, atmosphere.subcategory);
+    log::info!("Saving atmosphere: name={}, category={}, subcategory={}, crossfade_ms={}, curve={}", 
+          atmosphere.name, atmosphere.category, atmosphere.subcategory, atmosphere.default_crossfade_ms, atmosphere.fade_curve);
         
         db.save_atmosphere(&atmosphere).map_err(|e| {
             log::error!("Failed to save atmosphere: {}", e);

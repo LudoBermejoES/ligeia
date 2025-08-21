@@ -25,11 +25,31 @@ impl AtmosphereRepository {
                 background_image TEXT,
                 author_image TEXT,
                 is_public BOOLEAN DEFAULT FALSE,
+                default_crossfade_ms INTEGER DEFAULT 2500,
+                fade_curve TEXT NOT NULL DEFAULT 'linear',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )",
             [],
         )?;
+
+        // Backfill new columns if database pre-existed without them
+        // SQLite doesn't support ADD COLUMN IF NOT EXISTS directly for older versions, so probe pragma
+        let mut stmt = conn.prepare("PRAGMA table_info(atmospheres)")?;
+        let mut has_crossfade = false;
+        let mut has_curve = false;
+        let mut rows = stmt.query([])?;
+        while let Some(row) = rows.next()? {
+            let col_name: String = row.get(1)?; // 1 = name
+            if col_name == "default_crossfade_ms" { has_crossfade = true; }
+            if col_name == "fade_curve" { has_curve = true; }
+        }
+        if !has_crossfade {
+            conn.execute("ALTER TABLE atmospheres ADD COLUMN default_crossfade_ms INTEGER DEFAULT 2500", [])?;
+        }
+        if !has_curve {
+            conn.execute("ALTER TABLE atmospheres ADD COLUMN fade_curve TEXT NOT NULL DEFAULT 'linear'", [])?;
+        }
 
         // Create atmosphere_sounds mapping table
         conn.execute(
@@ -89,13 +109,15 @@ impl AtmosphereRepository {
                         name = ?1, title = ?2, description = ?3, category = ?4, 
                         subcategory = ?5, subsubcategory = ?6, keywords = ?7,
                         background_image = ?8, author_image = ?9, is_public = ?10,
+                                default_crossfade_ms = ?11, fade_curve = ?12,
                         updated_at = CURRENT_TIMESTAMP 
-                     WHERE id = ?11",
+                            WHERE id = ?13",
                     params![
                         atmosphere.name, atmosphere.title, atmosphere.description,
                         atmosphere.category, atmosphere.subcategory, atmosphere.subsubcategory,
                         keywords_json, atmosphere.background_image, atmosphere.author_image,
-                        atmosphere.is_public, id
+                                atmosphere.is_public, atmosphere.default_crossfade_ms, atmosphere.fade_curve,
+                                id
                     ],
                 )?;
                 Ok(id)
@@ -105,13 +127,14 @@ impl AtmosphereRepository {
                 conn.execute(
                     "INSERT INTO atmospheres (
                         name, title, description, category, subcategory, subsubcategory,
-                        keywords, background_image, author_image, is_public
-                    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+                        keywords, background_image, author_image, is_public,
+                        default_crossfade_ms, fade_curve
+                    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
                     params![
                         atmosphere.name, atmosphere.title, atmosphere.description,
                         atmosphere.category, atmosphere.subcategory, atmosphere.subsubcategory,
                         keywords_json, atmosphere.background_image, atmosphere.author_image,
-                        atmosphere.is_public
+                        atmosphere.is_public, atmosphere.default_crossfade_ms, atmosphere.fade_curve
                     ],
                 )?;
                 Ok(conn.last_insert_rowid())
@@ -123,7 +146,7 @@ impl AtmosphereRepository {
     pub fn get_all(&self, conn: &Connection) -> Result<Vec<Atmosphere>> {
         let mut stmt = conn.prepare(
             "SELECT id, name, title, description, category, subcategory, subsubcategory,
-                    keywords, background_image, author_image, is_public, created_at, updated_at
+                    keywords, background_image, author_image, is_public, default_crossfade_ms, fade_curve, created_at, updated_at
              FROM atmospheres ORDER BY updated_at DESC"
         )?;
 
@@ -143,8 +166,10 @@ impl AtmosphereRepository {
                 background_image: row.get(8)?,
                 author_image: row.get(9)?,
                 is_public: row.get(10)?,
-                created_at: row.get(11)?,
-                updated_at: row.get(12)?,
+                default_crossfade_ms: row.get(11).unwrap_or(2500),
+                fade_curve: row.get(12).unwrap_or(String::from("linear")),
+                created_at: row.get(13)?,
+                updated_at: row.get(14)?,
             })
         })?;
 
@@ -159,7 +184,7 @@ impl AtmosphereRepository {
     pub fn get_by_id(&self, conn: &Connection, id: i64) -> Result<Atmosphere> {
         let mut stmt = conn.prepare(
             "SELECT id, name, title, description, category, subcategory, subsubcategory,
-                    keywords, background_image, author_image, is_public, created_at, updated_at
+                    keywords, background_image, author_image, is_public, default_crossfade_ms, fade_curve, created_at, updated_at
              FROM atmospheres WHERE id = ?1"
         )?;
 
@@ -179,8 +204,10 @@ impl AtmosphereRepository {
                 background_image: row.get(8)?,
                 author_image: row.get(9)?,
                 is_public: row.get(10)?,
-                created_at: row.get(11)?,
-                updated_at: row.get(12)?,
+                default_crossfade_ms: row.get(11).unwrap_or(2500),
+                fade_curve: row.get(12).unwrap_or(String::from("linear")),
+                created_at: row.get(13)?,
+                updated_at: row.get(14)?,
             })
         })
     }

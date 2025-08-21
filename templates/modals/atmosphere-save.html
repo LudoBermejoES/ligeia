@@ -1,0 +1,58 @@
+<div id="atmosphereSaveModal" class="modal-overlay" data-hidden="true">
+  <div class="modal-container atmo-modal">
+    <div class="modal-header">
+      <h2 id="atmoModalTitle">Save Atmosphere</h2>
+      <button class="modal-close" id="closeAtmoModal" aria-label="Close">×</button>
+    </div>
+    <form id="atmoSaveForm" class="modal-body atmo-form">
+      <div class="atmo-field">
+        <label for="atmoName">Name *</label>
+        <input id="atmoName" name="name" required placeholder="Forest Dawn" />
+      </div>
+      <div class="atmo-field">
+        <label for="atmoDescription">Description</label>
+        <textarea id="atmoDescription" name="description" rows="3" placeholder="Short description..."></textarea>
+      </div>
+      <div class="atmo-grid2">
+        <div class="atmo-field">
+          <label for="atmoCategory">Category</label>
+          <input id="atmoCategory" name="category" placeholder="Nature" />
+        </div>
+        <div class="atmo-field">
+          <label for="atmoSubcategory">Subcategory</label>
+          <input id="atmoSubcategory" name="subcategory" placeholder="Dawn" />
+        </div>
+      </div>
+      <div class="atmo-field">
+        <label for="atmoKeywords">Keywords (comma separated)</label>
+        <input id="atmoKeywords" name="keywords" placeholder="gentle,birds,morning" />
+      </div>
+      <fieldset class="atmo-options">
+        <legend>Options</legend>
+        <label class="atmo-check">
+          <input type="checkbox" name="includeMuted" checked /> Include muted sounds
+        </label>
+        <label class="atmo-check">
+          <input type="checkbox" name="includeNonPlaying" /> Include non-playing sounds
+        </label>
+        <div class="atmo-field-inline">
+          <label for="atmoCrossfadeMs">Crossfade (ms)</label>
+          <input id="atmoCrossfadeMs" name="crossfadeMs" type="number" min="0" step="100" value="2500" />
+        </div>
+        <div class="atmo-field-inline">
+          <label for="atmoCurve">Curve</label>
+          <select id="atmoCurve" name="curve">
+            <option value="linear" selected>Linear</option>
+            <option value="equal_power" disabled>Equal Power (coming)</option>
+            <option value="exp" disabled>Exponential (coming)</option>
+          </select>
+        </div>
+      </fieldset>
+      <input type="hidden" id="atmoEditingId" name="editingId" value="" />
+      <div class="atmo-actions-row">
+        <button type="button" id="cancelAtmoSave" class="btn btn-secondary">Cancel</button>
+        <button type="submit" id="confirmAtmoSave" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>

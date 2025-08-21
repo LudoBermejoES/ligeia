@@ -13,6 +13,8 @@ import { BulkTagEditorController } from './ui/BulkTagEditorController.js';
 import { TagSearchController } from './ui/TagSearchController.js';
 import logger from './utils/logger.js';
 import { ImportExportManager } from './managers/ImportExportManager.js';
+import { AtmosphereManager } from './managers/AtmosphereManager.js';
+import { AtmosphereUIController } from './ui/AtmosphereUIController.js';
 
 /**
  * AmbientMixerApp - Main application controller
@@ -37,6 +39,9 @@ export class AmbientMixerApp {
     this.audioFiles = this.libraryManager.getAudioFiles();
     this.soundPads = this.libraryManager.getSoundPads();
     this.importExportManager = new ImportExportManager(this.uiController, this.libraryManager);
+    // Atmospheres (manager + UI)
+    this.atmosphereUI = new AtmosphereUIController();
+    this.atmosphereManager = new AtmosphereManager(this.libraryManager, this.uiController);
     this.currentEditingFile = null; // deprecated; kept for backward compatibility
         this.updateUIThrottled = this.throttle(this.updateUI.bind(this), 100);
         this.lastToggleTime = new Map(); // Track last toggle time per pad to prevent rapid toggling
@@ -109,6 +114,30 @@ export class AmbientMixerApp {
             // Initialize tag search to show all files
             await this.tagSearchController.showAllSounds();
 
+            // Atmospheres Phase 1 init
+            try {
+                await this.atmosphereManager.refresh();
+                this.atmosphereUI.renderList(this.atmosphereManager.atmospheres, this.atmosphereManager.activeAtmosphereId);
+                this.atmosphereUI.bind({
+                    onCreate: () => this.atmosphereUI.showCreateModal(),
+                    onLoad: (id) => this.handleLoadAtmosphere(id),
+                    onEdit: (id) => this.handleEditAtmosphere(id),
+                    onDelete: (id) => this.handleDeleteAtmosphere(id),
+                    onSubmitCreate: (meta) => this.handleCreateAtmosphere(meta),
+                    onSubmitEdit: (id, meta) => this.handleUpdateAtmosphere(id, meta)
+                });
+                // Subscribe to engine events (progress / complete)
+                this.atmosphereManager.engine.on('progress', ({ progress, id }) => {
+                    // Basic inline log; could be replaced with a progress bar component
+                    if (progress < 1) {
+                        this.uiController.showInfo?.(`Loading atmosphere ${id} ${(progress*100).toFixed(0)}%`);
+                    }
+                });
+                this.atmosphereManager.engine.on('complete', ({ id }) => {
+                    this.uiController.showSuccess(`Atmosphere ${id} load complete`);
+                });
+            } catch (e) { console.warn('Atmospheres init failed', e); }
+
             console.log('Ambient Mixer initialized successfully');
             return true;
         } catch (error) {
@@ -116,6 +145,81 @@ export class AmbientMixerApp {
             this.uiController.showError('Failed to initialize application');
             return false;
         }
+    }
+
+    /* ================= Atmosphere Handlers (delegate to manager) ================= */
+    async handleCreateAtmosphere(meta) {
+        // meta contains user-entered fields; merge into payload after build
+        const id = await this.atmosphereManager.createFromCurrent(this.soundPads);
+        // Update newly created atmosphere with meta (Phase 1 simple follow-up save)
+        if (meta && id) {
+            const created = this.atmosphereManager.atmospheres.find(a => a.id === id);
+            if (created) {
+                Object.assign(created, {
+                    name: meta.name || created.name,
+                    title: meta.name || created.title,
+                    description: meta.description || '',
+                    category: meta.category || '',
+                    subcategory: meta.subcategory || '',
+                    keywords: meta.keywords || [],
+                    default_crossfade_ms: meta.crossfadeMs ?? created.default_crossfade_ms ?? 2500,
+                    fade_curve: meta.curve || created.fade_curve || 'linear'
+                });
+                try { await this.atmosphereManager.service.saveAtmosphere(created); } catch (_) {}
+            }
+        }
+        await this.atmosphereManager.refresh();
+        this.atmosphereUI.renderList(this.atmosphereManager.atmospheres, id);
+        this.atmosphereUI.highlightActive(id);
+    }
+
+    async handleLoadAtmosphere(id) {
+        // Compute diff preview first
+        try {
+            const detail = await this.atmosphereManager.service.getAtmosphereWithSounds(id);
+            const diff = this.atmosphereManager.engine.computeDiff(detail, this.soundPads);
+            const summary = `+${diff.added.length} −${diff.removed.length} Δ${diff.volumeChanged.length}`;
+            this.uiController.showInfo?.(`Atmosphere diff: ${summary}`);
+        } catch (_) {}
+        await this.atmosphereManager.load(id, this.soundPads);
+        this.atmosphereUI.renderList(this.atmosphereManager.getAnnotatedAtmospheres(), this.atmosphereManager.activeAtmosphereId);
+        this.atmosphereUI.highlightActive(this.atmosphereManager.activeAtmosphereId);
+    }
+
+    async handleEditAtmosphere(id) {
+        const atmo = this.atmosphereManager.atmospheres.find(a => a.id === id);
+        if (!atmo) return this.uiController.showError('Atmosphere not found');
+        this.atmosphereUI.showEditModal(atmo);
+    }
+
+    async handleUpdateAtmosphere(id, meta) {
+        const atmo = this.atmosphereManager.atmospheres.find(a => a.id === id);
+        if (!atmo) return this.uiController.showError('Atmosphere not found');
+        Object.assign(atmo, {
+            name: meta.name || atmo.name,
+            title: meta.name || atmo.title,
+            description: meta.description || '',
+            category: meta.category || '',
+            subcategory: meta.subcategory || '',
+            keywords: meta.keywords || [],
+            default_crossfade_ms: meta.crossfadeMs ?? atmo.default_crossfade_ms ?? 2500,
+            fade_curve: meta.curve || atmo.fade_curve || 'linear'
+        });
+        try {
+            await this.atmosphereManager.service.saveAtmosphere(atmo);
+            await this.atmosphereManager.refresh();
+            this.atmosphereUI.renderList(this.atmosphereManager.atmospheres, this.atmosphereManager.activeAtmosphereId);
+            this.atmosphereUI.highlightActive(this.atmosphereManager.activeAtmosphereId);
+            this.uiController.showSuccess('Atmosphere updated');
+        } catch (e) {
+            this.uiController.showError('Failed to update atmosphere');
+        }
+    }
+
+    async handleDeleteAtmosphere(id) {
+        if (!confirm('Delete this atmosphere?')) return;
+        await this.atmosphereManager.delete(id);
+        this.atmosphereUI.renderList(this.atmosphereManager.atmospheres, this.atmosphereManager.activeAtmosphereId);
     }
 
     // loadExistingLibrary responsibility moved to LibraryManager

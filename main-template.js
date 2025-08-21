@@ -17,11 +17,12 @@ async function bootstrap() {
       mixer: 'templates/mixer-area.html',
       tagEditorModal: 'templates/modals/tag-editor.html',
       bulkTagEditorModal: 'templates/modals/bulk-tag-editor.html'
+  , atmosphereSaveModal: 'templates/modals/atmosphere-save.html'
     });
     if (containers.header) containers.header.innerHTML = templates.header;
     if (containers.sidebar) containers.sidebar.innerHTML = templates.sidebar;
     if (containers.mixer) containers.mixer.innerHTML = templates.mixer;
-    if (containers.modals) containers.modals.innerHTML = templates.tagEditorModal + templates.bulkTagEditorModal;
+  if (containers.modals) containers.modals.innerHTML = templates.tagEditorModal + templates.bulkTagEditorModal + templates.atmosphereSaveModal;
     const app = new AmbientMixerApp();
     await app.initialize();
     window.ambientMixer = app;

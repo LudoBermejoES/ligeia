@@ -328,4 +328,7 @@ export class UIController {
             return ta.localeCompare(tb);
         });
     }
+
+    /* ================= Atmospheres (Phase 1 Scaffold) ================= */
+    // Atmosphere UI methods are moved into a dedicated controller/manager in later phases.
 }
