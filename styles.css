@@ -38,6 +38,29 @@ body {
 .controls {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Topbar master volume */
+.topbar-master-volume {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+.topbar-master-volume .volume-slider {
+    width: 120px;
+}
+
+.topbar-master-volume .mute-btn {
+    padding: 0.4rem;
 }
 
 .btn {

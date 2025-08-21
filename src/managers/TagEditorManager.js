@@ -58,7 +58,7 @@ export class TagEditorManager {
 
     if (audioFile.id) {
       try {
-        const rpgTags = await invoke('get_rpg_tags_for_file', { audio_file_id: audioFile.id });
+  const rpgTags = await invoke('get_rpg_tags_for_file', { audio_file_id: audioFile.id, audioFileId: audioFile.id });
         const map = {};
         rpgTags.forEach(t => { if (!map[t.tag_type]) map[t.tag_type] = []; map[t.tag_type].push(t.tag_value); });
         const occEl = document.getElementById('tag-rpg-occasions');
@@ -92,11 +92,11 @@ export class TagEditorManager {
     await invoke('update_audio_file_tags', { filePath: this.currentEditingFile, updates });
 
     const audioFileId = audioFile.id;
-    const currentRpg = await invoke('get_rpg_tags_for_file', { audio_file_id: audioFileId });
+  const currentRpg = await invoke('get_rpg_tags_for_file', { audio_file_id: audioFileId, audioFileId });
     const replaceSet = async (type, raw) => {
       const existing = currentRpg.filter(t => t.tag_type === type);
-      for (const t of existing) await invoke('remove_rpg_tag', { audio_file_id: audioFileId, tag_type: type, tag_value: t.tag_value });
-      raw.filter(v => v.length).forEach(async v => await invoke('add_rpg_tag', { audio_file_id: audioFileId, tag_type: type, tag_value: v }));
+  for (const t of existing) await invoke('remove_rpg_tag', { audio_file_id: audioFileId, audioFileId, tag_type: type, tag_value: t.tag_value });
+  raw.filter(v => v.length).forEach(async v => await invoke('add_rpg_tag', { audio_file_id: audioFileId, audioFileId, tag_type: type, tag_value: v }));
     };
     await replaceSet('occasion', (formData.get('rpg_occasions') || '').split(';').map(s=>s.trim()).filter(Boolean));
     await replaceSet('keyword', (formData.get('rpg_keywords') || '').split(';').map(s=>s.trim()).filter(Boolean));

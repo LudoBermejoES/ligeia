@@ -1,3 +1,5 @@
+import { renderSoundPad } from './PadRenderer.js';
+
 /**
  * UIController - Handles all UI updates and DOM manipulation
  */
@@ -9,6 +11,8 @@ export class UIController {
         this.getElementById('loadFiles')?.addEventListener('click', eventHandlers.loadFiles);
         this.getElementById('loadDirectory')?.addEventListener('click', eventHandlers.loadDirectory);
         
+    // Export / Import
+    this.getElementById('exportData')?.addEventListener('click', eventHandlers.exportData);
         this.getElementById('importData')?.addEventListener('click', eventHandlers.importData);
         this.getElementById('calculateDurations')?.addEventListener('click', eventHandlers.calculateDurations);
         
@@ -103,73 +107,8 @@ export class UIController {
     }
 
     renderSoundPad(audioFile, pad) {
-    const isPlaying = pad?.isPlaying || false;
-    const isLooping = pad?.isLooping || false;
-    const isMuted = pad?.isMuted || false;
-    // Normalize volume (0-1) -> percent once
-    const volumePercent = Math.round(((pad?.volume) ?? 0.5) * 100);
-        
-        const title = audioFile.title || this.getFilenameFromPath(audioFile.file_path);
-        const artist = audioFile.artist || 'Unknown Artist';
-        
-        // Prepare template data
-        const templateData = {
-            filePath: audioFile.file_path,
-            title: title,
-            artist: artist,
-            isPlaying: isPlaying,
-            isActive: isPlaying,
-            isMuted: isMuted,
-            isLooping: isLooping,
-            volume: volumePercent,
-            rpgTags: audioFile.rpgTags || []
-        };
-
-    // Direct inline template (template system removed)
-        return `
-            <div class="sound-pad ${isPlaying ? 'active' : ''} ${isMuted ? 'muted' : ''}" data-file-path="${this.escapeHtml(audioFile.file_path)}">
-                <div class="sound-pad-header">
-                    <div class="sound-pad-info">
-                        <div class="sound-pad-title">${this.escapeHtml(title)}</div>
-                        <div class="sound-pad-meta">
-                            <span class="sound-pad-artist">${this.escapeHtml(artist)}</span>
-                            <button class="edit-tags-btn" data-action="edit-tags" title="Edit Tags">
-                                ✏️
-                            </button>
-                        </div>
-                    </div>
-                    <div class="sound-pad-status">${isPlaying ? '▶️' : '⏸️'}</div>
-                </div>
-                
-                <div class="sound-pad-controls">
-                    <div class="sound-pad-buttons">
-                        <button class="pad-btn ${isPlaying ? 'active' : ''}" data-action="toggle">
-                            ${isPlaying ? 'Stop' : 'Play'}
-                        </button>
-                        
-                        <button class="pad-btn ${isLooping ? 'active' : ''}" data-action="loop">
-                            Loop
-                        </button>
-                        
-                        <button class="pad-btn ${isMuted ? 'active' : ''}" data-action="mute">
-                            Mute
-                        </button>
-                    </div>
-                    
-                    <div class="volume-control-pad">
-               <input type="range" class="volume-slider-pad" min="0" max="100" 
-                   value="${volumePercent}" data-action="volume">
-               <span class="volume-display-pad">${volumePercent}%</span>
-                    </div>
-                </div>
-                
-                ${templateData.rpgTags && templateData.rpgTags.length > 0 ? `
-                <div class="sound-pad-tags">
-                    ${templateData.rpgTags.map(tag => `<span class="tag-chip tag-${tag.tagType}">${this.escapeHtml(tag.tagValue)}</span>`).join('')}
-                </div>
-                ` : ''}
-            </div>
-        `;
+        // Static import performed at module scope; delegate
+        return renderSoundPad(audioFile, pad, { escapeHtml: this.escapeHtml.bind(this) });
     }
 
     attachPadEventListeners(container, soundPads) {
