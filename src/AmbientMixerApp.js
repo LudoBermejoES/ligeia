@@ -25,9 +25,8 @@ export class AmbientMixerApp {
         
         // UI
         this.uiController = new UIController();
-        this.bulkTagEditorController = null; // Will be initialized after tagService
-        this.tagSearchController = null; // Will be initialized after tagService
-        this.templateService = null; // Will be injected by main-template.js
+    this.bulkTagEditorController = null; // Will be initialized after tagService
+    this.tagSearchController = null; // Will be initialized after tagService
         
         // State
         this.audioFiles = new Map();
@@ -67,11 +66,7 @@ export class AmbientMixerApp {
                 console.warn('Failed to initialize tag service - bulk tagging will be disabled');
             }
 
-            // Set template service in UI controller if available
-            if (this.templateService) {
-                this.uiController.setTemplateService(this.templateService);
-                console.log('Template service integrated with UI controller');
-            }
+            // Template system removed; UI renders directly without templates
 
             // Initialize bulk tag editor controller after tag service
             this.bulkTagEditorController = new BulkTagEditorController(this.tagService);
@@ -512,7 +507,7 @@ export class AmbientMixerApp {
             // Create a proper modal dialog that waits for user response
             const modal = document.createElement('div');
             modal.className = 'modal-overlay import-confirmation-modal';
-            modal.style.cssText = '
+            modal.style.cssText = `
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -523,17 +518,17 @@ export class AmbientMixerApp {
                 align-items: center;
                 justify-content: center;
                 z-index: 10000;
-            ';
+            `;
 
             const dialog = document.createElement('div');
             dialog.className = 'modal-container';
-            dialog.style.cssText = '
+            dialog.style.cssText = `
                 background: white;
                 padding: 2rem;
                 border-radius: 8px;
                 max-width: 500px;
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            ';
+            `;
 
             dialog.innerHTML = `
                 <h2 style="margin-top: 0; color: #333;">Confirm Import</h2>
@@ -772,7 +767,8 @@ export class AmbientMixerApp {
             } else {
                 // Extract filename only (without extension)
                 const fullPath = audioFile.file_path;
-                const filename = fullPath.split(/[/\]/).pop(); // Get last part after / or \
+                // Split on forward or back slash to get filename
+                const filename = fullPath.split(/[\\/]/).pop(); // Get last part after / or \
                 displayName = filename ? filename.replace(/\.[^/.]+$/, '') : 'Unknown Track'; // Remove extension
             }
             trackNameElement.textContent = displayName;

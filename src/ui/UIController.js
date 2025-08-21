@@ -2,15 +2,10 @@
  * UIController - Handles all UI updates and DOM manipulation
  */
 export class UIController {
-    constructor(templateService = null) {
-        this.templateService = templateService;
+    constructor() {
         this.sortable = null;
         this.cardOrder = new Map(); // Track custom ordering
         this.isDragging = false; // Flag to prevent re-rendering during drag
-    }
-
-    setTemplateService(templateService) {
-        this.templateService = templateService;
     }
 
     initializeEventListeners(eventHandlers) {
@@ -131,12 +126,7 @@ export class UIController {
             rpgTags: audioFile.rpgTags || []
         };
 
-        // Use template service if available, otherwise fall back to inline HTML
-        if (this.templateService && this.templateService.hasTemplate('sound-pad')) {
-            return this.templateService.render('sound-pad', templateData);
-        }
-
-        // Fallback inline template
+    // Direct inline template (template system removed)
         return `
             <div class="sound-pad ${isPlaying ? 'active' : ''} ${isMuted ? 'muted' : ''}" data-file-path="${this.escapeHtml(audioFile.file_path)}">
                 <div class="sound-pad-header">
@@ -343,21 +333,15 @@ export class UIController {
             icon: this.getNotificationIcon(type)
         };
 
-        let notification;
-        if (this.templateService && this.templateService.hasTemplate('notification')) {
-            notification = this.templateService.renderToElement('notification', notificationData);
-        } else {
-            // Fallback notification
-            notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.innerHTML = `
-                <div class="notification-content">
-                    <span class="notification-icon">${notificationData.icon}</span>
-                    <span class="notification-message">${this.escapeHtml(message)}</span>
-                </div>
-                <button class="notification-close">×</button>
-            `;
-        }
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-icon">${notificationData.icon}</span>
+                <span class="notification-message">${this.escapeHtml(message)}</span>
+            </div>
+            <button class="notification-close">×</button>
+        `;
 
         container.appendChild(notification);
 
