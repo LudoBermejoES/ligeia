@@ -44,6 +44,8 @@ export class AmbientMixerApp {
     this.atmosphereUI = new AtmosphereUIController();
     this.atmosphereManager = new AtmosphereManager(this.libraryManager, this.uiController);
     this.atmoMembershipEditor = new AtmosphereMembershipEditor(this.atmosphereManager.service, this.libraryManager);
+    // Make the atmosphere membership editor globally accessible for mouse-based drag and drop
+    window.atmosphereMembershipEditor = this.atmoMembershipEditor;
     this.currentEditingFile = null; // deprecated; kept for backward compatibility
         this.updateUIThrottled = this.throttle(this.updateUI.bind(this), 100);
         this.lastToggleTime = new Map(); // Track last toggle time per pad to prevent rapid toggling

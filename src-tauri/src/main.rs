@@ -179,6 +179,11 @@ async fn compute_atmosphere_integrity(app_handle: AppHandle, id: i64) -> Result<
 }
 
 #[tauri::command]
+async fn compute_all_atmosphere_integrities(app_handle: AppHandle) -> Result<Vec<AtmosphereIntegrityBatchEntry>, String> {
+    AtmosphereHandler::compute_all_atmosphere_integrities(app_handle)
+}
+
+#[tauri::command]
 async fn search_atmospheres(app_handle: AppHandle, query: Option<String>, category: Option<String>, keywords: Option<Vec<String>>) -> Result<Vec<Atmosphere>, String> {
     AtmosphereHandler::search_atmospheres(app_handle, query, category, keywords)
 }
@@ -240,9 +245,10 @@ pub fn run() {
             update_atmosphere_sound,
             get_atmosphere_with_sounds,
             get_atmosphere_categories,
-            duplicate_atmosphere
-            ,compute_atmosphere_integrity
-            ,search_atmospheres
+            duplicate_atmosphere,
+            compute_atmosphere_integrity,
+            compute_all_atmosphere_integrities,
+            search_atmospheres
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

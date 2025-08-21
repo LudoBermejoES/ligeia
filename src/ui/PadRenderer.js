@@ -17,19 +17,19 @@ export function renderSoundPad(audioFile, padState, { escapeHtml }) {
           <div class="sound-pad-title">${escapeHtml(title)}</div>
           <div class="sound-pad-meta">
             <span class="sound-pad-artist">${escapeHtml(artist)}</span>
-            <button class="edit-tags-btn" data-action="edit-tags" title="Edit Tags">✏️</button>
+            <button class="edit-tags-btn" data-action="edit-tags" title="Edit Tags" draggable="false">✏️</button>
           </div>
         </div>
         <div class="sound-pad-status">${isPlaying ? '▶️' : '⏸️'}</div>
       </div>
       <div class="sound-pad-controls">
         <div class="sound-pad-buttons">
-          <button class="pad-btn ${isPlaying ? 'active' : ''}" data-action="toggle">${isPlaying ? 'Stop' : 'Play'}</button>
-          <button class="pad-btn ${isLooping ? 'active' : ''}" data-action="loop">Loop</button>
-          <button class="pad-btn ${isMuted ? 'active' : ''}" data-action="mute">Mute</button>
+          <button class="pad-btn ${isPlaying ? 'active' : ''}" data-action="toggle" draggable="false">${isPlaying ? 'Stop' : 'Play'}</button>
+          <button class="pad-btn ${isLooping ? 'active' : ''}" data-action="loop" draggable="false">Loop</button>
+          <button class="pad-btn ${isMuted ? 'active' : ''}" data-action="mute" draggable="false">Mute</button>
         </div>
         <div class="volume-control-pad">
-          <input type="range" class="volume-slider-pad" min="0" max="100" value="${volumePercent}" data-action="volume" aria-label="Pad Volume">
+          <input type="range" class="volume-slider-pad" min="0" max="100" value="${volumePercent}" data-action="volume" aria-label="Pad Volume" draggable="false">
           <span class="volume-display-pad">${volumePercent}%</span>
         </div>
       </div>

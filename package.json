@@ -5,6 +5,7 @@
   "main": "index.html",
   "scripts": {
     "dev": "tauri dev",
+    "dev-no-reload": "tauri dev --no-watch",
     "build": "tauri build",
     "tauri": "tauri",
     "serve": "python3 -m http.server 1420"
@@ -13,7 +14,7 @@
     "@tauri-apps/api": "^2.7.0",
     "@tauri-apps/plugin-dialog": "^2.0.3",
     "@tauri-apps/plugin-fs": "^2.0.3",
-    "@tauri-apps/plugin-log": "^2.6.0"
+  "@tauri-apps/plugin-log": "^2.6.0"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.7.1"

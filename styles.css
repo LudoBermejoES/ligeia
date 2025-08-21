@@ -192,6 +192,12 @@ body {
 
 /* Membership panel drag-over state for adding pads */
 #membershipPanelBody.dragover { outline:2px dashed rgba(255,255,255,0.4); outline-offset:-4px; }
+#membershipPanelBody.drag-over { 
+    outline: 2px dashed rgba(0, 123, 255, 0.8); 
+    outline-offset: -4px; 
+    background: rgba(0, 123, 255, 0.1);
+}
+#membershipPanelBody.membership-drop-active { background:rgba(76,175,80,0.08); transition:background .15s ease; }
 
 /* Visual cue when mixer acts as removal drop target */
 .membership-remove-target { box-shadow: inset 0 0 0 3px #d9534f99; transition: box-shadow .15s ease; }

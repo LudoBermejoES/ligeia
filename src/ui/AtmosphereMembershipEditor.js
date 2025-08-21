@@ -1,5 +1,6 @@
-// AtmosphereMembershipEditor - floating panel for adding/removing sounds in an atmosphere
-// Features: drag pads onto panel, ghost preview while dragging, flash highlight when added.
+// AtmosphereMembershipEditor (panel-only, SortableJS for internal reordering, custom HTML5 for external add)
+// Responsibilities: maintain in-memory membership map, render membership pad list inside panel body,
+// enable dropping mixer pads into membership (HTML5 drag) and allow reordering via SortableJS.
 import logger from '../utils/logger.js';
 
 export class AtmosphereMembershipEditor {
@@ -7,181 +8,93 @@ export class AtmosphereMembershipEditor {
     this.service = service;
     this.libraryManager = libraryManager;
     this.atmosphere = null;
-    this.members = new Map();
-    this.el = null;
-    this.onSaved = null;
-    this._drag = { active:false };
-    this._ghostId = null;
+    this.members = new Map(); // audioId -> { volume, is_looping, is_muted }
     this._highlightId = null;
-  this._detailLoaded = false; // tracks if backend detail fetch succeeded
+    this._detailLoaded = false;
   this._panelDnDInit = false;
+  this._sortable = null;
+  this._persistTimer = null;
   }
 
-  ensureContainer() {
-    if (this.el) return this.el;
-    const div = document.createElement('div');
-    div.id = 'atmoMembershipEditor';
-    div.className = 'atmo-membership-float hidden';
-    div.setAttribute('role','dialog');
-    div.setAttribute('aria-label','Edit Atmosphere Sounds');
-    div.innerHTML = `
-      <div class="atmo-membership-panel">
-        <div class="atmo-membership-header drag-handle" title="Drag to move">
-          <h3 class="atmo-membership-title">Atmosphere</h3>
-          <div class="atmo-membership-actions">
-            <button data-action="save" class="btn btn-primary btn-sm" title="Save">💾</button>
-            <button data-action="close" class="btn btn-secondary btn-sm" title="Close">✕</button>
-          </div>
-        </div>
-        <div class="atmo-membership-body">
-          <div class="atmo-membership-drop" id="atmoMembershipDrop" aria-label="Drop sounds here">Drag pads here (or adjust below)</div>
-          <div class="atmo-membership-pad-grid" id="atmoMembershipPadGrid"></div>
-        </div>
-        <div class="atmo-membership-footer">
-          <span class="atmo-membership-status" id="atmoMembershipStatus" aria-live="polite"></span>
-        </div>
-      </div>`;
-    document.body.appendChild(div);
-    this.el = div;
-
-    // Click handlers (save/close/remove)
-    div.addEventListener('click', e => {
-      const btn = e.target.closest('button');
-      if (!btn) return;
-      const act = btn.dataset.action;
-      if (act === 'close') this.hide();
-      else if (act === 'save') this.persist().then(()=> this.onSaved?.(this.atmosphere));
-      else if (act === 'remove') {
-        const li = btn.closest('[data-audio-id]');
-        if (li) { const id = Number(li.dataset.audioId); this.members.delete(id); this.renderPads(); }
-      }
-    });
-
-    // Drag & drop with ghost preview
-    const dropZone = div.querySelector('#atmoMembershipDrop');
-    const clearGhost = () => { this._ghostId = null; div.querySelector('.pad-ghost')?.remove(); };
-    const showGhost = (audioId) => {
-      if (!audioId || this.members.has(audioId) || this._ghostId === audioId) return;
-      this._ghostId = audioId;
-      const grid = div.querySelector('#atmoMembershipPadGrid'); if (!grid) return;
-      div.querySelector('.pad-ghost')?.remove();
-      const f = [...this.libraryManager.getAudioFiles().values()].find(a=>a.id===audioId);
-      const title = f?.title || f?.file_path?.split('/')?.pop() || `ID ${audioId}`;
-      const ghost = document.createElement('div');
-      ghost.className = 'sound-pad pad-ghost';
-      ghost.innerHTML = `<div class="sound-pad-header"><div class="sound-pad-info"><div class="sound-pad-title">${title}</div><div class="sound-pad-meta"><span class="sound-pad-artist">(will add)</span></div></div><div class="sound-pad-status">➕</div></div>`;
-      grid.appendChild(ghost);
-    };
-    ['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, e => {
-      e.preventDefault();
-      dropZone.classList.add('drag');
-      const idStr = e.dataTransfer?.getData('audio-id');
-      if (idStr) showGhost(Number(idStr));
-    }));
-    dropZone.addEventListener('dragleave', e => {
-      if (!dropZone.contains(e.relatedTarget)) { dropZone.classList.remove('drag'); clearGhost(); }
-    });
-    dropZone.addEventListener('drop', e => {
-      e.preventDefault();
-      dropZone.classList.remove('drag');
-      const idStr = e.dataTransfer?.getData('audio-id');
-      clearGhost();
-      if (!idStr) return;
-      const audioId = Number(idStr);
-      if (this.members.has(audioId)) {
-        const existing = div.querySelector(`#atmoMembershipPadGrid .sound-pad[data-audio-id="${audioId}"]`);
-        if (existing) { existing.classList.add('flash'); existing.addEventListener('animationend', ()=> existing.classList.remove('flash'), { once:true }); }
-        return;
-      }
-      const f = [...this.libraryManager.getAudioFiles().values()].find(a=>a.id===audioId);
-      if (!f) return;
-      this.members.set(audioId, { volume:0.5, is_looping:false, is_muted:false });
-      this._highlightId = audioId;
-  this.renderPads();
-    });
-
-    // Panel dragging
-    const handle = div.querySelector('.drag-handle');
-    const move = e => {
-      if (!this._drag.active) return;
-      const nx = this._drag.startX + (e.clientX - this._drag.startClientX);
-      const ny = this._drag.startY + (e.clientY - this._drag.startClientY);
-      div.style.left = Math.max(0, Math.min(window.innerWidth - 120, nx)) + 'px';
-      div.style.top = Math.max(0, Math.min(window.innerHeight - 80, ny)) + 'px';
-    };
-    handle.addEventListener('mousedown', e => {
-      if (e.button !== 0) return;
-      this._drag.active = true;
-      const r = div.getBoundingClientRect();
-      this._drag.startX = r.left; this._drag.startY = r.top; this._drag.startClientX = e.clientX; this._drag.startClientY = e.clientY;
-      document.addEventListener('mousemove', move);
-      document.addEventListener('mouseup', () => { this._drag.active = false; document.removeEventListener('mousemove', move); }, { once:true });
-    });
-    div.style.top = '70px';
-    div.style.right = '40px';
-    div.style.left = 'auto';
-    return div;
-  }
-
-  async open(atmosphere, { panelMode = false } = {}) {
-    if (!panelMode) this.ensureContainer();
+  async open(atmosphere, { panelMode = true } = {}) { // panelMode retained for call-site compatibility
     this.atmosphere = atmosphere;
     this.members.clear();
     this._detailLoaded = false;
+    // Ensure panel scaffold exists (header + body) before any rendering logic
+    try {
+      const container = document.getElementById('membership-container');
+      if (container && !container.querySelector('#membershipPanelBody')) {
+        container.innerHTML = `
+          <div class="membership-panel-header">
+            <h3>Atmosphere</h3>
+            <div class="membership-panel-actions">
+              <button type="button" class="membership-close-btn" data-action="close" aria-label="Close">✕</button>
+            </div>
+          </div>
+          <div id="membershipPanelBody" class="membership-panel-body empty">
+            <div id="atmoMembershipPadGrid" class="atmo-membership-pad-grid"></div>
+          </div>`;
+        logger.debug('membership','inserted membership panel scaffold');
+      }
+    } catch (scaffoldErr) {
+      logger.warn('membership','failed to ensure panel scaffold',{ error: scaffoldErr.message });
+    }
     try {
       logger.info('membership','opening membership editor',{ id: atmosphere.id });
       const detail = await this.service.getAtmosphereWithSounds(atmosphere.id);
       (detail?.sounds || []).forEach(m => this.members.set(m.audio_file_id, { volume:m.volume, is_looping:m.is_looping, is_muted:m.is_muted }));
-  this._setTitle(detail?.atmosphere?.name || atmosphere.name || atmosphere.title || 'Atmosphere', { panelMode });
+      this._setTitle(detail?.atmosphere?.name || atmosphere.name || atmosphere.title || 'Atmosphere');
       this._detailLoaded = true;
     } catch (e) {
-      logger.error('membership','failed to fetch atmosphere detail (no fallback population)',{ id: atmosphere.id, error: e.message });
-  this._setTitle((atmosphere.name || atmosphere.title || 'Atmosphere') + ' (empty)', { panelMode });
-  this._setStatus('Could not load existing sounds (will start empty).', { panelMode });
+      logger.error('membership','failed to fetch atmosphere detail',{ id: atmosphere.id, error: e.message });
+      this._setTitle((atmosphere.name || atmosphere.title || 'Atmosphere') + ' (empty)');
+      this._setStatus('Could not load existing sounds (starting empty).');
     }
-    this.renderPads({ panelMode });
-  if (panelMode) this._ensurePanelDnD();
-    if (!panelMode && this.el) {
-      this.el.classList.remove('hidden');
-      this.el.setAttribute('aria-hidden','false');
+    
+    // Get container reference for close handler and visibility
+    const container = document.getElementById('membership-container');
+    
+    // Attach close handler once
+    const closeBtn = container?.querySelector('.membership-close-btn');
+    if (closeBtn && !closeBtn.__handlerBound) {
+      closeBtn.addEventListener('click', ()=>{
+        container.classList.add('hidden');
+        document.getElementById('membership-resizer')?.classList.add('hidden');
+      });
+      closeBtn.__handlerBound = true;
     }
+    // Ensure the panel is visible
+    if (container) {
+      container.classList.remove('hidden');
+      const resizer = document.getElementById('membership-resizer');
+      if (resizer) resizer.classList.remove('hidden');
+    }
+    
+    this.renderPads();
+    
+    // Initialize drag and drop after rendering (grid now exists)
+    this._ensurePanelDnD();
   }
 
-  hide() {
-    if (!this.el) return;
-    this.el.classList.add('hidden');
-    this.el.setAttribute('aria-hidden','true');
-  }
-
-  renderPads({ panelMode = false } = {}) {
-    let grid;
-    if (panelMode) {
-      const body = document.getElementById('membershipPanelBody');
-      if (!body) return;
-      if (!body.querySelector('#atmoMembershipPadGrid')) {
-        body.innerHTML = '<div id="atmoMembershipPadGrid" class="atmo-membership-pad-grid"></div>';
-      }
-      const memberCount = this.members.size;
-      body.classList.toggle('empty', memberCount === 0);
-      // If empty, show instructional drop placeholder overlay inside grid
-      if (memberCount === 0) {
-        const gridHost = body.querySelector('#atmoMembershipPadGrid');
-        if (gridHost) {
-          gridHost.innerHTML = '<div class="atmo-membership-empty-drop" style="padding:.75rem;border:1px dashed var(--border-color,#666);border-radius:4px;text-align:center;font-size:.8rem;opacity:.8;">Drag pads from the mixer here to add them to this atmosphere.</div>';
-        }
-        return; // no further rendering needed
-      }
-      grid = body.querySelector('#atmoMembershipPadGrid');
-    } else {
-      if (!this.el) return; const outer = this.el; grid = outer.querySelector('#atmoMembershipPadGrid');
+  renderPads() {
+    const body = document.getElementById('membershipPanelBody');
+    if (!body) return;
+    if (!body.querySelector('#atmoMembershipPadGrid')) {
+      body.innerHTML = '<div id="atmoMembershipPadGrid" class="atmo-membership-pad-grid"></div>';
     }
+    const memberCount = this.members.size;
+    body.classList.toggle('empty', memberCount === 0);
+    const grid = body.querySelector('#atmoMembershipPadGrid');
     if (!grid) return;
+    if (memberCount === 0) {
+      grid.innerHTML = '<div class="atmo-membership-empty-drop" style="padding:.75rem;border:1px dashed var(--border-color,#666);border-radius:4px;text-align:center;font-size:.8rem;opacity:.8;">Drag pads from the mixer here to add them to this atmosphere.</div>';
+      return;
+    }
     grid.innerHTML = '';
     const audioFilesMap = this.libraryManager.getAudioFiles();
-  for (const [audioId, meta] of this.members.entries()) {
+    for (const [audioId, meta] of this.members.entries()) {
       const audioFile = [...audioFilesMap.values()].find(f=>f.id===audioId);
       if (!audioFile) continue;
-      // Derive current live state from original pad if present
       const original = document.querySelector(`.sound-pad[data-audio-id="${audioId}"]`);
       const isPlaying = original?.classList.contains('active') || false;
       const loopBtn = original?.querySelector('button[data-action="loop"]');
@@ -190,9 +103,9 @@ export class AtmosphereMembershipEditor {
       if (loopBtn) meta.is_looping = loopBtn.classList.contains('active');
       if (muteBtn) meta.is_muted = muteBtn.classList.contains('active');
       if (volSlider && !isNaN(Number(volSlider.value))) meta.volume = Number(volSlider.value)/100;
-      const pad = document.createElement('div');
-  pad.innerHTML = this._renderMiniPad(audioFile, meta, isPlaying, { panelMode });
-      const el = pad.firstElementChild;
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = this._renderMiniPad(audioFile, meta, isPlaying);
+      const el = wrapper.firstElementChild;
       if (!el) continue;
       el.dataset.audioId = String(audioId);
       if (audioId === this._highlightId) {
@@ -201,24 +114,27 @@ export class AtmosphereMembershipEditor {
       }
       grid.appendChild(el);
     }
-    // Attach listeners
-  grid.querySelectorAll('.sound-pad').forEach(p => {
+    // Listeners
+    grid.querySelectorAll('.sound-pad').forEach(p => {
       const audioId = Number(p.dataset.audioId);
-      const buttons = p.querySelectorAll('button');
-      buttons.forEach(btn => btn.addEventListener('click', e => this._handlePadButton(e, audioId)));
+      p.querySelectorAll('button').forEach(btn => btn.addEventListener('click', e => this._handlePadButton(e, audioId)));
       const vol = p.querySelector('input[data-action="volume"]');
       if (vol) vol.addEventListener('input', e => this._handlePadVolume(e, audioId));
     });
+    
+    // Ensure drag and drop is initialized after rendering
+    if (!this._panelDnDInit) {
+      this._ensurePanelDnD();
+    }
   }
 
-  _renderMiniPad(audioFile, meta, isPlaying, { panelMode } = {}) {
+  _renderMiniPad(audioFile, meta, isPlaying) {
     const volPct = Math.round((meta.volume ?? 0.5)*100);
     const loopActive = meta.is_looping ? 'active' : '';
     const muteActive = meta.is_muted ? 'active' : '';
     const playActive = isPlaying ? 'active' : '';
     const title = audioFile.title || (audioFile.file_path?.split('/')?.pop()) || 'Unknown';
-    const draggableAttr = panelMode ? 'draggable="true"' : 'draggable="false"';
-    return `<div class="sound-pad ${playActive} ${muteActive}" data-audio-id="${audioFile.id}" ${draggableAttr} data-origin="membership">
+    return `<div class="sound-pad ${playActive} ${muteActive}" data-audio-id="${audioFile.id}" draggable="true" data-origin="membership">
       <div class="sound-pad-header">
         <div class="sound-pad-info">
           <div class="sound-pad-title" title="${title}">${title}</div>
@@ -243,90 +159,296 @@ export class AtmosphereMembershipEditor {
 
   _ensurePanelDnD() {
     if (this._panelDnDInit) return;
-    this._panelDnDInit = true; 
     const body = document.getElementById('membershipPanelBody');
-    if (!body) return; 
-
-    let ghostEl = null; let ghostAudioId = null;
-    const gridSelector = '#atmoMembershipPadGrid';
-    const ensureGhost = (audioId) => {
-      debugger;  
-      if (!audioId || this.members.has(audioId) || ghostAudioId === audioId) return;
-      ghostAudioId = audioId;
-      const grid = body.querySelector(gridSelector); if (!grid) return;
-      if (ghostEl) ghostEl.remove();
-      const f = [...this.libraryManager.getAudioFiles().values()].find(a=>a.id===audioId);
-      const title = f?.title || f?.file_path?.split('/')?.pop() || `ID ${audioId}`;
-      ghostEl = document.createElement('div');
-      ghostEl.className = 'sound-pad pad-ghost';
-      ghostEl.innerHTML = `<div class="sound-pad-header"><div class="sound-pad-info"><div class="sound-pad-title">${title}</div><div class="sound-pad-meta"><span class="sound-pad-artist">(will add)</span></div></div><div class="sound-pad-status">➕</div></div>`;
-      grid.appendChild(ghostEl);
-    };
-    const clearGhost = () => { ghostAudioId = null; if (ghostEl) { ghostEl.remove(); ghostEl = null; } };
-    ['dragenter','dragover'].forEach(ev => body.addEventListener(ev, e => {
-      e.preventDefault();
-      const idStr = e.dataTransfer?.getData('audio-id');
-  if (idStr) { try { console.debug('[membership DnD] dragover id', idStr); } catch(_) {} }
-      if (idStr) ensureGhost(Number(idStr));
-      body.classList.add('dragover');
-    }));
-    body.addEventListener('dragleave', e => {
-        debugger;
-      if (!body.contains(e.relatedTarget)) { body.classList.remove('dragover'); clearGhost(); }
+    if (!body) {
+      logger.warn('membership', 'membershipPanelBody not found for DnD init');
+      return;
+    }
+    const grid = body.querySelector('#atmoMembershipPadGrid');
+    if (!grid) {
+      logger.warn('membership', 'atmoMembershipPadGrid not found for DnD init');
+      return;
+    }
+    
+    // Check if the panel is visible
+    const container = document.getElementById('membership-container');
+    const isVisible = container && !container.classList.contains('hidden');
+    logger.debug('membership', 'initializing panel drag and drop', { 
+      panelVisible: isVisible, 
+      containerClasses: container?.className,
+      bodyRect: body.getBoundingClientRect()
     });
-    body.addEventListener('drop', e => {
-        debugger;
-      e.preventDefault();
-      body.classList.remove('dragover');
-      const idStr = e.dataTransfer?.getData('audio-id');
-  try { console.debug('[membership DnD] drop id', idStr); } catch(_) {}
-      clearGhost();
-      if (!idStr) return;
-      const audioId = Number(idStr);
-      if (this.members.has(audioId)) {
-        // flash existing
-        const existing = body.querySelector(`${gridSelector} .sound-pad[data-audio-id="${audioId}"]`);
-        if (existing) { existing.classList.add('flash'); existing.addEventListener('animationend', ()=> existing.classList.remove('flash'), { once:true }); }
-        return;
-      }
+    console.log('ATTACHING DRAG LISTENERS TO:', body, 'with rect:', body.getBoundingClientRect());
+    
+    console.log('BODY STYLES:', window.getComputedStyle(body).pointerEvents, window.getComputedStyle(body).zIndex);
+    console.log('BODY RECT:', body.getBoundingClientRect());
+    
+    const addGhost = (audioId) => {
+      if (!audioId || this.members.has(audioId)) return;
+      if (grid.querySelector('.pad-ghost')) return;
       const f = [...this.libraryManager.getAudioFiles().values()].find(a=>a.id===audioId);
       if (!f) return;
-      this.members.set(audioId, { volume:0.5, is_looping:false, is_muted:false });
-      this._highlightId = audioId;
-      this.renderPads({ panelMode: true });
+      const ghost = document.createElement('div');
+      ghost.className = 'sound-pad pad-ghost';
+      const title = f.title || f.file_path?.split('/')?.pop() || `ID ${audioId}`;
+      ghost.innerHTML = `<div class="sound-pad-header"><div class="sound-pad-info"><div class="sound-pad-title">${title}</div><div class="sound-pad-meta"><span class="sound-pad-artist">(will add)</span></div></div><div class="sound-pad-status">➕</div></div>`;
+      grid.appendChild(ghost);
+    };
+    const clearGhost = () => { grid.querySelector('.pad-ghost')?.remove(); };
+    
+    // Use document-level event handling to avoid capture issues
+    const handleDragEnter = (e) => {
+      if (!window._draggedAudioId) return;
+      const bodyRect = body.getBoundingClientRect();
+      
+      const isOverBody = (
+        e.clientX >= bodyRect.left &&
+        e.clientX <= bodyRect.right &&
+        e.clientY >= bodyRect.top &&
+        e.clientY <= bodyRect.bottom
+      );
+      
+      if (isOverBody) {
+        console.log('📦 DOCUMENT DRAGENTER OVER BODY:', { x: e.clientX, y: e.clientY, bodyRect });
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        addGhost(Number(window._draggedAudioId));
+        body.classList.add('dragover','membership-drop-active');
+      }
+    };
+    
+    const handleDragOver = (e) => {
+      if (!window._draggedAudioId) return;
+      const testRect = testBlock.getBoundingClientRect();
+      const bodyRect = body.getBoundingClientRect();
+      
+      const isOverTest = (
+        e.clientX >= testRect.left &&
+        e.clientX <= testRect.right &&
+        e.clientY >= testRect.top &&
+        e.clientY <= testRect.bottom
+      );
+      
+      const isOverBody = (
+        e.clientX >= bodyRect.left &&
+        e.clientX <= bodyRect.right &&
+        e.clientY >= bodyRect.top &&
+        e.clientY <= bodyRect.bottom
+      );
+      
+      if (isOverTest) {
+        console.log('🎯 DOCUMENT DRAGOVER OVER TEST BLOCK:', { x: e.clientX, y: e.clientY });
+        testBlock.style.backgroundColor = '#ffff00';
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+      } else if (isOverBody) {
+        console.log('📦 DOCUMENT DRAGOVER OVER BODY:', { x: e.clientX, y: e.clientY });
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        body.classList.add('dragover','membership-drop-active');
+      } else {
+        testBlock.style.backgroundColor = '';
+        body.classList.remove('dragover','membership-drop-active');
+        clearGhost();
+      }
+    };
+    
+    const handleDrop = (e) => {
+      if (!window._draggedAudioId) return;
+      const testRect = testBlock.getBoundingClientRect();
+      const bodyRect = body.getBoundingClientRect();
+      
+      const isOverTest = (
+        e.clientX >= testRect.left &&
+        e.clientX <= testRect.right &&
+        e.clientY >= testRect.top &&
+        e.clientY <= testRect.bottom
+      );
+      
+      const isOverBody = (
+        e.clientX >= bodyRect.left &&
+        e.clientX <= bodyRect.right &&
+        e.clientY >= bodyRect.top &&
+        e.clientY <= bodyRect.bottom
+      );
+      
+      if (isOverTest) {
+        console.log('🎯 DOCUMENT DROP OVER TEST BLOCK: SUCCESS!', { x: e.clientX, y: e.clientY });
+        testBlock.style.backgroundColor = '#00ff00';
+        testBlock.textContent = '✅ DROP SUCCESS!';
+        setTimeout(() => {
+          testBlock.style.backgroundColor = '';
+          testBlock.textContent = 'DRAG DROP TEST ZONE';
+        }, 2000);
+        e.preventDefault();
+      } else if (isOverBody) {
+        console.log('📦 DOCUMENT DROP OVER BODY:', { x: e.clientX, y: e.clientY });
+        e.preventDefault();
+        body.classList.remove('dragover','membership-drop-active');
+        const audioId = Number(window._draggedAudioId);
+        clearGhost();
+        
+        if (this.members.has(audioId)) {
+          logger.debug('membership', 'audio already exists in atmosphere', { audioId });
+          const existing = grid.querySelector(`.sound-pad[data-audio-id="${audioId}"]`);
+          if (existing) { 
+            existing.classList.add('flash'); 
+            existing.addEventListener('animationend', ()=> existing.classList.remove('flash'), { once:true }); 
+          }
+          return;
+        }
+        
+        const f = [...this.libraryManager.getAudioFiles().values()].find(a=>a.id===audioId);
+        if (!f) {
+          logger.warn('membership', 'audio file not found for id', { audioId });
+          return;
+        }
+        
+        logger.info('membership', 'adding audio to atmosphere', { audioId, title: f.title || f.file_path });
+        this.members.set(audioId, { volume:0.5, is_looping:false, is_muted:false });
+        this._highlightId = audioId;
+        this.renderPads();
+        this._schedulePersist();
+      }
+    };
+    
+    // Add document-level event listeners
+    document.addEventListener('dragenter', handleDragEnter);
+    document.addEventListener('dragover', handleDragOver);
+    document.addEventListener('drop', handleDrop);
+    
+    // Store references for cleanup
+    this._dragHandlers = { handleDragEnter, handleDragOver, handleDrop };
+    // Initialize SortableJS for internal reordering
+    if (typeof Sortable !== 'undefined' && window.Sortable) {
+      try {
+        this._sortable = new Sortable(grid, {
+          animation: 120,
+          ghostClass: 'pad-ghost-moving',
+          dragClass: 'pad-dragging',
+          filter: '.pad-ghost', // Exclude ghost elements from sorting
+          onStart: (evt) => {
+            logger.debug('membership', 'sortable drag started', { index: evt.oldIndex });
+          },
+          onEnd: (evt) => {
+            logger.debug('membership', 'sortable drag ended', { oldIndex: evt.oldIndex, newIndex: evt.newIndex });
+            const newOrder = [];
+            grid.querySelectorAll('.sound-pad:not(.pad-ghost)').forEach(el => {
+              const id = Number(el.dataset.audioId);
+              if (!isNaN(id) && this.members.has(id)) newOrder.push([id, this.members.get(id)]);
+            });
+            this.members = new Map(newOrder);
+            this._schedulePersist();
+          }
+        });
+        logger.debug('membership', 'SortableJS initialized successfully');
+      } catch (sortableError) {
+        logger.error('membership', 'SortableJS initialization failed', { error: sortableError.message });
+      }
+    } else {
+      logger.warn('membership', 'SortableJS not available: membership reordering disabled');
+    }
+    this._panelDnDInit = true;
+  }
+
+  // Public method to add a sound to the atmosphere (for mouse-based drag and drop)
+  addSoundToAtmosphere(audioId) {
+    const numericAudioId = Number(audioId);
+    
+    if (this.members.has(numericAudioId)) {
+      logger.debug('membership', 'audio already exists in atmosphere', { audioId: numericAudioId });
+      const existing = document.querySelector(`.sound-pad[data-audio-id="${numericAudioId}"]`);
+      if (existing) { 
+        existing.classList.add('flash'); 
+        existing.addEventListener('animationend', ()=> existing.classList.remove('flash'), { once:true }); 
+      }
+      return;
+    }
+    
+    const f = [...this.libraryManager.getAudioFiles().values()].find(a=>a.id===numericAudioId);
+    if (!f) {
+      logger.warn('membership', 'audio file not found for id', { audioId: numericAudioId });
+      return;
+    }
+    
+    logger.info('membership', 'adding audio to atmosphere via mouse drag', { audioId: numericAudioId, title: f.title || f.file_path });
+    this.members.set(numericAudioId, { volume:0.5, is_looping:false, is_muted:false });
+    this._highlightId = numericAudioId;
+    this.renderPads();
+    this._schedulePersist();
+  }
+
+  // Public method to reinitialize drag and drop (useful for debugging)
+  reinitializeDragDrop() {
+    this._cleanupDragHandlers();
+    this._panelDnDInit = false;
+    if (this._sortable) {
+      try {
+        this._sortable.destroy();
+      } catch (e) {
+        logger.warn('membership', 'error destroying old sortable instance', { error: e.message });
+      }
+      this._sortable = null;
+    }
+    this._ensurePanelDnD();
+  }
+
+  // Clean up document-level drag event listeners
+  _cleanupDragHandlers() {
+    if (this._dragHandlers) {
+      document.removeEventListener('dragenter', this._dragHandlers.handleDragEnter);
+      document.removeEventListener('dragover', this._dragHandlers.handleDragOver);
+      document.removeEventListener('drop', this._dragHandlers.handleDrop);
+      this._dragHandlers = null;
+    }
+  }
+
+  // Debug method to check panel state
+  debugPanelState() {
+    const container = document.getElementById('membership-container');
+    const body = document.getElementById('membershipPanelBody');
+    const grid = body?.querySelector('#atmoMembershipPadGrid');
+    
+    logger.info('membership', 'Debug panel state', {
+      containerExists: !!container,
+      containerVisible: container && !container.classList.contains('hidden'),
+      containerClasses: container?.className,
+      bodyExists: !!body,
+      gridExists: !!grid,
+      panelInitialized: this._panelDnDInit,
+      atmosphereId: this.atmosphere?.id,
+      membersCount: this.members.size,
+      bodyRect: body?.getBoundingClientRect()
     });
-    // Dragstart for membership pads (removal gesture)
-    body.addEventListener('dragstart', e => {
-      const pad = e.target.closest('.sound-pad[data-origin="membership"]');
-      if (!pad || !e.dataTransfer) return;
-      const audioId = pad.dataset.audioId;
-      e.dataTransfer.setData('membership-remove', audioId);
-      e.dataTransfer.setData('audio-id', audioId); // Allow potential reorder/add semantics elsewhere
-      e.dataTransfer.effectAllowed = 'move';
-    });
+    
+    return {
+      container: !!container,
+      visible: container && !container.classList.contains('hidden'),
+      body: !!body,
+      grid: !!grid,
+      initialized: this._panelDnDInit
+    };
   }
 
   _handlePadButton(e, audioId) {
     const action = e.target.dataset.action;
     if (!action) return;
-    if (action === 'remove') { this.members.delete(audioId); this.renderPads(); return; }
+  if (action === 'remove') { this.members.delete(audioId); this.renderPads(); this._schedulePersist(); return; }
     const original = document.querySelector(`.sound-pad[data-audio-id="${audioId}"]`);
     if (!original) return;
-    // Forward action by simulating click on original equivalent button
     if (action === 'toggle' || action === 'loop' || action === 'mute') {
       const btn = original.querySelector(`button[data-action="${action}"]`);
       btn?.click();
-      // update membership meta based on classes after a tick
       setTimeout(()=>{
         const loopBtn = original.querySelector('button[data-action="loop"]');
         const muteBtn = original.querySelector('button[data-action="mute"]');
-        const isPlaying = original.classList.contains('active');
         const meta = this.members.get(audioId);
         if (meta) {
           meta.is_looping = !!loopBtn?.classList.contains('active');
           meta.is_muted = !!muteBtn?.classList.contains('active');
         }
         this.renderPads();
+    this._schedulePersist();
       },60);
     }
   }
@@ -339,20 +461,19 @@ export class AtmosphereMembershipEditor {
       if (slider) { slider.value = value; slider.dispatchEvent(new Event('input', { bubbles:true })); }
     }
     const meta = this.members.get(audioId); if (meta) meta.volume = value/100;
-    // update percentage display
     const wrap = e.target.closest('.volume-control-pad');
     if (wrap) { const disp = wrap.querySelector('.volume-display-pad'); if (disp) disp.textContent = value+'%'; }
+  this._schedulePersist();
   }
 
   async persist() {
     if (!this.atmosphere) return;
     try {
       let detail;
-      // Re-fetch detail only if we previously loaded it; otherwise assume empty baseline
       if (this._detailLoaded) {
         try { detail = await this.service.getAtmosphereWithSounds(this.atmosphere.id); }
         catch (inner) {
-          logger.warn('membership','persist re-fetch failed; proceeding with last known (may overwrite)',{ id:this.atmosphere.id, error: inner.message });
+          logger.warn('membership','persist re-fetch failed; using local state',{ id:this.atmosphere.id, error: inner.message });
           detail = { atmosphere: this.atmosphere, sounds: [] };
         }
       } else {
@@ -377,32 +498,29 @@ export class AtmosphereMembershipEditor {
     }
   }
 
-  _setTitle(text, { panelMode = false } = {}) {
-    if (panelMode) {
-      const h = document.querySelector('#membership-container .membership-panel-header h3');
-      if (h) h.textContent = text;
-    } else if (this.el) {
-      const t = this.el.querySelector('.atmo-membership-title');
-      if (t) t.textContent = text;
-    }
+  _setTitle(text) {
+    const h = document.querySelector('#membership-container .membership-panel-header h3');
+    if (h) h.textContent = text;
   }
 
-  _setStatus(text, { panelMode = false } = {}) {
+  _setStatus(text) {
     if (!text) return;
-    if (panelMode) {
-      const body = document.getElementById('membershipPanelBody');
-      if (body) {
-        let banner = body.querySelector('.membership-status-inline');
-        if (!banner) {
-          banner = document.createElement('div');
-          banner.className = 'membership-status-inline';
-          body.prepend(banner);
-        }
-        banner.textContent = text;
-      }
-    } else if (this.el) {
-      const s = this.el.querySelector('#atmoMembershipStatus');
-      if (s) s.textContent = text;
+    const body = document.getElementById('membershipPanelBody');
+    if (!body) return;
+    let banner = body.querySelector('.membership-status-inline');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.className = 'membership-status-inline';
+      body.prepend(banner);
     }
+    banner.textContent = text;
+  }
+
+  _schedulePersist(delay = 600) {
+    if (!this.atmosphere) return;
+    if (this._persistTimer) clearTimeout(this._persistTimer);
+    this._persistTimer = setTimeout(() => {
+      this.persist();
+    }, delay);
   }
 }
