@@ -12,6 +12,12 @@ export class TagSearchController {
             keywords: new Set()
         };
         this.matchAll = false; // AND vs OR logic
+        this.tagGroups = { // tagType -> baseName -> [fullTagValues]
+            genre: {},
+            mood: {},
+            occasion: {},
+            keyword: {}
+        };
         
         this.initializeSearchUI();
     }
@@ -128,26 +134,133 @@ export class TagSearchController {
             const vocabulary = this.tagService.getVocabularyForType(tagType);
             container.innerHTML = '';
 
+            // Build groups for colon-delimited tags
+            const groups = {};
+            const plainTags = [];
+
             vocabulary.forEach(vocabItem => {
                 if (!vocabItem.is_active) return;
+                const value = vocabItem.tag_value;
+                if (value.includes(':')) {
+                    const base = value.split(':')[0];
+                    if (!groups[base]) groups[base] = [];
+                    groups[base].push(value);
+                } else {
+                    plainTags.push(value);
+                }
+            });
+
+            // Save groups to instance
+            this.tagGroups[tagType] = groups;
+
+            // Render group chips (only one per base)
+            Object.entries(groups).forEach(([base, values]) => {
+                const chip = document.createElement('div');
+                chip.className = 'tag-filter-chip tag-group-chip';
+                chip.dataset.tagType = tagType;
+                chip.dataset.groupBase = base;
+                chip.title = `Select one or more: ${values.join(', ')}`;
+                chip.textContent = this.tagService.capitalizeTag(base);
+                chip.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.openTagGroupPopup(tagType, base, values, chip);
+                });
+                container.appendChild(chip);
+            });
+
+            // Render standalone plain tags (those without colon AND not bases for grouped tags)
+            plainTags.forEach(tagValue => {
+                // If a group exists with same base name and there are colon tags, skip creating separate plain chip unless it's not overlapping
+                if (groups[tagValue]) {
+                    // The base appears also as a non-colon tag; include in that group's possible values list
+                    groups[tagValue].push(tagValue);
+                    return;
+                }
 
                 const filterChip = document.createElement('div');
                 filterChip.className = 'tag-filter-chip';
                 filterChip.dataset.tagType = tagType;
-                filterChip.dataset.tagValue = vocabItem.tag_value;
-                filterChip.title = vocabItem.description || '';
-
-                filterChip.innerHTML = `
-                    ${this.tagService.capitalizeTag(vocabItem.tag_value)}
-                `;
-
+                filterChip.dataset.tagValue = tagValue;
+                filterChip.title = '';
+                filterChip.textContent = this.tagService.capitalizeTag(tagValue);
                 filterChip.addEventListener('click', () => {
-                    this.toggleFilter(tagType, vocabItem.tag_value, filterChip);
+                    this.toggleFilter(tagType, tagValue, filterChip);
                 });
-
                 container.appendChild(filterChip);
             });
         });
+    }
+
+    openTagGroupPopup(tagType, base, values, chipElement) {
+        // Remove any existing popup
+        this.closeTagGroupPopup();
+
+        const overlay = document.createElement('div');
+        overlay.className = 'tag-group-overlay';
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) this.closeTagGroupPopup();
+        });
+
+        const panel = document.createElement('div');
+        panel.className = 'tag-group-panel';
+        panel.innerHTML = `
+            <div class="tag-group-header">
+                <h4>${this.tagService.capitalizeTag(base)} Tags</h4>
+                <button class="tag-group-close" title="Close">×</button>
+            </div>
+            <div class="tag-group-body">
+                <div class="tag-group-options">
+                    ${values.sort().map(v => {
+                        const id = `tg_${tagType}_${base}_${v.replace(/[^a-z0-9]/gi,'_')}`;
+                        const checked = this.currentFilters[`${tagType}s`].has(v) ? 'checked' : '';
+                        return `<label class="tag-group-option"><input type="checkbox" id="${id}" value="${v}" ${checked}> <span>${this.tagService.capitalizeTag(v.split(':').slice(-1)[0])}</span></label>`;
+                    }).join('')}
+                </div>
+            </div>
+            <div class="tag-group-footer">
+                <button class="btn btn-sm btn-secondary tag-group-cancel">Cancel</button>
+                <button class="btn btn-sm btn-primary tag-group-apply">Apply</button>
+            </div>
+        `;
+
+        overlay.appendChild(panel);
+        document.body.appendChild(overlay);
+
+        // Close handlers
+        panel.querySelector('.tag-group-close').addEventListener('click', () => this.closeTagGroupPopup());
+        panel.querySelector('.tag-group-cancel').addEventListener('click', () => this.closeTagGroupPopup());
+        panel.querySelector('.tag-group-apply').addEventListener('click', () => {
+            const checkboxes = panel.querySelectorAll('input[type="checkbox"]');
+            const selected = [];
+            checkboxes.forEach(cb => { if (cb.checked) selected.push(cb.value); });
+
+            // Remove previous selections from this group
+            values.forEach(v => this.currentFilters[`${tagType}s`].delete(v));
+            // Add new
+            selected.forEach(v => this.currentFilters[`${tagType}s`].add(v));
+
+            // Update chip active state & label
+            chipElement.classList.toggle('active', selected.length > 0);
+            this.updateGroupChipLabel(chipElement, base, selected.length);
+
+            this.performSearch();
+            this.closeTagGroupPopup();
+        });
+
+        // Escape key
+        const escHandler = (e) => {
+            if (e.key === 'Escape') this.closeTagGroupPopup();
+        };
+        document.addEventListener('keydown', escHandler, { once: true });
+    }
+
+    closeTagGroupPopup() {
+        const existing = document.querySelector('.tag-group-overlay');
+        if (existing) existing.remove();
+    }
+
+    updateGroupChipLabel(chipElement, base, count) {
+        chipElement.textContent = count > 0 ? `${this.tagService.capitalizeTag(base)} (${count})` : this.tagService.capitalizeTag(base);
     }
 
     toggleFilter(tagType, tagValue, chipElement) {
@@ -239,6 +352,10 @@ export class TagSearchController {
         // Clear visual states
         document.querySelectorAll('.tag-filter-chip').forEach(chip => {
             chip.classList.remove('active');
+            if (chip.classList.contains('tag-group-chip')) {
+                const base = chip.dataset.groupBase;
+                this.updateGroupChipLabel(chip, base, 0);
+            }
         });
 
         // Update results count
