@@ -22,7 +22,7 @@ export class TagService {
 
     async loadTagVocabulary() {
         try {
-            const vocabulary = await invoke('get_tag_vocabulary', { tagType: null });
+            const vocabulary = await invoke('get_tag_vocabulary', { tag_type: null });
             
             // Organize vocabulary by tag type
             this.tagVocabulary.clear();
@@ -52,9 +52,9 @@ export class TagService {
     async addRpgTag(audioFileId, tagType, tagValue) {
         try {
             const result = await invoke('add_rpg_tag', {
-                audioFileId,
-                tagType,
-                tagValue
+                audio_file_id: audioFileId,
+                tag_type: tagType,
+                tag_value: tagValue
             });
             console.log(`Added RPG tag: ${tagType}=${tagValue} to file ${audioFileId}`);
             return result;
@@ -67,9 +67,9 @@ export class TagService {
     async removeRpgTag(audioFileId, tagType, tagValue) {
         try {
             await invoke('remove_rpg_tag', {
-                audioFileId,
-                tagType,
-                tagValue
+                audio_file_id: audioFileId,
+                tag_type: tagType,
+                tag_value: tagValue
             });
             console.log(`Removed RPG tag: ${tagType}=${tagValue} from file ${audioFileId}`);
         } catch (error) {
@@ -80,7 +80,7 @@ export class TagService {
 
     async getRpgTagsForFile(audioFileId) {
         try {
-            const tags = await invoke('get_rpg_tags_for_file', { audioFileId });
+            const tags = await invoke('get_rpg_tags_for_file', { audio_file_id: audioFileId });
             return tags;
         } catch (error) {
             console.error('Failed to get RPG tags for file:', error);
@@ -91,14 +91,14 @@ export class TagService {
     async bulkTagFiles(filePaths, tagsToAdd, tagsToRemove) {
         try {
             const request = {
-                filePaths,
-                tagsToAdd: tagsToAdd.map(tag => ({
+                file_paths: filePaths,
+                tags_to_add: tagsToAdd.map(tag => ({
                     audio_file_id: 0, // Will be filled by backend
                     tag_type: tag.tagType,
                     tag_value: tag.tagValue,
                     created_at: new Date().toISOString()
                 })),
-                tagsToRemove: tagsToRemove.map(tag => ({
+                tags_to_remove: tagsToRemove.map(tag => ({
                     audio_file_id: 0, // Will be filled by backend
                     tag_type: tag.tagType,
                     tag_value: tag.tagValue,
@@ -117,9 +117,9 @@ export class TagService {
     async searchFilesByTags(tagTypes, tagValues, matchAll = false) {
         try {
             const request = {
-                tagTypes: tagTypes.length > 0 ? tagTypes : null,
-                tagValues: tagValues.length > 0 ? tagValues : null,
-                matchAll
+                tag_types: tagTypes.length > 0 ? tagTypes : null,
+                tag_values: tagValues.length > 0 ? tagValues : null,
+                match_all: matchAll
             };
 
             const results = await invoke('search_files_by_tags', { request });

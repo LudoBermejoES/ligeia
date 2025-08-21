@@ -9,7 +9,8 @@ body {
     background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
     color: #fff;
     height: 100vh;
-    overflow: hidden;
+    /* Allow page to scroll if content exceeds viewport */
+    overflow: auto;
 }
 
 .hidden { display: none !important; }
@@ -108,6 +109,20 @@ body {
     flex: 1;
     display: flex;
     min-height: 0;
+}
+
+/* Ensure layout containers inside main flex properly */
+#sidebar-container {
+    flex: 0 0 300px; /* Match .sidebar width */
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+#mixer-container {
+    flex: 1 1 auto;
+    display: flex; /* Allow .mixer-area to stretch */
+    min-width: 0; /* Prevent unintended shrinking of child grid */
 }
 
 .sidebar {
@@ -278,7 +293,9 @@ body {
     display: flex;
     flex-direction: column;
     padding: 1rem;
+    /* Allow internal grid to scroll; hide horizontal overflow */
     overflow: hidden;
+    min-height: 0; /* Needed for nested flex scroll */
 }
 
 .mixer-header {
@@ -307,6 +324,7 @@ body {
     overflow-y: auto;
     min-height: 0;
     position: relative;
+    overscroll-behavior: contain;
 }
 
 /* Drag and Drop States */
