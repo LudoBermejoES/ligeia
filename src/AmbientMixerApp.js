@@ -142,8 +142,11 @@ export class AmbientMixerApp {
                 try {
                     const { listen } = await import('@tauri-apps/api/event');
                     await listen('atmosphere-membership-updated', async ({ payload }) => {
+                        console.log('🔔 ATMOSPHERE MEMBERSHIP EVENT RECEIVED:', payload);
                         if (!payload) return;
+                        console.log('🔔 Refreshing atmosphere manager...');
                         await this.atmosphereManager.refresh();
+                        console.log('🔔 Calling _renderAtmosphereList...');
                         this._renderAtmosphereList();
                     });
                 } catch (e) { console.warn('Event listen failed', e); }

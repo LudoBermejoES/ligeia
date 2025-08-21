@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "tauri dev",
     "dev-no-reload": "tauri dev --no-watch",
+    "dev-no-watch": "tauri dev --no-watch",
+    "dev-ignore": "TAURI_DEV_WATCHER_IGNORE_FILE=.taurignore tauri dev",
     "build": "tauri build",
     "tauri": "tauri",
     "serve": "python3 -m http.server 1420"

@@ -28,7 +28,7 @@ pub struct Database {
 
 impl Database {
     pub fn new() -> Result<Self> {
-        let conn = Connection::open("audio_player.db")?;
+        let conn = Connection::open("../db/audio_player.db")?;
         
         let schema = SchemaManager::new(&conn);
         let audio_files = AudioFileRepository::new();
