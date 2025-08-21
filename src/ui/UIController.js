@@ -2,11 +2,7 @@
  * UIController - Handles all UI updates and DOM manipulation
  */
 export class UIController {
-    constructor() {
-        this.sortable = null;
-        this.cardOrder = new Map(); // Track custom ordering
-        this.isDragging = false; // Flag to prevent re-rendering during drag
-    }
+    constructor() {}
 
     initializeEventListeners(eventHandlers) {
         // File operations
@@ -79,36 +75,39 @@ export class UIController {
     }
 
     renderSoundPadsGrid(audioFiles, soundPads) {
-        const container = this.getElementById('soundPadsGrid');
-        if (!container) return;
-
-        // Skip re-rendering if we're currently dragging
-        if (this.isDragging) {
-            console.log('Skipping render during drag operation');
-            return;
-        }
+        const ambientContainer = this.getElementById('ambientPadsGrid');
+        const soundsContainer = this.getElementById('soundsPadsGrid');
+        if (!ambientContainer || !soundsContainer) return;
 
         const allFiles = Array.from(audioFiles.values());
+    const sortedFiles = this.sortByTitle(allFiles);
 
-        // Sort by custom order if available, otherwise by default order
-        const sortedFiles = this.applySavedOrder(allFiles);
+        const ambient = [];
+        const others = [];
+        sortedFiles.forEach(f => {
+            const isAmbient = (
+                (f.genre && /ambient/i.test(f.genre)) ||
+                (f.title && /ambient/i.test(f.title)) ||
+                /ambient/i.test(f.file_path)
+            );
+            (isAmbient ? ambient : others).push(f);
+        });
 
-        container.innerHTML = sortedFiles.map(audioFile => 
-            this.renderSoundPad(audioFile, soundPads.get(audioFile.file_path))
-        ).join('');
+        ambientContainer.innerHTML = ambient.map(a => this.renderSoundPad(a, soundPads.get(a.file_path))).join('');
+        soundsContainer.innerHTML = others.map(a => this.renderSoundPad(a, soundPads.get(a.file_path))).join('');
 
-        // Attach event listeners to new pad elements
-        this.attachPadEventListeners(container, soundPads);
-        
-        // Initialize drag and drop
-        this.initializeDragAndDrop(container);
+        // Event listeners delegate per section
+        this.attachPadEventListeners(ambientContainer, soundPads);
+        this.attachPadEventListeners(soundsContainer, soundPads);
+    // Ordering fixed by title; drag & drop removed.
     }
 
     renderSoundPad(audioFile, pad) {
-        const isPlaying = pad?.isPlaying || false;
-        const isLooping = pad?.isLooping || false;
-        const isMuted = pad?.isMuted || false;
-        const volume = Math.round((pad?.volume || 0.5) * 100);
+    const isPlaying = pad?.isPlaying || false;
+    const isLooping = pad?.isLooping || false;
+    const isMuted = pad?.isMuted || false;
+    // Normalize volume (0-1) -> percent once
+    const volumePercent = Math.round(((pad?.volume) ?? 0.5) * 100);
         
         const title = audioFile.title || this.getFilenameFromPath(audioFile.file_path);
         const artist = audioFile.artist || 'Unknown Artist';
@@ -122,7 +121,7 @@ export class UIController {
             isActive: isPlaying,
             isMuted: isMuted,
             isLooping: isLooping,
-            volume: volume,
+            volume: volumePercent,
             rpgTags: audioFile.rpgTags || []
         };
 
@@ -158,9 +157,9 @@ export class UIController {
                     </div>
                     
                     <div class="volume-control-pad">
-                        <input type="range" class="volume-slider-pad" min="0" max="100" 
-                               value="${volume * 100}" data-action="volume">
-                        <span class="volume-display-pad">${Math.round(volume * 100)}%</span>
+               <input type="range" class="volume-slider-pad" min="0" max="100" 
+                   value="${volumePercent}" data-action="volume">
+               <span class="volume-display-pad">${volumePercent}%</span>
                     </div>
                 </div>
                 
@@ -383,110 +382,11 @@ export class UIController {
         return filePath.split(/[/\\]/).pop()?.replace(/\.[^/.]+$/, '') || 'Unknown';
     }
 
-    initializeDragAndDrop(container) {
-        if (!window.Sortable) {
-            console.warn('SortableJS not loaded, drag and drop will not be available');
-            return;
-        }
-
-        // Destroy existing sortable if it exists
-        if (this.sortable) {
-            this.sortable.destroy();
-        }
-
-        this.sortable = window.Sortable.create(container, {
-            animation: 200,
-            ghostClass: 'sortable-ghost',
-            dragClass: 'sortable-drag',
-            chosenClass: 'sortable-chosen',
-            
-            // Only allow dragging by the title area to avoid conflicts with buttons
-            handle: '.sound-pad-title',
-            
-            // Force fallback mode for CSS Grid compatibility
-            forceFallback: true,
-            fallbackClass: 'sortable-fallback',
-            fallbackOnBody: true,
-            swapThreshold: 0.65,
-            
-            onStart: (evt) => {
-                this.isDragging = true;
-                container.classList.add('sorting-active');
-                console.log('Drag started:', evt.item.dataset.filePath);
-                console.log('Original DOM order before drag:', Array.from(container.children).map(el => el.dataset.filePath));
-            },
-            
-            onEnd: (evt) => {
-                container.classList.remove('sorting-active');
-                console.log('Drag ended, old index:', evt.oldIndex, 'new index:', evt.newIndex);
-                console.log('Final DOM order after drag:', Array.from(container.children).map(el => el.dataset.filePath));
-                
-                // Only save if the position actually changed
-                if (evt.oldIndex !== evt.newIndex) {
-                    this.saveCardOrder(container);
-                } else {
-                    console.log('No position change detected, skipping save');
-                }
-                
-                // Allow re-rendering after a short delay
-                setTimeout(() => {
-                    this.isDragging = false;
-                    console.log('Drag operation complete, re-rendering enabled');
-                }, 100);
-            }
+    sortByTitle(files) {
+        return files.sort((a, b) => {
+            const ta = (a.title || this.getFilenameFromPath(a.file_path) || '').toLowerCase();
+            const tb = (b.title || this.getFilenameFromPath(b.file_path) || '').toLowerCase();
+            return ta.localeCompare(tb);
         });
-    }
-
-    applySavedOrder(audioFiles) {
-        const orderKey = 'card-order-all';
-        const savedOrder = localStorage.getItem(orderKey);
-        
-        console.log('Applying saved order');
-        console.log('Saved order:', savedOrder);
-        
-        if (!savedOrder) {
-            console.log('No saved order found, using default');
-            return audioFiles;
-        }
-
-        try {
-            const orderArray = JSON.parse(savedOrder);
-            const orderMap = new Map(orderArray.map((filePath, index) => [filePath, index]));
-            
-            const sortedFiles = audioFiles.sort((a, b) => {
-                const orderA = orderMap.get(a.file_path) ?? Number.MAX_SAFE_INTEGER;
-                const orderB = orderMap.get(b.file_path) ?? Number.MAX_SAFE_INTEGER;
-                return orderA - orderB;
-            });
-            
-            console.log('Applied order, sorted files:', sortedFiles.map(f => f.file_path));
-            return sortedFiles;
-        } catch (error) {
-            console.error('Error applying saved card order:', error);
-            return audioFiles;
-        }
-    }
-
-    saveCardOrder(container) {
-        const soundPads = container.querySelectorAll('.sound-pad');
-        const order = Array.from(soundPads).map(pad => pad.dataset.filePath);
-        
-        const orderKey = 'card-order-all';
-        console.log('Saving order:', order);
-        console.log('Order key:', orderKey);
-        
-        try {
-            localStorage.setItem(orderKey, JSON.stringify(order));
-            console.log('Saved card order:', order);
-        } catch (error) {
-            console.error('Error saving card order:', error);
-        }
-    }
-
-    // Method to reset card order
-    resetCardOrder() {
-        const orderKey = 'card-order-all';
-        localStorage.removeItem(orderKey);
-        console.log('Reset card order');
     }
 }

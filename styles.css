@@ -293,8 +293,9 @@ body {
     display: flex;
     flex-direction: column;
     padding: 1rem;
-    /* Allow internal grid to scroll; hide horizontal overflow */
-    overflow: hidden;
+    /* Allow area itself to scroll when content exceeds viewport */
+    overflow-y: auto;
+    overflow-x: hidden;
     min-height: 0; /* Needed for nested flex scroll */
 }
 
@@ -1636,3 +1637,21 @@ body {
         padding: 1.5rem;
     }
 }
+
+/* Sound groups (Ambient vs Sounds) */
+.sound-group { margin-bottom: 1.5rem; }
+.sound-group .group-header {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 6px 10px;
+    background: rgba(0,0,0,0.35);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    color: #b5c6d8;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin: 0 0 8px 0;
+}
+.sound-group .group-body { display: contents; }
