@@ -1,15 +1,18 @@
 import { invoke } from '@tauri-apps/api/core';
 import { save, open } from '@tauri-apps/plugin-dialog';
-import { writeTextFile, readTextFile } from '@tauri-apps/plugin-fs';
+import { writeTextFile, readTextFile } from '@tauri-apps/plugin-fs'; // retained for backward compatibility (may be removed)
 import { AudioService } from './services/AudioService.js';
 import { FileService } from './services/FileService.js';
 import { DatabaseService } from './services/DatabaseService.js';
 import { TagService } from './services/TagService.js';
-import { SoundPad } from './models/SoundPad.js';
+// Managers (refactored responsibilities)
+import { LibraryManager } from './managers/LibraryManager.js';
+import { TagEditorManager } from './managers/TagEditorManager.js';
 import { UIController } from './ui/UIController.js';
 import { BulkTagEditorController } from './ui/BulkTagEditorController.js';
 import { TagSearchController } from './ui/TagSearchController.js';
 import logger from './utils/logger.js';
+import { ImportExportManager } from './managers/ImportExportManager.js';
 
 /**
  * AmbientMixerApp - Main application controller
@@ -28,10 +31,13 @@ export class AmbientMixerApp {
     this.bulkTagEditorController = null; // Will be initialized after tagService
     this.tagSearchController = null; // Will be initialized after tagService
         
-        // State
-        this.audioFiles = new Map();
-        this.soundPads = new Map();
-        this.currentEditingFile = null;
+    // Managers & derived state maps
+    this.libraryManager = new LibraryManager(this.databaseService, this.fileService, this.audioService);
+    this.tagEditorManager = new TagEditorManager(this.tagService, this.uiController, this.libraryManager);
+    this.audioFiles = this.libraryManager.getAudioFiles();
+    this.soundPads = this.libraryManager.getSoundPads();
+    this.importExportManager = new ImportExportManager(this.uiController, this.libraryManager);
+    this.currentEditingFile = null; // deprecated; kept for backward compatibility
         this.updateUIThrottled = this.throttle(this.updateUI.bind(this), 100);
         this.lastToggleTime = new Map(); // Track last toggle time per pad to prevent rapid toggling
         
@@ -39,8 +45,8 @@ export class AmbientMixerApp {
         this.eventHandlers = {
             loadFiles: () => this.handleLoadFiles(),
             loadDirectory: () => this.handleLoadDirectory(),
-            exportData: () => this.handleExportData(),
-            importData: () => this.handleImportData(),
+            exportData: () => this.importExportManager.exportData(),
+            importData: () => this.importExportManager.importData(),
             calculateDurations: () => this.handleCalculateDurations(),
             stopAll: () => this.handleStopAll(),
             fadeAllIn: () => this.handleFadeAllIn(),
@@ -90,11 +96,15 @@ export class AmbientMixerApp {
             // Setup edit tags handler
             this.uiController.onEditTags = (filePath) => this.handleEditTags(filePath);
             
-            // Set up tag editor modal handlers
-            this.initializeTagEditor();
+            // Initialize tag editor modal handlers via manager
+            this.tagEditorManager.initModal();
 
-            // Load existing audio library
-            await this.loadExistingLibrary();
+            // Provide tag search controller reference to tag & import/export managers for refresh after saves/import
+            this.tagEditorManager.tagSearchController = this.tagSearchController;
+            this.importExportManager.tagSearchController = this.tagSearchController;
+
+            // Load existing audio library through library manager
+            await this.libraryManager.loadExistingLibrary(count => this.uiController.updateLibraryStats(count));
 
             // Initialize tag search to show all files
             await this.tagSearchController.showAllSounds();
@@ -108,39 +118,7 @@ export class AmbientMixerApp {
         }
     }
 
-    async loadExistingLibrary() {
-        try {
-            logger.info('library', 'Loading existing library from database');
-            const audioFiles = await this.databaseService.getAllAudioFiles();
-            logger.info('library', 'Audio files retrieved from database', { 
-                count: audioFiles.length,
-                sampleFiles: audioFiles.slice(0, 3).map(f => ({
-                    id: f.id, 
-                    file_path: f.file_path, 
-                    title: f.title 
-                }))
-            });
-            
-            for (const audioFile of audioFiles) {
-                this.audioFiles.set(audioFile.file_path, audioFile);
-                this.createSoundPad(audioFile);
-            }
-            
-            logger.info('library', 'Library loaded into memory', {
-                audioFilesMapSize: this.audioFiles.size,
-                soundPadsMapSize: this.soundPads.size
-            });
-            
-            // Update only library stats, not the full UI (tag search will handle sound pad rendering)
-            this.uiController.updateLibraryStats(this.audioFiles.size);
-        } catch (error) {
-            logger.error('library', 'Error loading existing library', { 
-                error: error.message,
-                stack: error.stack
-            });
-            console.error('Error loading existing library:', error);
-        }
-    }
+    // loadExistingLibrary responsibility moved to LibraryManager
 
     async handleLoadFiles() {
         try {
@@ -183,90 +161,13 @@ export class AmbientMixerApp {
 
     async processFiles(filePaths) {
         console.log(`Processing ${filePaths.length} audio files...`);
-        
-        // Process files in batches to avoid overwhelming the system
-        const batchSize = 10;
-        const batches = [];
-        
-        for (let i = 0; i < filePaths.length; i += batchSize) {
-            batches.push(filePaths.slice(i, i + batchSize));
-        }
-        
-        let processedCount = 0;
-        for (const batch of batches) {
-            const loadingPromises = batch.map(filePath => this.processAudioFile(filePath));
-            await Promise.allSettled(loadingPromises);
-            
-            processedCount += batch.length;
-            console.log(`Processed ${processedCount}/${filePaths.length} files`);
-            
-            // Update library stats periodically during loading
-            this.uiController.updateLibraryStats(this.audioFiles.size);
-        }
-        
-        console.log(`Finished processing all ${filePaths.length} audio files`);
-        
-        // Refresh the search results to include new files
-        if (this.tagSearchController) {
-            await this.tagSearchController.showAllSounds();
-        }
+        await this.libraryManager.processFiles(filePaths, { onBatch: () => this.uiController.updateLibraryStats(this.audioFiles.size) });
+        if (this.tagSearchController) await this.tagSearchController.showAllSounds();
     }
 
-    async processAudioFile(filePath) {
-        try {
-            // Check if already loaded
-            if (this.audioFiles.has(filePath)) {
-                console.log(`File ${filePath} already loaded`);
-                return;
-            }
+    // processAudioFile moved to LibraryManager
 
-            // Load metadata from file
-            const audioFile = await this.databaseService.loadAudioFile(filePath);
-            
-            // Save to database
-            const id = await this.databaseService.saveAudioFile(audioFile);
-            audioFile.id = id;
-            
-            // Add to collection
-            this.audioFiles.set(filePath, audioFile);
-            this.createSoundPad(audioFile);
-            
-        } catch (error) {
-            console.error(`Error processing ${filePath}:`, error);
-            
-            // Create basic audio file entry
-            const basicAudioFile = {
-                id: null,
-                file_path: filePath,
-                title: this.fileService.getFilenameFromPath(filePath),
-                artist: null,
-                album: null,
-                duration: null,
-                genre: null,
-                year: null,
-                track_number: null
-            };
-            
-            try {
-                const id = await this.databaseService.saveAudioFile(basicAudioFile);
-                basicAudioFile.id = id;
-                this.audioFiles.set(filePath, basicAudioFile);
-                this.createSoundPad(basicAudioFile);
-            } catch (saveError) {
-                console.error('Failed to save basic audio file:', saveError);
-            }
-        }
-    }
-
-    createSoundPad(audioFile) {
-        const soundPad = new SoundPad(audioFile, this.fileService);
-        
-        // Setup event handlers for the pad
-        soundPad.onStateChange = () => this.updateUI();
-        soundPad.audioService = this.audioService; // Pass audio service reference
-        
-        this.soundPads.set(audioFile.file_path, soundPad);
-    }
+    // createSoundPad moved to LibraryManager
 
     async handleSavePreset() {
         const success = this.presetManager.savePreset(this.soundPads);
@@ -284,302 +185,11 @@ export class AmbientMixerApp {
         }
     }
 
-    async handleExportData() {
-        try {
-            logger.info('export', 'Starting frontend export process');
-            
-            const exportData = await invoke('export_library_data');
-            logger.info('export', 'Export data received from backend', {
-                version: exportData.version,
-                filesCount: exportData.files.length,
-                tagsCount: exportData.tags.length,
-                hasVocabulary: !!exportData.tag_vocabulary
-            });
-            
-            // Test mode: bypass dialog for debugging
-            let filePath;
-            
-            // First try to use the save dialog
-            logger.info('export', 'Opening save dialog');
-            try {
-                filePath = await save({
-                    title: 'Export Ligeia Library',
-                    defaultPath: `ligeia-library-${new Date().toISOString().split('T')[0]}.json`,
-                    filters: [{
-                        name: 'JSON',
-                        extensions: ['json']
-                    }]
-                });
-                
-                logger.info('export', 'Save dialog completed', { 
-                    filePath, 
-                    filePathType: typeof filePath,
-                    isNull: filePath === null,
-                    isUndefined: filePath === undefined,
-                    isEmpty: filePath === ''
-                });
-                
-            } catch (dialogError) {
-                logger.error('export', 'Save dialog failed', { 
-                    error: dialogError.message,
-                    stack: dialogError.stack
-                });
-                // Fallback to fixed path for debugging
-                filePath = `/Users/ludo/code/ligeia/exported-library-${new Date().toISOString().split('T')[0]}.json`;
-                logger.info('export', 'Using fallback file path', { filePath });
-            }
-            
-            if (!filePath) {
-                logger.info('export', 'No file path available (user cancelled or dialog failed)');
-                this.uiController.showError('Export cancelled - no file selected');
-                return;
-            }
-            
-            logger.info('export', 'File path confirmed', { filePath });
-            
-            // Write JSON data to the selected file
-            const jsonString = JSON.stringify(exportData, null, 2); // Pretty format with indentation
-            logger.info('export', 'JSON string generated', { 
-                jsonLength: jsonString.length,
-                preview: jsonString.substring(0, 200) + '...'
-            });
-            
-            logger.info('export', 'Writing file to disk');
-            try {
-                await writeTextFile(filePath, jsonString);
-                logger.info('export', 'File written successfully', { filePath });
-                
-                // Verify the file was actually created by checking if it exists
-                // We'll just assume it worked if no error was thrown
-                
-            } catch (writeError) {
-                logger.error('export', 'Failed to write file', { 
-                    filePath,
-                    error: writeError.message,
-                    errorType: writeError.constructor.name,
-                    stack: writeError.stack
-                });
-                throw writeError; // Re-throw to trigger the outer catch block
-            }
-            
-            // Fix success message to use vocabulary info instead of tags.length (which is now 0)
-            const vocabularyInfo = exportData.tag_vocabulary ? 'with RPG vocabulary' : '';
-            this.uiController.showSuccess(`Exported ${exportData.files.length} files ${vocabularyInfo} to ${filePath}`);
-            logger.info('export', 'Export completed successfully', { 
-                filePath,
-                filesExported: exportData.files.length
-            });
-        } catch (error) {
-            logger.error('export', 'Export failed', { 
-                error: error.message,
-                stack: error.stack
-            });
-            console.error('Export failed:', error);
-            this.uiController.showError(`Failed to export library data: ${error.message}`);
-        }
-    }
+    // handleExportData delegated to ImportExportManager
 
-    async handleImportData() {
-        try {
-            logger.info('import', 'Starting import data process');
-            
-            // Open file dialog to select JSON file
-            const filePath = await open({
-                title: 'Import Ligeia Library',
-                filters: [{
-                    name: 'JSON',
-                    extensions: ['json']
-                }]
-            });
-            
-            if (!filePath) {
-                logger.info('import', 'User cancelled file selection');
-                return;
-            }
-            
-            logger.info('import', 'File selected for import', { filePath });
-            
-            // Read the JSON file
-            logger.info('import', 'Reading JSON file');
-            const text = await readTextFile(filePath);
-            logger.info('import', 'JSON file read successfully', { 
-                textLength: text.length,
-                preview: text.substring(0, 200) + '...'
-            });
-            
-            const importData = JSON.parse(text);
-            logger.info('import', 'JSON parsed successfully', {
-                version: importData.version,
-                hasFiles: !!importData.files,
-                fileCount: importData.files ? importData.files.length : 0,
-                hasTags: !!importData.tags,
-                tagCount: importData.tags ? importData.tags.length : 0,
-                hasVocabulary: !!importData.tag_vocabulary
-            });
-            
-            // Validate data structure
-            if (!importData.version || !importData.files) {
-                const error = 'Invalid file format - missing version or files';
-                logger.error('import', error, { importData: Object.keys(importData) });
-                throw new Error(error);
-            }
-            
-            // Log detailed file analysis
-            const sampleFiles = importData.files.slice(0, 3);
-            logger.debug('import', 'Sample files from import data', { sampleFiles });
-            
-            // Handle both old format (with tags array) and new format (with tag_vocabulary)
-            const tagCount = importData.tags ? importData.tags.length : 0;
-            const fileCount = importData.files.length;
-            
-            // Count enhanced RPG fields
-            let filesWithOccasions = 0;
-            let filesWithKeywords = 0;
-            let totalOccasions = 0;
-            let totalKeywords = 0;
-            
-            for (const file of importData.files) {
-                if (file.rpg_occasion && file.rpg_occasion.length > 0) {
-                    filesWithOccasions++;
-                    totalOccasions += file.rpg_occasion.length;
-                }
-                if (file.rpg_keywords && file.rpg_keywords.length > 0) {
-                    filesWithKeywords++;
-                    totalKeywords += file.rpg_keywords.length;
-                }
-            }
-            
-            logger.info('import', 'Import data analysis', {
-                fileCount,
-                tagCount,
-                filesWithOccasions,
-                totalOccasions,
-                filesWithKeywords,
-                totalKeywords
-            });
-            
-            // Show confirmation - use a proper async dialog
-            const confirmed = await this.showImportConfirmation(fileCount, tagCount);
-            if (!confirmed) {
-                logger.info('import', 'User cancelled import confirmation');
-                return;
-            }
-            
-            logger.info('import', 'User confirmed import, calling backend');
-            
-            // Import data
-            await invoke('import_library_data', { data: importData });
-            
-            logger.info('import', 'Backend import completed successfully');
-            
-            // Reload the library
-            logger.info('import', 'Reloading frontend library');
-            this.audioFiles.clear();
-            this.soundPads.clear();
-            
-            await this.loadExistingLibrary();
-            logger.info('import', 'Library reloaded', { 
-                audioFileCount: this.audioFiles.size,
-                soundPadCount: this.soundPads.size
-            });
-            
-            await this.tagSearchController.showAllSounds();
-            logger.info('import', 'Tag search updated');
-            
-            this.uiController.showSuccess(`Imported ${fileCount} files${tagCount > 0 ? ` with ${tagCount} tags` : ''} successfully!`);
-            logger.info('import', 'Import process completed successfully', {
-                finalAudioFileCount: this.audioFiles.size,
-                finalSoundPadCount: this.soundPads.size
-            });
-            
-        } catch (error) {
-            logger.error('import', 'Import failed', { 
-                error: error.message,
-                stack: error.stack
-            });
-            console.error('Import failed:', error);
-            this.uiController.showError(`Failed to import library data: ${error.message}`);
-        }
-    }
+    // handleImportData delegated to ImportExportManager
 
-    async showImportConfirmation(fileCount, tagCount) {
-        return new Promise((resolve) => {
-            // Create a proper modal dialog that waits for user response
-            const modal = document.createElement('div');
-            modal.className = 'modal-overlay import-confirmation-modal';
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.7);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 10000;
-            `;
-
-            const dialog = document.createElement('div');
-            dialog.className = 'modal-container';
-            dialog.style.cssText = `
-                background: white;
-                padding: 2rem;
-                border-radius: 8px;
-                max-width: 500px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            `;
-
-            dialog.innerHTML = `
-                <h2 style="margin-top: 0; color: #333;">Confirm Import</h2>
-                <p style="margin: 1rem 0; font-size: 1.1em;">
-                    Import <strong>${fileCount} files</strong>${tagCount > 0 ? ` with <strong>${tagCount} tags</strong>` : ''}?
-                </p>
-                <p style="margin: 1rem 0; color: #e74c3c; font-weight: bold;">
-                    ⚠️ This will clear your current library.
-                </p>
-                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
-                    <button id="cancelImport" style="padding: 0.5rem 1rem; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        Cancel
-                    </button>
-                    <button id="confirmImport" style="padding: 0.5rem 1rem; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        Import
-                    </button>
-                </div>
-            `;
-
-            modal.appendChild(dialog);
-            document.body.appendChild(modal);
-
-            // Handle button clicks
-            const confirmBtn = dialog.querySelector('#confirmImport');
-            const cancelBtn = dialog.querySelector('#cancelImport');
-
-            const cleanup = () => {
-                document.body.removeChild(modal);
-            };
-
-            confirmBtn.addEventListener('click', () => {
-                cleanup();
-                resolve(true);
-            });
-
-            cancelBtn.addEventListener('click', () => {
-                cleanup();
-                resolve(false);
-            });
-
-            // Handle ESC key
-            const handleKeydown = (e) => {
-                if (e.key === 'Escape') {
-                    cleanup();
-                    document.removeEventListener('keydown', handleKeydown);
-                    resolve(false);
-                }
-            };
-            document.addEventListener('keydown', handleKeydown);
-        });
-    }
+    // showImportConfirmation delegated to ImportExportManager
 
     async handleCalculateDurations() {
         try {
@@ -592,7 +202,7 @@ export class AmbientMixerApp {
             // Reload the library to show updated durations and BPM
             this.audioFiles.clear();
             this.soundPads.clear();
-            await this.loadExistingLibrary();
+            await this.libraryManager.loadExistingLibrary(count => this.uiController.updateLibraryStats(count));
             await this.tagSearchController.showAllSounds();
             
             // Show the result message from the backend
@@ -693,336 +303,21 @@ export class AmbientMixerApp {
         this.uiController.updateMixerInfo(playingCount);
     }
 
-    // Public API for external access
-    getSoundPads() {
-        return this.soundPads;
-    }
-
-    getAudioFiles() {
-        return this.audioFiles;
-    }
+    // Public API for external access (delegated to library manager)
+    getSoundPads() { return this.libraryManager.getSoundPads(); }
+    getAudioFiles() { return this.libraryManager.getAudioFiles(); }
     
-    // Tag Editor functionality
-    initializeTagEditor() {
-        const modal = document.getElementById('tagEditorModal');
-        const closeBtn = document.getElementById('closeTagEditor');
-        const cancelBtn = document.getElementById('cancelTagEdit');
-        const saveBtn = document.getElementById('saveTagEdit');
-        
-        // Close modal handlers
-        closeBtn?.addEventListener('click', () => this.closeTagEditor());
-        cancelBtn?.addEventListener('click', () => this.closeTagEditor());
-        
-        // Save tags handler
-        saveBtn?.addEventListener('click', () => this.saveTagChanges());
-        
-        // Close on overlay click
-        modal?.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                this.closeTagEditor();
-            }
-        });
-        
-        // Close on Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modal?.style.display !== 'none') {
-                this.closeTagEditor();
-            }
-        });
-    }
+    // Tag Editor functionality now handled by TagEditorManager
     
-    async handleEditTags(filePath) {
-        console.log('Edit tags for:', filePath);
-        this.currentEditingFile = filePath;
-        
-        // Get the audio file data
-        const audioFile = this.audioFiles.get(filePath);
-        if (!audioFile) {
-            console.error('Audio file not found:', filePath);
-            return;
-        }
-        
-        // Update the track info in the modal header
-        this.updateEditingTrackInfo(audioFile);
-        
-        // Populate the form with current values
-        await this.populateTagForm(audioFile);
-        
-        // Show the modal
-        const modal = document.getElementById('tagEditorModal');
-        if (modal) {
-            modal.style.display = 'flex';
-        }
-    }
+    async handleEditTags(filePath) { await this.tagEditorManager.open(filePath); }
     
-    updateEditingTrackInfo(audioFile) {
-        const trackNameElement = document.getElementById('editingTrackName');
-        const trackPathElement = document.getElementById('editingTrackPath');
-        
-        if (trackNameElement) {
-            // Use title if available, otherwise extract just the filename from path
-            let displayName;
-            if (audioFile.title && audioFile.title.trim() !== '') {
-                displayName = audioFile.title;
-            } else {
-                // Extract filename only (without extension)
-                const fullPath = audioFile.file_path;
-                // Split on forward or back slash to get filename
-                const filename = fullPath.split(/[\\/]/).pop(); // Get last part after / or \
-                displayName = filename ? filename.replace(/\.[^/.]+$/, '') : 'Unknown Track'; // Remove extension
-            }
-            trackNameElement.textContent = displayName;
-        }
-        
-        if (trackPathElement) {
-            // Show the file path (shortened if too long)
-            const path = audioFile.file_path;
-            const maxLength = 80;
-            const displayPath = path.length > maxLength ? 
-                '...' + path.substring(path.length - maxLength + 3) : 
-                path;
-            trackPathElement.textContent = displayPath;
-        }
-    }
+    // updateEditingTrackInfo handled by TagEditorManager
     
-    async populateTagForm(audioFile) {
-        console.log('Populating form with audioFile:', audioFile);
-        
-        const fields = [
-            'title', 'artist', 'album', 'album_artist', 'genre', 'year',
-            'track_number', 'total_tracks', 'composer', 'conductor',
-            'producer', 'remixer', 'bpm', 'initial_key', 'mood',
-            'language', 'copyright', 'publisher'
-        ];
-        
-        // Populate basic fields
-        fields.forEach(field => {
-            const element = document.getElementById(`tag-${field.replace('_', '-')}`);
-            console.log(`Field ${field}: value=${audioFile[field]}, element=`, element);
-            
-            if (element && audioFile[field] !== undefined && audioFile[field] !== null) {
-                element.value = audioFile[field];
-                console.log(`Set ${field} to:`, audioFile[field]);
-            } else {
-                // Clear the field if no value
-                if (element) {
-                    element.value = '';
-                }
-            }
-        });
-        
-        // Load and populate RPG tags
-        if (audioFile.id) {
-            try {
-                const rpgTags = await invoke('get_rpg_tags_for_file', { audioFileId: audioFile.id });
-                console.log('Loaded RPG tags:', rpgTags);
-                
-                // Group tags by type
-                const tagsByType = {};
-                rpgTags.forEach(tag => {
-                    if (!tagsByType[tag.tag_type]) {
-                        tagsByType[tag.tag_type] = [];
-                    }
-                    tagsByType[tag.tag_type].push(tag.tag_value);
-                });
-                
-                // Populate RPG fields
-                const occasionsElement = document.getElementById('tag-rpg-occasions');
-                const keywordsElement = document.getElementById('tag-rpg-keywords');
-                const qualityElement = document.getElementById('tag-rpg-quality');
-                
-                if (occasionsElement && tagsByType.occasion) {
-                    occasionsElement.value = tagsByType.occasion.join('; ');
-                }
-                
-                if (keywordsElement && tagsByType.keyword) {
-                    keywordsElement.value = tagsByType.keyword.join('; ');
-                }
-                
-                if (qualityElement && tagsByType.quality && tagsByType.quality[0]) {
-                    qualityElement.value = tagsByType.quality[0];
-                }
-                
-                console.log('Populated RPG fields:', {
-                    occasions: tagsByType.occasion,
-                    keywords: tagsByType.keyword,
-                    quality: tagsByType.quality
-                });
-                
-            } catch (error) {
-                console.error('Failed to load RPG tags:', error);
-            }
-        }
-    }
+    // populateTagForm handled by TagEditorManager
     
-    async saveTagChanges() {
-        if (!this.currentEditingFile) {
-            console.error('No file currently being edited');
-            return;
-        }
-        
-        const audioFile = this.audioFiles.get(this.currentEditingFile);
-        if (!audioFile || !audioFile.id) {
-            console.error('Audio file not found or missing ID');
-            return;
-        }
-        
-        try {
-            // Collect form data
-            const formData = new FormData(document.getElementById('tagEditorForm'));
-            const updates = {};
-            
-            // Convert basic form data to updates object
-            for (const [key, value] of formData.entries()) {
-                if (key.startsWith('rpg_')) {
-                    // Skip RPG fields here, handle them separately
-                    continue;
-                }
-                
-                if (value.trim() !== '') {
-                    if (['year', 'track_number', 'total_tracks', 'bpm'].includes(key)) {
-                        updates[key] = parseInt(value) || null;
-                    } else {
-                        updates[key] = value.trim();
-                    }
-                } else {
-                    updates[key] = null;
-                }
-            }
-            
-            // Add file path for the backend
-            updates.file_path = this.currentEditingFile;
-            
-            // Update basic ID3 tags
-            await invoke('update_audio_file_tags', {
-                filePath: this.currentEditingFile,
-                updates: updates
-            });
-            
-            console.log('Basic tags updated successfully');
-            
-            // Handle RPG tags separately
-            const audioFileId = audioFile.id;
-            
-            // Get current RPG tags to compare and update
-            const currentRpgTags = await invoke('get_rpg_tags_for_file', { audioFileId });
-            
-            // Process RPG occasions
-            const rpgOccasions = formData.get('rpg_occasions');
-            if (rpgOccasions !== null) {
-                const newOccasions = rpgOccasions.split(';').map(s => s.trim()).filter(s => s.length > 0);
-                
-                // Remove old occasions
-                const oldOccasions = currentRpgTags.filter(tag => tag.tag_type === 'occasion');
-                for (const oldTag of oldOccasions) {
-                    await invoke('remove_rpg_tag', {
-                        audioFileId,
-                        tagType: 'occasion',
-                        tagValue: oldTag.tag_value
-                    });
-                }
-                
-                // Add new occasions
-                for (const occasion of newOccasions) {
-                    await invoke('add_rpg_tag', {
-                        audioFileId,
-                        tagType: 'occasion',
-                        tagValue: occasion
-                    });
-                }
-            }
-            
-            // Process RPG keywords
-            const rpgKeywords = formData.get('rpg_keywords');
-            if (rpgKeywords !== null) {
-                const newKeywords = rpgKeywords.split(';').map(s => s.trim()).filter(s => s.length > 0);
-                
-                // Remove old keywords
-                const oldKeywords = currentRpgTags.filter(tag => tag.tag_type === 'keyword');
-                for (const oldTag of oldKeywords) {
-                    await invoke('remove_rpg_tag', {
-                        audioFileId,
-                        tagType: 'keyword',
-                        tagValue: oldTag.tag_value
-                    });
-                }
-                
-                // Add new keywords
-                for (const keyword of newKeywords) {
-                    await invoke('add_rpg_tag', {
-                        audioFileId,
-                        tagType: 'keyword',
-                        tagValue: keyword
-                    });
-                }
-            }
-            
-            // Process RPG quality
-            const rpgQuality = formData.get('rpg_quality');
-            
-            // Remove old quality
-            const oldQuality = currentRpgTags.filter(tag => tag.tag_type === 'quality');
-            for (const oldTag of oldQuality) {
-                await invoke('remove_rpg_tag', {
-                    audioFileId,
-                    tagType: 'quality',
-                    tagValue: oldTag.tag_value
-                });
-            }
-            
-            // Add new quality if provided
-            if (rpgQuality && rpgQuality.trim()) {
-                await invoke('add_rpg_tag', {
-                    audioFileId,
-                    tagType: 'quality',
-                    tagValue: rpgQuality.trim()
-                });
-            }
-            
-            // Write RPG tags to the actual audio file as TXXX frames
-            await invoke('write_rpg_tags_to_file', {
-                filePath: this.currentEditingFile
-            });
-            
-            console.log('All tags (basic + RPG + TXXX frames) updated successfully');
-            
-            // Update local data
-            if (audioFile) {
-                Object.assign(audioFile, updates);
-            }
-            
-            // Refresh the UI and tag search
-            this.updateUI();
-            await this.tagSearchController.showAllSounds(); // Refresh to show updated tags
-            
-            // Close the modal
-            this.closeTagEditor();
-            
-            this.uiController.showSuccess('Tags updated successfully and written to audio file!');
-            
-        } catch (error) {
-            console.error('Failed to update tags:', error);
-            this.uiController.showError(`Failed to update tags: ${error.message || error}`);
-        }
-    }
+    // saveTagChanges handled by TagEditorManager
     
-    closeTagEditor() {
-        const modal = document.getElementById('tagEditorModal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
-        
-        // Clear form
-        document.getElementById('tagEditorForm')?.reset();
-        
-        // Clear track info
-        const trackNameElement = document.getElementById('editingTrackName');
-        const trackPathElement = document.getElementById('editingTrackPath');
-        if (trackNameElement) trackNameElement.textContent = 'Unknown Track';
-        if (trackPathElement) trackPathElement.textContent = '';
-        
-        this.currentEditingFile = null;
-    }
+    closeTagEditor() { this.tagEditorManager.close(); }
     
     // Utility function to throttle rapid UI updates
     throttle(func, delay) {
