@@ -19,6 +19,8 @@
     "fs:scope-audio-recursive",
     "fs:default",
     "core:default",
-    "core:path:default"
+    "core:path:default",
+    "log:allow-log",
+    "log:default"
   ]
 }
