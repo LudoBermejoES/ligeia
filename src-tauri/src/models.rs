@@ -223,6 +223,18 @@ pub struct AtmosphereWithSounds {
     pub audio_files: Vec<AudioFile>, // The actual audio file data
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AtmosphereIntegrity {
+    pub atmosphere_id: i64,
+    pub missing_ids: Vec<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AtmosphereIntegrityBatchEntry {
+    pub atmosphere_id: i64,
+    pub missing_ids: Vec<i64>,
+}
+
 // Categories for dropdowns - these could be loaded from a file or database
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AtmosphereCategory {

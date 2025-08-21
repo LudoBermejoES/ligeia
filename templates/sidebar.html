@@ -1,9 +1,4 @@
 <div class="sidebar">
-  <h3>Sound Library</h3>
-  <div class="library-stats"><span id="fileCount">0 sounds loaded</span></div>
-  <div id="tagSearchContainer"></div>
-  <div class="library-list" id="libraryList"></div>
-  <hr class="atmo-divider">
   <div id="atmospheresSection" class="atmosphere-section">
     <div class="atmo-header-row">
       <h3 class="atmo-title">🌌 Atmospheres</h3>
@@ -11,9 +6,19 @@
     </div>
     <div class="atmo-search-row">
       <input id="atmoSearch" type="text" placeholder="Search atmospheres..." class="atmo-search-input" />
+  <span id="atmoSearchSpinner" class="atmo-search-spinner hidden" aria-hidden="true">⏳</span>
     </div>
     <div id="atmosphereList" class="atmo-list">
       <div class="atmo-empty">No atmospheres yet</div>
     </div>
+    <div id="atmoProgressContainer" class="atmo-progress hidden">
+      <div class="atmo-progress-bar-wrapper"><div class="atmo-progress-bar" id="atmoProgressBar"></div></div>
+      <div class="atmo-progress-label" id="atmoProgressLabel"></div>
+    </div>
   </div>
+  <hr class="atmo-divider">
+  <h3>Sound Library</h3>
+  <div class="library-stats"><span id="fileCount">0 sounds loaded</span></div>
+  <div id="tagSearchContainer"></div>
+  <div class="library-list" id="libraryList"></div>
 </div>

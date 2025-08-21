@@ -142,11 +142,59 @@ body {
     min-width: 0;
 }
 
+#membership-container {
+    flex: 0 0 0;
+    width: 0;
+    display: flex;
+    flex-direction: column;
+    background: rgba(0,0,0,0.18);
+    border-right: 2px solid rgba(255,255,255,0.08);
+    overflow: hidden;
+    transition: width .2s ease;
+    position: relative;
+    min-width: 0;
+}
+
+#membership-container.active {
+    width: 380px;
+    flex: 0 0 auto;
+}
+
+#membership-resizer {
+    width: 6px;
+    cursor: col-resize;
+    background: linear-gradient(to right, rgba(255,255,255,0.05), rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+    position: relative;
+    z-index: 50;
+}
+
+#membership-resizer.hidden { display:none; }
+
 #mixer-container {
     flex: 1 1 auto;
     display: flex; /* Allow .mixer-area to stretch */
     min-width: 0; /* Prevent unintended shrinking of child grid */
 }
+
+.membership-panel-header { display:flex; align-items:center; justify-content:space-between; padding:.6rem .75rem; background:rgba(255,255,255,0.07); border-bottom:1px solid rgba(255,255,255,0.1); }
+.membership-panel-header h3 { margin:0; font-size:.9rem; letter-spacing:.5px; }
+.membership-panel-body { flex:1; overflow:auto; padding:.6rem .65rem .75rem; display:flex; flex-direction:column; gap:.5rem; }
+.membership-panel-body.empty { opacity:.6; font-size:.75rem; }
+
+/* Mini pad grid inside membership side panel */
+#membershipPanelBody .sound-pad { font-size:11px; }
+#membershipPanelBody .sound-pad .sound-pad-title { font-size:.7rem; }
+#membershipPanelBody .sound-pad-buttons { gap:2px; }
+#membershipPanelBody .sound-pad-buttons .pad-btn { font-size:.55rem; padding:.2rem .35rem; }
+
+/* Remove floating styles now that panel is integrated */
+.atmo-membership-float { display:none !important; }
+
+/* Membership panel drag-over state for adding pads */
+#membershipPanelBody.dragover { outline:2px dashed rgba(255,255,255,0.4); outline-offset:-4px; }
+
+/* Visual cue when mixer acts as removal drop target */
+.membership-remove-target { box-shadow: inset 0 0 0 3px #d9534f99; transition: box-shadow .15s ease; }
 
 .sidebar {
     width: 300px;
@@ -230,9 +278,12 @@ body {
 .atmo-badge.atmo-count { background:#445; }
 .atmo-badge.atmo-integrity.good { background:#2d5; color:#042; }
 .atmo-badge.atmo-integrity.bad { background:#d72; color:#200; }
-.atmo-search-row { margin: .25rem 0 .5rem; }
+.atmo-search-row { margin: .25rem 0 .5rem; position:relative; }
 .atmo-search-input { width:100%; padding:4px 6px; border-radius:4px; border:1px solid #444; background:#1b1d22; color:#ddd; font-size:.85rem; }
 .atmo-search-input:focus { outline:1px solid #666; }
+.atmo-search-spinner { position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:.7rem; opacity:.65; pointer-events:none; }
+.hidden { display:none !important; }
+.atmo-diff-panel button:focus-visible { outline:2px solid #6cf; outline-offset:2px; }
 .atmo-item:hover { background: rgba(255,255,255,0.12); }
 .atmo-item.active { border-color: #4CAF50; box-shadow: 0 0 0 1px #4CAF50 inset; }
 .atmo-item-name { flex: 1; font-size: .8rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -240,6 +291,57 @@ body {
 .atmo-actions { display:flex; gap:.25rem; }
 .atmo-actions button { background:rgba(255,255,255,0.15); border:none; color:#fff; padding:.25rem .4rem; border-radius:4px; cursor:pointer; font-size:.65rem; }
 .atmo-actions button:hover { background:rgba(255,255,255,0.25); }
+
+/* Atmosphere progress bar */
+.atmo-progress-bar-wrapper { margin-top:.35rem; position:relative; height:6px; background:rgba(255,255,255,0.12); border-radius:4px; overflow:hidden; }
+.atmo-progress-bar { position:absolute; top:0; left:0; height:100%; width:0%; background:linear-gradient(90deg,#4CAF50,#8BC34A); transition:width .15s linear; }
+.atmo-progress-label { margin-top:2px; font-size:.55rem; opacity:.7; text-align:right; }
+
+/* Atmosphere diff confirmation overlay */
+.atmo-diff-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; z-index:4000; }
+.atmo-diff-panel { background:#1f2531; border:1px solid rgba(255,255,255,.12); border-radius:10px; width:580px; max-width:90vw; max-height:80vh; display:flex; flex-direction:column; box-shadow:0 10px 32px -4px rgba(0,0,0,.6); }
+.atmo-diff-header { padding:.85rem 1rem .5rem; font-size:.95rem; font-weight:600; display:flex; align-items:center; justify-content:space-between; }
+.atmo-diff-body { padding:.25rem 1rem 1rem; overflow:auto; display:flex; flex-direction:column; gap:.75rem; }
+.atmo-diff-group { border:1px solid rgba(255,255,255,.12); border-radius:6px; padding:.5rem .65rem; }
+.atmo-diff-group h4 { margin:0 0 .35rem; font-size:.7rem; letter-spacing:.5px; text-transform:uppercase; opacity:.8; }
+.atmo-diff-list { list-style:none; display:flex; flex-direction:column; gap:.25rem; font-size:.7rem; }
+.atmo-diff-empty { opacity:.5; font-size:.65rem; }
+.atmo-diff-added li { color:#7ddc7d; }
+.atmo-diff-removed li { color:#ff9966; }
+.atmo-diff-volume li { color:#66c2ff; }
+
+/* Atmosphere membership editor */
+.atmo-membership-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; z-index:5000; }
+/* New floating draggable membership editor */
+.atmo-membership-float { position:fixed; top:80px; right:40px; z-index:4800; width:520px; max-width:95vw; max-height:80vh; display:flex; flex-direction:column; box-shadow:0 10px 28px -6px rgba(0,0,0,.65); border-radius:10px; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,.08); background:linear-gradient(155deg, rgba(34,43,54,.92), rgba(34,43,54,.78)); }
+.atmo-membership-float.hidden { display:none; }
+.atmo-membership-panel { background:transparent; border:0; border-radius:10px; width:100%; height:100%; display:flex; flex-direction:column; }
+.atmo-membership-actions { display:flex; gap:.4rem; }
+.atmo-membership-header.drag-handle { cursor:move; }
+.atmo-membership-header { padding:.8rem 1rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,.1); }
+.atmo-membership-body { padding:.75rem 1rem 1rem; overflow:auto; display:flex; flex-direction:column; gap:.75rem; }
+.atmo-membership-pad-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:.6rem; align-items:stretch; }
+.atmo-membership-pad-grid .sound-pad { cursor:default; box-shadow:0 0 0 1px rgba(255,255,255,.08); }
+.atmo-membership-pad-grid .sound-pad.pad-ghost { opacity:.55; outline:1px dashed #6fa3ff; background:#2a3845; }
+.atmo-membership-pad-grid .sound-pad .pad-btn { font-size:.6rem; padding:.25rem .4rem; }
+.atmo-membership-pad-grid .sound-pad .volume-control-pad { margin-top:.25rem; }
+.atmo-membership-drop { border:2px dashed #4caf50; border-radius:8px; padding:1rem; text-align:center; font-size:.85rem; opacity:.8; }
+.atmo-membership-drop.drag { background:rgba(76,175,80,0.15); opacity:1; }
+.atmo-membership-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.4rem; }
+.atmo-membership-list li { display:flex; align-items:center; gap:.5rem; background:#2c3643; padding:.45rem .6rem; border-radius:6px; font-size:.7rem; }
+.atmo-membership-list .memb-title { flex:1; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.atmo-membership-list input.memb-vol { width:90px; }
+.atmo-membership-list .memb-flag { font-size:.6rem; display:flex; align-items:center; gap:2px; }
+.atmo-membership-list li.ghost { opacity:.55; font-style:italic; background:#394757; border:1px dashed #6fa3ff; }
+.atmo-membership-list li .memb-ghost-note { margin-left:.4rem; font-size:.55rem; opacity:.7; }
+.atmo-membership-list li.flash { animation: atmoFlashAdded 0.9s ease; }
+.atmo-membership-list li.flash-existing { animation: atmoFlashExisting 0.6s ease; }
+@keyframes atmoFlashAdded { 0% { box-shadow:0 0 0 0 rgba(111,227,140,.9); background:#2d4c36; } 60% { box-shadow:0 0 0 6px rgba(111,227,140,0); } 100% { box-shadow:none; background:#2c3643; } }
+@keyframes atmoFlashExisting { 0% { background:#4d3a2c; } 100% { background:#2c3643; } }
+.atmo-membership-footer { padding:.6rem 1rem 1rem; display:flex; justify-content:flex-end; gap:.5rem; border-top:1px solid rgba(255,255,255,.1); }
+.atmo-diff-footer { padding:.75rem 1rem 1rem; display:flex; gap:.5rem; justify-content:flex-end; }
+.atmo-diff-footer button { font-size:.75rem; }
+.atmo-diff-meta { font-size:.6rem; opacity:.65; display:flex; gap:1rem; flex-wrap:wrap; }
 
 .library-stats {
     background: rgba(255, 255, 255, 0.1);
@@ -899,6 +1001,11 @@ body {
     align-items: center;
     justify-content: center;
     padding: 1rem;
+}
+
+/* Hidden state for modals using data-hidden (atmosphere save modal lacked inline display:none) */
+.modal-overlay[data-hidden="true"] {
+    display: none;
 }
 
 .modal-container {

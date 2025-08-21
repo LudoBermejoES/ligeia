@@ -17,13 +17,41 @@ export class AtmosphereManager {
   this.counts = new Map(); // id -> { count, missing }
   }
 
+  async search(term) {
+    const q = (term || '').trim();
+    if (!q) return this.getAnnotatedAtmospheres();
+    try {
+      const results = await this.service.searchAtmospheres({ query: q });
+      // merge any cached integrity and counts
+      return results.map(a => {
+        const meta = this.counts.get(a.id);
+        if (meta) { a.sounds_count = meta.count; a.missing_count = meta.missing; }
+        return a;
+      });
+    } catch (_) {
+      return this.getAnnotatedAtmospheres();
+    }
+  }
+
   async refresh() {
     try {
       this.atmospheres = await this.service.getAllAtmospheres();
-      // annotate with counts if available
+      // Batch integrity (missing IDs) to avoid per-atmosphere calls
+      try {
+        const integrities = await this.service.computeAllIntegrities();
+        const integMap = new Map(integrities.map(i => [i.atmosphere_id, i]));
+        for (const a of this.atmospheres) {
+          const integ = integMap.get(a.id);
+          if (integ) {
+            a.missing_ids = integ.missing_ids;
+            a.missing_count = integ.missing_ids.length;
+          }
+        }
+      } catch (_) { /* optional; ignore errors */ }
+      // annotate with counts map if available
       for (const a of this.atmospheres) {
         const meta = this.counts.get(a.id);
-        if (meta) { a.sounds_count = meta.count; a.missing_count = meta.missing; }
+        if (meta) { a.sounds_count = meta.count; if (a.missing_count == null) a.missing_count = meta.missing; }
       }
       return this.atmospheres;
     } catch (e) {
@@ -45,12 +73,11 @@ export class AtmosphereManager {
   }
 
   buildCurrentPayload(soundPads) {
-    const sounds = Array.from(soundPads.values()).map(p => ({
-      audio_file_id: p.audioFileId || p.audioFile?.id || null,
-      volume: p.volume ?? 0.5,
-      is_looping: !!p.isLooping,
-      is_muted: !!p.isMuted
-    })).filter(s => s.audio_file_id != null);
+    // Legacy: previously built from current mixer pads. Now creation is always empty.
+    return this.buildEmptyPayload();
+  }
+
+  buildEmptyPayload() {
     const now = new Date().toISOString();
     return {
       id: null,
@@ -64,22 +91,27 @@ export class AtmosphereManager {
       background_image: null,
       author_image: null,
       is_public: false,
-  default_crossfade_ms: 2500,
-  fade_curve: 'linear',
+      default_crossfade_ms: 2500,
+      fade_curve: 'linear',
       created_at: now,
       updated_at: now,
-      sounds
+      sounds: []
     };
   }
 
   async createFromCurrent(soundPads) {
+    // Backward compatibility: now always creates empty regardless of current pads
+    return this.createEmpty();
+  }
+
+  async createEmpty() {
     try {
-      const payload = this.buildCurrentPayload(soundPads);
+      const payload = this.buildEmptyPayload();
       const id = await this.service.saveAtmosphere(payload);
-      this.ui?.showSuccess('Atmosphere saved');
+      this.ui?.showSuccess('Atmosphere created (empty)');
       await this.refresh();
       this.activeAtmosphereId = id;
-  this.updateCount(id, payload.sounds.length, 0);
+      this.updateCount(id, 0, 0);
       return id;
     } catch (e) {
       this.ui?.showError('Failed to create atmosphere');
@@ -112,5 +144,29 @@ export class AtmosphereManager {
     if (this.activeAtmosphereId === id) this.activeAtmosphereId = null;
     await this.refresh();
     this.ui?.showSuccess('Atmosphere deleted');
+  }
+
+  async duplicate(id) {
+    try {
+      const newId = await this.service.duplicateAtmosphere(id);
+      await this.refresh();
+      this.ui?.showSuccess('Atmosphere duplicated');
+      return newId;
+    } catch (e) {
+      this.ui?.showError('Failed to duplicate atmosphere');
+      throw e;
+    }
+  }
+
+  async updateIntegrity(id) {
+    try {
+      const res = await this.service.computeIntegrity(id);
+      const atmo = this.atmospheres.find(a => a.id === id);
+      if (atmo) {
+        atmo.missing_ids = res.missing_ids;
+        atmo.missing_count = res.missing_ids.length;
+      }
+      return res;
+    } catch (_) { /* silent */ }
   }
 }

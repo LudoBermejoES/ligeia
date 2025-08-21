@@ -1,16 +1,17 @@
-# Atmospheres Feature: Full Frontend + Backend + Database Plan (v2.3)
+# Atmospheres Feature: Full Frontend + Backend + Database Plan (v2.5)
 
 Comprehensive specification for implementing "Atmospheres" (persistent soundscape presets) with scalability toward pro‑grade ambient engines (inspired by tools like Syrinscape) while fitting existing Ligeia architecture.
 
 ---
 ## 1. Goals & Non‑Goals
-Status (v2.3): Phase 1 delivered. Phase 2 crossfade engine + cancellation + curve options delivered. Phase 3 (initial) enhancements implemented:
+Status (v2.5): Phase 1 delivered. Phase 2 crossfade engine + cancellation + curve options delivered. Phase 3 enhancements implemented:
  - Progress event emission (start/progress/almost_complete/complete) wired to notifications (visual progress bar pending).
  - Diff computation + basic summary notification before load (no confirm overlay yet).
  - Real sound count badge + basic integrity indicator (missing file warning) now in list.
  - Client-side atmosphere search/filter with highlighting (backend search endpoint still pending).
  - Crossfade defaults & curve persistence live (migration previously completed).
-Remaining near-term tasks: duplicate endpoint + UI, backend search & integrity endpoints, progress bar UI, diff confirmation overlay.
+Remaining near-term tasks: advanced integrity tooltip with titles (IDs only now), enrich diff overlay accessibility (focus trap, Esc), potential virtualization for large diffs, variation sets groundwork.
+Newly delivered since v2.4: Atmosphere duplication, integrity endpoint (IDs), progress bar UI, backend search endpoint, diff confirmation overlay, batch integrity query, unified backend search integration (spinner + debounced), initial overlay focus styling.
 Goals:
 - Save current active sound pads (volume, loop, mute) as reusable presets.
 - Load presets with optional smooth crossfades & cancellation.
@@ -292,17 +293,22 @@ Backend (Rust tests):
 
 ---
 ## 15. Implementation Phases (Refined Status)
-✅ Phase 1: CRUD + list + save modal + create from current pads.
-✅ Phase 2 (core): Crossfade engine (linear) + cancellation + configurable duration + curve options stored & applied.
-✅ Phase 3 (foundation): Progress events, diff summary, search UI, sound count + integrity badges, persisted crossfade defaults.
-🟡 Phase 3 polish: visual progress bar, diff confirmation overlay.
-⬜ Phase 4: Role/group fields + persistGroups logic.
-⬜ Phase 5: Backend integrity computation + enhanced indicators.
-⬜ Phase 6: Duplicate + backend search + keyword UX refinements.
-⬜ Phase 7: Variation sets + weighted selection.
-⬜ Phase 8: One‑shot scheduling + probability & delay params.
-⬜ Phase 9: Performance tuning (decode queue, buffer reuse, cleanup).
-⬜ Phase 10: Advanced diff viewer, favorites, accessibility, export integration.
+Legend: ✅ Done | 🟡 In Progress | 🔜 Planned | 💤 Deferred
+
+✅ Phase 1: Core CRUD – create/save/list/delete + save modal + capture current pads.
+✅ Phase 2: Crossfade Engine – linear fades, cancellation, configurable duration, persisted curve & default crossfade_ms.
+✅ Phase 3A: Foundation Enhancements – progress events, diff computation summary, initial (client) search UI, sound count badge, basic integrity badge, persisted defaults.
+✅ Phase 3B: Polish & Safety – inline visual progress bar, diff confirmation overlay (apply/cancel), backend search endpoint + unified search wiring, duplication command (unique naming), backend integrity endpoint (missing IDs), batch integrity aggregation, spinner + debounced search, initial overlay focus styling.
+🟡 Phase 3C: Accessibility & UX Polish – focus trap + Esc/Enter handling in diff overlay, keyboard navigation in list & overlay, improved tooltips (resolve missing titles if feasible), virtualization for large diff lists (>200 entries).
+🔜 Phase 4: Role / Group Fields & persistGroups – extend mapping schema (role, group) + UI persistence toggle; ensure backwards compatibility & migration.
+🔜 Phase 5: Enhanced Integrity & Metadata – optional enrichment (attempt title cache before deletion), prefetch caching layer, incremental integrity revalidation on library changes.
+🔜 Phase 6: Variation Sets & Weighted Selection – tables & CRUD, FE UI for managing sets, selection algorithm integration before crossfade.
+🔜 Phase 7: One‑Shot Scheduling – probability, min/max delay, lightweight scheduler loop, per-layer randomization.
+🔜 Phase 8: Performance & Scaling – decode queue throttling, buffer reuse pool, detail cache (LRU), search result paging.
+🔜 Phase 9: Advanced UX – favorites/pinning, atmosphere categories accordion, quick actions, export/import inclusion of new fields, favorites filter.
+🛌 Phase 10 (Deferred / Stretch): Macros & action scripting, version history & diff viewer, per-layer DSP (EQ/filters), multi-scene transitions, timeline sequencing.
+
+Current Focus: Phase 3C (accessibility polish, tooltip enrichment). Next structural milestone: Phase 4 role/group + persistGroups.
 
 ---
 ## 16. Future / Deferred

@@ -18,10 +18,16 @@ async function bootstrap() {
       tagEditorModal: 'templates/modals/tag-editor.html',
       bulkTagEditorModal: 'templates/modals/bulk-tag-editor.html'
   , atmosphereSaveModal: 'templates/modals/atmosphere-save.html'
+    , membershipPanel: null // placeholder; dynamic build in code
     });
     if (containers.header) containers.header.innerHTML = templates.header;
     if (containers.sidebar) containers.sidebar.innerHTML = templates.sidebar;
     if (containers.mixer) containers.mixer.innerHTML = templates.mixer;
+    // Membership panel initially built empty (lazy show when needed)
+    const membership = document.getElementById('membership-container');
+    if (membership) {
+      membership.innerHTML = '<div class="membership-panel-header"><h3>Membership</h3><button id="closeMembershipPanel" class="btn btn-sm btn-secondary">Close</button></div><div id="membershipPanelBody" class="membership-panel-body empty">Open an atmosphere membership editor.</div>';
+    }
   if (containers.modals) containers.modals.innerHTML = templates.tagEditorModal + templates.bulkTagEditorModal + templates.atmosphereSaveModal;
     const app = new AmbientMixerApp();
     await app.initialize();

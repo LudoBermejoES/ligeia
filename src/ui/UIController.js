@@ -32,6 +32,17 @@ export class UIController {
         
         // Master mute
         this.getElementById('masterMute')?.addEventListener('click', eventHandlers.toggleMasterMute);
+
+        // Provide drag data for sound pads (membership editor window consumes this)
+        document.addEventListener('dragstart', (e) => {
+            const pad = e.target.closest?.('.sound-pad');
+            if (!pad) return;
+            const audioId = pad.dataset.audioId;
+            if (audioId && e.dataTransfer) {
+                e.dataTransfer.setData('audio-id', audioId);
+                e.dataTransfer.effectAllowed = 'copy';
+            }
+        });
     }
 
     getElementById(id) {

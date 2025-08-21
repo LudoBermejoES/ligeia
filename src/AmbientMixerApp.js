@@ -15,6 +15,7 @@ import logger from './utils/logger.js';
 import { ImportExportManager } from './managers/ImportExportManager.js';
 import { AtmosphereManager } from './managers/AtmosphereManager.js';
 import { AtmosphereUIController } from './ui/AtmosphereUIController.js';
+import { AtmosphereMembershipEditor } from './ui/AtmosphereMembershipEditor.js';
 
 /**
  * AmbientMixerApp - Main application controller
@@ -42,6 +43,7 @@ export class AmbientMixerApp {
     // Atmospheres (manager + UI)
     this.atmosphereUI = new AtmosphereUIController();
     this.atmosphereManager = new AtmosphereManager(this.libraryManager, this.uiController);
+    this.atmoMembershipEditor = new AtmosphereMembershipEditor(this.atmosphereManager.service, this.libraryManager);
     this.currentEditingFile = null; // deprecated; kept for backward compatibility
         this.updateUIThrottled = this.throttle(this.updateUI.bind(this), 100);
         this.lastToggleTime = new Map(); // Track last toggle time per pad to prevent rapid toggling
@@ -114,28 +116,35 @@ export class AmbientMixerApp {
             // Initialize tag search to show all files
             await this.tagSearchController.showAllSounds();
 
+            // Enable mixer drop handling for removing membership sounds dragged out
+            this.initMixerDropRemoval();
+
             // Atmospheres Phase 1 init
             try {
                 await this.atmosphereManager.refresh();
-                this.atmosphereUI.renderList(this.atmosphereManager.atmospheres, this.atmosphereManager.activeAtmosphereId);
+                this._renderAtmosphereList();
                 this.atmosphereUI.bind({
                     onCreate: () => this.atmosphereUI.showCreateModal(),
                     onLoad: (id) => this.handleLoadAtmosphere(id),
                     onEdit: (id) => this.handleEditAtmosphere(id),
+                    onEditMembership: (id) => this.handleEditMembership(id),
                     onDelete: (id) => this.handleDeleteAtmosphere(id),
+                    onDuplicate: (id) => this.handleDuplicateAtmosphere(id),
                     onSubmitCreate: (meta) => this.handleCreateAtmosphere(meta),
-                    onSubmitEdit: (id, meta) => this.handleUpdateAtmosphere(id, meta)
+                    onSubmitEdit: (id, meta) => this.handleUpdateAtmosphere(id, meta),
+                    onSearch: (term) => this.atmosphereManager.search(term)
                 });
-                // Subscribe to engine events (progress / complete)
-                this.atmosphereManager.engine.on('progress', ({ progress, id }) => {
-                    // Basic inline log; could be replaced with a progress bar component
-                    if (progress < 1) {
-                        this.uiController.showInfo?.(`Loading atmosphere ${id} ${(progress*100).toFixed(0)}%`);
-                    }
-                });
-                this.atmosphereManager.engine.on('complete', ({ id }) => {
-                    this.uiController.showSuccess(`Atmosphere ${id} load complete`);
-                });
+                // Attach progress bar UI to engine events
+                this.atmosphereUI.attachEngine(this.atmosphereManager.engine);
+                // Listen for membership update events from membership window
+                try {
+                    const { listen } = await import('@tauri-apps/api/event');
+                    await listen('atmosphere-membership-updated', async ({ payload }) => {
+                        if (!payload) return;
+                        await this.atmosphereManager.refresh();
+                        this._renderAtmosphereList();
+                    });
+                } catch (e) { console.warn('Event listen failed', e); }
             } catch (e) { console.warn('Atmospheres init failed', e); }
 
             console.log('Ambient Mixer initialized successfully');
@@ -147,11 +156,34 @@ export class AmbientMixerApp {
         }
     }
 
+    initMixerDropRemoval() {
+        const mixer = document.getElementById('mixer-container');
+        if (!mixer) return;
+        // Highlight zone when dragging membership pad out
+        ['dragenter','dragover'].forEach(ev => mixer.addEventListener(ev, e => {
+            const removeId = e.dataTransfer?.getData('membership-remove');
+            if (removeId) { e.preventDefault(); mixer.classList.add('membership-remove-target'); }
+        }));
+        mixer.addEventListener('dragleave', e => {
+            if (!mixer.contains(e.relatedTarget)) mixer.classList.remove('membership-remove-target');
+        });
+        mixer.addEventListener('drop', e => {
+            const removeId = e.dataTransfer?.getData('membership-remove');
+            if (!removeId) return;
+            e.preventDefault();
+            mixer.classList.remove('membership-remove-target');
+            // Remove from active membership editor if open
+            if (this.atmoMembershipEditor && this.atmoMembershipEditor.members) {
+                this.atmoMembershipEditor.members.delete(Number(removeId));
+                this.atmoMembershipEditor.renderPads({ panelMode: true });
+            }
+        });
+    }
+
     /* ================= Atmosphere Handlers (delegate to manager) ================= */
     async handleCreateAtmosphere(meta) {
-        // meta contains user-entered fields; merge into payload after build
-        const id = await this.atmosphereManager.createFromCurrent(this.soundPads);
-        // Update newly created atmosphere with meta (Phase 1 simple follow-up save)
+        // Now creation always starts empty; meta applied immediately
+        const id = await this.atmosphereManager.createEmpty();
         if (meta && id) {
             const created = this.atmosphereManager.atmospheres.find(a => a.id === id);
             if (created) {
@@ -169,20 +201,28 @@ export class AmbientMixerApp {
             }
         }
         await this.atmosphereManager.refresh();
-        this.atmosphereUI.renderList(this.atmosphereManager.atmospheres, id);
+    this._renderAtmosphereList(id);
         this.atmosphereUI.highlightActive(id);
     }
 
     async handleLoadAtmosphere(id) {
-        // Compute diff preview first
+        // Diff confirmation overlay
+        let proceed = true;
+        let detail = null;
         try {
-            const detail = await this.atmosphereManager.service.getAtmosphereWithSounds(id);
+            detail = await this.atmosphereManager.service.getAtmosphereWithSounds(id);
             const diff = this.atmosphereManager.engine.computeDiff(detail, this.soundPads);
-            const summary = `+${diff.added.length} −${diff.removed.length} Δ${diff.volumeChanged.length}`;
-            this.uiController.showInfo?.(`Atmosphere diff: ${summary}`);
-        } catch (_) {}
+            const needsOverlay = (diff.added.length + diff.removed.length + diff.volumeChanged.length) > 0;
+            if (needsOverlay && this.atmosphereUI.confirmDiff) {
+                proceed = await this.atmosphereUI.confirmDiff(diff, detail);
+            }
+        } catch (_) { /* ignore issues; fallback load */ }
+        if (!proceed) {
+            this.uiController.showInfo?.('Atmosphere load cancelled');
+            return;
+        }
         await this.atmosphereManager.load(id, this.soundPads);
-        this.atmosphereUI.renderList(this.atmosphereManager.getAnnotatedAtmospheres(), this.atmosphereManager.activeAtmosphereId);
+    this._renderAtmosphereList();
         this.atmosphereUI.highlightActive(this.atmosphereManager.activeAtmosphereId);
     }
 
@@ -190,6 +230,74 @@ export class AmbientMixerApp {
         const atmo = this.atmosphereManager.atmospheres.find(a => a.id === id);
         if (!atmo) return this.uiController.showError('Atmosphere not found');
         this.atmosphereUI.showEditModal(atmo);
+    }
+
+    async handleEditMembership(id) {
+        const atmo = this.atmosphereManager.atmospheres.find(a => a.id === id);
+        if (!atmo) return this.uiController.showError('Atmosphere not found');
+        // Activate side panel layout
+        const panel = document.getElementById('membership-container');
+        const resizer = document.getElementById('membership-resizer');
+        if (panel && resizer) {
+            panel.classList.add('active');
+            panel.classList.remove('hidden');
+            resizer.classList.remove('hidden');
+            resizer.setAttribute('aria-hidden','false');
+            this.initMembershipResize();
+        }
+        // Render membership content into panel body using new adapter
+        if (this.atmoMembershipEditor) {
+            this.atmoMembershipEditor.onSaved = async () => {
+                await this.atmosphereManager.refresh();
+                this._renderAtmosphereList();
+            };
+            await this.atmoMembershipEditor.open(atmo, { panelMode: true });
+        }
+    }
+
+    /**
+     * Centralized safe renderer for atmosphere list. Ensures we never pass undefined
+     * as the active ID (coerces to null) and always uses the latest annotated list.
+     * Optionally allow forcing a specific active ID (e.g., just created atmosphere).
+     */
+    _renderAtmosphereList(forceActiveId) {
+        const list = this.atmosphereManager.getAnnotatedAtmospheres();
+        const active = (forceActiveId !== undefined && forceActiveId !== null)
+            ? forceActiveId
+            : (this.atmosphereManager.activeAtmosphereId ?? null);
+        this.atmosphereUI.renderList(list, active);
+    }
+
+    initMembershipResize() {
+        if (this._membershipResizeInit) return; // once
+        const resizer = document.getElementById('membership-resizer');
+        const panel = document.getElementById('membership-container');
+        const mixer = document.getElementById('mixer-container');
+        if (!resizer || !panel || !mixer) return;
+        let dragging = false; let startX = 0; let startWidth = 0;
+        const minW = 220; const maxW = 600;
+        const onMove = (e) => {
+            if (!dragging) return;
+            const dx = e.clientX - startX;
+            let newW = Math.min(maxW, Math.max(minW, startWidth + dx));
+            panel.style.width = newW + 'px';
+        };
+        const onUp = () => { dragging = false; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+        resizer.addEventListener('mousedown', e => {
+            if (e.button !== 0) return;
+            dragging = true; startX = e.clientX; startWidth = panel.getBoundingClientRect().width || panel.offsetWidth;
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        });
+        // Close button logic
+        document.getElementById('closeMembershipPanel')?.addEventListener('click', () => {
+            panel.classList.remove('active');
+            panel.style.width = '0px';
+            panel.classList.add('hidden');
+            resizer.classList.add('hidden');
+            resizer.setAttribute('aria-hidden','true');
+        });
+        this._membershipResizeInit = true;
     }
 
     async handleUpdateAtmosphere(id, meta) {
@@ -220,6 +328,12 @@ export class AmbientMixerApp {
         if (!confirm('Delete this atmosphere?')) return;
         await this.atmosphereManager.delete(id);
         this.atmosphereUI.renderList(this.atmosphereManager.atmospheres, this.atmosphereManager.activeAtmosphereId);
+    }
+
+    async handleDuplicateAtmosphere(id) {
+        const newId = await this.atmosphereManager.duplicate(id);
+        this.atmosphereUI.renderList(this.atmosphereManager.atmospheres, newId);
+        this.atmosphereUI.highlightActive(newId);
     }
 
     // loadExistingLibrary responsibility moved to LibraryManager

@@ -1,5 +1,6 @@
 use tauri::{AppHandle, Manager};
 use crate::models::{Atmosphere, AtmosphereWithSounds, AtmosphereCategory};
+use crate::models::{AtmosphereIntegrity, AtmosphereIntegrityBatchEntry};
 use crate::AppState;
 
 /// Handler for atmosphere-related operations
@@ -111,11 +112,23 @@ impl AtmosphereHandler {
         let db = state.db.lock().unwrap();
         
         log::debug!("Retrieving atmosphere with sounds: atmosphere_id={}", atmosphere_id);
-        
-        db.get_atmosphere_with_sounds(atmosphere_id).map_err(|e| {
-            log::error!("Failed to get atmosphere with sounds {}: {}", atmosphere_id, e);
-            e.to_string()
-        })
+        // First test if atmosphere exists
+        if let Err(exists_err) = db.get_atmosphere_by_id(atmosphere_id) {
+            log::warn!("Atmosphere {} not found prior to detail fetch: {}", atmosphere_id, exists_err);
+        }
+        let start = std::time::Instant::now();
+        match db.get_atmosphere_with_sounds(atmosphere_id) {
+            Ok(res) => {
+                let ms = start.elapsed().as_millis();
+                log::debug!("Fetched atmosphere {} with {} sound mappings ({} audio files) in {}ms", atmosphere_id, res.sounds.len(), res.audio_files.len(), ms);
+                Ok(res)
+            }
+            Err(e) => {
+                let ms = start.elapsed().as_millis();
+                log::error!("Failed to get atmosphere with sounds {} after {}ms: {}", atmosphere_id, ms, e);
+                Err(e.to_string())
+            }
+        }
     }
 
     /// Get all atmosphere categories
@@ -127,6 +140,47 @@ impl AtmosphereHandler {
         
         db.get_atmosphere_categories().map_err(|e| {
             log::error!("Failed to get atmosphere categories: {}", e);
+            e.to_string()
+        })
+    }
+
+    /// Duplicate atmosphere (metadata + sounds)
+    pub fn duplicate_atmosphere(app_handle: AppHandle, id: i64, new_name: Option<String>) -> Result<i64, String> {
+        let state = app_handle.state::<AppState>();
+        let db = state.db.lock().unwrap();
+        log::info!("Duplicating atmosphere id={} new_name={:?}", id, new_name);
+        db.atmospheres.duplicate(db.connection(), id, new_name.as_deref()).map_err(|e| {
+            log::error!("Failed to duplicate atmosphere {}: {}", id, e);
+            e.to_string()
+        })
+    }
+
+    /// Compute integrity (missing audio file IDs) for an atmosphere
+    pub fn compute_atmosphere_integrity(app_handle: AppHandle, id: i64) -> Result<AtmosphereIntegrity, String> {
+        let state = app_handle.state::<AppState>();
+        let db = state.db.lock().unwrap();
+        db.atmospheres.compute_integrity(db.connection(), id).map_err(|e| {
+            log::error!("Failed to compute integrity for atmosphere {}: {}", id, e);
+            e.to_string()
+        })
+    }
+
+    /// Batch compute integrity for all atmospheres
+    pub fn compute_all_atmosphere_integrities(app_handle: AppHandle) -> Result<Vec<AtmosphereIntegrityBatchEntry>, String> {
+        let state = app_handle.state::<AppState>();
+        let db = state.db.lock().unwrap();
+        db.atmospheres.compute_all_integrities(db.connection()).map_err(|e| {
+            log::error!("Failed to batch compute atmosphere integrities: {}", e);
+            e.to_string()
+        })
+    }
+
+    /// Search atmospheres
+    pub fn search_atmospheres(app_handle: AppHandle, query: Option<String>, category: Option<String>, keywords: Option<Vec<String>>) -> Result<Vec<Atmosphere>, String> {
+        let state = app_handle.state::<AppState>();
+        let db = state.db.lock().unwrap();
+    db.atmospheres.search(db.connection(), query.as_deref(), category.as_deref(), keywords.as_deref()).map_err(|e| {
+            log::error!("Failed to search atmospheres: {}", e);
             e.to_string()
         })
     }

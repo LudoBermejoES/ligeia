@@ -158,12 +158,29 @@ async fn update_atmosphere_sound(app_handle: AppHandle, atmosphere_id: i64, audi
 
 #[tauri::command]
 async fn get_atmosphere_with_sounds(app_handle: AppHandle, atmosphere_id: i64) -> Result<AtmosphereWithSounds, String> {
+    // Instrumentation: confirm command invocation
+    log::debug!("(cmd) get_atmosphere_with_sounds invoked: id={}", atmosphere_id);
     AtmosphereHandler::get_atmosphere_with_sounds(app_handle, atmosphere_id)
 }
 
 #[tauri::command]
 async fn get_atmosphere_categories(app_handle: AppHandle) -> Result<Vec<AtmosphereCategory>, String> {
     AtmosphereHandler::get_atmosphere_categories(app_handle)
+}
+
+#[tauri::command]
+async fn duplicate_atmosphere(app_handle: AppHandle, id: i64, new_name: Option<String>) -> Result<i64, String> {
+    AtmosphereHandler::duplicate_atmosphere(app_handle, id, new_name)
+}
+
+#[tauri::command]
+async fn compute_atmosphere_integrity(app_handle: AppHandle, id: i64) -> Result<AtmosphereIntegrity, String> {
+    AtmosphereHandler::compute_atmosphere_integrity(app_handle, id)
+}
+
+#[tauri::command]
+async fn search_atmospheres(app_handle: AppHandle, query: Option<String>, category: Option<String>, keywords: Option<Vec<String>>) -> Result<Vec<Atmosphere>, String> {
+    AtmosphereHandler::search_atmospheres(app_handle, query, category, keywords)
 }
 
 #[tauri::command]
@@ -222,7 +239,10 @@ pub fn run() {
             remove_sound_from_atmosphere,
             update_atmosphere_sound,
             get_atmosphere_with_sounds,
-            get_atmosphere_categories
+            get_atmosphere_categories,
+            duplicate_atmosphere
+            ,compute_atmosphere_integrity
+            ,search_atmospheres
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

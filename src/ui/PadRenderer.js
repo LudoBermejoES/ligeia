@@ -11,7 +11,7 @@ export function renderSoundPad(audioFile, padState, { escapeHtml }) {
   const rpgTags = audioFile.rpgTags || [];
 
   return `
-    <div class="sound-pad ${isPlaying ? 'active' : ''} ${isMuted ? 'muted' : ''}" data-file-path="${escapeHtml(audioFile.file_path)}">
+    <div class="sound-pad ${isPlaying ? 'active' : ''} ${isMuted ? 'muted' : ''}" data-file-path="${escapeHtml(audioFile.file_path)}" data-audio-id="${audioFile.id ?? ''}" draggable="true">
       <div class="sound-pad-header">
         <div class="sound-pad-info">
           <div class="sound-pad-title">${escapeHtml(title)}</div>
