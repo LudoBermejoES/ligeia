@@ -10,6 +10,9 @@ export class UIController {
         this.audioService = audioService;
         this.libraryManager = libraryManager;
         this.padEventHandler = null; // Will be initialized in initialize()
+        this.soundSearchFilter = ''; // Current search filter for sounds
+        this.soundSearchFuse = null; // Fuse.js instance for sound search
+        this.currentAudioFiles = new Map(); // Store current audio files for search
     }
     
     initialize() {
@@ -57,6 +60,12 @@ export class UIController {
         
         // Master mute
         this.getElementById('masterMute')?.addEventListener('click', eventHandlers.toggleMasterMute);
+
+        // Sound search
+        this.getElementById('mixerSoundSearch')?.addEventListener('input', (e) => {
+            this.soundSearchFilter = e.target.value.trim();
+            this.filterCurrentSounds();
+        });
 
         // Provide drag data for sound pads (membership editor window consumes this)
         document.addEventListener('dragstart', (e) => {
@@ -137,12 +146,62 @@ export class UIController {
     }
 
     renderSoundPadsGrid(audioFiles, soundPads) {
+        // Store current audio files for search
+        this.currentAudioFiles = audioFiles;
+        
+        // Initialize Fuse.js for sound search
+        this.initializeSoundSearch(Array.from(audioFiles.values()));
+        
+        // Apply current search filter
+        this.filterCurrentSounds();
+    }
+
+    initializeSoundSearch(audioFiles) {
+        const options = {
+            keys: [
+                { name: 'title', weight: 0.4 },
+                { name: 'artist', weight: 0.3 },
+                { name: 'album', weight: 0.2 },
+                { name: 'file_path', weight: 0.1 }
+            ],
+            threshold: 0.4,
+            distance: 100,
+            includeScore: true,
+            minMatchCharLength: 1,
+            ignoreLocation: true
+        };
+        
+        this.soundSearchFuse = new Fuse(audioFiles, options);
+    }
+
+    filterCurrentSounds() {
+        let filteredFiles;
+        
+        if (!this.soundSearchFilter) {
+            // No search filter, show all current files
+            filteredFiles = Array.from(this.currentAudioFiles.values());
+        } else {
+            // Apply search filter using Fuse.js
+            if (this.soundSearchFuse) {
+                const searchResults = this.soundSearchFuse.search(this.soundSearchFilter);
+                filteredFiles = searchResults
+                    .filter(result => result.score < 0.6) // Only good matches
+                    .map(result => result.item);
+            } else {
+                filteredFiles = [];
+            }
+        }
+
+        // Render the filtered files
+        this.renderFilteredSounds(filteredFiles);
+    }
+
+    renderFilteredSounds(audioFiles) {
         const ambientContainer = this.getElementById('ambientPadsGrid');
         const soundsContainer = this.getElementById('soundsPadsGrid');
         if (!ambientContainer || !soundsContainer) return;
 
-        const allFiles = Array.from(audioFiles.values());
-        const sortedFiles = this.sortByTitle(allFiles);
+        const sortedFiles = this.sortByTitle(audioFiles);
 
         const ambient = [];
         const others = [];
@@ -155,7 +214,10 @@ export class UIController {
             (isAmbient ? ambient : others).push(f);
         });
 
+        console.log(`Rendering: ${ambient.length} ambient files, ${others.length} other files (filtered: ${!!this.soundSearchFilter})`);
+
         // Render pads using unified system
+        const soundPads = this.libraryManager.getSoundPads();
         ambientContainer.innerHTML = ambient.map(a => this.renderUnifiedSoundPad(a, soundPads.get(a.file_path))).join('');
         soundsContainer.innerHTML = others.map(a => this.renderUnifiedSoundPad(a, soundPads.get(a.file_path))).join('');
 
@@ -171,6 +233,21 @@ export class UIController {
                 });
             }
         });
+    }
+
+    // Clear the sound search filter
+    clearSoundSearch() {
+        this.soundSearchFilter = '';
+        const searchInput = this.getElementById('mixerSoundSearch');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        this.filterCurrentSounds();
+    }
+
+    // Get current search filter for external access
+    getSoundSearchFilter() {
+        return this.soundSearchFilter;
     }
 
     renderSoundPad(audioFile, pad) {

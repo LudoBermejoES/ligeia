@@ -13,6 +13,9 @@ export class TagSearchController {
         };
         this.matchAll = false; // AND vs OR logic
         this.showOnlyExistingTags = true; // Show only tags that have sounds in database
+        this.tagNameFilter = ''; // Filter tags by name
+        this.searchTerms = []; // Array of search terms separated by comma
+        this.fuse = null; // Fuse.js instance for fuzzy search
         this.tagGroups = { // tagType -> baseName -> [fullTagValues]
             genre: {},
             mood: {},
@@ -21,6 +24,54 @@ export class TagSearchController {
         };
         
         this.initializeSearchUI();
+    }
+
+    // Parse search terms from the filter input
+    parseSearchTerms() {
+        if (!this.tagNameFilter) {
+            this.searchTerms = [];
+            return;
+        }
+        
+        // Split by comma and clean up terms
+        this.searchTerms = this.tagNameFilter
+            .split(',')
+            .map(term => term.trim())
+            .filter(term => term.length > 0);
+    }
+
+    // Initialize Fuse.js with tag vocabulary
+    initializeFuse(tags) {
+        const options = {
+            keys: ['tag_value'],
+            threshold: 0.4, // 0 = exact match, 1 = match anything
+            distance: 100,
+            includeScore: true,
+            minMatchCharLength: 1,
+            ignoreLocation: true
+        };
+        
+        this.fuse = new Fuse(tags, options);
+    }
+
+    // Check if a tag matches any of the search terms using Fuse.js
+    matchesSearchTerms(tagValue) {
+        if (this.searchTerms.length === 0) {
+            return true; // No filter active
+        }
+        
+        // Tag matches if it fuzzy matches ANY search term
+        return this.searchTerms.some(term => {
+            if (!this.fuse) return false;
+            
+            // Use Fuse.js to search for the term
+            const results = this.fuse.search(term);
+            
+            // Check if our tagValue is in the results with a reasonable score
+            return results.some(result => 
+                result.item.tag_value === tagValue && result.score < 0.6
+            );
+        });
     }
 
     initializeSearchUI() {
@@ -54,14 +105,6 @@ export class TagSearchController {
         }
 
         searchContainer.innerHTML = `
-            <div class="tag-search-header">
-                <h4>🏷️ RPG Tag Filters</h4>
-                <div class="search-actions">
-                    <button id="showAllSounds" class="btn btn-sm btn-primary">Show All</button>
-                    <button id="toggleTagDisplay" class="btn btn-sm btn-secondary" data-mode="existing">Show All Tags</button>
-                </div>
-            </div>
-            
             <div class="search-mode-toggle">
                 <label>
                     <input type="radio" name="searchMode" value="any" checked>
@@ -71,6 +114,17 @@ export class TagSearchController {
                     <input type="radio" name="searchMode" value="all">
                     <span>All tags (AND)</span>
                 </label>
+            </div>
+
+            <div class="tag-search-header">
+                <div class="search-actions">
+                    <button id="showAllSounds" class="btn btn-sm btn-primary">Show All</button>
+                    <button id="toggleTagDisplay" class="btn btn-sm btn-secondary" data-mode="existing">Show All Tags</button>
+                </div>
+            </div>
+
+            <div class="tag-name-filter">
+                <input type="text" id="tagNameFilter" placeholder="Filter tags by name (use comma for multiple terms)..." class="tag-filter-input">
             </div>
 
             <div class="tag-filter-categories">
@@ -119,6 +173,13 @@ export class TagSearchController {
                 this.performSearch();
             });
         });
+
+        // Tag name filter
+        document.getElementById('tagNameFilter')?.addEventListener('input', (e) => {
+            this.tagNameFilter = e.target.value.trim();
+            this.parseSearchTerms();
+            this.filterVisibleTags();
+        });
     }
 
     async loadTagFilters() {
@@ -143,7 +204,18 @@ export class TagSearchController {
             }
         }
 
+        // Initialize Fuse.js with all vocabulary for fuzzy searching
+        const allVocabulary = [];
         const tagTypes = ['genre', 'mood', 'occasion', 'keyword'];
+        
+        tagTypes.forEach(tagType => {
+            const vocabulary = this.tagService.getVocabularyForType(tagType);
+            // Add all vocabulary to Fuse.js dataset
+            allVocabulary.push(...vocabulary);
+        });
+        
+        // Initialize Fuse.js with all tags
+        this.initializeFuse(allVocabulary);
         
         tagTypes.forEach(tagType => {
             const container = document.getElementById(`${tagType}Filters`);
@@ -168,6 +240,11 @@ export class TagSearchController {
                     }
                 }
                 
+                // Filter by name if filter is active (using fuzzy search)
+                if (!this.matchesSearchTerms(value)) {
+                    return;
+                }
+                
                 if (value.includes(':')) {
                     const base = value.split(':')[0];
                     if (!groups[base]) groups[base] = [];
@@ -182,6 +259,15 @@ export class TagSearchController {
 
             // Render group chips (only one per base)
             Object.entries(groups).forEach(([base, values]) => {
+                // When name filtering, show group if base name matches OR any sub-tag matches
+                if (this.searchTerms.length > 0) {
+                    const baseMatches = this.matchesSearchTerms(base);
+                    const anyValueMatches = values.some(v => this.matchesSearchTerms(v));
+                    if (!baseMatches && !anyValueMatches) {
+                        return; // Skip this group if neither base nor any values match
+                    }
+                }
+
                 const chip = document.createElement('div');
                 chip.className = 'tag-filter-chip tag-group-chip';
                 chip.dataset.tagType = tagType;
@@ -237,7 +323,10 @@ export class TagSearchController {
             </div>
             <div class="tag-group-body">
                 <div class="tag-group-options">
-                    ${values.sort().map(v => {
+                    ${values.sort().filter(v => {
+                        // When name filtering is active, only show values that match
+                        return this.matchesSearchTerms(v);
+                    }).map(v => {
                         const id = `tg_${tagType}_${base}_${v.replace(/[^a-z0-9]/gi,'_')}`;
                         const checked = this.currentFilters[`${tagType}s`].has(v) ? 'checked' : '';
                         return `<label class="tag-group-option"><input type="checkbox" id="${id}" value="${v}" ${checked}> <span>${this.tagService.capitalizeTag(v.split(':').slice(-1)[0])}</span></label>`;
@@ -388,8 +477,20 @@ export class TagSearchController {
         // Clear current filters since tag availability may have changed
         this.clearAllFiltersInternal();
         
+        // Clear name filter when switching modes
+        this.tagNameFilter = '';
+        const filterInput = document.getElementById('tagNameFilter');
+        if (filterInput) {
+            filterInput.value = '';
+        }
+        
         // Reload the tag filters with new mode
         await this.loadTagFilters();
+    }
+
+    filterVisibleTags() {
+        // Simply reload the tag filters which will apply the name filter
+        this.loadTagFilters();
     }
 
     clearAllFiltersInternal() {
