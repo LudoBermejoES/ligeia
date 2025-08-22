@@ -178,8 +178,33 @@ body {
 
 .membership-panel-header { display:flex; align-items:center; justify-content:space-between; padding:.6rem .75rem; background:rgba(255,255,255,0.07); border-bottom:1px solid rgba(255,255,255,0.1); }
 .membership-panel-header h3 { margin:0; font-size:.9rem; letter-spacing:.5px; }
+.membership-panel-actions { display: flex; gap: 0.4rem; align-items: center; }
+.membership-maximize-btn, .membership-close-btn { 
+  background: rgba(255,255,255,0.1); 
+  border: 1px solid rgba(255,255,255,0.2); 
+  color: #fff; 
+  padding: 0.3rem 0.5rem; 
+  border-radius: 3px; 
+  font-size: 0.8rem; 
+  cursor: pointer; 
+  transition: all 0.2s ease;
+}
+.membership-maximize-btn:hover, .membership-close-btn:hover { 
+  background: rgba(255,255,255,0.2); 
+  border-color: rgba(255,255,255,0.3); 
+}
 .membership-panel-body { flex:1; overflow:auto; padding:.6rem .65rem .75rem; display:flex; flex-direction:column; gap:.5rem; }
 .membership-panel-body.empty { opacity:.6; font-size:.75rem; }
+
+/* Maximize/Restore functionality */
+#membership-container.maximized {
+  width: 100% !important;
+  flex: 1 1 auto !important;
+}
+
+#mixer-container.hidden-for-atmosphere {
+  display: none !important;
+}
 
 /* Mini pad grid inside membership side panel */
 #membershipPanelBody .sound-pad { font-size:11px; }

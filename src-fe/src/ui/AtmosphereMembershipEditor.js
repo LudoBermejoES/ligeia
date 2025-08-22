@@ -40,29 +40,96 @@ export class AtmosphereMembershipEditor {
     this.renderPads();
     this._schedulePersist();
   }
+  
+  /**
+   * Toggle between maximized and normal panel modes
+   */
+  _toggleMaximize() {
+    const container = document.getElementById('membership-container');
+    const mixerContainer = document.getElementById('mixer-container');
+    const resizer = document.getElementById('membership-resizer');
+    const maximizeBtn = container?.querySelector('.membership-maximize-btn');
+    
+    if (!container || !mixerContainer) return;
+    
+    const isMaximized = container.classList.contains('maximized');
+    
+    if (isMaximized) {
+      this._restorePanel();
+    } else {
+      this._maximizePanel();
+    }
+  }
+  
+  /**
+   * Maximize the panel to use full width
+   */
+  _maximizePanel() {
+    const container = document.getElementById('membership-container');
+    const mixerContainer = document.getElementById('mixer-container');
+    const resizer = document.getElementById('membership-resizer');
+    const maximizeBtn = container?.querySelector('.membership-maximize-btn');
+    
+    if (!container || !mixerContainer) return;
+    
+    logger.debug('membership', 'Maximizing atmosphere panel');
+    
+    // Add maximized state
+    container.classList.add('maximized');
+    mixerContainer.classList.add('hidden-for-atmosphere');
+    
+    // Hide resizer since we don't need it in maximized mode
+    if (resizer) {
+      resizer.classList.add('hidden');
+    }
+    
+    // Update button
+    if (maximizeBtn) {
+      maximizeBtn.innerHTML = '⬍';
+      maximizeBtn.setAttribute('aria-label', 'Restore Panel');
+      maximizeBtn.setAttribute('title', 'Restore to normal size');
+    }
+  }
+  
+  /**
+   * Restore the panel to normal side-panel mode
+   */
+  _restorePanel() {
+    const container = document.getElementById('membership-container');
+    const mixerContainer = document.getElementById('mixer-container');
+    const resizer = document.getElementById('membership-resizer');
+    const maximizeBtn = container?.querySelector('.membership-maximize-btn');
+    
+    if (!container || !mixerContainer) return;
+    
+    logger.debug('membership', 'Restoring atmosphere panel to normal size');
+    
+    // Remove maximized state
+    container.classList.remove('maximized');
+    mixerContainer.classList.remove('hidden-for-atmosphere');
+    
+    // Show resizer again
+    if (resizer && !container.classList.contains('hidden')) {
+      resizer.classList.remove('hidden');
+    }
+    
+    // Update button
+    if (maximizeBtn) {
+      maximizeBtn.innerHTML = '⬌';
+      maximizeBtn.setAttribute('aria-label', 'Maximize Panel');
+      maximizeBtn.setAttribute('title', 'Maximize panel');
+    }
+  }
 
   async open(atmosphere, { panelMode = true } = {}) { // panelMode retained for call-site compatibility
     this.atmosphere = atmosphere;
     this.members.clear();
     this._detailLoaded = false;
-    // Ensure panel scaffold exists (header + body) before any rendering logic
-    try {
-      const container = document.getElementById('membership-container');
-      if (container && !container.querySelector('#membershipPanelBody')) {
-        container.innerHTML = `
-          <div class="membership-panel-header">
-            <h3>Atmosphere</h3>
-            <div class="membership-panel-actions">
-              <button type="button" class="membership-close-btn" data-action="close" aria-label="Close">✕</button>
-            </div>
-          </div>
-          <div id="membershipPanelBody" class="membership-panel-body empty">
-            <div id="atmoMembershipPadGrid" class="atmo-membership-pad-grid"></div>
-          </div>`;
-        logger.debug('membership','inserted membership panel scaffold');
-      }
-    } catch (scaffoldErr) {
-      logger.warn('membership','failed to ensure panel scaffold',{ error: scaffoldErr.message });
+    // Get container reference - scaffold is now created by main-template.js
+    const container = document.getElementById('membership-container');
+    if (!container) {
+      logger.error('membership', 'membership-container not found');
+      return;
     }
     try {
       logger.info('membership','opening membership editor',{ id: atmosphere.id });
@@ -76,17 +143,22 @@ export class AtmosphereMembershipEditor {
       this._setStatus('Could not load existing sounds (starting empty).');
     }
     
-    // Get container reference for close handler and visibility
-    const container = document.getElementById('membership-container');
-    
     // Attach close handler once
     const closeBtn = container?.querySelector('.membership-close-btn');
     if (closeBtn && !closeBtn.__handlerBound) {
       closeBtn.addEventListener('click', ()=>{
+        this._restorePanel(); // Ensure we restore before closing
         container.classList.add('hidden');
         document.getElementById('membership-resizer')?.classList.add('hidden');
       });
       closeBtn.__handlerBound = true;
+    }
+    
+    // Attach maximize/restore handler
+    const maximizeBtn = container?.querySelector('.membership-maximize-btn');
+    if (maximizeBtn && !maximizeBtn.__handlerBound) {
+      maximizeBtn.addEventListener('click', () => this._toggleMaximize());
+      maximizeBtn.__handlerBound = true;
     }
     // Ensure the panel is visible
     if (container) {

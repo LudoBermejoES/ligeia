@@ -56,7 +56,7 @@ async function bootstrap() {
     console.log('🔍 BOOTSTRAP: Setting up membership panel');
     const membership = document.getElementById('membership-container');
     if (membership) {
-      membership.innerHTML = '<div class="membership-panel-header"><h3>Membership</h3><button id="closeMembershipPanel" class="btn btn-sm btn-secondary">Close</button></div><div id="membershipPanelBody" class="membership-panel-body empty">Open an atmosphere membership editor.</div>';
+      membership.innerHTML = '<div class="membership-panel-header"><h3>Membership</h3><div class="membership-panel-actions"><button type="button" class="membership-maximize-btn" data-action="maximize" aria-label="Maximize Panel" title="Maximize panel">⬌</button><button type="button" class="membership-close-btn" data-action="close" aria-label="Close">✕</button></div></div><div id="membershipPanelBody" class="membership-panel-body empty">Open an atmosphere membership editor.</div>';
     }
     
     if (containers.modals) {
