@@ -6,9 +6,6 @@ use crate::AppState;
 pub struct ImportExportHandler;
 
 impl ImportExportHandler {
-    pub fn new() -> Self {
-        ImportExportHandler
-    }
 
     /// Export all library data to enhanced format
     pub fn export_library_data(app_handle: AppHandle) -> Result<ExportData, String> {

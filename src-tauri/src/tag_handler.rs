@@ -6,9 +6,6 @@ use crate::AppState;
 pub struct TagHandler;
 
 impl TagHandler {
-    pub fn new() -> Self {
-        TagHandler
-    }
 
     /// Get tag vocabulary
     pub fn get_tag_vocabulary(app_handle: AppHandle, tag_type: Option<String>) -> Result<Vec<TagVocabulary>, String> {

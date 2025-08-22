@@ -128,7 +128,7 @@ impl Database {
         self.atmospheres.save(&self.conn, atmosphere)
     }
 
-    pub fn save_atmosphere_with_sounds(&self, atmosphere: &Atmosphere, sounds: &[crate::models::AtmosphereSoundMapping]) -> Result<i64> {
+    pub fn save_atmosphere_with_sounds(&self, atmosphere: &Atmosphere, sounds: &[AtmosphereSoundMapping]) -> Result<i64> {
         self.atmospheres.save_with_sounds(&self.conn, atmosphere, sounds)
     }
 

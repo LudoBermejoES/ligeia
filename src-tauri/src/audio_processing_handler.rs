@@ -6,9 +6,6 @@ use crate::{AppState, AudioHandler};
 pub struct AudioProcessingHandler;
 
 impl AudioProcessingHandler {
-    pub fn new() -> Self {
-        AudioProcessingHandler
-    }
 
     /// Calculate missing durations and BPMs for all audio files
     pub fn calculate_missing_durations(app_handle: AppHandle) -> Result<String, String> {

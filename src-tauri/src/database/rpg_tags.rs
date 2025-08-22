@@ -53,6 +53,7 @@ impl RpgTagRepository {
     }
 
     /// Get all RPG tags grouped by audio file
+    #[allow(dead_code)]
     pub fn get_all_grouped(&self, conn: &Connection) -> Result<Vec<(i64, Vec<RpgTag>)>> {
         let mut stmt = conn.prepare(
             "SELECT id, audio_file_id, tag_type, tag_value, created_at
@@ -105,6 +106,7 @@ impl RpgTagRepository {
     }
 
     /// Remove all tags for a specific audio file
+    #[allow(dead_code)]
     pub fn remove_all_for_file(&self, conn: &Connection, audio_file_id: i64) -> Result<()> {
         conn.execute(
             "DELETE FROM rpg_tags WHERE audio_file_id = ?1",
@@ -114,6 +116,7 @@ impl RpgTagRepository {
     }
 
     /// Get distinct tag values for a specific tag type
+    #[allow(dead_code)]
     pub fn get_distinct_values_for_type(&self, conn: &Connection, tag_type: &str) -> Result<Vec<String>> {
         let mut stmt = conn.prepare(
             "SELECT DISTINCT tag_value FROM rpg_tags WHERE tag_type = ?1 ORDER BY tag_value"

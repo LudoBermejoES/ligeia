@@ -412,7 +412,7 @@ impl AtmosphereRepository {
         // Base select
         let mut sql = String::from("SELECT id, name, title, description, category, subcategory, subsubcategory, keywords, background_image, author_image, is_public, default_crossfade_ms, fade_curve, created_at, updated_at FROM atmospheres");
         let mut clauses: Vec<String> = Vec::new();
-        let mut params: Vec<(String)> = Vec::new();
+        let mut params: Vec<String> = Vec::new();
 
         if let Some(cat) = category { if !cat.is_empty() { clauses.push("category = ?".into()); params.push(cat.to_string()); } }
         if let Some(q) = query { if !q.trim().is_empty() { clauses.push("LOWER(name || ' ' || title || ' ' || description || ' ' || category || ' ' || subcategory) LIKE ?".into()); params.push(format!("%{}%", q.to_lowercase())); } }

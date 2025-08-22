@@ -6,9 +6,6 @@ use crate::{AppState, AudioHandler};
 pub struct AudioFileHandler;
 
 impl AudioFileHandler {
-    pub fn new() -> Self {
-        AudioFileHandler
-    }
 
     /// Save audio file to database
     pub fn save_audio_file(app_handle: AppHandle, audio_file: AudioFile) -> Result<i64, String> {

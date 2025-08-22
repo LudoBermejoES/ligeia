@@ -175,6 +175,7 @@ impl AudioFileRepository {
         (query, all_columns)
     }
 
+    #[allow(unused_assignments)]
     fn map_row_to_audio_file(&self, row: &rusqlite::Row, existing_columns: &HashSet<String>, _column_order: &[&str]) -> Result<AudioFile> {
         let mut index = 0;
         

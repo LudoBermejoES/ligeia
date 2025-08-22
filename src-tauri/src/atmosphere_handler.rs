@@ -7,9 +7,6 @@ use crate::AppState;
 pub struct AtmosphereHandler;
 
 impl AtmosphereHandler {
-    pub fn new() -> Self {
-        AtmosphereHandler
-    }
 
     /// Save or update an atmosphere with sounds
     pub fn save_atmosphere(app_handle: AppHandle, payload: AtmosphereSavePayload) -> Result<i64, String> {

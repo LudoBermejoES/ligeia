@@ -4,7 +4,7 @@
 )]
 
 use std::sync::Mutex;
-use tauri::{AppHandle, Manager};
+use tauri::AppHandle;
 
 
 mod models;
