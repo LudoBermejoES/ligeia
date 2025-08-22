@@ -35,6 +35,12 @@ export class ThemeService {
                     name: 'Default',
                     description: 'The default Ligeia theme',
                     category: 'general'
+                },
+                {
+                    slug: 'fantasy',
+                    name: 'Fantasy',
+                    description: 'A rich fantasy theme inspired by classic tabletop RPG aesthetics',
+                    category: 'rpg'
                 }
                 // Add more themes here as they're created
             ];

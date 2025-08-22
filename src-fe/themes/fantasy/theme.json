@@ -1,0 +1,94 @@
+{
+  "name": "Fantasy",
+  "description": "A rich fantasy theme inspired by classic tabletop RPG aesthetics with warm parchment tones, deep reds, and ornate styling",
+  "version": "1.0.0",
+  "category": "fantasy",
+  "author": "Ligeia Fantasy Theme",
+  "colors": {
+    "primary": {
+      "main": "#d2232a",
+      "light": "#e87378",
+      "dark": "#7b1419",
+      "contrast": "#f2efe5"
+    },
+    "secondary": {
+      "main": "#3f271e",
+      "light": "#84523f",
+      "dark": "#1a0f0a",
+      "contrast": "#f2efe5"
+    },
+    "accent": {
+      "orange": "#faa62d",
+      "gold": "#a79056",
+      "copper": "#b87333"
+    },
+    "background": {
+      "primary": "#f2efe5",
+      "secondary": "#e7e0ce",
+      "tertiary": "#d4c5a3",
+      "dark": "#2d3642",
+      "overlay": "rgba(47, 54, 66, 0.9)"
+    },
+    "surface": {
+      "light": "#f2efe5",
+      "medium": "#e7e0ce",
+      "dark": "#678896",
+      "darker": "#607987"
+    },
+    "text": {
+      "primary": "#2d3642",
+      "secondary": "#414f5b",
+      "light": "#f2efe5",
+      "white": "#ffffff",
+      "muted": "#606060"
+    },
+    "border": {
+      "light": "#d4c5a3",
+      "medium": "#a79056",
+      "dark": "#3f271e"
+    },
+    "state": {
+      "success": "#4a7c59",
+      "warning": "#faa62d",
+      "error": "#d2232a",
+      "info": "#30445a"
+    }
+  },
+  "typography": {
+    "headings": {
+      "family": "serif",
+      "weight": "700",
+      "color": "#2d3642"
+    },
+    "body": {
+      "family": "serif",
+      "weight": "400",
+      "color": "#2d3642"
+    },
+    "ui": {
+      "family": "sans-serif",
+      "weight": "500",
+      "color": "#2d3642"
+    }
+  },
+  "effects": {
+    "shadows": {
+      "small": "0 2px 4px rgba(47, 54, 66, 0.1)",
+      "medium": "0 4px 8px rgba(47, 54, 66, 0.15)",
+      "large": "0 8px 16px rgba(47, 54, 66, 0.2)"
+    },
+    "textShadow": {
+      "heading": "2px 2px 0 #530000, -2px -2px 0 #530000, 2px -2px 0 #530000, -2px 2px 0 #530000",
+      "light": "1px 1px 2px rgba(0, 0, 0, 0.3)"
+    },
+    "borders": {
+      "ornate": "2px solid #a79056",
+      "simple": "1px solid #d4c5a3"
+    }
+  },
+  "patterns": {
+    "scrollwork": true,
+    "ornamental": true,
+    "parchment": true
+  }
+}

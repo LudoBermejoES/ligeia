@@ -88,6 +88,9 @@ export class AmbientMixerApp {
             if (!themeInitialized) {
                 console.warn('Failed to initialize theme service - using fallback styling');
             }
+            
+            // Make theme service globally available
+            window.themeService = this.themeService;
 
             // Template system removed; UI renders directly without templates
 

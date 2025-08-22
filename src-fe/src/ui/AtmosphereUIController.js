@@ -287,13 +287,17 @@ export class AtmosphereUIController {
 
   initializeThemeDropdown() {
     const themeSelect = document.getElementById('atmoTheme');
-    if (!themeSelect) return;
+    if (!themeSelect) {
+      console.warn('Theme select element not found');
+      return;
+    }
 
     // Get available themes from the theme service
     if (window.themeService) {
       const availableThemes = window.themeService.getAvailableThemes();
+      console.log('Available themes:', availableThemes);
       
-      // Clear existing options except default
+      // Clear existing options
       themeSelect.innerHTML = '';
       
       // Add theme options
@@ -303,9 +307,12 @@ export class AtmosphereUIController {
         option.textContent = theme.name;
         themeSelect.appendChild(option);
       });
+      
+      console.log(`Populated theme dropdown with ${availableThemes.length} themes`);
     } else {
-      // Fallback if theme service not available
-      console.warn('ThemeService not available for populating theme dropdown');
+      // Fallback if theme service not available - try again in a moment
+      console.warn('ThemeService not available yet, will retry...');
+      setTimeout(() => this.initializeThemeDropdown(), 100);
     }
   }
 }
