@@ -7,11 +7,14 @@ export class TagService {
     constructor() {
         this.tagVocabulary = new Map();
         this.loadedVocabulary = false;
+        this.tagIcons = new Map(); // Map of tag_value -> icon
+        this.loadedIcons = false;
     }
 
     async initialize() {
         try {
             await this.loadTagVocabulary();
+            await this.loadTagIcons();
             console.log('TagService initialized successfully');
             return true;
         } catch (error) {
@@ -39,6 +42,36 @@ export class TagService {
             console.error('Failed to load tag vocabulary:', error);
             throw error;
         }
+    }
+
+    async loadTagIcons() {
+        try {
+            const response = await fetch('./data/rpg_audio_tags_with_icons.json');
+            const iconData = await response.json();
+            
+            // Process all categories (genres, moods, occasions, keywords)
+            const categories = ['genres', 'moods', 'occasions', 'keywords'];
+            
+            categories.forEach(category => {
+                if (iconData[category]) {
+                    iconData[category].forEach(tag => {
+                        if (tag.slug && tag.icon) {
+                            this.tagIcons.set(tag.slug, tag.icon);
+                        }
+                    });
+                }
+            });
+            
+            this.loadedIcons = true;
+            console.log(`Loaded ${this.tagIcons.size} tag icons`);
+        } catch (error) {
+            console.error('Failed to load tag icons:', error);
+            // Continue without icons rather than failing completely
+        }
+    }
+
+    getTagIcon(tagValue) {
+        return this.tagIcons.get(tagValue) || '';
     }
 
     getVocabularyForType(tagType) {

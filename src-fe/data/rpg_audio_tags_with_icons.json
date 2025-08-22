@@ -1,0 +1,3999 @@
+{
+  "version": "1.0",
+  "updated_at": "2025-08-22T19:01:10.570134Z",
+  "genres": [
+    {
+      "slug": "orchestral",
+      "label": "Orchestral",
+      "icon": "🎻"
+    },
+    {
+      "slug": "orchestral:cinematic",
+      "label": "Cinematic Orchestral",
+      "icon": "🎬",
+      "parents": [
+        "orchestral"
+      ]
+    },
+    {
+      "slug": "orchestral:hybrid",
+      "label": "Hybrid Orchestral",
+      "icon": "🧪",
+      "parents": [
+        "orchestral"
+      ]
+    },
+    {
+      "slug": "orchestral:heroic",
+      "label": "Heroic Orchestral",
+      "icon": "🦸",
+      "parents": [
+        "orchestral"
+      ]
+    },
+    {
+      "slug": "orchestral:dark",
+      "label": "Dark Orchestral",
+      "icon": "🌑",
+      "parents": [
+        "orchestral"
+      ]
+    },
+    {
+      "slug": "orchestral:minimal",
+      "label": "Minimal Orchestral",
+      "icon": "➖",
+      "parents": [
+        "orchestral"
+      ]
+    },
+    {
+      "slug": "orchestral:romantic",
+      "label": "Romantic Orchestral",
+      "icon": "🌹",
+      "parents": [
+        "orchestral"
+      ]
+    },
+    {
+      "slug": "orchestral:baroque",
+      "label": "Baroque Orchestral",
+      "icon": "🎼",
+      "parents": [
+        "orchestral"
+      ]
+    },
+    {
+      "slug": "orchestral:renaissance",
+      "label": "Renaissance Orchestral",
+      "icon": "🏛️",
+      "parents": [
+        "orchestral"
+      ]
+    },
+    {
+      "slug": "orchestral:medieval",
+      "label": "Medieval Orchestral",
+      "icon": "🪕",
+      "parents": [
+        "orchestral"
+      ]
+    },
+    {
+      "slug": "orchestral:choral",
+      "label": "Choral / Choir",
+      "icon": "🎤",
+      "parents": [
+        "orchestral"
+      ]
+    },
+    {
+      "slug": "orchestral:percussive",
+      "label": "Percussive Orchestral",
+      "icon": "🥁",
+      "parents": [
+        "orchestral"
+      ]
+    },
+    {
+      "slug": "orchestral:trailer",
+      "label": "Trailer Orchestral",
+      "icon": "🎞️",
+      "parents": [
+        "orchestral"
+      ]
+    },
+    {
+      "slug": "ambient",
+      "label": "Ambient",
+      "icon": "🌀"
+    },
+    {
+      "slug": "ambient:dark-ambient",
+      "label": "Dark Ambient",
+      "icon": "🌑",
+      "parents": [
+        "ambient"
+      ]
+    },
+    {
+      "slug": "ambient:space-ambient",
+      "label": "Space Ambient",
+      "icon": "🌌",
+      "parents": [
+        "ambient"
+      ]
+    },
+    {
+      "slug": "ambient:nature-ambient",
+      "label": "Nature Ambient",
+      "icon": "🌿",
+      "parents": [
+        "ambient"
+      ]
+    },
+    {
+      "slug": "ambient:ritual",
+      "label": "Ritual Ambient",
+      "icon": "🕯️",
+      "parents": [
+        "ambient"
+      ]
+    },
+    {
+      "slug": "ambient:drone",
+      "label": "Drone",
+      "icon": "🧲",
+      "parents": [
+        "ambient"
+      ]
+    },
+    {
+      "slug": "ambient:textural",
+      "label": "Textural Ambient",
+      "icon": "🧶",
+      "parents": [
+        "ambient"
+      ]
+    },
+    {
+      "slug": "ambient:new-age",
+      "label": "New Age",
+      "icon": "🧘",
+      "parents": [
+        "ambient"
+      ]
+    },
+    {
+      "slug": "ambient:lofi-ambient",
+      "label": "Lo‑Fi Ambient",
+      "icon": "📼",
+      "parents": [
+        "ambient"
+      ]
+    },
+    {
+      "slug": "electronic",
+      "label": "Electronic",
+      "icon": "🎧"
+    },
+    {
+      "slug": "electronic:synthwave",
+      "label": "Synthwave",
+      "icon": "🕹️",
+      "parents": [
+        "electronic"
+      ]
+    },
+    {
+      "slug": "electronic:cyberpunk",
+      "label": "Cyberpunk",
+      "icon": "🌆",
+      "parents": [
+        "electronic"
+      ]
+    },
+    {
+      "slug": "electronic:idm",
+      "label": "IDM",
+      "icon": "🧠",
+      "parents": [
+        "electronic"
+      ]
+    },
+    {
+      "slug": "electronic:glitch",
+      "label": "Glitch",
+      "icon": "🪲",
+      "parents": [
+        "electronic"
+      ]
+    },
+    {
+      "slug": "electronic:industrial",
+      "label": "Industrial",
+      "icon": "🏭",
+      "parents": [
+        "electronic"
+      ]
+    },
+    {
+      "slug": "electronic:ebm",
+      "label": "EBM",
+      "icon": "⚡",
+      "parents": [
+        "electronic"
+      ]
+    },
+    {
+      "slug": "electronic:techno",
+      "label": "Techno",
+      "icon": "🎛️",
+      "parents": [
+        "electronic"
+      ]
+    },
+    {
+      "slug": "electronic:trance",
+      "label": "Trance",
+      "icon": "🌀",
+      "parents": [
+        "electronic"
+      ]
+    },
+    {
+      "slug": "electronic:dnb",
+      "label": "Drum & Bass",
+      "icon": "🥁",
+      "parents": [
+        "electronic"
+      ]
+    },
+    {
+      "slug": "electronic:downtempo",
+      "label": "Downtempo",
+      "icon": "🐢",
+      "parents": [
+        "electronic"
+      ]
+    },
+    {
+      "slug": "electronic:chiptune",
+      "label": "Chiptune (8‑bit)",
+      "icon": "🎮",
+      "parents": [
+        "electronic"
+      ]
+    },
+    {
+      "slug": "electronic:shoegaze-electronic",
+      "label": "Shoegaze Electronic",
+      "icon": "👟",
+      "parents": [
+        "electronic"
+      ]
+    },
+    {
+      "slug": "rock",
+      "label": "Rock",
+      "icon": "🎸"
+    },
+    {
+      "slug": "rock:post-rock",
+      "label": "Post‑Rock",
+      "icon": "🌊",
+      "parents": [
+        "rock"
+      ]
+    },
+    {
+      "slug": "rock:gothic-rock",
+      "label": "Gothic Rock",
+      "icon": "🧛",
+      "parents": [
+        "rock"
+      ]
+    },
+    {
+      "slug": "rock:progressive",
+      "label": "Progressive Rock",
+      "icon": "🧭",
+      "parents": [
+        "rock"
+      ]
+    },
+    {
+      "slug": "metal",
+      "label": "Metal",
+      "icon": "🤘"
+    },
+    {
+      "slug": "metal:power",
+      "label": "Power Metal",
+      "icon": "⚔️",
+      "parents": [
+        "metal"
+      ]
+    },
+    {
+      "slug": "metal:symphonic",
+      "label": "Symphonic Metal",
+      "icon": "🎻",
+      "parents": [
+        "metal"
+      ]
+    },
+    {
+      "slug": "metal:black",
+      "label": "Black Metal",
+      "icon": "🌚",
+      "parents": [
+        "metal"
+      ]
+    },
+    {
+      "slug": "metal:doom",
+      "label": "Doom Metal",
+      "icon": "☠️",
+      "parents": [
+        "metal"
+      ]
+    },
+    {
+      "slug": "metal:folk-metal",
+      "label": "Folk Metal",
+      "icon": "🍀",
+      "parents": [
+        "metal"
+      ]
+    },
+    {
+      "slug": "metal:industrial-metal",
+      "label": "Industrial Metal",
+      "icon": "🏭",
+      "parents": [
+        "metal"
+      ]
+    },
+    {
+      "slug": "post-metal",
+      "label": "Post‑Metal",
+      "icon": "🌫️"
+    },
+    {
+      "slug": "folk",
+      "label": "Folk",
+      "icon": "🪕"
+    },
+    {
+      "slug": "folk:celtic",
+      "label": "Celtic Folk",
+      "icon": "☘️",
+      "parents": [
+        "folk"
+      ]
+    },
+    {
+      "slug": "folk:nordic",
+      "label": "Nordic Folk",
+      "icon": "🧊",
+      "parents": [
+        "folk"
+      ]
+    },
+    {
+      "slug": "folk:middle-eastern",
+      "label": "Middle Eastern Folk",
+      "icon": "🕌",
+      "parents": [
+        "folk"
+      ]
+    },
+    {
+      "slug": "folk:mediterranean",
+      "label": "Mediterranean Folk",
+      "icon": "🌊",
+      "parents": [
+        "folk"
+      ]
+    },
+    {
+      "slug": "folk:asian-east",
+      "label": "East Asian Folk",
+      "icon": "🀄",
+      "parents": [
+        "folk"
+      ]
+    },
+    {
+      "slug": "folk:asian-south",
+      "label": "South Asian Folk",
+      "icon": "🪈",
+      "parents": [
+        "folk"
+      ]
+    },
+    {
+      "slug": "folk:african",
+      "label": "African Folk",
+      "icon": "🪘",
+      "parents": [
+        "folk"
+      ]
+    },
+    {
+      "slug": "folk:andino",
+      "label": "Andean Folk",
+      "icon": "🪗",
+      "parents": [
+        "folk"
+      ]
+    },
+    {
+      "slug": "folk:balkan",
+      "label": "Balkan Folk",
+      "icon": "🎻",
+      "parents": [
+        "folk"
+      ]
+    },
+    {
+      "slug": "folk:sea-shanty",
+      "label": "Sea Shanty",
+      "icon": "⚓",
+      "parents": [
+        "folk"
+      ]
+    },
+    {
+      "slug": "folk:wild-west-folk",
+      "label": "Wild West Folk",
+      "icon": "🤠",
+      "parents": [
+        "folk"
+      ]
+    },
+    {
+      "slug": "jazz",
+      "label": "Jazz",
+      "icon": "🎷"
+    },
+    {
+      "slug": "jazz:noir",
+      "label": "Noir Jazz",
+      "icon": "🕵️",
+      "parents": [
+        "jazz"
+      ]
+    },
+    {
+      "slug": "jazz:swing",
+      "label": "Swing",
+      "icon": "🎺",
+      "parents": [
+        "jazz"
+      ]
+    },
+    {
+      "slug": "jazz:cool",
+      "label": "Cool Jazz",
+      "icon": "😎",
+      "parents": [
+        "jazz"
+      ]
+    },
+    {
+      "slug": "jazz:latin",
+      "label": "Latin Jazz",
+      "icon": "💃",
+      "parents": [
+        "jazz"
+      ]
+    },
+    {
+      "slug": "blues",
+      "label": "Blues",
+      "icon": "🎙️"
+    },
+    {
+      "slug": "lounge",
+      "label": "Lounge",
+      "icon": "🛋️"
+    },
+    {
+      "slug": "horror",
+      "label": "Horror",
+      "icon": "☠️"
+    },
+    {
+      "slug": "horror:atonal",
+      "label": "Atonal Horror",
+      "icon": "🩸",
+      "parents": [
+        "horror"
+      ]
+    },
+    {
+      "slug": "horror:dissonant-strings",
+      "label": "Dissonant Strings",
+      "icon": "🧵",
+      "parents": [
+        "horror"
+      ]
+    },
+    {
+      "slug": "horror:sound-design",
+      "label": "Horror Sound Design",
+      "icon": "🧩",
+      "parents": [
+        "horror"
+      ]
+    },
+    {
+      "slug": "sound-design",
+      "label": "Sound Design",
+      "icon": "🎚️"
+    },
+    {
+      "slug": "sound-design:risers",
+      "label": "Risers",
+      "icon": "⤴️",
+      "parents": [
+        "sound-design"
+      ]
+    },
+    {
+      "slug": "sound-design:impacts",
+      "label": "Impacts",
+      "icon": "💥",
+      "parents": [
+        "sound-design"
+      ]
+    },
+    {
+      "slug": "sound-design:whooshes",
+      "label": "Whooshes",
+      "icon": "💨",
+      "parents": [
+        "sound-design"
+      ]
+    },
+    {
+      "slug": "sound-design:stingers",
+      "label": "Stingers",
+      "icon": "🗡️",
+      "parents": [
+        "sound-design"
+      ]
+    },
+    {
+      "slug": "sound-design:booms",
+      "label": "Booms",
+      "icon": "💣",
+      "parents": [
+        "sound-design"
+      ]
+    },
+    {
+      "slug": "sound-design:braams",
+      "label": "Braams",
+      "icon": "📯",
+      "parents": [
+        "sound-design"
+      ]
+    },
+    {
+      "slug": "diegetic",
+      "label": "Diegetic",
+      "icon": "🎙️"
+    },
+    {
+      "slug": "diegetic:tavern-band",
+      "label": "Tavern Band",
+      "icon": "🍺",
+      "parents": [
+        "diegetic"
+      ]
+    },
+    {
+      "slug": "diegetic:radio",
+      "label": "Radio Source",
+      "icon": "📻",
+      "parents": [
+        "diegetic"
+      ]
+    },
+    {
+      "slug": "diegetic:gramophone",
+      "label": "Gramophone",
+      "icon": "📻",
+      "parents": [
+        "diegetic"
+      ]
+    },
+    {
+      "slug": "diegetic:street-musician",
+      "label": "Street Musician",
+      "icon": "🎺",
+      "parents": [
+        "diegetic"
+      ]
+    },
+    {
+      "slug": "historical",
+      "label": "Historical",
+      "icon": "🏛️"
+    },
+    {
+      "slug": "historical:baroque",
+      "label": "Baroque",
+      "icon": "🎼",
+      "parents": [
+        "historical"
+      ]
+    },
+    {
+      "slug": "historical:renaissance",
+      "label": "Renaissance",
+      "icon": "🏛️",
+      "parents": [
+        "historical"
+      ]
+    },
+    {
+      "slug": "historical:medieval",
+      "label": "Medieval",
+      "icon": "🛡️",
+      "parents": [
+        "historical"
+      ]
+    },
+    {
+      "slug": "historical:romantic",
+      "label": "Romantic Era",
+      "icon": "🌹",
+      "parents": [
+        "historical"
+      ]
+    },
+    {
+      "slug": "fantasy",
+      "label": "Fantasy",
+      "icon": "🧙"
+    },
+    {
+      "slug": "fantasy:high-fantasy",
+      "label": "High Fantasy",
+      "icon": "🦄",
+      "parents": [
+        "fantasy"
+      ]
+    },
+    {
+      "slug": "fantasy:grimdark",
+      "label": "Grimdark",
+      "icon": "🕯️",
+      "parents": [
+        "fantasy"
+      ]
+    },
+    {
+      "slug": "fantasy:fairy",
+      "label": "Fairy",
+      "icon": "🧚",
+      "parents": [
+        "fantasy"
+      ]
+    },
+    {
+      "slug": "sci-fi",
+      "label": "Sci‑Fi",
+      "icon": "🚀"
+    },
+    {
+      "slug": "sci-fi:space-opera",
+      "label": "Space Opera",
+      "icon": "🌌",
+      "parents": [
+        "sci-fi"
+      ]
+    },
+    {
+      "slug": "sci-fi:hard-sci-fi",
+      "label": "Hard Sci‑Fi",
+      "icon": "🛰️",
+      "parents": [
+        "sci-fi"
+      ]
+    },
+    {
+      "slug": "sci-fi:cyberpunk",
+      "label": "Cyberpunk",
+      "icon": "🌆",
+      "parents": [
+        "sci-fi"
+      ]
+    },
+    {
+      "slug": "sci-fi:biopunk",
+      "label": "Biopunk",
+      "icon": "🧬",
+      "parents": [
+        "sci-fi"
+      ]
+    },
+    {
+      "slug": "sci-fi:post-human",
+      "label": "Post‑Human",
+      "icon": "🧠",
+      "parents": [
+        "sci-fi"
+      ]
+    },
+    {
+      "slug": "dieselpunk",
+      "label": "Dieselpunk",
+      "icon": "🛢️"
+    },
+    {
+      "slug": "steampunk",
+      "label": "Steampunk",
+      "icon": "⚙️"
+    },
+    {
+      "slug": "atompunk",
+      "label": "Atompunk",
+      "icon": "☢️"
+    },
+    {
+      "slug": "solarpunk",
+      "label": "Solarpunk",
+      "icon": "🌞"
+    },
+    {
+      "slug": "post-apocalyptic",
+      "label": "Post‑Apocalyptic",
+      "icon": "☣️"
+    },
+    {
+      "slug": "western",
+      "label": "Western",
+      "icon": "🤠"
+    },
+    {
+      "slug": "mystery-noir",
+      "label": "Mystery / Noir",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "modern-urban",
+      "label": "Modern Urban",
+      "icon": "🏙️"
+    },
+    {
+      "slug": "superhero",
+      "label": "Superhero",
+      "icon": "🦸"
+    },
+    {
+      "slug": "mythic",
+      "label": "Mythic",
+      "icon": "🏺"
+    },
+    {
+      "slug": "mythic:norse",
+      "label": "Mythic – Norse",
+      "icon": "⚡",
+      "parents": [
+        "mythic"
+      ]
+    },
+    {
+      "slug": "mythic:greco-roman",
+      "label": "Mythic – Greco‑Roman",
+      "icon": "🏛️",
+      "parents": [
+        "mythic"
+      ]
+    },
+    {
+      "slug": "mythic:egyptian",
+      "label": "Mythic – Egyptian",
+      "icon": "🦂",
+      "parents": [
+        "mythic"
+      ]
+    },
+    {
+      "slug": "mythic:celtic",
+      "label": "Mythic – Celtic",
+      "icon": "☘️",
+      "parents": [
+        "mythic"
+      ]
+    },
+    {
+      "slug": "mythic:japanese",
+      "label": "Mythic – Japanese",
+      "icon": "🗡️",
+      "parents": [
+        "mythic"
+      ]
+    },
+    {
+      "slug": "mythic:mesoamerican",
+      "label": "Mythic – Mesoamerican",
+      "icon": "🗿",
+      "parents": [
+        "mythic"
+      ]
+    }
+  ],
+  "moods": [
+    {
+      "slug": "heroic",
+      "label": "Heroic",
+      "icon": "✨"
+    },
+    {
+      "slug": "triumphant",
+      "label": "Triumphant",
+      "icon": "✨"
+    },
+    {
+      "slug": "noble",
+      "label": "Noble",
+      "icon": "✨"
+    },
+    {
+      "slug": "uplifting",
+      "label": "Uplifting",
+      "icon": "✨"
+    },
+    {
+      "slug": "hopeful",
+      "label": "Hopeful",
+      "icon": "✨"
+    },
+    {
+      "slug": "inspiring",
+      "label": "Inspiring",
+      "icon": "✨"
+    },
+    {
+      "slug": "adventurous",
+      "label": "Adventurous",
+      "icon": "✨"
+    },
+    {
+      "slug": "confident",
+      "label": "Confident",
+      "icon": "✨"
+    },
+    {
+      "slug": "victorious",
+      "label": "Victorious",
+      "icon": "✨"
+    },
+    {
+      "slug": "festive",
+      "label": "Festive",
+      "icon": "✨"
+    },
+    {
+      "slug": "playful",
+      "label": "Playful",
+      "icon": "✨"
+    },
+    {
+      "slug": "whimsical",
+      "label": "Whimsical",
+      "icon": "✨"
+    },
+    {
+      "slug": "merry",
+      "label": "Merry",
+      "icon": "✨"
+    },
+    {
+      "slug": "lighthearted",
+      "label": "Lighthearted",
+      "icon": "✨"
+    },
+    {
+      "slug": "tender",
+      "label": "Tender",
+      "icon": "✨"
+    },
+    {
+      "slug": "romantic",
+      "label": "Romantic",
+      "icon": "✨"
+    },
+    {
+      "slug": "serene",
+      "label": "Serene",
+      "icon": "✨"
+    },
+    {
+      "slug": "pastoral",
+      "label": "Pastoral",
+      "icon": "✨"
+    },
+    {
+      "slug": "warm",
+      "label": "Warm",
+      "icon": "✨"
+    },
+    {
+      "slug": "comforting",
+      "label": "Comforting",
+      "icon": "✨"
+    },
+    {
+      "slug": "nostalgic",
+      "label": "Nostalgic",
+      "icon": "✨"
+    },
+    {
+      "slug": "bittersweet",
+      "label": "Bittersweet",
+      "icon": "✨"
+    },
+    {
+      "slug": "mysterious",
+      "label": "Mysterious",
+      "icon": "🔮"
+    },
+    {
+      "slug": "enigmatic",
+      "label": "Enigmatic",
+      "icon": "🔮"
+    },
+    {
+      "slug": "curious",
+      "label": "Curious",
+      "icon": "🔮"
+    },
+    {
+      "slug": "contemplative",
+      "label": "Contemplative",
+      "icon": "🔮"
+    },
+    {
+      "slug": "dreamlike",
+      "label": "Dreamlike",
+      "icon": "🔮"
+    },
+    {
+      "slug": "ethereal",
+      "label": "Ethereal",
+      "icon": "🔮"
+    },
+    {
+      "slug": "mythic",
+      "label": "Mythic",
+      "icon": "🔮"
+    },
+    {
+      "slug": "arcane",
+      "label": "Arcane",
+      "icon": "🔮"
+    },
+    {
+      "slug": "otherworldly",
+      "label": "Otherworldly",
+      "icon": "🔮"
+    },
+    {
+      "slug": "solemn",
+      "label": "Solemn",
+      "icon": "🔮"
+    },
+    {
+      "slug": "ceremonial",
+      "label": "Ceremonial",
+      "icon": "🔮"
+    },
+    {
+      "slug": "sacred",
+      "label": "Sacred",
+      "icon": "🔮"
+    },
+    {
+      "slug": "ritualistic",
+      "label": "Ritualistic",
+      "icon": "🔮"
+    },
+    {
+      "slug": "austere",
+      "label": "Austere",
+      "icon": "🔮"
+    },
+    {
+      "slug": "stoic",
+      "label": "Stoic",
+      "icon": "🔮"
+    },
+    {
+      "slug": "ominous",
+      "label": "Ominous",
+      "icon": "🌑"
+    },
+    {
+      "slug": "foreboding",
+      "label": "Foreboding",
+      "icon": "🌑"
+    },
+    {
+      "slug": "tense",
+      "label": "Tense",
+      "icon": "🌑"
+    },
+    {
+      "slug": "suspenseful",
+      "label": "Suspenseful",
+      "icon": "🌑"
+    },
+    {
+      "slug": "uneasy",
+      "label": "Uneasy",
+      "icon": "🌑"
+    },
+    {
+      "slug": "eerie",
+      "label": "Eerie",
+      "icon": "🌑"
+    },
+    {
+      "slug": "creepy",
+      "label": "Creepy",
+      "icon": "🌑"
+    },
+    {
+      "slug": "unsettling",
+      "label": "Unsettling",
+      "icon": "🌑"
+    },
+    {
+      "slug": "menacing",
+      "label": "Menacing",
+      "icon": "🌑"
+    },
+    {
+      "slug": "sinister",
+      "label": "Sinister",
+      "icon": "🌑"
+    },
+    {
+      "slug": "gothic",
+      "label": "Gothic",
+      "icon": "🌑"
+    },
+    {
+      "slug": "dread",
+      "label": "Dread",
+      "icon": "🌑"
+    },
+    {
+      "slug": "grim",
+      "label": "Grim",
+      "icon": "🌑"
+    },
+    {
+      "slug": "bleak",
+      "label": "Bleak",
+      "icon": "🌑"
+    },
+    {
+      "slug": "oppressive",
+      "label": "Oppressive",
+      "icon": "🌑"
+    },
+    {
+      "slug": "claustrophobic",
+      "label": "Claustrophobic",
+      "icon": "🌑"
+    },
+    {
+      "slug": "tragic",
+      "label": "Tragic",
+      "icon": "🌑"
+    },
+    {
+      "slug": "melancholic",
+      "label": "Melancholic",
+      "icon": "🌑"
+    },
+    {
+      "slug": "sorrowful",
+      "label": "Sorrowful",
+      "icon": "🌑"
+    },
+    {
+      "slug": "desolate",
+      "label": "Desolate",
+      "icon": "🌑"
+    },
+    {
+      "slug": "lonely",
+      "label": "Lonely",
+      "icon": "🌑"
+    },
+    {
+      "slug": "fatalistic",
+      "label": "Fatalistic",
+      "icon": "🌑"
+    },
+    {
+      "slug": "nihilistic",
+      "label": "Nihilistic",
+      "icon": "🌑"
+    },
+    {
+      "slug": "driving",
+      "label": "Driving",
+      "icon": "⚡"
+    },
+    {
+      "slug": "relentless",
+      "label": "Relentless",
+      "icon": "⚡"
+    },
+    {
+      "slug": "frenetic",
+      "label": "Frenetic",
+      "icon": "⚡"
+    },
+    {
+      "slug": "furious",
+      "label": "Furious",
+      "icon": "⚡"
+    },
+    {
+      "slug": "aggressive",
+      "label": "Aggressive",
+      "icon": "⚡"
+    },
+    {
+      "slug": "percussive",
+      "label": "Percussive",
+      "icon": "⚡"
+    },
+    {
+      "slug": "charged",
+      "label": "Charged",
+      "icon": "⚡"
+    },
+    {
+      "slug": "urgent",
+      "label": "Urgent",
+      "icon": "⚡"
+    },
+    {
+      "slug": "high-stakes",
+      "label": "High Stakes",
+      "icon": "⚡"
+    },
+    {
+      "slug": "chaotic",
+      "label": "Chaotic",
+      "icon": "⚡"
+    },
+    {
+      "slug": "volatile",
+      "label": "Volatile",
+      "icon": "⚡"
+    },
+    {
+      "slug": "explosive",
+      "label": "Explosive",
+      "icon": "⚡"
+    },
+    {
+      "slug": "brooding-intensity",
+      "label": "Brooding Intensity",
+      "icon": "⚡"
+    },
+    {
+      "slug": "building",
+      "label": "Building",
+      "icon": "⚡"
+    },
+    {
+      "slug": "rising-tension",
+      "label": "Rising Tension",
+      "icon": "⚡"
+    },
+    {
+      "slug": "calm-before-storm",
+      "label": "Calm Before Storm",
+      "icon": "⚡"
+    },
+    {
+      "slug": "airy",
+      "label": "Airy",
+      "icon": "🧪"
+    },
+    {
+      "slug": "hazy",
+      "label": "Hazy",
+      "icon": "🧪"
+    },
+    {
+      "slug": "glacial",
+      "label": "Glacial",
+      "icon": "🧪"
+    },
+    {
+      "slug": "glitchy",
+      "label": "Glitchy",
+      "icon": "🧪"
+    },
+    {
+      "slug": "noisy",
+      "label": "Noisy",
+      "icon": "🧪"
+    },
+    {
+      "slug": "grainy",
+      "label": "Grainy",
+      "icon": "🧪"
+    },
+    {
+      "slug": "organic",
+      "label": "Organic",
+      "icon": "🧪"
+    },
+    {
+      "slug": "mechanical",
+      "label": "Mechanical",
+      "icon": "🧪"
+    },
+    {
+      "slug": "rusted",
+      "label": "Rusted",
+      "icon": "🧪"
+    },
+    {
+      "slug": "industrial",
+      "label": "Industrial",
+      "icon": "🧪"
+    },
+    {
+      "slug": "neon",
+      "label": "Neon",
+      "icon": "🧪"
+    },
+    {
+      "slug": "digital-cold",
+      "label": "Digital Cold",
+      "icon": "🧪"
+    },
+    {
+      "slug": "bio-organic",
+      "label": "Bio Organic",
+      "icon": "🧪"
+    },
+    {
+      "slug": "wet",
+      "label": "Wet",
+      "icon": "🧪"
+    },
+    {
+      "slug": "dry",
+      "label": "Dry",
+      "icon": "🧪"
+    },
+    {
+      "slug": "eldritch",
+      "label": "Eldritch",
+      "icon": "☠️"
+    },
+    {
+      "slug": "uncanny",
+      "label": "Uncanny",
+      "icon": "☠️"
+    },
+    {
+      "slug": "body-horror",
+      "label": "Body Horror",
+      "icon": "☠️"
+    },
+    {
+      "slug": "liminal",
+      "label": "Liminal",
+      "icon": "☠️"
+    },
+    {
+      "slug": "dissonant",
+      "label": "Dissonant",
+      "icon": "☠️"
+    },
+    {
+      "slug": "abhorrent",
+      "label": "Abhorrent",
+      "icon": "☠️"
+    },
+    {
+      "slug": "ritual-fear",
+      "label": "Ritual Fear",
+      "icon": "☠️"
+    },
+    {
+      "slug": "cosmic-dread",
+      "label": "Cosmic Dread",
+      "icon": "☠️"
+    }
+  ],
+  "occasions": [
+    {
+      "slug": "session-start",
+      "label": "Session Start",
+      "icon": "🎬"
+    },
+    {
+      "slug": "recap",
+      "label": "Recap",
+      "icon": "🎬"
+    },
+    {
+      "slug": "table-chatter",
+      "label": "Table Chatter",
+      "icon": "🎬"
+    },
+    {
+      "slug": "break",
+      "label": "Break",
+      "icon": "🎬"
+    },
+    {
+      "slug": "session-end",
+      "label": "Session End",
+      "icon": "🎬"
+    },
+    {
+      "slug": "credits",
+      "label": "Credits",
+      "icon": "🎬"
+    },
+    {
+      "slug": "level-up",
+      "label": "Level Up",
+      "icon": "🎬"
+    },
+    {
+      "slug": "quest-complete",
+      "label": "Quest Complete",
+      "icon": "🎬"
+    },
+    {
+      "slug": "achievement",
+      "label": "Achievement",
+      "icon": "🎬"
+    },
+    {
+      "slug": "loot-found",
+      "label": "Loot Found",
+      "icon": "🎬"
+    },
+    {
+      "slug": "character-death",
+      "label": "Character Death",
+      "icon": "🎬"
+    },
+    {
+      "slug": "epilogue",
+      "label": "Epilogue",
+      "icon": "🎬"
+    },
+    {
+      "slug": "flashback",
+      "label": "Flashback",
+      "icon": "🎬"
+    },
+    {
+      "slug": "montage",
+      "label": "Montage",
+      "icon": "🎬"
+    },
+    {
+      "slug": "overworld-travel",
+      "label": "Overworld Travel",
+      "icon": "🧭"
+    },
+    {
+      "slug": "wilderness-exploration",
+      "label": "Wilderness Exploration",
+      "icon": "🧭"
+    },
+    {
+      "slug": "urban-exploration",
+      "label": "Urban Exploration",
+      "icon": "🧭"
+    },
+    {
+      "slug": "dungeon-crawl",
+      "label": "Dungeon Crawl",
+      "icon": "🧭"
+    },
+    {
+      "slug": "ruin-delving",
+      "label": "Ruin Delving",
+      "icon": "🧭"
+    },
+    {
+      "slug": "underdark-journey",
+      "label": "Underdark Journey",
+      "icon": "🧭"
+    },
+    {
+      "slug": "sewers",
+      "label": "Sewers",
+      "icon": "🧭"
+    },
+    {
+      "slug": "cave-exploration",
+      "label": "Cave Exploration",
+      "icon": "🧭"
+    },
+    {
+      "slug": "mountain-pass",
+      "label": "Mountain Pass",
+      "icon": "🧭"
+    },
+    {
+      "slug": "desert-crossing",
+      "label": "Desert Crossing",
+      "icon": "🧭"
+    },
+    {
+      "slug": "jungle-trek",
+      "label": "Jungle Trek",
+      "icon": "🧭"
+    },
+    {
+      "slug": "swamp-march",
+      "label": "Swamp March",
+      "icon": "🧭"
+    },
+    {
+      "slug": "arctic-trek",
+      "label": "Arctic Trek",
+      "icon": "🧭"
+    },
+    {
+      "slug": "sea-voyage",
+      "label": "Sea Voyage",
+      "icon": "🧭"
+    },
+    {
+      "slug": "river-journey",
+      "label": "River Journey",
+      "icon": "🧭"
+    },
+    {
+      "slug": "airship-voyage",
+      "label": "Airship Voyage",
+      "icon": "🧭"
+    },
+    {
+      "slug": "space-cruise",
+      "label": "Space Cruise",
+      "icon": "🧭"
+    },
+    {
+      "slug": "hyperspace-transit",
+      "label": "Hyperspace Transit",
+      "icon": "🧭"
+    },
+    {
+      "slug": "derelict-ship-exploration",
+      "label": "Derelict Ship Exploration",
+      "icon": "🧭"
+    },
+    {
+      "slug": "space-station-walk",
+      "label": "Space Station Walk",
+      "icon": "🧭"
+    },
+    {
+      "slug": "tavern",
+      "label": "Tavern",
+      "icon": "🎭"
+    },
+    {
+      "slug": "inn",
+      "label": "Inn",
+      "icon": "🎭"
+    },
+    {
+      "slug": "market",
+      "label": "Market",
+      "icon": "🎭"
+    },
+    {
+      "slug": "black-market",
+      "label": "Black Market",
+      "icon": "🎭"
+    },
+    {
+      "slug": "noble-court",
+      "label": "Noble Court",
+      "icon": "🎭"
+    },
+    {
+      "slug": "audience-with-ruler",
+      "label": "Audience With Ruler",
+      "icon": "🎭"
+    },
+    {
+      "slug": "council-debate",
+      "label": "Council Debate",
+      "icon": "🎭"
+    },
+    {
+      "slug": "negotiation",
+      "label": "Negotiation",
+      "icon": "🎭"
+    },
+    {
+      "slug": "interrogation",
+      "label": "Interrogation",
+      "icon": "🎭"
+    },
+    {
+      "slug": "trial",
+      "label": "Trial",
+      "icon": "🎭"
+    },
+    {
+      "slug": "festival",
+      "label": "Festival",
+      "icon": "🎭"
+    },
+    {
+      "slug": "wedding",
+      "label": "Wedding",
+      "icon": "🎭"
+    },
+    {
+      "slug": "funeral",
+      "label": "Funeral",
+      "icon": "🎭"
+    },
+    {
+      "slug": "ceremony",
+      "label": "Ceremony",
+      "icon": "🎭"
+    },
+    {
+      "slug": "religious-service",
+      "label": "Religious Service",
+      "icon": "🎭"
+    },
+    {
+      "slug": "gambling-den",
+      "label": "Gambling Den",
+      "icon": "🎭"
+    },
+    {
+      "slug": "speakeasy",
+      "label": "Speakeasy",
+      "icon": "🎭"
+    },
+    {
+      "slug": "noir-club",
+      "label": "Noir Club",
+      "icon": "🎭"
+    },
+    {
+      "slug": "tea-house",
+      "label": "Tea House",
+      "icon": "🎭"
+    },
+    {
+      "slug": "crime-scene",
+      "label": "Crime Scene",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "library-research",
+      "label": "Library Research",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "occult-research",
+      "label": "Occult Research",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "stakeout",
+      "label": "Stakeout",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "tailing",
+      "label": "Tailing",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "surveillance",
+      "label": "Surveillance",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "infiltration",
+      "label": "Infiltration",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "lockpicking",
+      "label": "Lockpicking",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "safecracking",
+      "label": "Safecracking",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "hacking",
+      "label": "Hacking",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "netrun",
+      "label": "Netrun",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "vault-breach",
+      "label": "Vault Breach",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "disguise",
+      "label": "Disguise",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "escape",
+      "label": "Escape",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "extraction",
+      "label": "Extraction",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "clean-getaway",
+      "label": "Clean Getaway",
+      "icon": "🕵️"
+    },
+    {
+      "slug": "riddle-solving",
+      "label": "Riddle Solving",
+      "icon": "🧩"
+    },
+    {
+      "slug": "mechanism-puzzle",
+      "label": "Mechanism Puzzle",
+      "icon": "🧩"
+    },
+    {
+      "slug": "arcane-puzzle",
+      "label": "Arcane Puzzle",
+      "icon": "🧩"
+    },
+    {
+      "slug": "trap-primed",
+      "label": "Trap Primed",
+      "icon": "🧩"
+    },
+    {
+      "slug": "trap-triggered",
+      "label": "Trap Triggered",
+      "icon": "🧩"
+    },
+    {
+      "slug": "chase-timer",
+      "label": "Chase Timer",
+      "icon": "🧩"
+    },
+    {
+      "slug": "bomb-timer",
+      "label": "Bomb Timer",
+      "icon": "🧩"
+    },
+    {
+      "slug": "reactor-meltdown",
+      "label": "Reactor Meltdown",
+      "icon": "🧩"
+    },
+    {
+      "slug": "airlock-timer",
+      "label": "Airlock Timer",
+      "icon": "🧩"
+    },
+    {
+      "slug": "combat-ambush",
+      "label": "Combat Ambush",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "combat-skirmish",
+      "label": "Combat Skirmish",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "combat-duel",
+      "label": "Combat Duel",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "combat-horde",
+      "label": "Combat Horde",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "combat-siege",
+      "label": "Combat Siege",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "combat-naval",
+      "label": "Combat Naval",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "combat-aerial",
+      "label": "Combat Aerial",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "combat-vehicular",
+      "label": "Combat Vehicular",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "combat-mecha",
+      "label": "Combat Mecha",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "combat-space-battle",
+      "label": "Combat Space Battle",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "boss-intro",
+      "label": "Boss Intro",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "boss-loop",
+      "label": "Boss Loop",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "boss-final-phase",
+      "label": "Boss Final Phase",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "victory-fanfare",
+      "label": "Victory Fanfare",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "defeat-lament",
+      "label": "Defeat Lament",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "chase",
+      "label": "Chase",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "car-chase",
+      "label": "Car Chase",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "foot-chase",
+      "label": "Foot Chase",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "dogfight",
+      "label": "Dogfight",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "boarding-action",
+      "label": "Boarding Action",
+      "icon": "⚔️"
+    },
+    {
+      "slug": "haunting",
+      "label": "Haunting",
+      "icon": "🩸"
+    },
+    {
+      "slug": "possession",
+      "label": "Possession",
+      "icon": "🩸"
+    },
+    {
+      "slug": "ritual",
+      "label": "Ritual",
+      "icon": "🩸"
+    },
+    {
+      "slug": "summoning",
+      "label": "Summoning",
+      "icon": "🩸"
+    },
+    {
+      "slug": "banishment",
+      "label": "Banishment",
+      "icon": "🩸"
+    },
+    {
+      "slug": "eldritch-reveal",
+      "label": "Eldritch Reveal",
+      "icon": "🩸"
+    },
+    {
+      "slug": "sanity-slip",
+      "label": "Sanity Slip",
+      "icon": "🩸"
+    },
+    {
+      "slug": "ghost-encounter",
+      "label": "Ghost Encounter",
+      "icon": "🩸"
+    },
+    {
+      "slug": "vampire-lair",
+      "label": "Vampire Lair",
+      "icon": "🩸"
+    },
+    {
+      "slug": "werewolf-hunt",
+      "label": "Werewolf Hunt",
+      "icon": "🩸"
+    },
+    {
+      "slug": "zombie-siege",
+      "label": "Zombie Siege",
+      "icon": "🩸"
+    },
+    {
+      "slug": "cult-gathering",
+      "label": "Cult Gathering",
+      "icon": "🩸"
+    },
+    {
+      "slug": "sacrificial-altar",
+      "label": "Sacrificial Altar",
+      "icon": "🩸"
+    },
+    {
+      "slug": "spellcasting-prep",
+      "label": "Spellcasting Prep",
+      "icon": "🪄"
+    },
+    {
+      "slug": "battle-magic",
+      "label": "Battle Magic",
+      "icon": "🪄"
+    },
+    {
+      "slug": "divination",
+      "label": "Divination",
+      "icon": "🪄"
+    },
+    {
+      "slug": "telepathy",
+      "label": "Telepathy",
+      "icon": "🪄"
+    },
+    {
+      "slug": "dream-walk",
+      "label": "Dream Walk",
+      "icon": "🪄"
+    },
+    {
+      "slug": "astral-travel",
+      "label": "Astral Travel",
+      "icon": "🪄"
+    },
+    {
+      "slug": "time-warp",
+      "label": "Time Warp",
+      "icon": "🪄"
+    },
+    {
+      "slug": "portal-crossing",
+      "label": "Portal Crossing",
+      "icon": "🪄"
+    },
+    {
+      "slug": "teleportation",
+      "label": "Teleportation",
+      "icon": "🪄"
+    },
+    {
+      "slug": "lab-experiment",
+      "label": "Lab Experiment",
+      "icon": "🪄"
+    },
+    {
+      "slug": "biotech-lab",
+      "label": "Biotech Lab",
+      "icon": "🪄"
+    },
+    {
+      "slug": "nanotech-swarm",
+      "label": "Nanotech Swarm",
+      "icon": "🪄"
+    },
+    {
+      "slug": "ai-core",
+      "label": "Ai Core",
+      "icon": "🪄"
+    },
+    {
+      "slug": "cyberdeck-dive",
+      "label": "Cyberdeck Dive",
+      "icon": "🪄"
+    },
+    {
+      "slug": "cyber-combat",
+      "label": "Cyber Combat",
+      "icon": "🪄"
+    },
+    {
+      "slug": "drone-control",
+      "label": "Drone Control",
+      "icon": "🪄"
+    },
+    {
+      "slug": "mech-dock",
+      "label": "Mech Dock",
+      "icon": "🪄"
+    },
+    {
+      "slug": "warp-jump",
+      "label": "Warp Jump",
+      "icon": "🪄"
+    },
+    {
+      "slug": "tractor-beam",
+      "label": "Tractor Beam",
+      "icon": "🪄"
+    },
+    {
+      "slug": "ship-docking",
+      "label": "Ship Docking",
+      "icon": "🪄"
+    },
+    {
+      "slug": "eva-walk",
+      "label": "Eva Walk",
+      "icon": "🪄"
+    },
+    {
+      "slug": "campfire",
+      "label": "Campfire",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "short-rest",
+      "label": "Short Rest",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "long-rest",
+      "label": "Long Rest",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "foraging",
+      "label": "Foraging",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "hunting",
+      "label": "Hunting",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "tracking",
+      "label": "Tracking",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "blacksmithing",
+      "label": "Blacksmithing",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "fletching",
+      "label": "Fletching",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "alchemy",
+      "label": "Alchemy",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "enchanting",
+      "label": "Enchanting",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "cooking",
+      "label": "Cooking",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "base-building",
+      "label": "Base Building",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "training",
+      "label": "Training",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "shopping",
+      "label": "Shopping",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "bargain",
+      "label": "Bargain",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "healing",
+      "label": "Healing",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "hospital-ward",
+      "label": "Hospital Ward",
+      "icon": "🏕️"
+    },
+    {
+      "slug": "sunrise",
+      "label": "Sunrise",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "sunset",
+      "label": "Sunset",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "night-watch",
+      "label": "Night Watch",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "storm",
+      "label": "Storm",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "rain",
+      "label": "Rain",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "blizzard",
+      "label": "Blizzard",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "sandstorm",
+      "label": "Sandstorm",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "earthquake",
+      "label": "Earthquake",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "flood",
+      "label": "Flood",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "eclipse",
+      "label": "Eclipse",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "meteor-shower",
+      "label": "Meteor Shower",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "radiation-storm",
+      "label": "Radiation Storm",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "anomaly-event",
+      "label": "Anomaly Event",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "void-rift",
+      "label": "Void Rift",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "volcanic-eruption",
+      "label": "Volcanic Eruption",
+      "icon": "🌦️"
+    },
+    {
+      "slug": "scene-transition",
+      "label": "Scene Transition",
+      "icon": "🔔"
+    },
+    {
+      "slug": "reveal-stinger",
+      "label": "Reveal Stinger",
+      "icon": "🔔"
+    },
+    {
+      "slug": "jump-scare",
+      "label": "Jump Scare",
+      "icon": "🔔"
+    },
+    {
+      "slug": "mystery-sting",
+      "label": "Mystery Sting",
+      "icon": "🔔"
+    },
+    {
+      "slug": "map-open",
+      "label": "Map Open",
+      "icon": "🔔"
+    },
+    {
+      "slug": "map-close",
+      "label": "Map Close",
+      "icon": "🔔"
+    },
+    {
+      "slug": "quest-accepted",
+      "label": "Quest Accepted",
+      "icon": "🔔"
+    },
+    {
+      "slug": "quest-failed",
+      "label": "Quest Failed",
+      "icon": "🔔"
+    },
+    {
+      "slug": "dice-roll",
+      "label": "Dice Roll",
+      "icon": "🔔"
+    },
+    {
+      "slug": "success-cue",
+      "label": "Success Cue",
+      "icon": "🔔"
+    },
+    {
+      "slug": "failure-cue",
+      "label": "Failure Cue",
+      "icon": "🔔"
+    }
+  ],
+  "keywords": {
+    "biomes": [
+      {
+        "slug": "biome:forest",
+        "label": "Forest",
+        "icon": "🏞️"
+      },
+      {
+        "slug": "biome:ancient-forest",
+        "label": "Ancient Forest",
+        "icon": "🌲"
+      },
+      {
+        "slug": "biome:rainforest",
+        "label": "Rainforest",
+        "icon": "🌧️"
+      },
+      {
+        "slug": "biome:swamp",
+        "label": "Swamp",
+        "icon": "🪵"
+      },
+      {
+        "slug": "biome:bog",
+        "label": "Bog",
+        "icon": "🫧"
+      },
+      {
+        "slug": "biome:marsh",
+        "label": "Marsh",
+        "icon": "🏞️"
+      },
+      {
+        "slug": "biome:desert",
+        "label": "Desert",
+        "icon": "🏜️"
+      },
+      {
+        "slug": "biome:dunes",
+        "label": "Dunes",
+        "icon": "🏖️"
+      },
+      {
+        "slug": "biome:oasis",
+        "label": "Oasis",
+        "icon": "⛲"
+      },
+      {
+        "slug": "biome:arctic",
+        "label": "Arctic",
+        "icon": "🧊"
+      },
+      {
+        "slug": "biome:tundra",
+        "label": "Tundra",
+        "icon": "🌬️"
+      },
+      {
+        "slug": "biome:glacier",
+        "label": "Glacier",
+        "icon": "🧊"
+      },
+      {
+        "slug": "biome:mountain",
+        "label": "Mountain",
+        "icon": "🏔️"
+      },
+      {
+        "slug": "biome:canyon",
+        "label": "Canyon",
+        "icon": "🧱"
+      },
+      {
+        "slug": "biome:steppe",
+        "label": "Steppe",
+        "icon": "🌾"
+      },
+      {
+        "slug": "biome:plains",
+        "label": "Plains",
+        "icon": "🌾"
+      },
+      {
+        "slug": "biome:grassland",
+        "label": "Grassland",
+        "icon": "🌿"
+      },
+      {
+        "slug": "biome:jungle",
+        "label": "Jungle",
+        "icon": "🌳"
+      },
+      {
+        "slug": "biome:savanna",
+        "label": "Savanna",
+        "icon": "🦒"
+      },
+      {
+        "slug": "biome:volcanic",
+        "label": "Volcanic",
+        "icon": "🌋"
+      },
+      {
+        "slug": "biome:underdark",
+        "label": "Underdark",
+        "icon": "🕳️"
+      },
+      {
+        "slug": "biome:cave",
+        "label": "Cave",
+        "icon": "🕳️"
+      },
+      {
+        "slug": "biome:sewers",
+        "label": "Sewers",
+        "icon": "🧫"
+      },
+      {
+        "slug": "biome:coast",
+        "label": "Coast",
+        "icon": "🏖️"
+      },
+      {
+        "slug": "biome:open-sea",
+        "label": "Open Sea",
+        "icon": "🌊"
+      },
+      {
+        "slug": "biome:river",
+        "label": "River",
+        "icon": "🏞️"
+      },
+      {
+        "slug": "biome:lake",
+        "label": "Lake",
+        "icon": "💧"
+      },
+      {
+        "slug": "biome:sky",
+        "label": "Sky",
+        "icon": "☁️"
+      },
+      {
+        "slug": "biome:astral",
+        "label": "Astral",
+        "icon": "🌌"
+      },
+      {
+        "slug": "biome:void",
+        "label": "Void",
+        "icon": "🕳️"
+      },
+      {
+        "slug": "biome:otherworld",
+        "label": "Otherworld",
+        "icon": "🌀"
+      }
+    ],
+    "locations": [
+      {
+        "slug": "loc:castle",
+        "label": "Castle",
+        "icon": "🏰"
+      },
+      {
+        "slug": "loc:keep",
+        "label": "Keep",
+        "icon": "🏰"
+      },
+      {
+        "slug": "loc:fortress",
+        "label": "Fortress",
+        "icon": "🛡️"
+      },
+      {
+        "slug": "loc:watchtower",
+        "label": "Watchtower",
+        "icon": "🗼"
+      },
+      {
+        "slug": "loc:dungeon",
+        "label": "Dungeon",
+        "icon": "🪨"
+      },
+      {
+        "slug": "loc:catacombs",
+        "label": "Catacombs",
+        "icon": "🕯️"
+      },
+      {
+        "slug": "loc:crypt",
+        "label": "Crypt",
+        "icon": "⚰️"
+      },
+      {
+        "slug": "loc:temple",
+        "label": "Temple",
+        "icon": "🏛️"
+      },
+      {
+        "slug": "loc:shrine",
+        "label": "Shrine",
+        "icon": "⛩️"
+      },
+      {
+        "slug": "loc:monastery",
+        "label": "Monastery",
+        "icon": "🙏"
+      },
+      {
+        "slug": "loc:library",
+        "label": "Library",
+        "icon": "📚"
+      },
+      {
+        "slug": "loc:academy",
+        "label": "Academy",
+        "icon": "🎓"
+      },
+      {
+        "slug": "loc:mage-tower",
+        "label": "Mage Tower",
+        "icon": "🧙"
+      },
+      {
+        "slug": "loc:throne-room",
+        "label": "Throne Room",
+        "icon": "👑"
+      },
+      {
+        "slug": "loc:market",
+        "label": "Market",
+        "icon": "🛒"
+      },
+      {
+        "slug": "loc:slums",
+        "label": "Slums",
+        "icon": "🏚️"
+      },
+      {
+        "slug": "loc:harbor",
+        "label": "Harbor",
+        "icon": "⚓"
+      },
+      {
+        "slug": "loc:mine",
+        "label": "Mine",
+        "icon": "⛏️"
+      },
+      {
+        "slug": "loc:smithy",
+        "label": "Smithy",
+        "icon": "⚒️"
+      },
+      {
+        "slug": "loc:inn",
+        "label": "Inn",
+        "icon": "🛏️"
+      },
+      {
+        "slug": "loc:tavern",
+        "label": "Tavern",
+        "icon": "🍺"
+      },
+      {
+        "slug": "loc:prison",
+        "label": "Prison",
+        "icon": "🗝️"
+      },
+      {
+        "slug": "loc:arena",
+        "label": "Arena",
+        "icon": "🛡️"
+      },
+      {
+        "slug": "loc:laboratory",
+        "label": "Laboratory",
+        "icon": "🧪"
+      },
+      {
+        "slug": "loc:biolab",
+        "label": "Biolab",
+        "icon": "🧬"
+      },
+      {
+        "slug": "loc:reactor",
+        "label": "Reactor",
+        "icon": "⚛️"
+      },
+      {
+        "slug": "loc:spaceport",
+        "label": "Spaceport",
+        "icon": "🚀"
+      },
+      {
+        "slug": "loc:hangar",
+        "label": "Hangar",
+        "icon": "🛫"
+      },
+      {
+        "slug": "loc:bridge-deck",
+        "label": "Bridge Deck",
+        "icon": "🧭"
+      },
+      {
+        "slug": "loc:engineering",
+        "label": "Engineering",
+        "icon": "🔧"
+      },
+      {
+        "slug": "loc:cryosleep-bay",
+        "label": "Cryosleep Bay",
+        "icon": "🧊"
+      },
+      {
+        "slug": "loc:cargo-bay",
+        "label": "Cargo Bay",
+        "icon": "📦"
+      },
+      {
+        "slug": "loc:derelict",
+        "label": "Derelict",
+        "icon": "🛰️"
+      },
+      {
+        "slug": "loc:ruins",
+        "label": "Ruins",
+        "icon": "🏚️"
+      },
+      {
+        "slug": "loc:ancient-city",
+        "label": "Ancient City",
+        "icon": "🏺"
+      },
+      {
+        "slug": "loc:fairy-glen",
+        "label": "Fairy Glen",
+        "icon": "🧚"
+      }
+    ],
+    "styles": [
+      {
+        "slug": "style:medieval-european",
+        "label": "Medieval European",
+        "icon": "🛡️"
+      },
+      {
+        "slug": "style:renaissance",
+        "label": "Renaissance",
+        "icon": "🏛️"
+      },
+      {
+        "slug": "style:baroque",
+        "label": "Baroque",
+        "icon": "🎼"
+      },
+      {
+        "slug": "style:romantic-era",
+        "label": "Romantic Era",
+        "icon": "🌹"
+      },
+      {
+        "slug": "style:ancient-greek",
+        "label": "Ancient Greek",
+        "icon": "🏛️"
+      },
+      {
+        "slug": "style:ancient-roman",
+        "label": "Ancient Roman",
+        "icon": "🏛️"
+      },
+      {
+        "slug": "style:egyptian",
+        "label": "Egyptian",
+        "icon": "🦂"
+      },
+      {
+        "slug": "style:norse",
+        "label": "Norse",
+        "icon": "⚡"
+      },
+      {
+        "slug": "style:celtic",
+        "label": "Celtic",
+        "icon": "☘️"
+      },
+      {
+        "slug": "style:arabesque",
+        "label": "Arabesque",
+        "icon": "🕌"
+      },
+      {
+        "slug": "style:persian",
+        "label": "Persian",
+        "icon": "🕌"
+      },
+      {
+        "slug": "style:ottoman",
+        "label": "Ottoman",
+        "icon": "🕌"
+      },
+      {
+        "slug": "style:indian-classical",
+        "label": "Indian Classical",
+        "icon": "🎶"
+      },
+      {
+        "slug": "style:japanese-traditional",
+        "label": "Japanese Traditional",
+        "icon": "🎌"
+      },
+      {
+        "slug": "style:chinese-traditional",
+        "label": "Chinese Traditional",
+        "icon": "🐉"
+      },
+      {
+        "slug": "style:korean-traditional",
+        "label": "Korean Traditional",
+        "icon": "🎎"
+      },
+      {
+        "slug": "style:balinese-gamelan",
+        "label": "Balinese Gamelan",
+        "icon": "🎐"
+      },
+      {
+        "slug": "style:andino",
+        "label": "Andino",
+        "icon": "🪗"
+      },
+      {
+        "slug": "style:west-african",
+        "label": "West African",
+        "icon": "🪘"
+      },
+      {
+        "slug": "style:native-north-american",
+        "label": "Native North American",
+        "icon": "🪶"
+      },
+      {
+        "slug": "style:mexican-folk",
+        "label": "Mexican Folk",
+        "icon": "🎺"
+      },
+      {
+        "slug": "style:iberian-folk",
+        "label": "Iberian Folk",
+        "icon": "🎶"
+      },
+      {
+        "slug": "style:byzantine-chant",
+        "label": "Byzantine Chant",
+        "icon": "🙏"
+      },
+      {
+        "slug": "style:gothic",
+        "label": "Gothic",
+        "icon": "🕯️"
+      },
+      {
+        "slug": "style:western-frontier",
+        "label": "Western Frontier",
+        "icon": "🤠"
+      },
+      {
+        "slug": "style:1920s",
+        "label": "1920S",
+        "icon": "🎙️"
+      },
+      {
+        "slug": "style:noir-1940s",
+        "label": "Noir 1940S",
+        "icon": "🕵️"
+      },
+      {
+        "slug": "style:cold-war",
+        "label": "Cold War",
+        "icon": "🛰️"
+      },
+      {
+        "slug": "style:cyberpunk-neon",
+        "label": "Cyberpunk Neon",
+        "icon": "🌆"
+      },
+      {
+        "slug": "style:dieselpunk",
+        "label": "Dieselpunk",
+        "icon": "🛢️"
+      },
+      {
+        "slug": "style:steampunk",
+        "label": "Steampunk",
+        "icon": "⚙️"
+      },
+      {
+        "slug": "style:post-apocalyptic",
+        "label": "Post Apocalyptic",
+        "icon": "☣️"
+      }
+    ],
+    "creatures": [
+      {
+        "slug": "creature:dragon",
+        "label": "Dragon",
+        "icon": "🐉"
+      },
+      {
+        "slug": "creature:drake",
+        "label": "Drake",
+        "icon": "🐉"
+      },
+      {
+        "slug": "creature:wyvern",
+        "label": "Wyvern",
+        "icon": "🐉"
+      },
+      {
+        "slug": "creature:giant",
+        "label": "Giant",
+        "icon": "🗿"
+      },
+      {
+        "slug": "creature:troll",
+        "label": "Troll",
+        "icon": "🧌"
+      },
+      {
+        "slug": "creature:ogre",
+        "label": "Ogre",
+        "icon": "👹"
+      },
+      {
+        "slug": "creature:goblin",
+        "label": "Goblin",
+        "icon": "👺"
+      },
+      {
+        "slug": "creature:orc",
+        "label": "Orc",
+        "icon": "🧌"
+      },
+      {
+        "slug": "creature:kobold",
+        "label": "Kobold",
+        "icon": "🦎"
+      },
+      {
+        "slug": "creature:gnoll",
+        "label": "Gnoll",
+        "icon": "🐺"
+      },
+      {
+        "slug": "creature:undead",
+        "label": "Undead",
+        "icon": "🪦"
+      },
+      {
+        "slug": "creature:zombie",
+        "label": "Zombie",
+        "icon": "🧟"
+      },
+      {
+        "slug": "creature:ghoul",
+        "label": "Ghoul",
+        "icon": "🧟"
+      },
+      {
+        "slug": "creature:skeleton",
+        "label": "Skeleton",
+        "icon": "💀"
+      },
+      {
+        "slug": "creature:lich",
+        "label": "Lich",
+        "icon": "🧙"
+      },
+      {
+        "slug": "creature:vampire",
+        "label": "Vampire",
+        "icon": "🧛"
+      },
+      {
+        "slug": "creature:werewolf",
+        "label": "Werewolf",
+        "icon": "🐺"
+      },
+      {
+        "slug": "creature:ghost",
+        "label": "Ghost",
+        "icon": "👻"
+      },
+      {
+        "slug": "creature:demon",
+        "label": "Demon",
+        "icon": "👹"
+      },
+      {
+        "slug": "creature:devil",
+        "label": "Devil",
+        "icon": "😈"
+      },
+      {
+        "slug": "creature:angel",
+        "label": "Angel",
+        "icon": "👼"
+      },
+      {
+        "slug": "creature:fae",
+        "label": "Fae",
+        "icon": "🧚"
+      },
+      {
+        "slug": "creature:dryad",
+        "label": "Dryad",
+        "icon": "🌿"
+      },
+      {
+        "slug": "creature:elemental",
+        "label": "Elemental",
+        "icon": "🌪️"
+      },
+      {
+        "slug": "creature:construct",
+        "label": "Construct",
+        "icon": "⚙️"
+      },
+      {
+        "slug": "creature:golem",
+        "label": "Golem",
+        "icon": "🗿"
+      },
+      {
+        "slug": "creature:slime",
+        "label": "Slime",
+        "icon": "🫧"
+      },
+      {
+        "slug": "creature:beast",
+        "label": "Beast",
+        "icon": "🐾"
+      },
+      {
+        "slug": "creature:wolf",
+        "label": "Wolf",
+        "icon": "🐺"
+      },
+      {
+        "slug": "creature:bear",
+        "label": "Bear",
+        "icon": "🐻"
+      },
+      {
+        "slug": "creature:spider",
+        "label": "Spider",
+        "icon": "🕷️"
+      },
+      {
+        "slug": "creature:kraken",
+        "label": "Kraken",
+        "icon": "🐙"
+      },
+      {
+        "slug": "creature:siren",
+        "label": "Siren",
+        "icon": "🧜"
+      },
+      {
+        "slug": "creature:aberration",
+        "label": "Aberration",
+        "icon": "🦑"
+      },
+      {
+        "slug": "creature:eldritch-entity",
+        "label": "Eldritch Entity",
+        "icon": "🦑"
+      },
+      {
+        "slug": "creature:alien",
+        "label": "Alien",
+        "icon": "👽"
+      },
+      {
+        "slug": "creature:parasite",
+        "label": "Parasite",
+        "icon": "🧫"
+      },
+      {
+        "slug": "creature:machine-swarm",
+        "label": "Machine Swarm",
+        "icon": "🤖"
+      }
+    ],
+    "factions_npcs": [
+      {
+        "slug": "faction:empire",
+        "label": "Empire",
+        "icon": "🛡️"
+      },
+      {
+        "slug": "faction:rebels",
+        "label": "Rebels",
+        "icon": "✊"
+      },
+      {
+        "slug": "faction:mercenary-band",
+        "label": "Mercenary Band",
+        "icon": "🗡️"
+      },
+      {
+        "slug": "faction:thieves-guild",
+        "label": "Thieves Guild",
+        "icon": "🗝️"
+      },
+      {
+        "slug": "faction:mages-guild",
+        "label": "Mages Guild",
+        "icon": "🪄"
+      },
+      {
+        "slug": "faction:knightly-order",
+        "label": "Knightly Order",
+        "icon": "⚔️"
+      },
+      {
+        "slug": "faction:church",
+        "label": "Church",
+        "icon": "⛪"
+      },
+      {
+        "slug": "faction:cult",
+        "label": "Cult",
+        "icon": "🔺"
+      },
+      {
+        "slug": "faction:cartel",
+        "label": "Cartel",
+        "icon": "💼"
+      },
+      {
+        "slug": "faction:megacorp",
+        "label": "Megacorp",
+        "icon": "🏢"
+      },
+      {
+        "slug": "faction:syndicate",
+        "label": "Syndicate",
+        "icon": "🕴️"
+      },
+      {
+        "slug": "faction:raiders",
+        "label": "Raiders",
+        "icon": "🏴‍☠️"
+      },
+      {
+        "slug": "faction:mutants",
+        "label": "Mutants",
+        "icon": "🧬"
+      },
+      {
+        "slug": "faction:androids",
+        "label": "Androids",
+        "icon": "🤖"
+      },
+      {
+        "slug": "npc:noble",
+        "label": "Noble",
+        "icon": "👑"
+      },
+      {
+        "slug": "npc:merchant",
+        "label": "Merchant",
+        "icon": "🧳"
+      },
+      {
+        "slug": "npc:smuggler",
+        "label": "Smuggler",
+        "icon": "📦"
+      },
+      {
+        "slug": "npc:guard",
+        "label": "Guard",
+        "icon": "🛡️"
+      },
+      {
+        "slug": "npc:assassin",
+        "label": "Assassin",
+        "icon": "🗡️"
+      },
+      {
+        "slug": "npc:priest",
+        "label": "Priest",
+        "icon": "🙏"
+      },
+      {
+        "slug": "npc:witch",
+        "label": "Witch",
+        "icon": "🧹"
+      },
+      {
+        "slug": "npc:warlock",
+        "label": "Warlock",
+        "icon": "🪄"
+      },
+      {
+        "slug": "npc:necromancer",
+        "label": "Necromancer",
+        "icon": "🪦"
+      },
+      {
+        "slug": "npc:ranger",
+        "label": "Ranger",
+        "icon": "🏹"
+      },
+      {
+        "slug": "npc:alchemist",
+        "label": "Alchemist",
+        "icon": "⚗️"
+      },
+      {
+        "slug": "npc:scientist",
+        "label": "Scientist",
+        "icon": "🔬"
+      },
+      {
+        "slug": "npc:hacker",
+        "label": "Hacker",
+        "icon": "🖥️"
+      },
+      {
+        "slug": "npc:pilot",
+        "label": "Pilot",
+        "icon": "🛩️"
+      },
+      {
+        "slug": "npc:ai",
+        "label": "Ai",
+        "icon": "🧠"
+      }
+    ],
+    "magic_elements": [
+      {
+        "slug": "magic:abjuration",
+        "label": "Abjuration",
+        "icon": "🪄"
+      },
+      {
+        "slug": "magic:conjuration",
+        "label": "Conjuration",
+        "icon": "🪄"
+      },
+      {
+        "slug": "magic:divination",
+        "label": "Divination",
+        "icon": "🪄"
+      },
+      {
+        "slug": "magic:enchantment",
+        "label": "Enchantment",
+        "icon": "🪄"
+      },
+      {
+        "slug": "magic:evocation",
+        "label": "Evocation",
+        "icon": "🪄"
+      },
+      {
+        "slug": "magic:illusion",
+        "label": "Illusion",
+        "icon": "🪄"
+      },
+      {
+        "slug": "magic:necromancy",
+        "label": "Necromancy",
+        "icon": "🪄"
+      },
+      {
+        "slug": "magic:transmutation",
+        "label": "Transmutation",
+        "icon": "🪄"
+      },
+      {
+        "slug": "element:fire",
+        "label": "Fire",
+        "icon": "🔥"
+      },
+      {
+        "slug": "element:ice",
+        "label": "Ice",
+        "icon": "❄️"
+      },
+      {
+        "slug": "element:lightning",
+        "label": "Lightning",
+        "icon": "⚡"
+      },
+      {
+        "slug": "element:wind",
+        "label": "Wind",
+        "icon": "🌬️"
+      },
+      {
+        "slug": "element:earth",
+        "label": "Earth",
+        "icon": "⛰️"
+      },
+      {
+        "slug": "element:water",
+        "label": "Water",
+        "icon": "💧"
+      },
+      {
+        "slug": "element:poison",
+        "label": "Poison",
+        "icon": "☠️"
+      },
+      {
+        "slug": "element:acid",
+        "label": "Acid",
+        "icon": "🧪"
+      },
+      {
+        "slug": "element:shadow",
+        "label": "Shadow",
+        "icon": "🌑"
+      },
+      {
+        "slug": "element:light",
+        "label": "Light",
+        "icon": "🔆"
+      },
+      {
+        "slug": "element:void",
+        "label": "Void",
+        "icon": "🕳️"
+      },
+      {
+        "slug": "element:metal",
+        "label": "Metal",
+        "icon": "🔩"
+      },
+      {
+        "slug": "element:wood",
+        "label": "Wood",
+        "icon": "🪵"
+      },
+      {
+        "slug": "ritual:blood-magic",
+        "label": "Blood Magic",
+        "icon": "🕯️"
+      },
+      {
+        "slug": "ritual:summoning",
+        "label": "Summoning",
+        "icon": "🕯️"
+      },
+      {
+        "slug": "ritual:sacrifice",
+        "label": "Sacrifice",
+        "icon": "🕯️"
+      },
+      {
+        "slug": "ritual:binding",
+        "label": "Binding",
+        "icon": "🕯️"
+      },
+      {
+        "slug": "ritual:banishment",
+        "label": "Banishment",
+        "icon": "🕯️"
+      }
+    ],
+    "tech": [
+      {
+        "slug": "tech:medieval",
+        "label": "Medieval",
+        "icon": "🛡️"
+      },
+      {
+        "slug": "tech:clockwork",
+        "label": "Clockwork",
+        "icon": "⏰"
+      },
+      {
+        "slug": "tech:steam",
+        "label": "Steam",
+        "icon": "🚂"
+      },
+      {
+        "slug": "tech:diesel",
+        "label": "Diesel",
+        "icon": "🛢️"
+      },
+      {
+        "slug": "tech:nuclear",
+        "label": "Nuclear",
+        "icon": "☢️"
+      },
+      {
+        "slug": "tech:fusion",
+        "label": "Fusion",
+        "icon": "⚛️"
+      },
+      {
+        "slug": "tech:antimatter",
+        "label": "Antimatter",
+        "icon": "🌀"
+      },
+      {
+        "slug": "tech:biotech",
+        "label": "Biotech",
+        "icon": "🧬"
+      },
+      {
+        "slug": "tech:nanotech",
+        "label": "Nanotech",
+        "icon": "🧪"
+      },
+      {
+        "slug": "tech:ai",
+        "label": "Ai",
+        "icon": "🧠"
+      },
+      {
+        "slug": "tech:cybernetics",
+        "label": "Cybernetics",
+        "icon": "🤖"
+      },
+      {
+        "slug": "tech:synthetic",
+        "label": "Synthetic",
+        "icon": "🧫"
+      }
+    ],
+    "vehicles": [
+      {
+        "slug": "vehicle:horse",
+        "label": "Horse",
+        "icon": "🐎"
+      },
+      {
+        "slug": "vehicle:carriage",
+        "label": "Carriage",
+        "icon": "🛞"
+      },
+      {
+        "slug": "vehicle:war-wagon",
+        "label": "War Wagon",
+        "icon": "🛞"
+      },
+      {
+        "slug": "vehicle:train",
+        "label": "Train",
+        "icon": "🚆"
+      },
+      {
+        "slug": "vehicle:subway",
+        "label": "Subway",
+        "icon": "🚇"
+      },
+      {
+        "slug": "vehicle:motorbike",
+        "label": "Motorbike",
+        "icon": "🏍️"
+      },
+      {
+        "slug": "vehicle:armored-vehicle",
+        "label": "Armored Vehicle",
+        "icon": "🚙"
+      },
+      {
+        "slug": "vehicle:airship",
+        "label": "Airship",
+        "icon": "🛩️"
+      },
+      {
+        "slug": "vehicle:zeppelin",
+        "label": "Zeppelin",
+        "icon": "🎈"
+      },
+      {
+        "slug": "vehicle:airplane",
+        "label": "Airplane",
+        "icon": "✈️"
+      },
+      {
+        "slug": "vehicle:helicopter",
+        "label": "Helicopter",
+        "icon": "🚁"
+      },
+      {
+        "slug": "vehicle:mech",
+        "label": "Mech",
+        "icon": "🦾"
+      },
+      {
+        "slug": "vehicle:tank",
+        "label": "Tank",
+        "icon": "🛡️"
+      },
+      {
+        "slug": "vehicle:starfighter",
+        "label": "Starfighter",
+        "icon": "🚀"
+      },
+      {
+        "slug": "vehicle:shuttle",
+        "label": "Shuttle",
+        "icon": "🧑‍🚀"
+      },
+      {
+        "slug": "vehicle:frigate",
+        "label": "Frigate",
+        "icon": "🛥️"
+      },
+      {
+        "slug": "vehicle:battleship",
+        "label": "Battleship",
+        "icon": "⛴️"
+      },
+      {
+        "slug": "vehicle:freighter",
+        "label": "Freighter",
+        "icon": "🚢"
+      }
+    ],
+    "weather": [
+      {
+        "slug": "weather:clear",
+        "label": "Clear",
+        "icon": "☀️"
+      },
+      {
+        "slug": "weather:wind",
+        "label": "Wind",
+        "icon": "🌬️"
+      },
+      {
+        "slug": "weather:rain",
+        "label": "Rain",
+        "icon": "🌧️"
+      },
+      {
+        "slug": "weather:thunderstorm",
+        "label": "Thunderstorm",
+        "icon": "⛈️"
+      },
+      {
+        "slug": "weather:snow",
+        "label": "Snow",
+        "icon": "❄️"
+      },
+      {
+        "slug": "weather:blizzard",
+        "label": "Blizzard",
+        "icon": "🌨️"
+      },
+      {
+        "slug": "weather:heatwave",
+        "label": "Heatwave",
+        "icon": "🌡️"
+      },
+      {
+        "slug": "weather:sandstorm",
+        "label": "Sandstorm",
+        "icon": "🏜️"
+      },
+      {
+        "slug": "weather:fog",
+        "label": "Fog",
+        "icon": "🌫️"
+      },
+      {
+        "slug": "weather:mist",
+        "label": "Mist",
+        "icon": "🌫️"
+      },
+      {
+        "slug": "weather:hail",
+        "label": "Hail",
+        "icon": "🌨️"
+      },
+      {
+        "slug": "weather:aurora",
+        "label": "Aurora",
+        "icon": "🌈"
+      },
+      {
+        "slug": "weather:eclipse",
+        "label": "Eclipse",
+        "icon": "🌘"
+      },
+      {
+        "slug": "weather:meteor-shower",
+        "label": "Meteor Shower",
+        "icon": "☄️"
+      },
+      {
+        "slug": "weather:solar-storm",
+        "label": "Solar Storm",
+        "icon": "🌞"
+      },
+      {
+        "slug": "weather:radiation-storm",
+        "label": "Radiation Storm",
+        "icon": "☢️"
+      },
+      {
+        "slug": "weather:anomaly",
+        "label": "Anomaly",
+        "icon": "🌀"
+      }
+    ],
+    "timbres": [
+      {
+        "slug": "timbre:strings-warm",
+        "label": "Strings Warm",
+        "icon": "🎻"
+      },
+      {
+        "slug": "timbre:strings-dissonant",
+        "label": "Strings Dissonant",
+        "icon": "🎻"
+      },
+      {
+        "slug": "timbre:low-brass",
+        "label": "Low Brass",
+        "icon": "📯"
+      },
+      {
+        "slug": "timbre:braams",
+        "label": "Braams",
+        "icon": "📯"
+      },
+      {
+        "slug": "timbre:solo-violin",
+        "label": "Solo Violin",
+        "icon": "🎻"
+      },
+      {
+        "slug": "timbre:solo-cello",
+        "label": "Solo Cello",
+        "icon": "🎻"
+      },
+      {
+        "slug": "timbre:harp",
+        "label": "Harp",
+        "icon": "🎼"
+      },
+      {
+        "slug": "timbre:flute",
+        "label": "Flute",
+        "icon": "🎶"
+      },
+      {
+        "slug": "timbre:whistle",
+        "label": "Whistle",
+        "icon": "📯"
+      },
+      {
+        "slug": "timbre:bagpipes",
+        "label": "Bagpipes",
+        "icon": "🧶"
+      },
+      {
+        "slug": "timbre:nyckelharpa",
+        "label": "Nyckelharpa",
+        "icon": "🎻"
+      },
+      {
+        "slug": "timbre:hurdy-gurdy",
+        "label": "Hurdy Gurdy",
+        "icon": "🪕"
+      },
+      {
+        "slug": "timbre:oud",
+        "label": "Oud",
+        "icon": "🪕"
+      },
+      {
+        "slug": "timbre:sitar",
+        "label": "Sitar",
+        "icon": "🎸"
+      },
+      {
+        "slug": "timbre:shakuhachi",
+        "label": "Shakuhachi",
+        "icon": "🎋"
+      },
+      {
+        "slug": "timbre:erhu",
+        "label": "Erhu",
+        "icon": "🎻"
+      },
+      {
+        "slug": "timbre:guzheng",
+        "label": "Guzheng",
+        "icon": "🎼"
+      },
+      {
+        "slug": "timbre:koto",
+        "label": "Koto",
+        "icon": "🎼"
+      },
+      {
+        "slug": "timbre:gamelan",
+        "label": "Gamelan",
+        "icon": "🎐"
+      },
+      {
+        "slug": "timbre:frame-drum",
+        "label": "Frame Drum",
+        "icon": "🥁"
+      },
+      {
+        "slug": "timbre:taiko",
+        "label": "Taiko",
+        "icon": "🥁"
+      },
+      {
+        "slug": "timbre:bodhran",
+        "label": "Bodhran",
+        "icon": "🥁"
+      },
+      {
+        "slug": "timbre:dulcimer",
+        "label": "Dulcimer",
+        "icon": "🎶"
+      },
+      {
+        "slug": "timbre:lute",
+        "label": "Lute",
+        "icon": "🎸"
+      },
+      {
+        "slug": "timbre:organ",
+        "label": "Organ",
+        "icon": "🎹"
+      },
+      {
+        "slug": "timbre:church-choir",
+        "label": "Church Choir",
+        "icon": "🎤"
+      },
+      {
+        "slug": "timbre:male-chant",
+        "label": "Male Chant",
+        "icon": "👨‍🎤"
+      },
+      {
+        "slug": "timbre:female-vocalise",
+        "label": "Female Vocalise",
+        "icon": "👩‍🎤"
+      },
+      {
+        "slug": "timbre:child-choir",
+        "label": "Child Choir",
+        "icon": "👧"
+      },
+      {
+        "slug": "timbre:synthetic-pad",
+        "label": "Synthetic Pad",
+        "icon": "🧪"
+      },
+      {
+        "slug": "timbre:analog-synth",
+        "label": "Analog Synth",
+        "icon": "🎛️"
+      },
+      {
+        "slug": "timbre:fm-synth",
+        "label": "Fm Synth",
+        "icon": "🎚️"
+      },
+      {
+        "slug": "timbre:granular",
+        "label": "Granular",
+        "icon": "🧪"
+      },
+      {
+        "slug": "timbre:noise-texture",
+        "label": "Noise Texture",
+        "icon": "📡"
+      },
+      {
+        "slug": "timbre:clockwork",
+        "label": "Clockwork",
+        "icon": "⏰"
+      },
+      {
+        "slug": "timbre:metallic-hits",
+        "label": "Metallic Hits",
+        "icon": "🔔"
+      },
+      {
+        "slug": "timbre:sub-boom",
+        "label": "Sub Boom",
+        "icon": "💥"
+      }
+    ],
+    "sfx": [
+      {
+        "slug": "sfx:footsteps",
+        "label": "Footsteps",
+        "icon": "👣"
+      },
+      {
+        "slug": "sfx:armor-clank",
+        "label": "Armor Clank",
+        "icon": "🛡️"
+      },
+      {
+        "slug": "sfx:sword-clash",
+        "label": "Sword Clash",
+        "icon": "⚔️"
+      },
+      {
+        "slug": "sfx:bow-release",
+        "label": "Bow Release",
+        "icon": "🏹"
+      },
+      {
+        "slug": "sfx:gunshot",
+        "label": "Gunshot",
+        "icon": "🔫"
+      },
+      {
+        "slug": "sfx:reload",
+        "label": "Reload",
+        "icon": "🔁"
+      },
+      {
+        "slug": "sfx:ricochet",
+        "label": "Ricochet",
+        "icon": "🎯"
+      },
+      {
+        "slug": "sfx:explosion",
+        "label": "Explosion",
+        "icon": "💥"
+      },
+      {
+        "slug": "sfx:door-creak",
+        "label": "Door Creak",
+        "icon": "🚪"
+      },
+      {
+        "slug": "sfx:gate-bang",
+        "label": "Gate Bang",
+        "icon": "🚪"
+      },
+      {
+        "slug": "sfx:chains",
+        "label": "Chains",
+        "icon": "⛓️"
+      },
+      {
+        "slug": "sfx:coins",
+        "label": "Coins",
+        "icon": "🪙"
+      },
+      {
+        "slug": "sfx:pages-turning",
+        "label": "Pages Turning",
+        "icon": "📖"
+      },
+      {
+        "slug": "sfx:quill-scratch",
+        "label": "Quill Scratch",
+        "icon": "✒️"
+      },
+      {
+        "slug": "sfx:campfire",
+        "label": "Campfire",
+        "icon": "🔥"
+      },
+      {
+        "slug": "sfx:wood-crackle",
+        "label": "Wood Crackle",
+        "icon": "🔥"
+      },
+      {
+        "slug": "sfx:water-drip",
+        "label": "Water Drip",
+        "icon": "💧"
+      },
+      {
+        "slug": "sfx:river",
+        "label": "River",
+        "icon": "🏞️"
+      },
+      {
+        "slug": "sfx:ocean-surf",
+        "label": "Ocean Surf",
+        "icon": "🌊"
+      },
+      {
+        "slug": "sfx:thunder",
+        "label": "Thunder",
+        "icon": "🌩️"
+      },
+      {
+        "slug": "sfx:wind",
+        "label": "Wind",
+        "icon": "🌬️"
+      },
+      {
+        "slug": "sfx:rain",
+        "label": "Rain",
+        "icon": "🌧️"
+      },
+      {
+        "slug": "sfx:market-crowd",
+        "label": "Market Crowd",
+        "icon": "🗣️"
+      },
+      {
+        "slug": "sfx:tavern-murmur",
+        "label": "Tavern Murmur",
+        "icon": "🍺"
+      },
+      {
+        "slug": "sfx:church-bells",
+        "label": "Church Bells",
+        "icon": "🔔"
+      },
+      {
+        "slug": "sfx:chant",
+        "label": "Chant",
+        "icon": "🗣️"
+      },
+      {
+        "slug": "sfx:chant-latin",
+        "label": "Chant Latin",
+        "icon": "🗣️"
+      },
+      {
+        "slug": "sfx:monster-roar",
+        "label": "Monster Roar",
+        "icon": "🦖"
+      },
+      {
+        "slug": "sfx:dragon-breath",
+        "label": "Dragon Breath",
+        "icon": "🐉"
+      },
+      {
+        "slug": "sfx:zombie-moans",
+        "label": "Zombie Moans",
+        "icon": "🧟"
+      },
+      {
+        "slug": "sfx:ghost-wail",
+        "label": "Ghost Wail",
+        "icon": "👻"
+      },
+      {
+        "slug": "sfx:space-engine-hum",
+        "label": "Space Engine Hum",
+        "icon": "🚀"
+      },
+      {
+        "slug": "sfx:alarm",
+        "label": "Alarm",
+        "icon": "🚨"
+      },
+      {
+        "slug": "sfx:scanner-beeps",
+        "label": "Scanner Beeps",
+        "icon": "📡"
+      },
+      {
+        "slug": "sfx:keyboard",
+        "label": "Keyboard",
+        "icon": "⌨️"
+      },
+      {
+        "slug": "sfx:hacking-glitches",
+        "label": "Hacking Glitches",
+        "icon": "🧪"
+      },
+      {
+        "slug": "sfx:warp",
+        "label": "Warp",
+        "icon": "🌀"
+      },
+      {
+        "slug": "sfx:teleport",
+        "label": "Teleport",
+        "icon": "🌀"
+      },
+      {
+        "slug": "sfx:magic-whoosh",
+        "label": "Magic Whoosh",
+        "icon": "✨"
+      },
+      {
+        "slug": "sfx:spell-impact",
+        "label": "Spell Impact",
+        "icon": "💫"
+      },
+      {
+        "slug": "sfx:shield",
+        "label": "Shield",
+        "icon": "🛡️"
+      },
+      {
+        "slug": "sfx:portal-open",
+        "label": "Portal Open",
+        "icon": "🌀"
+      },
+      {
+        "slug": "sfx:portal-close",
+        "label": "Portal Close",
+        "icon": "🌀"
+      }
+    ],
+    "ui": [
+      {
+        "slug": "ui:ping",
+        "label": "Ping",
+        "icon": "🔔"
+      },
+      {
+        "slug": "ui:notify",
+        "label": "Notify",
+        "icon": "🔔"
+      },
+      {
+        "slug": "ui:confirm",
+        "label": "Confirm",
+        "icon": "✅"
+      },
+      {
+        "slug": "ui:error",
+        "label": "Error",
+        "icon": "❌"
+      },
+      {
+        "slug": "ui:upgrade",
+        "label": "Upgrade",
+        "icon": "⬆️"
+      },
+      {
+        "slug": "ui:inventory",
+        "label": "Inventory",
+        "icon": "🎒"
+      },
+      {
+        "slug": "ui:map-open",
+        "label": "Map Open",
+        "icon": "🗺️"
+      },
+      {
+        "slug": "ui:map-close",
+        "label": "Map Close",
+        "icon": "🗺️"
+      },
+      {
+        "slug": "ui:crafting-complete",
+        "label": "Crafting Complete",
+        "icon": "🛠️"
+      },
+      {
+        "slug": "ui:purchase",
+        "label": "Purchase",
+        "icon": "🛒"
+      },
+      {
+        "slug": "ui:sell",
+        "label": "Sell",
+        "icon": "💰"
+      },
+      {
+        "slug": "ui:quest-update",
+        "label": "Quest Update",
+        "icon": "📜"
+      },
+      {
+        "slug": "ui:skill-point",
+        "label": "Skill Point",
+        "icon": "⭐"
+      },
+      {
+        "slug": "ui:dice-roll",
+        "label": "Dice Roll",
+        "icon": "🎲"
+      }
+    ],
+    "utility": [
+      {
+        "slug": "util:loopable",
+        "label": "Loopable",
+        "icon": "🔁"
+      },
+      {
+        "slug": "util:stinger",
+        "label": "Stinger",
+        "icon": "🗡️"
+      },
+      {
+        "slug": "util:intro",
+        "label": "Intro",
+        "icon": "⏮️"
+      },
+      {
+        "slug": "util:outro",
+        "label": "Outro",
+        "icon": "⏭️"
+      },
+      {
+        "slug": "util:transition",
+        "label": "Transition",
+        "icon": "➡️"
+      },
+      {
+        "slug": "util:bed",
+        "label": "Bed",
+        "icon": "🛏️"
+      },
+      {
+        "slug": "util:drone",
+        "label": "Drone",
+        "icon": "🧲"
+      },
+      {
+        "slug": "util:motif",
+        "label": "Motif",
+        "icon": "🎵"
+      },
+      {
+        "slug": "util:theme",
+        "label": "Theme",
+        "icon": "🎼"
+      },
+      {
+        "slug": "util:alt-mix",
+        "label": "Alt Mix",
+        "icon": "🔀"
+      },
+      {
+        "slug": "util:instrumental",
+        "label": "Instrumental",
+        "icon": "🎻"
+      },
+      {
+        "slug": "util:with-vocals",
+        "label": "With Vocals",
+        "icon": "🎤"
+      },
+      {
+        "slug": "util:diegetic",
+        "label": "Diegetic",
+        "icon": "🎙️"
+      },
+      {
+        "slug": "util:non-diegetic",
+        "label": "Non Diegetic",
+        "icon": "🎧"
+      },
+      {
+        "slug": "util:stem-percussion",
+        "label": "Stem Percussion",
+        "icon": "🥁"
+      },
+      {
+        "slug": "util:stem-ambient",
+        "label": "Stem Ambient",
+        "icon": "🌀"
+      },
+      {
+        "slug": "util:stem-melody",
+        "label": "Stem Melody",
+        "icon": "🎶"
+      },
+      {
+        "slug": "util:sudden-loudness",
+        "label": "Sudden Loudness",
+        "icon": "⚠️"
+      },
+      {
+        "slug": "util:screams",
+        "label": "Screams",
+        "icon": "🗣️"
+      },
+      {
+        "slug": "util:nsfw-language",
+        "label": "Nsfw Language",
+        "icon": "🛑"
+      }
+    ]
+  }
+}

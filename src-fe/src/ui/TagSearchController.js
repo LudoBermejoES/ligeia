@@ -273,7 +273,12 @@ export class TagSearchController {
                 chip.dataset.tagType = tagType;
                 chip.dataset.groupBase = base;
                 chip.title = `Select one or more: ${values.join(', ')}`;
-                chip.textContent = this.tagService.capitalizeTag(base);
+                
+                // Add icon if available
+                const icon = this.tagService.getTagIcon(base);
+                const iconHtml = icon ? `<span class="tag-icon">${icon}</span> ` : '';
+                chip.innerHTML = `${iconHtml}${this.tagService.capitalizeTag(base)}`;
+                
                 chip.addEventListener('click', (e) => {
                     e.stopPropagation();
                     this.openTagGroupPopup(tagType, base, values, chip);
@@ -295,7 +300,12 @@ export class TagSearchController {
                 filterChip.dataset.tagType = tagType;
                 filterChip.dataset.tagValue = tagValue;
                 filterChip.title = '';
-                filterChip.textContent = this.tagService.capitalizeTag(tagValue);
+                
+                // Add icon if available
+                const icon = this.tagService.getTagIcon(tagValue);
+                const iconHtml = icon ? `<span class="tag-icon">${icon}</span> ` : '';
+                filterChip.innerHTML = `${iconHtml}${this.tagService.capitalizeTag(tagValue)}`;
+                
                 filterChip.addEventListener('click', () => {
                     this.toggleFilter(tagType, tagValue, filterChip);
                 });
@@ -329,7 +339,10 @@ export class TagSearchController {
                     }).map(v => {
                         const id = `tg_${tagType}_${base}_${v.replace(/[^a-z0-9]/gi,'_')}`;
                         const checked = this.currentFilters[`${tagType}s`].has(v) ? 'checked' : '';
-                        return `<label class="tag-group-option"><input type="checkbox" id="${id}" value="${v}" ${checked}> <span>${this.tagService.capitalizeTag(v.split(':').slice(-1)[0])}</span></label>`;
+                        const icon = this.tagService.getTagIcon(v);
+                        const iconHtml = icon ? `<span class="tag-icon">${icon}</span> ` : '';
+                        const label = this.tagService.capitalizeTag(v.split(':').slice(-1)[0]);
+                        return `<label class="tag-group-option"><input type="checkbox" id="${id}" value="${v}" ${checked}> <span>${iconHtml}${label}</span></label>`;
                     }).join('')}
                 </div>
             </div>
@@ -376,7 +389,10 @@ export class TagSearchController {
     }
 
     updateGroupChipLabel(chipElement, base, count) {
-        chipElement.textContent = count > 0 ? `${this.tagService.capitalizeTag(base)} (${count})` : this.tagService.capitalizeTag(base);
+        const icon = this.tagService.getTagIcon(base);
+        const iconHtml = icon ? `<span class="tag-icon">${icon}</span> ` : '';
+        const label = count > 0 ? `${this.tagService.capitalizeTag(base)} (${count})` : this.tagService.capitalizeTag(base);
+        chipElement.innerHTML = `${iconHtml}${label}`;
     }
 
     toggleFilter(tagType, tagValue, chipElement) {
