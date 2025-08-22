@@ -51,7 +51,6 @@ export class UIController {
         const masterVolumeSlider = this.getElementById('masterVolumeSlider');
         if (masterVolumeSlider) {
             masterVolumeSlider.addEventListener('input', (e) => {
-                console.log('Master volume slider changed:', e.target.value);
                 eventHandlers.setMasterVolume(e.target.value / 100);
             });
         }
@@ -61,22 +60,11 @@ export class UIController {
 
         // Provide drag data for sound pads (membership editor window consumes this)
         document.addEventListener('dragstart', (e) => {
-            console.log('🎬 DRAGSTART EVENT:', {
-                target: e.target.tagName + '.' + e.target.className,
-                targetId: e.target.id,
-                coordinates: { x: e.clientX, y: e.clientY }
-            });
-            
             const pad = e.target.closest?.('.sound-pad');
-            if (!pad) {
-                console.log('❌ No sound pad found for drag target');
-                return;
-            }
+            if (!pad) return;
             
             const audioId = pad.dataset.audioId;
             if (audioId && e.dataTransfer) {
-                console.log('✅ Drag started for pad:', audioId, 'from element:', pad);
-                
                 // Simplified dataTransfer setup
                 e.dataTransfer.setData('text/plain', audioId);
                 e.dataTransfer.effectAllowed = 'copy';
@@ -84,20 +72,11 @@ export class UIController {
                 
                 // Store the dragged audio ID globally for ghost preview
                 window._draggedAudioId = audioId;
-                
-                console.log('✅ DataTransfer configured:', {
-                    types: Array.from(e.dataTransfer.types),
-                    effectAllowed: e.dataTransfer.effectAllowed,
-                    dropEffect: e.dataTransfer.dropEffect
-                });
-            } else {
-                console.log('❌ Missing audioId or dataTransfer:', { audioId, hasDataTransfer: !!e.dataTransfer });
             }
         });
 
         // Clear global drag state when drag ends
         document.addEventListener('dragend', (e) => {
-            console.log('Drag ended globally');
             window._draggedAudioId = null;
         });
 
@@ -105,44 +84,9 @@ export class UIController {
         document.addEventListener('dragover', (e) => {
             if (window._draggedAudioId || window._testDrag) {
                 e.preventDefault(); // This is ESSENTIAL to enable drop zones
-                console.log('🌊 GLOBAL DRAGOVER (enabling drop):', { 
-                    x: e.clientX, 
-                    y: e.clientY,
-                    audioId: window._draggedAudioId,
-                    testDrag: window._testDrag
-                });
             }
         });
-        console.log('✅ Global dragover handler attached');
 
-        // Debug: Log all drag events to help troubleshoot (excluding dragover to avoid conflicts)
-        console.log('🔧 Setting up global drag event listeners...');
-        ['dragenter', 'dragleave', 'drop'].forEach(eventName => {
-            document.addEventListener(eventName, (e) => {
-                console.log(`🌍 GLOBAL ${eventName.toUpperCase()}:`, {
-                    target: e.target.tagName + '.' + e.target.className,
-                    id: e.target.id,
-                    coordinates: { x: e.clientX, y: e.clientY },
-                    audioId: window._draggedAudioId || 'none',
-                    hasDataTransfer: !!e.dataTransfer
-                });
-            });
-            console.log(`✅ Attached global ${eventName} listener`);
-        });
-        console.log('🔧 Global drag event listeners setup complete');
-        
-        // Test the listeners by dispatching a fake event
-        setTimeout(() => {
-            console.log('🧪 Testing global drag event listeners...');
-            const testEvent = new DragEvent('dragenter', {
-                bubbles: true,
-                cancelable: true,
-                clientX: 100,
-                clientY: 100
-            });
-            document.dispatchEvent(testEvent);
-            console.log('🧪 Test dragenter event dispatched');
-        }, 1000);
         
         // Initialize mouse-based drag and drop system for Tauri webview
         this.initMouseBasedDragDrop();
@@ -245,7 +189,6 @@ export class UIController {
     attachPadEventListeners(container, soundPads) {
         // Legacy method - event handling now done through unified PadEventHandler
         // This method is kept for backwards compatibility but does minimal work
-        console.log('UIController: Using unified pad event handling system');
     }
 
     handlePadAction(pad, action, element, padElement) {
@@ -413,7 +356,6 @@ export class UIController {
     }
 
     initMouseBasedDragDrop() {
-        console.log('🖱️ Initializing mouse-based drag and drop system...');
         
         let isDragging = false;
         let draggedAudioId = null;
@@ -436,7 +378,6 @@ export class UIController {
             dragStartPos = { x: e.clientX, y: e.clientY };
             draggedAudioId = audioId;
             
-            console.log('🖱️ Mouse down on pad:', { audioId, pos: dragStartPos });
             
             e.preventDefault(); // Prevent text selection
         });
@@ -452,7 +393,6 @@ export class UIController {
             if (!isDragging && distance > dragThreshold) {
                 isDragging = true;
                 window._draggedAudioId = draggedAudioId;
-                console.log('🖱️ Started mouse-based drag:', { audioId: draggedAudioId });
                 
                 // Create drag indicator
                 this.createDragIndicator(e.clientX, e.clientY);
@@ -469,7 +409,6 @@ export class UIController {
         // Mouse up - end dragging
         document.addEventListener('mouseup', (e) => {
             if (isDragging) {
-                console.log('🖱️ Mouse-based drag ended:', { audioId: draggedAudioId });
                 
                 // Check for drop
                 this.handleMouseDrop(e.clientX, e.clientY);
@@ -482,7 +421,6 @@ export class UIController {
             draggedAudioId = null;
         });
         
-        console.log('🖱️ Mouse-based drag and drop system initialized');
     }
     
     createDragIndicator(x, y) {
@@ -539,12 +477,10 @@ export class UIController {
             if (isOver) {
                 if (!membershipBody.classList.contains('drag-over')) {
                     membershipBody.classList.add('drag-over');
-                    console.log('🎯 Entered drop zone:', { x, y });
                 }
             } else {
                 if (membershipBody.classList.contains('drag-over')) {
                     membershipBody.classList.remove('drag-over');
-                    console.log('🎯 Left drop zone:', { x, y });
                 }
             }
         }
@@ -567,7 +503,6 @@ export class UIController {
             );
             
             if (isOver) {
-                console.log('🎯 Dropped on atmosphere panel:', { audioId, x, y });
                 
                 // Trigger the atmosphere membership editor's add function
                 if (window.atmosphereMembershipEditor) {
@@ -579,7 +514,6 @@ export class UIController {
             }
         }
         
-        console.log('🖱️ Dropped outside valid zones');
     }
 
     /* ================= Atmospheres (Phase 1 Scaffold) ================= */

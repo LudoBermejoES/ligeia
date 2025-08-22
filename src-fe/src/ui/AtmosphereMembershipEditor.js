@@ -299,10 +299,6 @@ export class AtmosphereMembershipEditor {
       containerClasses: container?.className,
       bodyRect: body.getBoundingClientRect()
     });
-    console.log('ATTACHING DRAG LISTENERS TO:', body, 'with rect:', body.getBoundingClientRect());
-    
-    console.log('BODY STYLES:', window.getComputedStyle(body).pointerEvents, window.getComputedStyle(body).zIndex);
-    console.log('BODY RECT:', body.getBoundingClientRect());
     
     const addGhost = (audioId) => {
       if (!audioId || this.members.has(audioId)) return;
@@ -330,7 +326,6 @@ export class AtmosphereMembershipEditor {
       );
       
       if (isOverBody) {
-        console.log('📦 DOCUMENT DRAGENTER OVER BODY:', { x: e.clientX, y: e.clientY, bodyRect });
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';
         addGhost(Number(window._draggedAudioId));
@@ -358,12 +353,10 @@ export class AtmosphereMembershipEditor {
       );
       
       if (isOverTest) {
-        console.log('🎯 DOCUMENT DRAGOVER OVER TEST BLOCK:', { x: e.clientX, y: e.clientY });
         testBlock.style.backgroundColor = '#ffff00';
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';
       } else if (isOverBody) {
-        console.log('📦 DOCUMENT DRAGOVER OVER BODY:', { x: e.clientX, y: e.clientY });
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';
         body.classList.add('dragover','membership-drop-active');
@@ -394,7 +387,6 @@ export class AtmosphereMembershipEditor {
       );
       
       if (isOverTest) {
-        console.log('🎯 DOCUMENT DROP OVER TEST BLOCK: SUCCESS!', { x: e.clientX, y: e.clientY });
         testBlock.style.backgroundColor = '#00ff00';
         testBlock.textContent = '✅ DROP SUCCESS!';
         setTimeout(() => {
@@ -403,7 +395,6 @@ export class AtmosphereMembershipEditor {
         }, 2000);
         e.preventDefault();
       } else if (isOverBody) {
-        console.log('📦 DOCUMENT DROP OVER BODY:', { x: e.clientX, y: e.clientY });
         e.preventDefault();
         body.classList.remove('dragover','membership-drop-active');
         const audioId = Number(window._draggedAudioId);
