@@ -5,6 +5,7 @@ import { AudioService } from './services/AudioService.js';
 import { FileService } from './services/FileService.js';
 import { DatabaseService } from './services/DatabaseService.js';
 import { TagService } from './services/TagService.js';
+import { ThemeService } from './services/ThemeService.js';
 // Managers (refactored responsibilities)
 import { LibraryManager } from './managers/LibraryManager.js';
 import { TagEditorManager } from './managers/TagEditorManager.js';
@@ -28,6 +29,7 @@ export class AmbientMixerApp {
         this.fileService = new FileService();
         this.databaseService = new DatabaseService();
         this.tagService = new TagService();
+        this.themeService = new ThemeService();
         
     // Managers & derived state maps (initialize before UI)
     this.libraryManager = new LibraryManager(this.databaseService, this.fileService, this.audioService);
@@ -79,6 +81,12 @@ export class AmbientMixerApp {
             const tagInitialized = await this.tagService.initialize();
             if (!tagInitialized) {
                 console.warn('Failed to initialize tag service - bulk tagging will be disabled');
+            }
+            
+            // Initialize theme service
+            const themeInitialized = await this.themeService.initialize();
+            if (!themeInitialized) {
+                console.warn('Failed to initialize theme service - using fallback styling');
             }
 
             // Template system removed; UI renders directly without templates
@@ -217,6 +225,7 @@ export class AmbientMixerApp {
                     category: meta.category || '',
                     subcategory: meta.subcategory || '',
                     keywords: meta.keywords || [],
+                    theme: meta.theme || created.theme || 'default',
                     default_crossfade_ms: meta.crossfadeMs ?? created.default_crossfade_ms ?? 2500,
                     fade_curve: meta.curve || created.fade_curve || 'linear'
                 });
@@ -268,6 +277,15 @@ export class AmbientMixerApp {
             resizer.setAttribute('aria-hidden','false');
             this.initMembershipResize();
         }
+        // Switch to atmosphere theme if specified
+        if (atmo.theme && this.themeService) {
+            const currentTheme = this.themeService.getCurrentTheme();
+            if (!currentTheme || currentTheme.slug !== atmo.theme) {
+                console.log(`Switching to atmosphere theme: ${atmo.theme}`);
+                await this.themeService.switchTheme(atmo.theme);
+            }
+        }
+
         // Render membership content into panel body using new adapter
         if (this.atmoMembershipEditor) {
             this.atmoMembershipEditor.onSaved = async () => {
@@ -333,6 +351,7 @@ export class AmbientMixerApp {
             category: meta.category || '',
             subcategory: meta.subcategory || '',
             keywords: meta.keywords || [],
+            theme: meta.theme || atmo.theme || 'default',
             default_crossfade_ms: meta.crossfadeMs ?? atmo.default_crossfade_ms ?? 2500,
             fade_curve: meta.curve || atmo.fade_curve || 'linear'
         });

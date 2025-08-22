@@ -1,0 +1,63 @@
+{
+  "name": "Default",
+  "slug": "default",
+  "description": "The default Ligeia theme with dark gradients and blue accents",
+  "version": "1.0.0",
+  "category": "general",
+  "colors": {
+    "primary": "#4f46e5",
+    "secondary": "#6366f1", 
+    "accent": "#8b5cf6",
+    "background": {
+      "primary": "linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e)",
+      "secondary": "rgba(0, 0, 0, 0.3)",
+      "card": "rgba(255, 255, 255, 0.05)",
+      "hover": "rgba(255, 255, 255, 0.1)"
+    },
+    "text": {
+      "primary": "#ffffff",
+      "secondary": "rgba(255, 255, 255, 0.8)",
+      "muted": "rgba(255, 255, 255, 0.6)"
+    },
+    "border": {
+      "primary": "rgba(255, 255, 255, 0.1)",
+      "secondary": "rgba(255, 255, 255, 0.05)"
+    },
+    "status": {
+      "success": "#10b981",
+      "warning": "#f59e0b", 
+      "error": "#ef4444",
+      "info": "#3b82f6"
+    },
+    "buttons": {
+      "primary": "#4f46e5",
+      "secondary": "#6b7280",
+      "success": "#10b981",
+      "warning": "#f59e0b",
+      "danger": "#ef4444"
+    }
+  },
+  "typography": {
+    "fontFamily": "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    "fontSize": {
+      "xs": "0.75rem",
+      "sm": "0.875rem", 
+      "base": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem",
+      "2xl": "1.5rem"
+    }
+  },
+  "spacing": {
+    "xs": "0.25rem",
+    "sm": "0.5rem",
+    "md": "1rem", 
+    "lg": "1.5rem",
+    "xl": "2rem"
+  },
+  "borderRadius": {
+    "sm": "0.25rem",
+    "md": "0.5rem",
+    "lg": "0.75rem"
+  }
+}

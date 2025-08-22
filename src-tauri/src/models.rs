@@ -199,6 +199,7 @@ pub struct Atmosphere {
     pub background_image: Option<String>, // Path or URL to background image
     pub author_image: Option<String>,  // Author of the image
     pub is_public: bool,               // Whether atmosphere is public
+    pub theme: Option<String>,         // Theme slug for this atmosphere
     pub default_crossfade_ms: i64,     // Preferred crossfade duration
     pub fade_curve: String,            // linear | equal_power | exp
     pub created_at: String,
@@ -265,6 +266,7 @@ impl Default for Atmosphere {
             background_image: None,
             author_image: None,
             is_public: false,
+            theme: Some("default".to_string()),
             default_crossfade_ms: 2500,
             fade_curve: "linear".to_string(),
             created_at: now.clone(),

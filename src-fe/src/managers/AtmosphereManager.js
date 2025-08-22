@@ -91,6 +91,7 @@ export class AtmosphereManager {
       background_image: null,
       author_image: null,
       is_public: false,
+      theme: 'default',
       default_crossfade_ms: 2500,
       fade_curve: 'linear',
       created_at: now,

@@ -17,6 +17,10 @@ export class AtmosphereUIController {
 
   bind(handlers) {
     this.handlers = handlers;
+    
+    // Initialize theme dropdown
+    this.initializeThemeDropdown();
+    
     const list = document.getElementById('atmosphereList');
     if (list) {
       list.addEventListener('click', (e) => {
@@ -55,6 +59,7 @@ export class AtmosphereUIController {
         category: data.get('category')?.trim() || '',
         subcategory: data.get('subcategory')?.trim() || '',
         keywords: (data.get('keywords') || '').split(',').map(s=>s.trim()).filter(Boolean),
+        theme: data.get('theme') || 'default',
         crossfadeMs: Number(data.get('crossfadeMs')) || 0,
         curve: data.get('curve') || 'linear',
         editingId: data.get('editingId') ? Number(data.get('editingId')) : null
@@ -208,6 +213,9 @@ export class AtmosphereUIController {
     this.form.querySelector('#atmoKeywords').value = (atmosphere.keywords || []).join(',');
     const hidden = document.getElementById('atmoEditingId');
     if (hidden) hidden.value = atmosphere.id;
+    // Theme selection
+    const themeSel = this.form.querySelector('#atmoTheme');
+    if (themeSel) themeSel.value = atmosphere.theme || 'default';
     // Crossfade + curve (not yet persisted server side; fallback defaults)
     const cf = this.form.querySelector('#atmoCrossfadeMs');
     if (cf) cf.value = atmosphere.default_crossfade_ms || 2500;
@@ -275,5 +283,29 @@ export class AtmosphereUIController {
     if (!detail || !detail.audio_files) return `ID ${audio_file_id}`;
     const f = detail.audio_files.find(f=>f.id===audio_file_id);
     return f?.title || f?.file_path?.split('/')?.pop() || `ID ${audio_file_id}`;
+  }
+
+  initializeThemeDropdown() {
+    const themeSelect = document.getElementById('atmoTheme');
+    if (!themeSelect) return;
+
+    // Get available themes from the theme service
+    if (window.themeService) {
+      const availableThemes = window.themeService.getAvailableThemes();
+      
+      // Clear existing options except default
+      themeSelect.innerHTML = '';
+      
+      // Add theme options
+      availableThemes.forEach(theme => {
+        const option = document.createElement('option');
+        option.value = theme.slug;
+        option.textContent = theme.name;
+        themeSelect.appendChild(option);
+      });
+    } else {
+      // Fallback if theme service not available
+      console.warn('ThemeService not available for populating theme dropdown');
+    }
   }
 }

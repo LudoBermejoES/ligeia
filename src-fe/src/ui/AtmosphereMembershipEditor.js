@@ -137,6 +137,17 @@ export class AtmosphereMembershipEditor {
       (detail?.sounds || []).forEach(m => this.members.set(m.audio_file_id, { volume:m.volume, is_looping:m.is_looping, is_muted:m.is_muted }));
       this._setTitle(detail?.atmosphere?.name || atmosphere.name || atmosphere.title || 'Atmosphere');
       this._detailLoaded = true;
+      
+      // Switch theme if atmosphere has one specified
+      const themeSlug = detail?.atmosphere?.theme || atmosphere.theme;
+      if (themeSlug && window.themeService) {
+        try {
+          await window.themeService.switchTheme(themeSlug);
+          logger.info('membership', 'switched to atmosphere theme', { theme: themeSlug });
+        } catch (error) {
+          logger.warn('membership', 'failed to switch theme', { theme: themeSlug, error: error.message });
+        }
+      }
     } catch (e) {
       logger.error('membership','failed to fetch atmosphere detail',{ id: atmosphere.id, error: e.message });
       this._setTitle((atmosphere.name || atmosphere.title || 'Atmosphere') + ' (empty)');
@@ -146,10 +157,20 @@ export class AtmosphereMembershipEditor {
     // Attach close handler once
     const closeBtn = container?.querySelector('.membership-close-btn');
     if (closeBtn && !closeBtn.__handlerBound) {
-      closeBtn.addEventListener('click', ()=>{
+      closeBtn.addEventListener('click', async ()=>{
         this._restorePanel(); // Ensure we restore before closing
         container.classList.add('hidden');
         document.getElementById('membership-resizer')?.classList.add('hidden');
+        
+        // Switch back to default theme when closing
+        if (window.themeService) {
+          try {
+            await window.themeService.switchTheme('default');
+            logger.info('membership', 'switched back to default theme');
+          } catch (error) {
+            logger.warn('membership', 'failed to switch back to default theme', { error: error.message });
+          }
+        }
       });
       closeBtn.__handlerBound = true;
     }

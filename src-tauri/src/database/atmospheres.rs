@@ -26,6 +26,7 @@ impl AtmosphereRepository {
                 background_image TEXT,
                 author_image TEXT,
                 is_public BOOLEAN DEFAULT FALSE,
+                theme TEXT DEFAULT 'default',
                 default_crossfade_ms INTEGER DEFAULT 2500,
                 fade_curve TEXT NOT NULL DEFAULT 'linear',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -39,14 +40,19 @@ impl AtmosphereRepository {
         let mut stmt = conn.prepare("PRAGMA table_info(atmospheres)")?;
         let mut has_crossfade = false;
         let mut has_curve = false;
+        let mut has_theme = false;
         let mut rows = stmt.query([])?;
         while let Some(row) = rows.next()? {
             let col_name: String = row.get(1)?; // 1 = name
             if col_name == "default_crossfade_ms" { has_crossfade = true; }
             if col_name == "fade_curve" { has_curve = true; }
+            if col_name == "theme" { has_theme = true; }
         }
         if !has_crossfade {
             conn.execute("ALTER TABLE atmospheres ADD COLUMN default_crossfade_ms INTEGER DEFAULT 2500", [])?;
+        }
+        if !has_theme {
+            conn.execute("ALTER TABLE atmospheres ADD COLUMN theme TEXT DEFAULT 'default'", [])?;
         }
         if !has_curve {
             conn.execute("ALTER TABLE atmospheres ADD COLUMN fade_curve TEXT NOT NULL DEFAULT 'linear'", [])?;
@@ -110,15 +116,15 @@ impl AtmosphereRepository {
                         name = ?1, title = ?2, description = ?3, category = ?4, 
                         subcategory = ?5, subsubcategory = ?6, keywords = ?7,
                         background_image = ?8, author_image = ?9, is_public = ?10,
-                                default_crossfade_ms = ?11, fade_curve = ?12,
+                        theme = ?11, default_crossfade_ms = ?12, fade_curve = ?13,
                         updated_at = CURRENT_TIMESTAMP 
-                            WHERE id = ?13",
+                            WHERE id = ?14",
                     params![
                         atmosphere.name, atmosphere.title, atmosphere.description,
                         atmosphere.category, atmosphere.subcategory, atmosphere.subsubcategory,
                         keywords_json, atmosphere.background_image, atmosphere.author_image,
-                                atmosphere.is_public, atmosphere.default_crossfade_ms, atmosphere.fade_curve,
-                                id
+                        atmosphere.is_public, atmosphere.theme, atmosphere.default_crossfade_ms, atmosphere.fade_curve,
+                        id
                     ],
                 )?;
                 Ok(id)
@@ -128,14 +134,15 @@ impl AtmosphereRepository {
                 conn.execute(
                     "INSERT INTO atmospheres (
                         name, title, description, category, subcategory, subsubcategory,
-                        keywords, background_image, author_image, is_public,
+                        keywords, background_image, author_image, is_public, theme,
                         default_crossfade_ms, fade_curve
-                    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+                    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)",
                     params![
                         atmosphere.name, atmosphere.title, atmosphere.description,
                         atmosphere.category, atmosphere.subcategory, atmosphere.subsubcategory,
                         keywords_json, atmosphere.background_image, atmosphere.author_image,
-                        atmosphere.is_public, atmosphere.default_crossfade_ms, atmosphere.fade_curve
+                        atmosphere.is_public, atmosphere.theme, atmosphere.default_crossfade_ms, 
+                        atmosphere.fade_curve
                     ],
                 )?;
                 Ok(conn.last_insert_rowid())
@@ -147,7 +154,7 @@ impl AtmosphereRepository {
     pub fn get_all(&self, conn: &Connection) -> Result<Vec<Atmosphere>> {
         let mut stmt = conn.prepare(
             "SELECT id, name, title, description, category, subcategory, subsubcategory,
-                    keywords, background_image, author_image, is_public, default_crossfade_ms, fade_curve, created_at, updated_at
+                    keywords, background_image, author_image, is_public, theme, default_crossfade_ms, fade_curve, created_at, updated_at
              FROM atmospheres ORDER BY updated_at DESC"
         )?;
 
@@ -167,10 +174,11 @@ impl AtmosphereRepository {
                 background_image: row.get(8)?,
                 author_image: row.get(9)?,
                 is_public: row.get(10)?,
-                default_crossfade_ms: row.get(11).unwrap_or(2500),
-                fade_curve: row.get(12).unwrap_or(String::from("linear")),
-                created_at: row.get(13)?,
-                updated_at: row.get(14)?,
+                theme: row.get(11)?,
+                default_crossfade_ms: row.get(12).unwrap_or(2500),
+                fade_curve: row.get(13).unwrap_or(String::from("linear")),
+                created_at: row.get(14)?,
+                updated_at: row.get(15)?,
             })
         })?;
 
@@ -185,7 +193,7 @@ impl AtmosphereRepository {
     pub fn get_by_id(&self, conn: &Connection, id: i64) -> Result<Atmosphere> {
         let mut stmt = conn.prepare(
             "SELECT id, name, title, description, category, subcategory, subsubcategory,
-                    keywords, background_image, author_image, is_public, default_crossfade_ms, fade_curve, created_at, updated_at
+                    keywords, background_image, author_image, is_public, theme, default_crossfade_ms, fade_curve, created_at, updated_at
              FROM atmospheres WHERE id = ?1"
         )?;
 
@@ -205,10 +213,11 @@ impl AtmosphereRepository {
                 background_image: row.get(8)?,
                 author_image: row.get(9)?,
                 is_public: row.get(10)?,
-                default_crossfade_ms: row.get(11).unwrap_or(2500),
-                fade_curve: row.get(12).unwrap_or(String::from("linear")),
-                created_at: row.get(13)?,
-                updated_at: row.get(14)?,
+                theme: row.get(11)?,
+                default_crossfade_ms: row.get(12).unwrap_or(2500),
+                fade_curve: row.get(13).unwrap_or(String::from("linear")),
+                created_at: row.get(14)?,
+                updated_at: row.get(15)?,
             })
         })
     }
@@ -319,7 +328,7 @@ impl AtmosphereRepository {
     /// Duplicate an atmosphere (metadata + sound mappings). Optionally provide a new base name.
     pub fn duplicate(&self, conn: &Connection, id: i64, new_name: Option<&str>) -> Result<i64> {
         let mut stmt = conn.prepare(
-            "SELECT name, title, description, category, subcategory, subsubcategory, keywords, background_image, author_image, is_public, default_crossfade_ms, fade_curve FROM atmospheres WHERE id = ?1"
+            "SELECT name, title, description, category, subcategory, subsubcategory, keywords, background_image, author_image, is_public, theme, default_crossfade_ms, fade_curve FROM atmospheres WHERE id = ?1"
         )?;
         let row = stmt.query_row([id], |row| {
             Ok((
@@ -333,11 +342,12 @@ impl AtmosphereRepository {
                 row.get::<_, Option<String>>(7)?,
                 row.get::<_, Option<String>>(8)?,
                 row.get::<_, bool>(9)?,
-                row.get::<_, i64>(10)?,
-                row.get::<_, String>(11)?,
+                row.get::<_, Option<String>>(10)?,
+                row.get::<_, i64>(11)?,
+                row.get::<_, String>(12)?,
             ))
         })?;
-        let (orig_name, _orig_title, description, category, subcategory, subsubcategory, keywords_json, background_image, author_image, is_public, default_crossfade_ms, fade_curve) = row;
+        let (orig_name, _orig_title, description, category, subcategory, subsubcategory, keywords_json, background_image, author_image, is_public, theme, default_crossfade_ms, fade_curve) = row;
         let base = new_name.map(|s| s.trim()).filter(|s| !s.is_empty()).unwrap_or_else(|| orig_name.as_str());
         let mut candidate = format!("{} (Copy)", base);
         let mut counter = 2;
@@ -348,8 +358,8 @@ impl AtmosphereRepository {
         let final_name = candidate;
         let final_title = final_name.clone();
         conn.execute(
-            "INSERT INTO atmospheres (name, title, description, category, subcategory, subsubcategory, keywords, background_image, author_image, is_public, default_crossfade_ms, fade_curve) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
-            params![final_name, final_title, description, category, subcategory, subsubcategory, keywords_json, background_image, author_image, is_public, default_crossfade_ms, fade_curve]
+            "INSERT INTO atmospheres (name, title, description, category, subcategory, subsubcategory, keywords, background_image, author_image, is_public, theme, default_crossfade_ms, fade_curve) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)",
+            params![final_name, final_title, description, category, subcategory, subsubcategory, keywords_json, background_image, author_image, is_public, theme, default_crossfade_ms, fade_curve]
         )?;
         let new_id = conn.last_insert_rowid();
         conn.execute(
@@ -410,7 +420,7 @@ impl AtmosphereRepository {
     /// Search atmospheres by free text (name/title/description/category/subcategory) + optional category + keywords list
     pub fn search(&self, conn: &Connection, query: Option<&str>, category: Option<&str>, keywords: Option<&[String]>) -> Result<Vec<Atmosphere>> {
         // Base select
-        let mut sql = String::from("SELECT id, name, title, description, category, subcategory, subsubcategory, keywords, background_image, author_image, is_public, default_crossfade_ms, fade_curve, created_at, updated_at FROM atmospheres");
+        let mut sql = String::from("SELECT id, name, title, description, category, subcategory, subsubcategory, keywords, background_image, author_image, is_public, theme, default_crossfade_ms, fade_curve, created_at, updated_at FROM atmospheres");
         let mut clauses: Vec<String> = Vec::new();
         let mut params: Vec<String> = Vec::new();
 
@@ -440,10 +450,11 @@ impl AtmosphereRepository {
                 background_image: row.get(8)?,
                 author_image: row.get(9)?,
                 is_public: row.get(10)?,
-                default_crossfade_ms: row.get(11).unwrap_or(2500),
-                fade_curve: row.get(12).unwrap_or(String::from("linear")),
-                created_at: row.get(13)?,
-                updated_at: row.get(14)?,
+                theme: row.get(11)?,
+                default_crossfade_ms: row.get(12).unwrap_or(2500),
+                fade_curve: row.get(13).unwrap_or(String::from("linear")),
+                created_at: row.get(14)?,
+                updated_at: row.get(15)?,
             })
         })?;
         let mut out = Vec::new();
