@@ -17,6 +17,15 @@ export class LibraryManager {
 
   getAudioFiles() { return this.audioFiles; }
   getSoundPads() { return this.soundPads; }
+  
+  getAudioFileById(audioId) {
+    for (const audioFile of this.audioFiles.values()) {
+      if (audioFile.id === audioId) {
+        return audioFile;
+      }
+    }
+    return null;
+  }
 
   async loadExistingLibrary(onProgress) {
     try {

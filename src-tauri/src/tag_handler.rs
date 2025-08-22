@@ -104,4 +104,32 @@ impl TagHandler {
             e.to_string()
         })
     }
+
+    /// Get existing tags from both RPG tags table and audio file metadata fields
+    pub fn get_existing_tags(app_handle: AppHandle) -> Result<std::collections::HashMap<String, Vec<String>>, String> {
+        let state = app_handle.state::<AppState>();
+        
+        log::debug!("Getting existing tags from database");
+        
+        let existing_tags_map = state.tag_manager.get_existing_tags().map_err(|e| {
+            log::error!("Failed to get existing tags: {}", e);
+            e.to_string()
+        })?;
+        
+        // Convert HashSet to Vec for JSON serialization
+        let mut result = std::collections::HashMap::new();
+        for (tag_type, tag_set) in existing_tags_map {
+            let mut tags: Vec<String> = tag_set.into_iter().collect();
+            tags.sort();
+            result.insert(tag_type, tags);
+        }
+        
+        log::debug!("Found existing tags: genre={}, mood={}, occasion={}, keyword={}", 
+                   result.get("genre").map(|v| v.len()).unwrap_or(0),
+                   result.get("mood").map(|v| v.len()).unwrap_or(0), 
+                   result.get("occasion").map(|v| v.len()).unwrap_or(0),
+                   result.get("keyword").map(|v| v.len()).unwrap_or(0));
+        
+        Ok(result)
+    }
 }

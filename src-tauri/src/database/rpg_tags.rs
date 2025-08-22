@@ -52,6 +52,30 @@ impl RpgTagRepository {
         Ok(tags)
     }
 
+    /// Get all RPG tags from the database
+    pub fn get_all(&self, conn: &Connection) -> Result<Vec<RpgTag>> {
+        let mut stmt = conn.prepare(
+            "SELECT id, audio_file_id, tag_type, tag_value, created_at
+             FROM rpg_tags ORDER BY tag_type, tag_value"
+        )?;
+
+        let rows = stmt.query_map([], |row| {
+            Ok(RpgTag {
+                id: Some(row.get(0)?),
+                audio_file_id: row.get(1)?,
+                tag_type: row.get(2)?,
+                tag_value: row.get(3)?,
+                created_at: row.get(4)?,
+            })
+        })?;
+
+        let mut tags = Vec::new();
+        for row in rows {
+            tags.push(row?);
+        }
+        Ok(tags)
+    }
+
     /// Get all RPG tags grouped by audio file
     #[allow(dead_code)]
     pub fn get_all_grouped(&self, conn: &Connection) -> Result<Vec<(i64, Vec<RpgTag>)>> {

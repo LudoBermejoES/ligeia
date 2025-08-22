@@ -12,6 +12,7 @@ export class TagSearchController {
             keywords: new Set()
         };
         this.matchAll = false; // AND vs OR logic
+        this.showOnlyExistingTags = true; // Show only tags that have sounds in database
         this.tagGroups = { // tagType -> baseName -> [fullTagValues]
             genre: {},
             mood: {},
@@ -57,7 +58,7 @@ export class TagSearchController {
                 <h4>🏷️ RPG Tag Filters</h4>
                 <div class="search-actions">
                     <button id="showAllSounds" class="btn btn-sm btn-primary">Show All</button>
-                    <button id="clearTagFilters" class="btn btn-sm btn-secondary">Clear Filters</button>
+                    <button id="toggleTagDisplay" class="btn btn-sm btn-secondary" data-mode="existing">Show All Tags</button>
                 </div>
             </div>
             
@@ -106,9 +107,9 @@ export class TagSearchController {
             this.showAllSounds();
         });
 
-        // Clear filters button
-        document.getElementById('clearTagFilters')?.addEventListener('click', () => {
-            this.clearAllFilters();
+        // Toggle tag display button
+        document.getElementById('toggleTagDisplay')?.addEventListener('click', () => {
+            this.toggleTagDisplay();
         });
 
         // Search mode toggle
@@ -123,6 +124,23 @@ export class TagSearchController {
     async loadTagFilters() {
         if (!this.tagService.loadedVocabulary) {
             await this.tagService.loadTagVocabulary();
+        }
+
+        // Get existing tags if in existing mode
+        let existingTagsByType = {};
+        if (this.showOnlyExistingTags) {
+            try {
+                existingTagsByType = await this.tagService.getExistingTags();
+                if (!existingTagsByType) {
+                    console.warn('Could not load existing tags, showing all tags');
+                    this.showOnlyExistingTags = false;
+                    existingTagsByType = {};
+                }
+            } catch (error) {
+                console.warn('Could not load existing tags, showing all tags:', error);
+                this.showOnlyExistingTags = false;
+                existingTagsByType = {};
+            }
         }
 
         const tagTypes = ['genre', 'mood', 'occasion', 'keyword'];
@@ -141,6 +159,15 @@ export class TagSearchController {
             vocabulary.forEach(vocabItem => {
                 if (!vocabItem.is_active) return;
                 const value = vocabItem.tag_value;
+                
+                // Filter by existing tags if in existing mode
+                if (this.showOnlyExistingTags) {
+                    const existingTagsForType = existingTagsByType[tagType] || [];
+                    if (!existingTagsForType.includes(value)) {
+                        return;
+                    }
+                }
+                
                 if (value.includes(':')) {
                     const base = value.split(':')[0];
                     if (!groups[base]) groups[base] = [];
@@ -328,7 +355,7 @@ export class TagSearchController {
 
     async showAllSounds() {
         // Clear all filters and show all sounds
-        this.clearAllFilters();
+        this.clearAllFiltersInternal();
         
         // Get all files and pass them to show everything
         try {
@@ -343,7 +370,29 @@ export class TagSearchController {
         }
     }
 
-    clearAllFilters() {
+    async toggleTagDisplay() {
+        const button = document.getElementById('toggleTagDisplay');
+        if (!button) return;
+
+        this.showOnlyExistingTags = !this.showOnlyExistingTags;
+        
+        // Update button text and data attribute
+        if (this.showOnlyExistingTags) {
+            button.textContent = 'Show All Tags';
+            button.setAttribute('data-mode', 'existing');
+        } else {
+            button.textContent = 'Show Existing Tags';
+            button.setAttribute('data-mode', 'all');
+        }
+
+        // Clear current filters since tag availability may have changed
+        this.clearAllFiltersInternal();
+        
+        // Reload the tag filters with new mode
+        await this.loadTagFilters();
+    }
+
+    clearAllFiltersInternal() {
         // Clear all filter sets
         Object.values(this.currentFilters).forEach(filterSet => {
             filterSet.clear();
@@ -393,7 +442,7 @@ export class TagSearchController {
 
     setFilters(filters) {
         // Clear current filters
-        this.clearAllFilters();
+        this.clearAllFiltersInternal();
 
         // Set new filters
         Object.entries(filters).forEach(([key, values]) => {

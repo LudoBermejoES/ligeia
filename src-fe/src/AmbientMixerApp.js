@@ -112,6 +112,16 @@ export class AmbientMixerApp {
             // Setup edit tags handler
             this.uiController.onEditTags = (filePath) => this.handleEditTags(filePath);
             
+            // Listen for edit tags events from the unified pad event system
+            document.addEventListener('openTagEditor', (event) => {
+                const { audioId } = event.detail;
+                // Convert audioId to filePath
+                const audioFile = this.libraryManager.getAudioFileById(audioId);
+                if (audioFile) {
+                    this.handleEditTags(audioFile.file_path);
+                }
+            });
+            
             // Initialize tag editor modal handlers via manager
             this.tagEditorManager.initModal();
 

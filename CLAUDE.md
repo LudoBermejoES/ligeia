@@ -2,19 +2,22 @@
 
 ## 1. Project Overview
 
-**Ligeia** is a cross-platform desktop application designed to be a powerful and intuitive **ambient soundscape mixer** with comprehensive **RPG audio tagging capabilities**. It allows users to layer multiple audio tracks, control their individual properties, organize audio with RPG-specific tags, and save these combinations as presets.
+**Ligeia** is a cross-platform desktop application designed to be a powerful and intuitive **ambient soundscape mixer** with comprehensive **RPG audio tagging capabilities** and **professional atmosphere management**. It allows users to layer multiple audio tracks, control their individual properties, organize audio with RPG-specific tags, create and manage atmospheric soundscapes, and save these combinations as atmospheres.
 
 The application is built with modern web technologies and packaged as a desktop app using the **Tauri framework**, which leverages a Rust backend for system-level operations and a webview for the user interface.
 
 ### Core Features:
 - **Grid-based Mixer**: A visual interface with "sound pads" for each audio track with drag-and-drop organization.
-- **Advanced Audio Controls**: Per-sound play/stop, loop, volume, and mute controls.
+- **Advanced Audio Controls**: Per-sound play/stop, loop, volume, and mute controls with crossfade capabilities.
 - **Master Controls**: Global volume and mute for all sounds.
+- **Professional Atmosphere System**: Create, save, load, and manage atmospheric soundscapes with crossfade transitions, metadata, and categorization.
+- **Crossfade Engine**: Smooth transitions between different atmosphere states with configurable duration and curves.
+- **Atmosphere Management**: Side panel interface for creating, editing, duplicating, and organizing atmospheres with real-time feedback.
 - **Professional RPG Audio Tagging**: Complete TAGS.md implementation with 700+ controlled vocabulary tags across four categories.
 - **Bulk Tag Editor**: Apply multiple tags to multiple audio files simultaneously through intuitive modal interface.
 - **Tag-based Search & Filtering**: Find and filter audio by RPG tags with AND/OR logic in real-time (removed legacy category system).
 - **Export/Import Library**: Backup and restore complete library data with readable JSON format and file save dialogs.
-- **Preset System**: Save and load soundscape configurations to/from local storage.
+- **Advanced Audio Processing**: Comprehensive audio metadata analysis including duration calculation and BPM detection using Symphonia and Aubio libraries.
 - **File System Integration**: Load individual audio files or entire directories recursively.
 - **Comprehensive Metadata**: Full ID3v2.4 tag support with reading and writing capabilities.
 
@@ -24,22 +27,34 @@ Ligeia features a completely **refactored and modular architecture** from the or
 
 ### 2.1. Frontend (JavaScript)
 
-The frontend follows a **Model-View-Controller (MVC)** pattern with an additional **Service Layer**.
+The frontend follows a **Model-View-Controller (MVC)** pattern with an additional **Service Layer** and **Manager Layer** for complex domain logic.
 
 -   **Entry Point**: `main-template.js` loads HTML partials (header, sidebar, mixer, modals) then initializes the main application controller.
--   **Main Controller** (`src/AmbientMixerApp.js`): Orchestrates all services, manages application state, and handles user interactions.
+-   **Main Controller** (`src/AmbientMixerApp.js`): Orchestrates all services, managers, and UI controllers, manages application state, and handles user interactions.
 -   **Services** (`src/services/`):
     -   `AudioService.js`: Manages all Web Audio API operations, including the `AudioContext`, master gain, and audio source creation.
     -   `FileService.js`: Handles all interactions with the file system via Tauri's plugins, including file dialogs, recursive directory scanning, and reading audio files into blob URLs.
     -   `DatabaseService.js`: Manages interactions with the Rust backend for database operations (CRUD on audio file metadata).
     -   `TagService.js`: Manages RPG tag operations, vocabulary, bulk tagging, and tag-based search functionality.
+    -   `AtmosphereService.js`: Handles all atmosphere-related backend communication and data management.
+-   **Managers** (`src/managers/`):
+    -   `LibraryManager.js`: Manages the complete audio library state, file processing, and sound pad creation.
+    -   `AtmosphereManager.js`: Orchestrates atmosphere operations including creation, loading, deletion, and search functionality.
+    -   `TagEditorManager.js`: Manages tag editing operations and modal interactions.
+    -   `ImportExportManager.js`: Handles library backup and restoration operations.
+-   **Engine** (`src/engine/`):
+    -   `AtmosphereEngine.js`: Core crossfade engine with cancellation support, progress tracking, and event emission for atmosphere transitions.
 -   **Models** (`src/models/`):
-    -   `SoundPad.js`: Represents an individual sound pad, managing its state (playing, volume, loop) and Web Audio nodes.
-    -   `PresetManager.js`: Handles saving and loading presets to/from `localStorage`.
+    -   `SoundPad.js`: Represents an individual sound pad, managing its state (playing, volume, loop) and Web Audio nodes with crossfade capabilities.
 -   **UI Controllers** (`src/ui/`):
     -   `UIController.js`: Manages all DOM manipulation, UI updates, and event delegation.
+    -   `AtmosphereUIController.js`: Handles atmosphere-specific UI interactions, modals, and list rendering.
+    -   `AtmosphereMembershipEditor.js`: Manages the side panel interface for editing atmosphere sound memberships.
     -   `BulkTagEditorController.js`: Handles the bulk tag editor modal interface for multi-file tagging.
     -   `TagSearchController.js`: Manages tag-based search and filtering interface with real-time results.
+    -   `PadEventHandler.js`: Unified event handling for sound pad interactions.
+    -   `PadRenderer.js`: Specialized rendering logic for sound pads with enhanced visual feedback.
+    -   `PadStateManager.js`: Manages sound pad state synchronization across the application.
 
 ### 2.2. Backend (Rust with Tauri)
 
@@ -54,19 +69,23 @@ The backend has been **completely refactored** into a modular architecture with 
     -   `file_scanner.rs`: Recursive directory scanning with performance optimization
 
 -   **Enhanced Tauri Commands**: The Rust backend exposes comprehensive commands:
-    -   **Audio File Operations**: `load_audio_file`, `save_audio_file`, `get_all_audio_files`, `delete_audio_file`, `update_audio_file_tags`
+    -   **Audio File Operations**: `load_audio_file`, `save_audio_file`, `get_all_audio_files`, `delete_audio_file`, `update_audio_file_tags`, `write_rpg_tags_to_file`
     -   **Directory Operations**: `scan_directory_recursive` for recursive audio file discovery
     -   **RPG Tag Operations**: `get_tag_vocabulary`, `add_rpg_tag`, `remove_rpg_tag`, `get_rpg_tags_for_file`, `bulk_tag_files`
     -   **Search Operations**: `search_files_by_tags`, `get_all_audio_files_with_tags`, `get_tag_statistics`
     -   **Export/Import Operations**: `export_library_data`, `import_library_data` for complete library backup and restoration
+    -   **Audio Processing Operations**: `calculate_missing_durations` for comprehensive audio metadata analysis
+    -   **Atmosphere Operations**: `save_atmosphere`, `get_all_atmospheres`, `get_atmosphere_by_id`, `delete_atmosphere`, `add_sound_to_atmosphere`, `remove_sound_from_atmosphere`, `update_atmosphere_sound`, `get_atmosphere_with_sounds`, `get_atmosphere_categories`, `duplicate_atmosphere`, `compute_atmosphere_integrity`, `compute_all_atmosphere_integrities`, `search_atmospheres`
 
 -   **Enhanced Database Schema**:
     -   **`audio_files` table**: Comprehensive metadata storage with all ID3v2.4 fields
     -   **`rpg_tags` table**: RPG-specific tag associations with foreign key constraints
     -   **`tag_vocabulary` table**: Controlled vocabulary management with descriptions
-    -   **Proper indexing**: Optimized for search performance
+    -   **`atmospheres` table**: Complete atmosphere metadata with crossfade settings
+    -   **`atmosphere_sounds` table**: Sound memberships in atmospheres with volume and playback settings
+    -   **Proper indexing**: Optimized for search performance across all tables
 
--   **Dependencies**: Uses **`id3`** crate for comprehensive tag support, **`scan_dir`** for recursive scanning, and **`rusqlite`** for database operations.
+-   **Dependencies**: Uses **`id3`** crate for comprehensive tag support, **`scan_dir`** for recursive scanning, **`rusqlite`** for database operations, **`symphonia`** for advanced audio format support, **`aubio-rs`** for BPM detection and audio analysis, and **`chrono`** for timestamp management.
 
 ### 2.3. Professional RPG Tagging System
 
@@ -112,71 +131,140 @@ The system implements the complete TAGS.md specification with four comprehensive
 - **Visual Interface**: Interactive tag chips with real-time feedback
 - **Category Removal**: Eliminated redundant ambient/nature/music/effects categories in favor of comprehensive tagging
 
-### 2.4. Technology Stack Summary
+### 2.4. Professional Atmosphere Management System
+
+#### Comprehensive Atmosphere Features
+The atmosphere system provides professional-grade soundscape management:
+
+**Core Atmosphere Capabilities:**
+- **Atmosphere Creation**: Create empty atmospheres with full metadata (name, description, category, subcategory, keywords)
+- **Sound Membership Management**: Add/remove sounds to atmospheres with individual volume, loop, and mute settings
+- **Crossfade Engine**: Smooth transitions between atmosphere states with configurable duration (default 2500ms) and curve types
+- **Atmosphere Duplication**: Create copies of existing atmospheres with automatic naming
+- **Search and Organization**: Search atmospheres by name, category, and keywords with real-time filtering
+- **Integrity Checking**: Automatic detection of missing audio files in atmospheres with batch processing
+
+**Advanced Crossfade Features:**
+- **Cancellation Support**: Ability to cancel in-progress crossfades when loading new atmospheres
+- **Progress Tracking**: Real-time progress feedback during crossfade operations
+- **Event System**: Comprehensive event emission for UI integration (start, progress, complete, error)
+- **Diff Analysis**: Compare current mixer state with target atmosphere to show exact changes
+- **Smart Transitions**: Fade out removed sounds, fade in new sounds, and adjust volume for existing sounds
+
+**Professional UI Integration:**
+- **Side Panel Editor**: Dedicated atmosphere membership editing with drag-and-drop functionality
+- **Visual Feedback**: Progress bars, status indicators, and real-time update displays
+- **Confirmation Dialogs**: Diff preview before loading atmospheres to show expected changes
+- **Category Management**: Organized atmosphere browsing with metadata-based filtering
+
+### 2.5. Technology Stack Summary
 
 -   **Framework**: Tauri (Rust backend, webview frontend)
--   **Frontend**: HTML5, CSS3, JavaScript (ES6 Modules)
--   **Backend**: Rust with modular architecture
--   **Audio**: Web Audio API with comprehensive metadata support
--   **Database**: SQLite (via `rusqlite`) with optimized schema
--   **UI Libraries**: SortableJS for drag-and-drop functionality
+-   **Frontend**: HTML5, CSS3, JavaScript (ES6 Modules) with modular architecture
+-   **Backend**: Rust with modular architecture and comprehensive handler separation
+-   **Audio**: Web Audio API with crossfade support and comprehensive metadata processing
+-   **Database**: SQLite (via `rusqlite`) with optimized schema including atmosphere support
+-   **Audio Processing**: Symphonia for format support, Aubio for BPM detection
+-   **UI Libraries**: SortableJS for drag-and-drop functionality, native file dialogs
 -   **Build Tools**: Node.js/npm for frontend dependencies and Tauri CLI commands
 
 ## 3. Code Structure and Key Files
 
 ### Frontend Structure:
 ```
-src/
+src-fe/src/
 ├── AmbientMixerApp.js              # Main application controller
 ├── services/
 │   ├── AudioService.js             # Web Audio API management
 │   ├── FileService.js              # File operations & Tauri integration
 │   ├── DatabaseService.js          # Database operations
-│   └── TagService.js               # RPG tag management & vocabulary
+│   ├── TagService.js               # RPG tag management & vocabulary
+│   └── AtmosphereService.js        # Atmosphere backend communication
+├── managers/
+│   ├── LibraryManager.js           # Audio library state management
+│   ├── AtmosphereManager.js        # Atmosphere operations orchestration
+│   ├── TagEditorManager.js         # Tag editing operations
+│   └── ImportExportManager.js      # Library backup/restoration
+├── engine/
+│   └── AtmosphereEngine.js         # Crossfade engine with cancellation
 ├── models/
-│   ├── SoundPad.js                # Sound pad entity
-│   └── PresetManager.js           # Preset management
-└── ui/
-    ├── UIController.js             # DOM manipulation & UI updates
-    ├── BulkTagEditorController.js  # Bulk tagging interface
-    └── TagSearchController.js      # Tag-based search & filtering
+│   └── SoundPad.js                 # Sound pad entity with crossfade
+├── ui/
+│   ├── UIController.js             # DOM manipulation & UI updates
+│   ├── AtmosphereUIController.js   # Atmosphere UI interactions
+│   ├── AtmosphereMembershipEditor.js # Side panel membership editing
+│   ├── BulkTagEditorController.js  # Bulk tagging interface
+│   ├── TagSearchController.js      # Tag-based search & filtering
+│   ├── PadEventHandler.js          # Unified pad event handling
+│   ├── PadRenderer.js              # Enhanced pad rendering
+│   └── PadStateManager.js          # Pad state synchronization
+├── templates/
+│   └── TemplateLoader.js           # HTML template loading system
+└── utils/
+    └── logger.js                   # Application logging utilities
 ```
 
 ### Backend Structure:
 ```
 src-tauri/src/
-├── main.rs                    # Main entry point & Tauri commands
-├── models.rs                  # Data structures (AudioFile, RpgTag, etc.)
-├── database.rs                # Database operations & schema
-├── audio_handler.rs           # Audio metadata processing
-├── tag_manager.rs             # RPG tag management logic
-└── file_scanner.rs            # Recursive directory scanning
+├── main.rs                         # Main entry point & Tauri commands
+├── models.rs                       # Data structures (AudioFile, RpgTag, Atmosphere, etc.)
+├── database/
+│   ├── mod.rs                      # Database module coordinator
+│   ├── schema.rs                   # Database schema definitions
+│   ├── audio_files.rs              # Audio file database operations
+│   ├── rpg_tags.rs                 # RPG tag database operations
+│   ├── vocabulary.rs               # Tag vocabulary management
+│   ├── atmospheres.rs              # Atmosphere database operations
+│   └── search.rs                   # Search and filtering operations
+├── audio_handler.rs                # Audio metadata processing
+├── audio_file_handler.rs           # Audio file command handlers
+├── audio_processing_handler.rs     # Advanced audio processing (BPM, duration)
+├── tag_handler.rs                  # Tag command handlers
+├── tag_manager.rs                  # RPG tag management logic
+├── atmosphere_handler.rs           # Atmosphere command handlers
+├── import_export_handler.rs        # Library import/export handlers
+├── file_scanner.rs                 # Recursive directory scanning
+└── data/
+    ├── genre_vocabulary.rs         # Genre tag vocabulary definitions
+    ├── mood_vocabulary.rs          # Mood tag vocabulary definitions
+    ├── occasion_vocabulary.rs      # Occasion tag vocabulary definitions
+    └── keyword_vocabulary.rs       # Keyword tag vocabulary definitions
 ```
 
 ### Project Structure:
 ```
 /
-├── main.js                    # Legacy monolithic application logic (legacy)
-├── main-template.js           # Current entry point (partial loader + bootstrap)
-├── templates/                 # Static HTML partials (header, sidebar, mixer-area, modals)
-├── src/                       # Frontend source code (modular architecture)
+├── src-fe/                    # Frontend source code (modular architecture)
+│   ├── index.html             # Main application shell
+│   ├── main-template.js       # Entry point (template loader + bootstrap)
+│   ├── styles.css             # Enhanced CSS with atmosphere and tag interface styles
+│   ├── src/                   # Modular JavaScript source code
+│   ├── templates/             # HTML partials (header, sidebar, mixer-area, modals)
+│   └── package.json           # Frontend-specific dependencies
 ├── src-tauri/                 # Tauri Rust backend (modular architecture)
-├── index.html                 # Minimal shell + import map + mount points
-├── styles.css                 # Enhanced CSS with tag interface styles
-├── ARCHITECTURE.md            # Detailed architecture documentation
-├── TESTING.md                 # Comprehensive testing guide
+│   ├── src/                   # Rust source modules
+│   ├── Cargo.toml             # Rust dependencies including audio processing
+│   └── tauri.conf.json        # Tauri configuration
+├── db/                        # SQLite database storage
+├── CLAUDE.md                  # Project documentation (this file)
+├── AUTOTAG.md                 # Automated tagging system documentation
 ├── TAGS.md                    # RPG tag vocabulary specification
-├── package.json               # Node.js dependencies and scripts
-└── Cargo.toml                 # Rust dependencies
+├── README.md                  # Project overview and setup instructions
+├── package.json               # Root package.json with build scripts
+└── ligeia-library-*.json      # Example library export files
 ```
 
 ## 4. Key Features and Capabilities
 
 ### 4.1. Enhanced Audio Management
 - **Recursive Directory Loading**: Automatically discover audio files in subdirectories
-- **Comprehensive Metadata Support**: Full ID3v2.4 tag reading and writing
+- **Comprehensive Metadata Support**: Full ID3v2.4 tag reading and writing with automatic persistence
+- **Advanced Audio Processing**: Automatic duration calculation and BPM detection using Symphonia and Aubio
 - **Drag-and-Drop Organization**: Reorder sound cards with persistent ordering
-- **Advanced Playback Controls**: Individual volume, mute, and loop controls per sound
+- **Advanced Playback Controls**: Individual volume, mute, and loop controls per sound with crossfade capabilities
+- **Smart Audio Loading**: Automatic sound pad creation and management through LibraryManager
+- **Crossfade Support**: Smooth volume transitions with cancellation support for professional audio mixing
 
 ### 4.2. Professional RPG Audio Tagging System
 - **Complete TAGS.md Implementation**: 700+ controlled vocabulary tags across four categories
@@ -194,21 +282,36 @@ src-tauri/src/
 - **Search Statistics**: Display result counts and filter status
 - **Tag-First Navigation**: Primary filtering through RPG taxonomy instead of basic categories
 
-### 4.4. Export/Import Library Management
-- **Complete Library Backup**: Export all audio files and tag data to readable JSON format
+### 4.4. Professional Atmosphere Management
+- **Complete Atmosphere System**: Create, save, load, and manage atmospheric soundscapes
+- **Advanced Crossfade Engine**: Smooth transitions between atmosphere states with configurable duration and curves
+- **Membership Management**: Add/remove sounds to atmospheres with individual volume, loop, and mute settings
+- **Side Panel Editor**: Dedicated interface for editing atmosphere memberships with drag-and-drop functionality
+- **Atmosphere Duplication**: Create copies of existing atmospheres with automatic naming conventions
+- **Search and Organization**: Filter atmospheres by name, category, subcategory, and keywords
+- **Integrity Checking**: Automatic detection of missing audio files with batch processing capabilities
+- **Diff Preview**: Compare current mixer state with target atmosphere before loading
+- **Progress Tracking**: Real-time feedback during crossfade operations with cancellation support
+- **Professional Metadata**: Complete atmosphere categorization with keywords and descriptions
+
+### 4.5. Export/Import Library Management
+- **Complete Library Backup**: Export all audio files, tag data, and atmosphere configurations to readable JSON format
 - **Flexible Export Options**: Native file save dialog with custom location and filename selection
 - **Readable JSON Format**: Clear field names for easy understanding and manual editing
-- **Comprehensive Data**: Includes all metadata, tag associations, and library structure
+- **Comprehensive Data**: Includes all metadata, tag associations, atmosphere definitions, and library structure
 - **Full Library Restoration**: Import JSON to restore complete library state with database clearing
 - **Data Validation**: Import validation ensures file format integrity before processing
 - **User-Friendly Interface**: Clear confirmation dialogs and progress feedback
 
-### 4.5. User Interface Enhancements
-- **Modal Interfaces**: Professional bulk tag editor, search interfaces, and export/import dialogs
-- **Responsive Design**: Adapts to different screen sizes and resolutions
-- **Visual Feedback**: Clear indication of selections, active filters, and operations
-- **Error Handling**: Graceful error handling with user-friendly messages
+### 4.6. User Interface Enhancements
+- **Professional Modal System**: Comprehensive atmosphere creation/editing, bulk tag editor, search interfaces, and export/import dialogs
+- **Side Panel Architecture**: Resizable atmosphere membership editor with dedicated controls and drag-and-drop support
+- **Responsive Design**: Adapts to different screen sizes and resolutions with professional layout management
+- **Advanced Visual Feedback**: Progress bars, status indicators, crossfade progress tracking, and real-time atmosphere state updates
+- **Enhanced Pad Rendering**: Unified event handling with improved visual states and status indicators
+- **Error Handling**: Graceful error handling with user-friendly messages and comprehensive logging
 - **Native File Dialogs**: Platform-native save/open dialogs for professional user experience
+- **Confirmation Systems**: Diff preview dialogs and operation confirmations for critical actions
 
 ## 5. Development and Build Process
 
@@ -237,8 +340,9 @@ npm test
 ### 6.1. Basic Audio Management
 1. Load audio files via "📂 Load Sounds" or "📁 Load Directory (Recursive)"
 2. Organize sounds using drag-and-drop in the grid
-3. Control individual sound playback, volume, and looping
-4. Save and load presets for different scenarios
+3. Control individual sound playback, volume, and looping with enhanced visual feedback
+4. Use "🔧 Calculate Durations & BPM" to analyze audio metadata for large libraries
+5. Monitor library statistics and playing sound counts in real-time
 
 ### 6.2. Professional RPG Tagging Workflow
 1. Click "🏷️ Bulk Tag Editor" to open the comprehensive tagging interface

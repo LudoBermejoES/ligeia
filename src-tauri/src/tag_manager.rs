@@ -129,6 +129,59 @@ impl TagManager {
         Ok(())
     }
 
+    pub fn get_existing_tags(&self) -> Result<std::collections::HashMap<String, std::collections::HashSet<String>>, String> {
+        let db = self.db.lock().unwrap();
+        let mut existing_tags = std::collections::HashMap::new();
+        
+        // Initialize sets for each tag type
+        existing_tags.insert("genre".to_string(), std::collections::HashSet::new());
+        existing_tags.insert("mood".to_string(), std::collections::HashSet::new());
+        existing_tags.insert("occasion".to_string(), std::collections::HashSet::new());
+        existing_tags.insert("keyword".to_string(), std::collections::HashSet::new());
+        
+        // Get tags from rpg_tags table
+        let rpg_tags = db.get_all_rpg_tags().map_err(|e| e.to_string())?;
+        for tag in rpg_tags {
+            if let Some(tag_set) = existing_tags.get_mut(&tag.tag_type) {
+                tag_set.insert(tag.tag_value);
+            }
+        }
+        
+        // Get tags from audio file metadata fields
+        let audio_files = db.get_all_audio_files().map_err(|e| e.to_string())?;
+        for file in audio_files {
+            // Parse genre field
+            if let Some(genre) = file.genre {
+                for tag in genre.split("; ").filter(|s| !s.trim().is_empty()) {
+                    existing_tags.get_mut("genre").unwrap().insert(tag.trim().to_string());
+                }
+            }
+            
+            // Parse mood field  
+            if let Some(mood) = file.mood {
+                for tag in mood.split("; ").filter(|s| !s.trim().is_empty()) {
+                    existing_tags.get_mut("mood").unwrap().insert(tag.trim().to_string());
+                }
+            }
+            
+            // Parse occasion field
+            if let Some(occasion) = file.occasion {
+                for tag in occasion.split("; ").filter(|s| !s.trim().is_empty()) {
+                    existing_tags.get_mut("occasion").unwrap().insert(tag.trim().to_string());
+                }
+            }
+            
+            // Parse category field as keywords
+            if let Some(category) = file.category {
+                for tag in category.split("; ").filter(|s| !s.trim().is_empty()) {
+                    existing_tags.get_mut("keyword").unwrap().insert(tag.trim().to_string());
+                }
+            }
+        }
+        
+        Ok(existing_tags)
+    }
+
     fn count_files_with_tag_type(&self, _db: &Database, _tag_type: &str) -> Result<u32, String> {
         // This would require a specific query to count distinct files with a tag type
         // For now, return 0 as placeholder

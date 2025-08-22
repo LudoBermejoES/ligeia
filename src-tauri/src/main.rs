@@ -111,6 +111,11 @@ async fn get_tag_statistics(app_handle: AppHandle) -> Result<tag_manager::TagSta
 }
 
 #[tauri::command]
+async fn get_existing_tags(app_handle: AppHandle) -> Result<std::collections::HashMap<String, Vec<String>>, String> {
+    TagHandler::get_existing_tags(app_handle)
+}
+
+#[tauri::command]
 async fn export_library_data(app_handle: AppHandle) -> Result<ExportData, String> {
     ImportExportHandler::export_library_data(app_handle)
 }
@@ -233,6 +238,7 @@ pub fn run() {
             search_files_by_tags,
             get_all_audio_files_with_tags,
             get_tag_statistics,
+            get_existing_tags,
             export_library_data,
             import_library_data,
             calculate_missing_durations,

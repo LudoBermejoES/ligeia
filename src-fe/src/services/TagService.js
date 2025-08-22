@@ -154,6 +154,17 @@ export class TagService {
         }
     }
 
+    async getExistingTags() {
+        try {
+            const existingTags = await invoke('get_existing_tags');
+            console.log('Loaded existing tags from database:', existingTags);
+            return existingTags;
+        } catch (error) {
+            console.error('Failed to get existing tags:', error);
+            return null;
+        }
+    }
+
     // Utility methods for tag management
     formatTagForDisplay(tag) {
         return {

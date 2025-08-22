@@ -106,6 +106,10 @@ impl Database {
         self.rpg_tags.get_for_file(&self.conn, audio_file_id)
     }
 
+    pub fn get_all_rpg_tags(&self) -> Result<Vec<RpgTag>> {
+        self.rpg_tags.get_all(&self.conn)
+    }
+
     pub fn get_audio_files_with_tags(&self) -> Result<Vec<AudioFileWithTags>> {
         self.search.get_all_files_with_tags(&self.conn)
     }
