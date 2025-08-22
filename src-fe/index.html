@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>Ligeia - Ambient Soundscape Mixer</title>
+    <title>Ligeia - Ambient Soundscape Mixer (Test Move)</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     <script type="importmap">
@@ -22,6 +22,25 @@
     </script>
     <script>
         window.__TAURI_INTERNALS__ = window.__TAURI_INTERNALS__ || {};
+        
+        // Global error handler to catch MIME type errors and other issues
+        window.addEventListener('error', function(event) {
+            console.error('🔥 GLOBAL ERROR:', event.error);
+            console.error('🔥 GLOBAL ERROR MESSAGE:', event.message);
+            console.error('🔥 GLOBAL ERROR FILENAME:', event.filename);
+            console.error('🔥 GLOBAL ERROR LINE/COL:', event.lineno, event.colno);
+            console.error('🔥 GLOBAL ERROR STACK:', event.error?.stack);
+        });
+        
+        // Unhandled promise rejection handler
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('🔥 UNHANDLED PROMISE REJECTION:', event.reason);
+            console.error('🔥 UNHANDLED PROMISE REJECTION STACK:', event.reason?.stack);
+        });
+        
+        console.log('🔍 GLOBAL: Error handlers registered');
+        console.log('🔍 GLOBAL: Basic JavaScript execution is working');
+        console.log('🔍 GLOBAL: Document ready state:', document.readyState);
     </script>
 </head>
 <body>

@@ -2,13 +2,10 @@
 ../db/**
 ../db/
 
-# Ignore all frontend files to prevent auto-reload
-../src/**
-../styles.css
-../index.html
+# Ignore all frontend files to prevent auto-reload (now in src-fe)
+../src-fe/**
 ../package.json
 ../package-lock.json
-../node_modules/**
 
 # Ignore database files and journals anywhere
 *.db

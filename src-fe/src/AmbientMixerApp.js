@@ -67,6 +67,7 @@ export class AmbientMixerApp {
 
     async initialize() {
         try {
+            console.log('🔍 APP: AmbientMixerApp.initialize() called');
             logger.info('app', 'Starting app initialization');
             
             // Initialize audio service
@@ -140,7 +141,9 @@ export class AmbientMixerApp {
                 this.atmosphereUI.attachEngine(this.atmosphereManager.engine);
                 // Listen for membership update events from membership window
                 try {
+                    console.log('🔍 APP: About to dynamically import @tauri-apps/api/event');
                     const { listen } = await import('@tauri-apps/api/event');
+                    console.log('🔍 APP: Successfully imported @tauri-apps/api/event, listen function:', typeof listen);
                     await listen('atmosphere-membership-updated', async ({ payload }) => {
                         console.log('🔔 ATMOSPHERE MEMBERSHIP EVENT RECEIVED:', payload);
                         if (!payload) return;
@@ -149,7 +152,12 @@ export class AmbientMixerApp {
                         console.log('🔔 Calling _renderAtmosphereList...');
                         this._renderAtmosphereList();
                     });
-                } catch (e) { console.warn('Event listen failed', e); }
+                    console.log('🔍 APP: Event listener registered successfully');
+                } catch (e) { 
+                    console.error('🔥 APP: Event listen failed:', e);
+                    console.error('🔥 APP: Event listen error stack:', e.stack);
+                    console.warn('Event listen failed', e); 
+                }
             } catch (e) { console.warn('Atmospheres init failed', e); }
 
             console.log('Ambient Mixer initialized successfully');

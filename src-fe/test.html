@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test MIME Type Error</title>
+    <script type="importmap">
+    {
+        "imports": {
+            "@tauri-apps/api/core": "../node_modules/@tauri-apps/api/core.js"
+        }
+    }
+    </script>
+</head>
+<body>
+    <script type="module">
+        console.log('🔍 TEST: Starting basic import test');
+        try {
+            console.log('🔍 TEST: About to import @tauri-apps/api/core');
+            import('@tauri-apps/api/core').then(module => {
+                console.log('🔍 TEST: Successfully imported core module:', module);
+            }).catch(error => {
+                console.error('🔥 TEST: Import failed:', error);
+            });
+        } catch (error) {
+            console.error('🔥 TEST: Synchronous error:', error);
+        }
+    </script>
+</body>
+</html>

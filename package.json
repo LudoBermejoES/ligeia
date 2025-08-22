@@ -4,13 +4,15 @@
   "description": "Ambient soundscape mixer for creating immersive audio environments",
   "main": "index.html",
   "scripts": {
-    "dev": "tauri dev",
-    "dev-no-reload": "tauri dev --no-watch",
-    "dev-no-watch": "tauri dev --no-watch",
-    "dev-ignore": "TAURI_DEV_WATCHER_IGNORE_FILE=.taurignore tauri dev",
-    "build": "tauri build",
-    "tauri": "tauri",
-    "serve": "python3 -m http.server 1420"
+    "dev": "src-fe/node_modules/.bin/tauri dev",
+    "dev-no-reload": "src-fe/node_modules/.bin/tauri dev --no-watch",
+    "dev-no-watch": "src-fe/node_modules/.bin/tauri dev --no-watch",
+    "dev-ignore": "TAURI_DEV_WATCHER_IGNORE_FILE=.taurignore src-fe/node_modules/.bin/tauri dev",
+    "build": "src-fe/node_modules/.bin/tauri build",
+    "tauri": "src-fe/node_modules/.bin/tauri",
+    "serve": "python3 -m http.server 1420",
+    "postinstall": "npm run move-node-modules",
+    "move-node-modules": "if [ -d node_modules ]; then rm -rf src-fe/node_modules && mv node_modules src-fe/; fi"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.8.0",
