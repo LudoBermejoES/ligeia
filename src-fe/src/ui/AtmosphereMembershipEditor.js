@@ -2,11 +2,14 @@
 // Responsibilities: maintain in-memory membership map, render membership pad list inside panel body,
 // enable dropping mixer pads into membership (HTML5 drag) and allow reordering via SortableJS.
 import logger from '../utils/logger.js';
+import { renderSoundPad } from './PadRenderer.js';
+import { padStateManager } from './PadStateManager.js';
 
 export class AtmosphereMembershipEditor {
-  constructor(service, libraryManager) {
+  constructor(service, libraryManager, padEventHandler = null) {
     this.service = service;
     this.libraryManager = libraryManager;
+    this.padEventHandler = padEventHandler;
     this.atmosphere = null;
     this.members = new Map(); // audioId -> { volume, is_looping, is_muted }
     this._highlightId = null;
@@ -14,6 +17,28 @@ export class AtmosphereMembershipEditor {
   this._panelDnDInit = false;
   this._sortable = null;
   this._persistTimer = null;
+  
+  // Initialize atmosphere-specific event handlers
+  this._initializeAtmosphereEventHandlers();
+  }
+  
+  _initializeAtmosphereEventHandlers() {
+    if (this.padEventHandler) {
+      // Register atmosphere-specific event handlers
+      this.padEventHandler.registerContextHandlers('atmosphere', {
+        'remove': (audioId) => this._handleRemoveFromAtmosphere(audioId)
+      });
+    }
+  }
+  
+  _handleRemoveFromAtmosphere(audioId) {
+    logger.debug('membership', `Removing audio ${audioId} from atmosphere`);
+    this.members.delete(audioId);
+    if (this.padEventHandler) {
+      this.padEventHandler.removePadFromContext(audioId, 'atmosphere');
+    }
+    this.renderPads();
+    this._schedulePersist();
   }
 
   async open(atmosphere, { panelMode = true } = {}) { // panelMode retained for call-site compatibility
@@ -90,37 +115,61 @@ export class AtmosphereMembershipEditor {
       grid.innerHTML = '<div class="atmo-membership-empty-drop" style="padding:.75rem;border:1px dashed var(--border-color,#666);border-radius:4px;text-align:center;font-size:.8rem;opacity:.8;">Drag pads from the mixer here to add them to this atmosphere.</div>';
       return;
     }
+    
+    // Use unified rendering system
     grid.innerHTML = '';
     const audioFilesMap = this.libraryManager.getAudioFiles();
+    
     for (const [audioId, meta] of this.members.entries()) {
-      const audioFile = [...audioFilesMap.values()].find(f=>f.id===audioId);
+      const audioFile = [...audioFilesMap.values()].find(f => f.id === audioId);
       if (!audioFile) continue;
-      const original = document.querySelector(`.sound-pad[data-audio-id="${audioId}"]`);
-      const isPlaying = original?.classList.contains('active') || false;
-      const loopBtn = original?.querySelector('button[data-action="loop"]');
-      const muteBtn = original?.querySelector('button[data-action="mute"]');
-      const volSlider = original?.querySelector('input.volume-slider-pad');
-      if (loopBtn) meta.is_looping = loopBtn.classList.contains('active');
-      if (muteBtn) meta.is_muted = muteBtn.classList.contains('active');
-      if (volSlider && !isNaN(Number(volSlider.value))) meta.volume = Number(volSlider.value)/100;
+      
+      // Get unified pad state or create from local meta
+      let padState = padStateManager.getPadState(audioId);
+      if (!padState && this.padEventHandler) {
+        // Initialize pad in unified system with atmosphere context
+        this.padEventHandler.addPadToContext(audioId, 'atmosphere', {
+          isPlaying: false, // We'll sync this below
+          isLooping: meta.is_looping || false,
+          isMuted: meta.is_muted || false,
+          volume: meta.volume ?? 0.5
+        });
+        padState = padStateManager.getPadState(audioId);
+      }
+      
+      // Sync playing state from mixer if available
+      const mixerPad = document.querySelector(`.sound-pad[data-audio-id="${audioId}"][data-context="mixer"]`);
+      if (mixerPad && padState) {
+        const isPlaying = mixerPad.classList.contains('active');
+        if (padState.isPlaying !== isPlaying) {
+          padStateManager.updatePadState(audioId, { isPlaying });
+        }
+      }
+      
+      // Render using unified system
       const wrapper = document.createElement('div');
-      wrapper.innerHTML = this._renderMiniPad(audioFile, meta, isPlaying);
+      wrapper.innerHTML = renderSoundPad(audioFile, padState, {
+        escapeHtml: (text) => text.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]),
+        context: 'atmosphere',
+        origin: 'membership'
+      });
+      
       const el = wrapper.firstElementChild;
       if (!el) continue;
-      el.dataset.audioId = String(audioId);
+      
+      // Handle highlighting
       if (audioId === this._highlightId) {
         el.classList.add('flash');
-        el.addEventListener('animationend', () => { el.classList.remove('flash'); if (this._highlightId === audioId) this._highlightId = null; }, { once:true });
+        el.addEventListener('animationend', () => { 
+          el.classList.remove('flash'); 
+          if (this._highlightId === audioId) this._highlightId = null; 
+        }, { once: true });
       }
+      
       grid.appendChild(el);
     }
-    // Listeners
-    grid.querySelectorAll('.sound-pad').forEach(p => {
-      const audioId = Number(p.dataset.audioId);
-      p.querySelectorAll('button').forEach(btn => btn.addEventListener('click', e => this._handlePadButton(e, audioId)));
-      const vol = p.querySelector('input[data-action="volume"]');
-      if (vol) vol.addEventListener('input', e => this._handlePadVolume(e, audioId));
-    });
+    
+    // Event listeners are now handled by unified system - no need for manual attachment
     
     // Ensure drag and drop is initialized after rendering
     if (!this._panelDnDInit) {

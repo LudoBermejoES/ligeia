@@ -29,13 +29,13 @@ export class AmbientMixerApp {
         this.databaseService = new DatabaseService();
         this.tagService = new TagService();
         
-        // UI
-        this.uiController = new UIController();
+    // Managers & derived state maps (initialize before UI)
+    this.libraryManager = new LibraryManager(this.databaseService, this.fileService, this.audioService);
+        
+        // UI (now receives required dependencies)
+        this.uiController = new UIController(this.audioService, this.libraryManager);
     this.bulkTagEditorController = null; // Will be initialized after tagService
     this.tagSearchController = null; // Will be initialized after tagService
-        
-    // Managers & derived state maps
-    this.libraryManager = new LibraryManager(this.databaseService, this.fileService, this.audioService);
     this.tagEditorManager = new TagEditorManager(this.tagService, this.uiController, this.libraryManager);
     this.audioFiles = this.libraryManager.getAudioFiles();
     this.soundPads = this.libraryManager.getSoundPads();
@@ -95,6 +95,13 @@ export class AmbientMixerApp {
 
             // Load tag filters
             await this.tagSearchController.loadTagFilters();
+
+            // Initialize unified pad system in UI controller
+            this.padEventHandler = this.uiController.initialize();
+            
+            // Update atmosphere membership editor with padEventHandler
+            this.atmoMembershipEditor.padEventHandler = this.padEventHandler;
+            this.atmoMembershipEditor._initializeAtmosphereEventHandlers();
 
             // Setup UI event listeners
             this.uiController.initializeEventListeners(this.eventHandlers);

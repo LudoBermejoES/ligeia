@@ -1,10 +1,36 @@
 import { renderSoundPad } from './PadRenderer.js';
+import { padStateManager } from './PadStateManager.js';
+import { PadEventHandler } from './PadEventHandler.js';
 
 /**
  * UIController - Handles all UI updates and DOM manipulation
  */
 export class UIController {
-    constructor() {}
+    constructor(audioService, libraryManager) {
+        this.audioService = audioService;
+        this.libraryManager = libraryManager;
+        this.padEventHandler = null; // Will be initialized in initialize()
+    }
+    
+    initialize() {
+        // Initialize unified pad event handling system
+        this.padEventHandler = new PadEventHandler(this.audioService, this.libraryManager);
+        
+        // Register mixer-specific event handlers
+        this.padEventHandler.registerContextHandlers('mixer', {
+            'edit-tags': (audioId) => this._handleTagEditor(audioId)
+        });
+        
+        return this.padEventHandler;
+    }
+    
+    _handleTagEditor(audioId) {
+        // Trigger tag editor opening
+        const event = new CustomEvent('openTagEditor', { 
+            detail: { audioId } 
+        });
+        document.dispatchEvent(event);
+    }
 
     initializeEventListeners(eventHandlers) {
         // File operations
@@ -172,7 +198,7 @@ export class UIController {
         if (!ambientContainer || !soundsContainer) return;
 
         const allFiles = Array.from(audioFiles.values());
-    const sortedFiles = this.sortByTitle(allFiles);
+        const sortedFiles = this.sortByTitle(allFiles);
 
         const ambient = [];
         const others = [];
@@ -185,92 +211,41 @@ export class UIController {
             (isAmbient ? ambient : others).push(f);
         });
 
-        ambientContainer.innerHTML = ambient.map(a => this.renderSoundPad(a, soundPads.get(a.file_path))).join('');
-        soundsContainer.innerHTML = others.map(a => this.renderSoundPad(a, soundPads.get(a.file_path))).join('');
+        // Render pads using unified system
+        ambientContainer.innerHTML = ambient.map(a => this.renderUnifiedSoundPad(a, soundPads.get(a.file_path))).join('');
+        soundsContainer.innerHTML = others.map(a => this.renderUnifiedSoundPad(a, soundPads.get(a.file_path))).join('');
 
-        // Event listeners delegate per section
-        this.attachPadEventListeners(ambientContainer, soundPads);
-        this.attachPadEventListeners(soundsContainer, soundPads);
-    // Ordering fixed by title; drag & drop removed.
+        // Initialize pad states in unified system
+        [...ambient, ...others].forEach(audioFile => {
+            const pad = soundPads.get(audioFile.file_path);
+            if (pad && this.padEventHandler) {
+                this.padEventHandler.addPadToContext(audioFile.id, 'mixer', {
+                    isPlaying: pad.isPlaying || false,
+                    isLooping: pad.isLooping || false,
+                    isMuted: pad.isMuted || false,
+                    volume: pad.volume ?? 0.5
+                });
+            }
+        });
     }
 
     renderSoundPad(audioFile, pad) {
-        // Static import performed at module scope; delegate
+        // Legacy method - kept for backwards compatibility
         return renderSoundPad(audioFile, pad, { escapeHtml: this.escapeHtml.bind(this) });
+    }
+    
+    renderUnifiedSoundPad(audioFile, pad) {
+        // New unified rendering method with context support
+        return renderSoundPad(audioFile, pad, { 
+            escapeHtml: this.escapeHtml.bind(this),
+            context: 'mixer'
+        });
     }
 
     attachPadEventListeners(container, soundPads) {
-        if (!container) {
-            console.warn('No container provided for attachPadEventListeners');
-            return;
-        }
-
-        container.addEventListener('click', (e) => {
-            try {
-                const padElement = e.target.closest('.sound-pad');
-                if (!padElement) return;
-
-                const filePath = padElement.dataset.filePath;
-                const action = e.target.dataset.action;
-                
-                if (!filePath || !action) return;
-                
-                // Stop event propagation to prevent drag conflicts, but only for button actions
-                if (e.target.matches('button, input[type="range"]')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Ensure buttons don't interfere with dragging
-                    e.target.draggable = false;
-                }
-                
-                const pad = soundPads.get(filePath);
-                if (!pad) {
-                    console.warn('No pad found for filePath:', filePath);
-                    return;
-                }
-
-                this.handlePadAction(pad, action, e.target, padElement);
-            } catch (error) {
-                console.error('Error in pad click handler:', error);
-            }
-        });
-
-        // Volume slider handling
-        container.addEventListener('input', (e) => {
-            if (e.target.classList.contains('volume-slider-pad')) {
-                const padElement = e.target.closest('.sound-pad');
-                const filePath = padElement?.dataset.filePath;
-                const pad = soundPads.get(filePath);
-                
-                if (pad) {
-                    const volume = e.target.value / 100;
-                    pad.setVolume(volume);
-                    
-                    const display = padElement.querySelector('.volume-display-pad');
-                    if (display) {
-                        display.textContent = `${Math.round(volume * 100)}%`;
-                    }
-                }
-            }
-        });
-
-        // Ensure sound pads handle dragstart properly
-        container.addEventListener('dragstart', (e) => {
-            const padElement = e.target.closest('.sound-pad');
-            if (padElement && e.target === padElement) {
-                console.log('🎯 PAD-LEVEL DRAGSTART:', {
-                    audioId: padElement.dataset.audioId,
-                    target: e.target.tagName
-                });
-                // Let the document level handler take care of the actual drag setup
-                return true;
-            } else if (padElement) {
-                // If drag started from a child element, prevent it and redirect to pad
-                console.log('⚠️ Preventing drag from child element:', e.target.tagName);
-                e.preventDefault();
-                return false;
-            }
-        });
+        // Legacy method - event handling now done through unified PadEventHandler
+        // This method is kept for backwards compatibility but does minimal work
+        console.log('UIController: Using unified pad event handling system');
     }
 
     handlePadAction(pad, action, element, padElement) {
