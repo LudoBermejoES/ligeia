@@ -583,4 +583,35 @@ impl AtmosphereRepository {
         log::info!("Default atmosphere categories initialized");
         Ok(())
     }
+
+    /// Save atmosphere with sounds (complete save operation)
+    pub fn save_with_sounds(&self, conn: &Connection, atmosphere: &Atmosphere, sounds: &[crate::models::AtmosphereSoundMapping]) -> Result<i64> {
+        // Start transaction
+        let tx = conn.unchecked_transaction()?;
+        
+        // Save or update atmosphere
+        let atmosphere_id = self.save(conn, atmosphere)?;
+        
+        // Clear existing sound mappings for this atmosphere
+        conn.execute(
+            "DELETE FROM atmosphere_sounds WHERE atmosphere_id = ?1",
+            params![atmosphere_id],
+        )?;
+        
+        // Insert new sound mappings
+        for sound in sounds {
+            conn.execute(
+                "INSERT INTO atmosphere_sounds 
+                 (atmosphere_id, audio_file_id, volume, is_looping, is_muted)
+                 VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![atmosphere_id, sound.audio_file_id, sound.volume, sound.is_looping, sound.is_muted],
+            )?;
+        }
+        
+        // Commit transaction
+        tx.commit()?;
+        
+        log::info!("Saved atmosphere {} with {} sounds", atmosphere_id, sounds.len());
+        Ok(atmosphere_id)
+    }
 }

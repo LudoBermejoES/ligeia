@@ -243,6 +243,13 @@ pub struct AtmosphereCategory {
     pub parent_id: Option<i64>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AtmosphereSavePayload {
+    #[serde(flatten)]
+    pub atmosphere: Atmosphere,
+    pub sounds: Option<Vec<AtmosphereSoundMapping>>,
+}
+
 impl Default for Atmosphere {
     fn default() -> Self {
         let now = chrono::Utc::now().to_rfc3339();

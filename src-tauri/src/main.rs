@@ -122,7 +122,7 @@ async fn import_library_data(app_handle: AppHandle, data: ExportData) -> Result<
 
 // Atmosphere Commands
 #[tauri::command]
-async fn save_atmosphere(app_handle: AppHandle, atmosphere: Atmosphere) -> Result<i64, String> {
+async fn save_atmosphere(app_handle: AppHandle, atmosphere: AtmosphereSavePayload) -> Result<i64, String> {
     AtmosphereHandler::save_atmosphere(app_handle, atmosphere)
 }
 

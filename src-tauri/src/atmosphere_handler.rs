@@ -1,5 +1,5 @@
 use tauri::{AppHandle, Manager};
-use crate::models::{Atmosphere, AtmosphereWithSounds, AtmosphereCategory};
+use crate::models::{Atmosphere, AtmosphereWithSounds, AtmosphereCategory, AtmosphereSavePayload};
 use crate::models::{AtmosphereIntegrity, AtmosphereIntegrityBatchEntry};
 use crate::AppState;
 
@@ -11,18 +11,30 @@ impl AtmosphereHandler {
         AtmosphereHandler
     }
 
-    /// Save or update an atmosphere
-    pub fn save_atmosphere(app_handle: AppHandle, atmosphere: Atmosphere) -> Result<i64, String> {
+    /// Save or update an atmosphere with sounds
+    pub fn save_atmosphere(app_handle: AppHandle, payload: AtmosphereSavePayload) -> Result<i64, String> {
         let state = app_handle.state::<AppState>();
         let db = state.db.lock().unwrap();
         
-    log::info!("Saving atmosphere: name={}, category={}, subcategory={}, crossfade_ms={}, curve={}", 
-          atmosphere.name, atmosphere.category, atmosphere.subcategory, atmosphere.default_crossfade_ms, atmosphere.fade_curve);
+        log::info!("Saving atmosphere: name={}, category={}, subcategory={}, crossfade_ms={}, curve={}", 
+              payload.atmosphere.name, payload.atmosphere.category, payload.atmosphere.subcategory, 
+              payload.atmosphere.default_crossfade_ms, payload.atmosphere.fade_curve);
         
-        db.save_atmosphere(&atmosphere).map_err(|e| {
-            log::error!("Failed to save atmosphere: {}", e);
-            e.to_string()
-        })
+        // If sounds are provided, use the comprehensive save method
+        if let Some(sounds) = &payload.sounds {
+            log::info!("Saving atmosphere with {} sounds", sounds.len());
+            db.save_atmosphere_with_sounds(&payload.atmosphere, sounds).map_err(|e| {
+                log::error!("Failed to save atmosphere with sounds: {}", e);
+                e.to_string()
+            })
+        } else {
+            // Legacy save without sounds
+            log::info!("Saving atmosphere without sounds (legacy mode)");
+            db.save_atmosphere(&payload.atmosphere).map_err(|e| {
+                log::error!("Failed to save atmosphere: {}", e);
+                e.to_string()
+            })
+        }
     }
 
     /// Get all atmospheres
