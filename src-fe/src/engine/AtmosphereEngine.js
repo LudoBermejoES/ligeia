@@ -92,6 +92,8 @@ export class AtmosphereEngine {
         if (pad.isPlaying && id != null && !targetMap.has(id)) {
           pad.cancelFades?.();
           fadePromises.push(pad.fadeTo(0, durationMs, { stopWhenZero: true }));
+          // Update UI to show pad will stop playing
+          this._updatePadUI(id, { isPlaying: false });
         }
       }
 
@@ -111,13 +113,34 @@ export class AtmosphereEngine {
         pad.setMute(!!mapping.is_muted);
         if (!pad.isPlaying) {
           pad.setVolume(0.0001);
-          try { await pad.play(); } catch (e) { logger.error('atmo','play failed',{e: e.message}); continue; }
+          try { 
+            await pad.play(); 
+            // Update UI to show pad is now playing
+            this._updatePadUI(audioFile.id, { 
+              isPlaying: true, 
+              isLooping: !!mapping.is_looping, 
+              isMuted: !!mapping.is_muted,
+              volume: targetVol
+            });
+          } catch (e) { 
+            logger.error('atmo','play failed',{e: e.message}); 
+            continue; 
+          }
           if (targetVol > 0 && !pad.isMuted) {
             fadePromises.push(pad.fadeTo(targetVol, durationMs));
           }
-        } else if (Math.abs((pad.volume ?? 0) - targetVol) > 0.01) {
-          pad.cancelFades?.();
+        } else {
+          // Pad is already playing - update UI with current states even if no fade needed
+          this._updatePadUI(audioFile.id, { 
+            isLooping: !!mapping.is_looping, 
+            isMuted: !!mapping.is_muted,
+            volume: targetVol
+          });
+          // If volume differs significantly, also apply fade
+          if (Math.abs((pad.volume ?? 0) - targetVol) > 0.01) {
+            pad.cancelFades?.();
             fadePromises.push(pad.fadeTo(targetVol, durationMs));
+          }
         }
       }
 
@@ -137,5 +160,57 @@ export class AtmosphereEngine {
         this.currentToken = null;
       }
     }
+  }
+
+  /**
+   * Update pad UI across all contexts when atmosphere changes pad states
+   * This mirrors the _updatePadUI method from PadEventHandler
+   */
+  _updatePadUI(audioId, stateChanges) {
+    // Find all pad elements with this audioId
+    const pads = document.querySelectorAll(`.sound-pad[data-audio-id="${audioId}"]`);
+    
+    pads.forEach(pad => {
+      if ('isPlaying' in stateChanges) {
+        pad.classList.toggle('active', stateChanges.isPlaying);
+        const statusElement = pad.querySelector('.sound-pad-status');
+        if (statusElement) {
+          statusElement.textContent = stateChanges.isPlaying ? '▶️' : '⏸️';
+        }
+        const toggleBtn = pad.querySelector('[data-action="toggle"]');
+        if (toggleBtn) {
+          toggleBtn.textContent = stateChanges.isPlaying ? '⏸️' : '▶️';
+          toggleBtn.title = stateChanges.isPlaying ? 'Stop' : 'Play';
+          toggleBtn.classList.toggle('active', stateChanges.isPlaying);
+        }
+      }
+      
+      if ('isLooping' in stateChanges) {
+        const loopBtn = pad.querySelector('[data-action="loop"]');
+        if (loopBtn) {
+          loopBtn.classList.toggle('active', stateChanges.isLooping);
+        }
+      }
+      
+      if ('isMuted' in stateChanges) {
+        pad.classList.toggle('muted', stateChanges.isMuted);
+        const muteBtn = pad.querySelector('[data-action="mute"]');
+        if (muteBtn) {
+          muteBtn.textContent = stateChanges.isMuted ? '🔇' : '🔊';
+          muteBtn.classList.toggle('active', stateChanges.isMuted);
+        }
+      }
+      
+      if ('volume' in stateChanges) {
+        const volumeSlider = pad.querySelector('.volume-slider-pad');
+        if (volumeSlider) {
+          volumeSlider.value = Math.round(stateChanges.volume * 100);
+        }
+        const volumeDisplay = pad.querySelector('.volume-display-pad');
+        if (volumeDisplay) {
+          volumeDisplay.textContent = `${Math.round(stateChanges.volume * 100)}%`;
+        }
+      }
+    });
   }
 }
