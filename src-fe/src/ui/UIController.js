@@ -1,6 +1,7 @@
 import { renderSoundPad } from './PadRenderer.js';
 import { padStateManager } from './PadStateManager.js';
 import { PadEventHandler } from './PadEventHandler.js';
+import { InfiniteScrollController } from './InfiniteScrollController.js';
 
 /**
  * UIController - Handles all UI updates and DOM manipulation
@@ -13,11 +14,15 @@ export class UIController {
         this.soundSearchFilter = ''; // Current search filter for sounds
         this.soundSearchFuse = null; // Fuse.js instance for sound search
         this.currentAudioFiles = new Map(); // Store current audio files for search
+        this.infiniteScrollController = null; // Will be initialized in initialize()
     }
     
     initialize() {
         // Initialize unified pad event handling system
         this.padEventHandler = new PadEventHandler(this.audioService, this.libraryManager);
+        
+        // Initialize infinite scroll controller
+        this.infiniteScrollController = new InfiniteScrollController(this.libraryManager, this.padEventHandler);
         
         // Register mixer-specific event handlers
         this.padEventHandler.registerContextHandlers('mixer', {
@@ -152,8 +157,12 @@ export class UIController {
         // Initialize Fuse.js for sound search
         this.initializeSoundSearch(Array.from(audioFiles.values()));
         
-        // Apply current search filter
-        this.filterCurrentSounds();
+        // Always initialize/reinitialize scroll detection to ensure fresh setup
+        this.infiniteScrollController.initialize();
+        
+        // Use infinite scroll controller for rendering
+        this.infiniteScrollController.setAudioFiles(audioFiles, this.soundSearchFilter);
+        this.infiniteScrollController.initialRender();
     }
 
     initializeSoundSearch(audioFiles) {
@@ -175,27 +184,13 @@ export class UIController {
     }
 
     filterCurrentSounds() {
-        let filteredFiles;
-        
-        if (!this.soundSearchFilter) {
-            // No search filter, show all current files
-            filteredFiles = Array.from(this.currentAudioFiles.values());
-        } else {
-            // Apply search filter using Fuse.js
-            if (this.soundSearchFuse) {
-                const searchResults = this.soundSearchFuse.search(this.soundSearchFilter);
-                filteredFiles = searchResults
-                    .filter(result => result.score < 0.6) // Only good matches
-                    .map(result => result.item);
-            } else {
-                filteredFiles = [];
-            }
+        // Use infinite scroll controller for filtering
+        if (this.infiniteScrollController) {
+            this.infiniteScrollController.updateSearchFilter(this.soundSearchFilter);
         }
-
-        // Render the filtered files
-        this.renderFilteredSounds(filteredFiles);
     }
 
+    // DEPRECATED: This method is no longer used with infinite scroll implementation
     renderFilteredSounds(audioFiles) {
         const ambientContainer = this.getElementById('ambientPadsGrid');
         const soundsContainer = this.getElementById('soundsPadsGrid');

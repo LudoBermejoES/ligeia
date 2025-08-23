@@ -4,12 +4,12 @@
   "description": "Ambient soundscape mixer for creating immersive audio environments",
   "main": "index.html",
   "scripts": {
-  "dev": "npm --prefix ./src-fe exec tauri dev",
-  "dev-no-reload": "npm --prefix ./src-fe exec tauri dev --no-watch",
-  "dev-no-watch": "npm --prefix ./src-fe exec tauri dev --no-watch",
-  "dev-ignore": "set TAURI_DEV_WATCHER_IGNORE_FILE=.taurignore && npm --prefix ./src-fe exec tauri dev",
-  "build": "npm --prefix ./src-fe exec tauri build",
-  "tauri": "npm --prefix ./src-fe exec tauri",
+    "dev": "npm --prefix ./src-fe exec tauri dev",
+    "dev-no-reload": "npm --prefix ./src-fe exec tauri dev --no-watch",
+    "dev-no-watch": "npm --prefix ./src-fe exec tauri dev --no-watch",
+    "dev-ignore": "set TAURI_DEV_WATCHER_IGNORE_FILE=.taurignore && npm --prefix ./src-fe exec tauri dev",
+    "build": "npm --prefix ./src-fe exec tauri build",
+    "tauri": "npm --prefix ./src-fe exec tauri",
     "serve": "python3 -m http.server 1420",
     "postinstall": "npm run move-node-modules",
     "move-node-modules": "if [ -d node_modules ]; then rm -rf src-fe/node_modules && mv node_modules src-fe/; fi"
@@ -18,7 +18,8 @@
     "@tauri-apps/api": "^2.8.0",
     "@tauri-apps/plugin-dialog": "^2.3.2",
     "@tauri-apps/plugin-fs": "^2.4.1",
-    "@tauri-apps/plugin-log": "^2.6.0"
+    "@tauri-apps/plugin-log": "^2.6.0",
+    "infinite-scroll": "^5.0.0"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.8.1"

@@ -593,6 +593,25 @@ body {
     overscroll-behavior: contain;
 }
 
+/* Infinite scroll containers - remove duplicate scrollbars */
+#ambientPadsGrid,
+#soundsPadsGrid {
+    max-height: none;
+    overflow-y: visible;
+    scroll-behavior: smooth;
+}
+
+/* Loading indicator for infinite scroll */
+.infinite-scroll-request {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted, #888);
+}
+
+.infinite-scroll-request::after {
+    content: "Loading more files...";
+}
+
 /* Drag and Drop States */
 .sound-pads-grid.sorting-active {
     -webkit-user-select: none;
