@@ -1,0 +1,111 @@
+{
+  "name": "Superheroes",
+  "description": "A vibrant superhero theme inspired by classic comic book aesthetics with bold colors, dynamic patterns, and heroic styling",
+  "version": "1.0.0",
+  "category": "superheroes",
+  "author": "Ligeia Superheroes Theme",
+  "colors": {
+    "primary": {
+      "main": "#1e3a8a",
+      "light": "#3b82f6",
+      "dark": "#1e40af",
+      "contrast": "#ffffff"
+    },
+    "secondary": {
+      "main": "#dc2626",
+      "light": "#ef4444",
+      "dark": "#b91c1c",
+      "contrast": "#ffffff"
+    },
+    "accent": {
+      "gold": "#cea263",
+      "silver": "#9ca3af",
+      "bronze": "#cd7f32"
+    },
+    "background": {
+      "primary": "#f8fafc",
+      "secondary": "#e2e8f0",
+      "tertiary": "#cbd5e1",
+      "dark": "#1e293b",
+      "overlay": "rgba(30, 41, 59, 0.9)"
+    },
+    "surface": {
+      "light": "#ffffff",
+      "medium": "#f1f5f9",
+      "dark": "#475569",
+      "darker": "#334155"
+    },
+    "text": {
+      "primary": "#1e293b",
+      "secondary": "#475569",
+      "light": "#ffffff",
+      "dark": "#0f172a",
+      "hero": "#1e3a8a"
+    },
+    "border": {
+      "light": "#cbd5e1",
+      "medium": "#64748b",
+      "dark": "#334155",
+      "hero": "#1e3a8a"
+    },
+    "state": {
+      "success": "#16a34a",
+      "warning": "#eab308",
+      "error": "#dc2626",
+      "info": "#0ea5e9"
+    },
+    "comic": {
+      "blue": "#1e3a8a",
+      "red": "#dc2626",
+      "yellow": "#fbbf24",
+      "green": "#16a34a",
+      "purple": "#7c3aed",
+      "orange": "#ea580c"
+    }
+  },
+  "typography": {
+    "headings": {
+      "family": "fantasy",
+      "weight": "700",
+      "color": "#cea263"
+    },
+    "body": {
+      "family": "sans-serif",
+      "weight": "400",
+      "color": "#1e293b"
+    },
+    "ui": {
+      "family": "sans-serif",
+      "weight": "600",
+      "color": "#1e293b"
+    },
+    "comic": {
+      "family": "fantasy",
+      "weight": "700",
+      "color": "#1e3a8a"
+    }
+  },
+  "effects": {
+    "shadows": {
+      "small": "0 2px 4px rgba(30, 41, 59, 0.1)",
+      "medium": "0 4px 8px rgba(30, 41, 59, 0.15)",
+      "large": "0 8px 16px rgba(30, 41, 59, 0.2)",
+      "hero": "0 0 20px rgba(59, 130, 246, 0.5)"
+    },
+    "textShadow": {
+      "heading": "2px 2px 4px rgba(0, 0, 0, 0.3)",
+      "comic": "3px 3px 0px #000000, -3px -3px 0px #000000, 3px -3px 0px #000000, -3px 3px 0px #000000",
+      "light": "1px 1px 2px rgba(0, 0, 0, 0.2)"
+    },
+    "borders": {
+      "comic": "3px solid #1e3a8a",
+      "hero": "2px solid #cea263"
+    }
+  },
+  "patterns": {
+    "hexagonal": true,
+    "comic": true,
+    "dynamic": true,
+    "heroic": true
+  }
+}

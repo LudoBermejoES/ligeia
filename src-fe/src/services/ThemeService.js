@@ -41,6 +41,18 @@ export class ThemeService {
                     name: 'Fantasy',
                     description: 'A rich fantasy theme inspired by classic tabletop RPG aesthetics',
                     category: 'rpg'
+                },
+                {
+                    slug: 'horror',
+                    name: 'Horror',
+                    description: 'A dark, atmospheric horror theme with deep reds, blacks, and eerie styling',
+                    category: 'horror'
+                },
+                {
+                    slug: 'superheroes',
+                    name: 'Superheroes',
+                    description: 'A vibrant superhero theme inspired by classic comic book aesthetics with bold colors, dynamic patterns, and heroic styling',
+                    category: 'superheroes'
                 }
                 // Add more themes here as they're created
             ];

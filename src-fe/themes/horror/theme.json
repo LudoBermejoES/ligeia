@@ -1,0 +1,103 @@
+{
+  "name": "Horror",
+  "description": "A dark, atmospheric horror theme inspired by classic horror aesthetics with deep reds, blacks, and eerie styling",
+  "version": "1.0.0",
+  "category": "horror",
+  "author": "Ligeia Horror Theme",
+  "colors": {
+    "primary": {
+      "main": "#94070a",
+      "light": "#d2232a",
+      "dark": "#5c0407",
+      "contrast": "#dfdab8"
+    },
+    "secondary": {
+      "main": "#602f24",
+      "light": "#714432",
+      "dark": "#3d1e17",
+      "contrast": "#dfdab8"
+    },
+    "accent": {
+      "blood": "#94070a",
+      "rust": "#8b4513",
+      "bone": "#f2efe5"
+    },
+    "background": {
+      "primary": "#1a1a1a",
+      "secondary": "#2c2c2c",
+      "tertiary": "#404040",
+      "light": "#dfdab8",
+      "overlay": "rgba(26, 26, 26, 0.95)"
+    },
+    "surface": {
+      "light": "#dfdab8",
+      "medium": "#83c0b2",
+      "dark": "#31444f",
+      "darker": "#1a1a1a"
+    },
+    "text": {
+      "primary": "#dfdab8",
+      "secondary": "#b5b5b5",
+      "light": "#ffffff",
+      "dark": "#000000",
+      "blood": "#94070a"
+    },
+    "border": {
+      "light": "#5a5a5a",
+      "medium": "#404040",
+      "dark": "#000000",
+      "blood": "#94070a"
+    },
+    "state": {
+      "success": "#4a5c4a",
+      "warning": "#8b6914",
+      "error": "#94070a",
+      "info": "#30445a"
+    }
+  },
+  "typography": {
+    "headings": {
+      "family": "serif",
+      "weight": "700",
+      "color": "#602f24"
+    },
+    "body": {
+      "family": "serif", 
+      "weight": "400",
+      "color": "#dfdab8"
+    },
+    "ui": {
+      "family": "monospace",
+      "weight": "500", 
+      "color": "#dfdab8"
+    },
+    "horror": {
+      "family": "fantasy",
+      "weight": "700",
+      "color": "#94070a"
+    }
+  },
+  "effects": {
+    "shadows": {
+      "small": "0 2px 6px rgba(0, 0, 0, 0.4)",
+      "medium": "0 4px 12px rgba(0, 0, 0, 0.6)",
+      "large": "0 8px 24px rgba(0, 0, 0, 0.8)",
+      "glow": "0 0 15px rgba(148, 7, 10, 0.5)"
+    },
+    "textShadow": {
+      "heading": "2px 2px 4px rgba(0, 0, 0, 0.8)",
+      "blood": "0 0 8px #94070a, 0 0 16px #94070a",
+      "light": "1px 1px 2px rgba(0, 0, 0, 0.6)"
+    },
+    "borders": {
+      "horror": "2px solid #94070a",
+      "dark": "1px solid #404040"
+    }
+  },
+  "patterns": {
+    "distressed": true,
+    "grunge": true,
+    "bloodstains": true,
+    "scratches": true
+  }
+}

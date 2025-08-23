@@ -1,0 +1,742 @@
+/* Horror Theme - Inspired by SWADE Horror Companion */
+/* Dark, atmospheric horror aesthetics with deep reds, blacks, and eerie styling */
+
+:root {
+  /* Primary Color Palette - Deep Blood Reds */
+  --primary-color: #94070a;
+  --primary-light: #d2232a;
+  --primary-dark: #5c0407;
+  --primary-contrast: #dfdab8;
+  
+  /* Secondary Colors - Dark Browns */
+  --secondary-color: #602f24;
+  --secondary-light: #714432;
+  --secondary-dark: #3d1e17;
+  --secondary-contrast: #dfdab8;
+  
+  /* Accent Colors */
+  --accent-blood: #94070a;
+  --accent-rust: #8b4513;
+  --accent-bone: #f2efe5;
+  
+  /* Background Colors - Dark Theme */
+  --bg-primary: #1a1a1a;        /* Near black */
+  --bg-secondary: #2c2c2c;      /* Dark gray */
+  --bg-tertiary: #404040;       /* Medium gray */
+  --bg-light: #dfdab8;          /* Aged paper */
+  --bg-overlay: rgba(26, 26, 26, 0.95);
+  
+  /* Surface Colors */
+  --surface-light: #dfdab8;
+  --surface-medium: #83c0b2;
+  --surface-dark: #31444f;
+  --surface-darker: #1a1a1a;
+  
+  /* Text Colors - Light on Dark */
+  --text-primary: #dfdab8;      /* Aged paper text */
+  --text-secondary: #b5b5b5;    /* Gray text */
+  --text-light: #ffffff;
+  --text-dark: #000000;
+  --text-blood: #94070a;        /* Blood red accent text */
+  
+  /* Border Colors */
+  --border-light: #5a5a5a;
+  --border-medium: #404040;
+  --border-dark: #000000;
+  --border-blood: #94070a;
+  
+  /* State Colors */
+  --color-success: #4a5c4a;
+  --color-warning: #8b6914;
+  --color-error: #94070a;
+  --color-info: #30445a;
+  
+  /* Effects - Enhanced Shadows for Horror */
+  --shadow-small: 0 2px 6px rgba(0, 0, 0, 0.4);
+  --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-large: 0 8px 24px rgba(0, 0, 0, 0.8);
+  --shadow-glow: 0 0 15px rgba(148, 7, 10, 0.5);
+  --text-shadow-heading: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  --text-shadow-blood: 0 0 8px #94070a, 0 0 16px #94070a;
+  --text-shadow-light: 1px 1px 2px rgba(0, 0, 0, 0.6);
+  
+  /* Typography */
+  --font-heading: 'Creepster', 'Chiller', 'Blackletter', serif;
+  --font-body: 'Times New Roman', 'Georgia', serif;
+  --font-ui: 'Courier New', 'Monaco', monospace;
+  --font-horror: 'Creepster', 'Nosifer', 'Metal Mania', fantasy;
+}
+
+/* Global Body Styling - Dark Theme */
+body {
+  background: radial-gradient(ellipse at center, 
+    var(--bg-secondary) 0%, 
+    var(--bg-primary) 70%, 
+    #000000 100%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  min-height: 100vh;
+}
+
+/* Add subtle texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(148, 7, 10, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(148, 7, 10, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Header Styling - Horror Red on Black */
+.app-header {
+  background: linear-gradient(180deg, var(--bg-primary) 0%, #000000 100%);
+  border-bottom: 3px solid var(--primary-color);
+  box-shadow: var(--shadow-large);
+  position: relative;
+}
+
+.app-header::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--shadow-glow);
+}
+
+.app-header h1 {
+  color: var(--text-light);
+  font-family: var(--font-horror);
+  text-shadow: var(--text-shadow-blood);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* Sidebar Styling - Dark with Red Accents */
+.sidebar {
+  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  border-right: 2px solid var(--border-blood);
+  box-shadow: var(--shadow-large);
+}
+
+.sidebar-section {
+  border-bottom: 1px solid var(--border-medium);
+  background: rgba(148, 7, 10, 0.05);
+}
+
+.sidebar-section h2,
+.sidebar-section h3 {
+  color: var(--secondary-color);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.25rem;
+  text-shadow: var(--text-shadow-light);
+}
+
+/* Button Styling - Dark Horror Theme */
+.btn {
+  background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  border: 2px solid var(--primary-light);
+  color: var(--text-light);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 0.25rem;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--shadow-glow);
+  opacity: 0;
+  border-radius: 0.25rem;
+  transition: opacity 0.3s ease;
+}
+
+.btn:hover {
+  background: linear-gradient(180deg, var(--primary-light) 0%, var(--primary-color) 100%);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-2px);
+  text-shadow: var(--text-shadow-blood);
+}
+
+.btn:hover::before {
+  opacity: 0.3;
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-small);
+}
+
+.btn-secondary {
+  background: linear-gradient(180deg, var(--secondary-color) 0%, var(--secondary-dark) 100%);
+  border-color: var(--secondary-light);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(180deg, var(--secondary-light) 0%, var(--secondary-color) 100%);
+}
+
+/* Sound Pad Button Controls - Ensure Clickability */
+.pad-btn {
+  background: var(--surface-light);
+  border: 2px solid var(--border-light);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  box-shadow: var(--shadow-small);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: static;
+  overflow: visible;
+  z-index: 1;
+}
+
+.pad-btn::before {
+  display: none;
+}
+
+.pad-btn:hover {
+  background: var(--surface-medium);
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-glow);
+  text-shadow: var(--text-shadow-light);
+}
+
+.pad-btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-small);
+}
+
+.pad-btn.active {
+  background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  border-color: var(--primary-light);
+  color: var(--text-light);
+  font-weight: 700;
+  text-shadow: var(--text-shadow-blood);
+}
+
+/* Sound Pad Controls Container */
+.sound-pad-controls {
+  background: var(--surface-dark);
+  border-radius: 0 0 0.375rem 0.375rem;
+  padding: 0.75rem;
+}
+
+.sound-pad-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Card/Panel Styling - Dark with Eerie Glow */
+.sound-pad,
+.tag-chip,
+.modal-container,
+.panel {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-medium);
+  border-radius: 0.375rem;
+  box-shadow: var(--shadow-medium);
+  position: relative;
+}
+
+.sound-pad::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    transparent 0%, 
+    var(--primary-color) 25%, 
+    transparent 50%, 
+    var(--primary-color) 75%, 
+    transparent 100%);
+  border-radius: 0.375rem;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sound-pad:hover::before {
+  opacity: 0.4;
+}
+
+.sound-pad.active {
+  background: var(--bg-tertiary);
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-glow);
+}
+
+.sound-pad.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, 
+    rgba(148, 7, 10, 0.1) 0%, 
+    transparent 70%);
+  border-radius: 0.375rem;
+  pointer-events: none;
+}
+
+/* Sound Pad Headers - Dark Horror Style */
+.sound-pad-header {
+  background: linear-gradient(180deg, var(--surface-dark) 0%, var(--bg-primary) 100%);
+  color: var(--text-light);
+  border-radius: 0.25rem 0.25rem 0 0;
+  border-bottom: 1px solid var(--border-blood);
+}
+
+.sound-pad-title {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  text-shadow: var(--text-shadow-light);
+  letter-spacing: 0.05em;
+}
+
+/* Tag Styling - Horror Themed */
+.tag-chip {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+  color: var(--text-light);
+  font-weight: 600;
+  border: 1px solid var(--border-blood);
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  box-shadow: var(--shadow-small);
+  transition: all 0.3s ease;
+  font-family: var(--font-ui);
+}
+
+.tag-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-glow);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+  text-shadow: var(--text-shadow-light);
+}
+
+.tag-chip.active {
+  background: linear-gradient(135deg, var(--accent-blood) 0%, var(--primary-light) 100%);
+  color: var(--text-light);
+  border-color: var(--text-light);
+  text-shadow: var(--text-shadow-blood);
+}
+
+/* Modal Styling - Dark Horror */
+.modal-overlay {
+  background: var(--bg-overlay);
+  backdrop-filter: blur(6px) brightness(0.3);
+}
+
+.modal-container {
+  background: var(--bg-secondary);
+  border: 3px solid var(--primary-color);
+  box-shadow: var(--shadow-large);
+  border-radius: 0.5rem;
+  position: relative;
+}
+
+.modal-container::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  background: var(--shadow-glow);
+  border-radius: 0.5rem;
+  z-index: -1;
+}
+
+.modal-header {
+  background: linear-gradient(180deg, var(--primary-dark) 0%, var(--bg-primary) 100%);
+  color: var(--text-light);
+  border-bottom: 2px solid var(--primary-color);
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.modal-header h2 {
+  font-family: var(--font-horror);
+  text-shadow: var(--text-shadow-blood);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Form Styling - Dark Theme */
+input, select, textarea {
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-medium);
+  border-radius: 0.25rem;
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(148, 7, 10, 0.2);
+  outline: none;
+  background: var(--bg-secondary);
+}
+
+label {
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.875rem;
+  text-shadow: var(--text-shadow-light);
+}
+
+/* Table Styling - Dark Horror Theme */
+table {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-dark);
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+th {
+  background: linear-gradient(180deg, var(--primary-dark) 0%, var(--bg-primary) 100%);
+  color: var(--text-light);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--primary-color);
+  text-shadow: var(--text-shadow-light);
+}
+
+td {
+  border-bottom: 1px solid var(--border-medium);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+}
+
+tr:nth-child(even) {
+  background: rgba(148, 7, 10, 0.05);
+}
+
+tr:hover {
+  background: rgba(148, 7, 10, 0.1);
+  color: var(--text-light);
+}
+
+/* Scrollbar Styling - Dark Theme */
+::-webkit-scrollbar {
+  width: 14px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+  border-radius: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  border-radius: 7px;
+  border: 2px solid var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--primary-light) 0%, var(--primary-color) 100%);
+  box-shadow: var(--shadow-glow);
+}
+
+/* Mixer Grid Styling - Dark Horror */
+.mixer-grid {
+  background: radial-gradient(circle at center, 
+    var(--bg-secondary) 0%, 
+    var(--bg-primary) 100%);
+  border: 2px solid var(--border-blood);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  position: relative;
+}
+
+.mixer-grid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 35px,
+      rgba(148, 7, 10, 0.03) 35px,
+      rgba(148, 7, 10, 0.03) 70px
+    );
+  border-radius: 0.5rem;
+  pointer-events: none;
+}
+
+/* Atmosphere Panel Styling - Horror Theme */
+.atmosphere-item {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
+  border-left: 4px solid var(--primary-color);
+  transition: all 0.3s ease;
+}
+
+.atmosphere-item:hover {
+  background: var(--bg-tertiary);
+  border-left-color: var(--primary-light);
+  box-shadow: var(--shadow-small);
+  transform: translateX(2px);
+}
+
+.atmosphere-item.active {
+  background: rgba(148, 7, 10, 0.1);
+  border: 2px solid var(--primary-color);
+  border-left: 4px solid var(--primary-light);
+  box-shadow: var(--shadow-glow);
+}
+
+/* Search Input Styling - Dark Theme */
+.search-input {
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-blood);
+  border-radius: 1.5rem;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-ui);
+  color: var(--text-primary);
+}
+
+.search-input:focus {
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-glow);
+  background: var(--bg-secondary);
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Volume Slider Styling - Horror Theme */
+input[type="range"] {
+  -webkit-appearance: none;
+  background: var(--bg-primary);
+  border-radius: 1rem;
+  height: 0.5rem;
+  border: 1px solid var(--border-dark);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background: linear-gradient(45deg, var(--primary-color) 0%, var(--primary-light) 100%);
+  border: 2px solid var(--text-light);
+  border-radius: 50%;
+  height: 1.5rem;
+  width: 1.5rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-small);
+  transition: all 0.3s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: linear-gradient(45deg, var(--primary-light) 0%, var(--primary-color) 100%);
+  box-shadow: var(--shadow-glow);
+  transform: scale(1.1);
+}
+
+/* Progress Bar Styling - Horror Theme */
+.progress-bar {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-dark);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, 
+    var(--primary-dark) 0%, 
+    var(--primary-color) 50%, 
+    var(--primary-light) 100%);
+  border-radius: 1rem;
+  transition: width 0.3s ease;
+  box-shadow: inset 0 0 10px rgba(148, 7, 10, 0.3);
+}
+
+/* Status and Notification Styling - Dark Theme */
+.status-success {
+  background: var(--color-success);
+  color: var(--text-light);
+  border: 1px solid var(--border-dark);
+}
+
+.status-warning {
+  background: var(--color-warning);
+  color: var(--text-light);
+  border: 1px solid var(--border-dark);
+}
+
+.status-error {
+  background: var(--color-error);
+  color: var(--text-light);
+  border: 1px solid var(--border-dark);
+  text-shadow: var(--text-shadow-light);
+}
+
+/* Horror-specific effects */
+.horror-glow {
+  box-shadow: var(--shadow-glow);
+  border-color: var(--primary-color);
+}
+
+.blood-text {
+  color: var(--text-blood);
+  text-shadow: var(--text-shadow-blood);
+}
+
+.distressed-border {
+  border: 2px solid var(--primary-color);
+  border-radius: 0.25rem;
+  position: relative;
+}
+
+.distressed-border::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  background: linear-gradient(45deg, 
+    transparent 0%, 
+    rgba(148, 7, 10, 0.2) 25%, 
+    transparent 50%, 
+    rgba(148, 7, 10, 0.2) 75%, 
+    transparent 100%);
+  border-radius: 0.25rem;
+  z-index: -1;
+}
+
+/* Decorative elements for headings */
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  color: var(--secondary-color);
+  position: relative;
+  text-shadow: var(--text-shadow-heading);
+}
+
+h1::after, h2::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--primary-color) 20%, 
+    var(--primary-light) 50%, 
+    var(--primary-color) 80%, 
+    transparent 100%);
+  margin-top: 0.5rem;
+  box-shadow: var(--shadow-glow);
+}
+
+/* Animation for horror effects */
+@keyframes horror-pulse {
+  0% { 
+    box-shadow: var(--shadow-medium); 
+  }
+  50% { 
+    box-shadow: var(--shadow-glow); 
+    border-color: var(--primary-light);
+  }
+  100% { 
+    box-shadow: var(--shadow-medium); 
+  }
+}
+
+.horror-pulse {
+  animation: horror-pulse 3s ease-in-out infinite;
+}
+
+@keyframes blood-drip {
+  0% { 
+    text-shadow: var(--text-shadow-heading); 
+  }
+  50% { 
+    text-shadow: var(--text-shadow-blood); 
+  }
+  100% { 
+    text-shadow: var(--text-shadow-heading); 
+  }
+}
+
+.blood-drip {
+  animation: blood-drip 4s ease-in-out infinite;
+}
+
+/* Responsive Design - Maintain Horror Aesthetic */
+@media (max-width: 768px) {
+  :root {
+    --shadow-small: 0 1px 4px rgba(0, 0, 0, 0.4);
+    --shadow-medium: 0 2px 8px rgba(0, 0, 0, 0.6);
+    --shadow-large: 0 4px 16px rgba(0, 0, 0, 0.8);
+  }
+  
+  .sound-pad {
+    border-width: 1px;
+  }
+  
+  .modal-container {
+    border-width: 2px;
+  }
+  
+  .app-header h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Special horror text effects */
+.creepy-text {
+  font-family: var(--font-horror);
+  color: var(--text-blood);
+  text-shadow: var(--text-shadow-blood);
+  letter-spacing: 0.1em;
+}
+
+.nightmare-bg {
+  background: radial-gradient(circle at center,
+    rgba(148, 7, 10, 0.1) 0%,
+    transparent 70%);
+}
