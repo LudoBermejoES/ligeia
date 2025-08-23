@@ -201,7 +201,7 @@ export class UIController {
         const soundsContainer = this.getElementById('soundsPadsGrid');
         if (!ambientContainer || !soundsContainer) return;
 
-        const sortedFiles = this.sortByTitle(audioFiles);
+    const sortedFiles = this.sortByTitle(audioFiles);
 
         const ambient = [];
         const others = [];
@@ -216,10 +216,10 @@ export class UIController {
 
         console.log(`Rendering: ${ambient.length} ambient files, ${others.length} other files (filtered: ${!!this.soundSearchFilter})`);
 
-        // Render pads using unified system
-        const soundPads = this.libraryManager.getSoundPads();
-        ambientContainer.innerHTML = ambient.map(a => this.renderUnifiedSoundPad(a, soundPads.get(a.file_path))).join('');
-        soundsContainer.innerHTML = others.map(a => this.renderUnifiedSoundPad(a, soundPads.get(a.file_path))).join('');
+    // Render pads grouped by parent folder within each category
+    const soundPads = this.libraryManager.getSoundPads();
+    ambientContainer.innerHTML = this.renderFolderGroups(ambient, soundPads);
+    soundsContainer.innerHTML = this.renderFolderGroups(others, soundPads);
 
         // Initialize pad states in unified system
         [...ambient, ...others].forEach(audioFile => {
@@ -425,12 +425,47 @@ export class UIController {
         return filePath.split(/[/\\]/).pop()?.replace(/\.[^/.]+$/, '') || 'Unknown';
     }
 
+    getParentFolder(filePath) {
+        const parts = (filePath || '').split(/[/\\]/).filter(Boolean);
+        if (parts.length >= 2) return parts[parts.length - 2];
+        return 'No Folder';
+    }
+
     sortByTitle(files) {
         return files.sort((a, b) => {
             const ta = (a.title || this.getFilenameFromPath(a.file_path) || '').toLowerCase();
             const tb = (b.title || this.getFilenameFromPath(b.file_path) || '').toLowerCase();
             return ta.localeCompare(tb);
         });
+    }
+
+    renderFolderGroups(files, soundPads) {
+        if (!files || files.length === 0) return '';
+        // Group by parent folder
+        const groups = new Map();
+        for (const f of files) {
+            const folder = this.getParentFolder(f.file_path);
+            if (!groups.has(folder)) groups.set(folder, []);
+            groups.get(folder).push(f);
+        }
+        // Sort folder names alphabetically, with 'No Folder' last
+        const folderNames = Array.from(groups.keys()).sort((a, b) => {
+            if (a === 'No Folder') return 1;
+            if (b === 'No Folder') return -1;
+            return a.localeCompare(b, undefined, { sensitivity: 'base' });
+        });
+        // Build HTML
+        const sections = folderNames.map(folder => {
+            const items = this.sortByTitle(groups.get(folder));
+            const padsHtml = items.map(item => this.renderUnifiedSoundPad(item, soundPads.get(item.file_path))).join('');
+            return `
+                <section class="folder-group">
+                    <h5 class="folder-header">${this.escapeHtml(folder)} <span class="folder-count">(${items.length})</span></h5>
+                    <div class="sound-pads-grid">${padsHtml}</div>
+                </section>
+            `;
+        });
+        return sections.join('');
     }
 
     initMouseBasedDragDrop() {

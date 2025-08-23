@@ -249,6 +249,11 @@ body {
 }
 #membershipPanelBody.membership-drop-active { background:rgba(76,175,80,0.08); transition:background .15s ease; }
 
+/* Membership duration grouping headers */
+#membershipPanelBody .duration-group { grid-column: 1 / -1; }
+#membershipPanelBody .duration-header { margin:.25rem 0 .25rem; font-size:.8rem; opacity:.85; }
+#membershipPanelBody .duration-count { font-size:.7rem; opacity:.7; }
+
 /* Visual cue when mixer acts as removal drop target */
 .membership-remove-target { box-shadow: inset 0 0 0 3px #d9534f99; transition: box-shadow .15s ease; }
 
@@ -593,6 +598,22 @@ body {
     -webkit-user-select: none;
     user-select: none;
 }
+
+/* Folder grouping inside mixer sections */
+.folder-group { margin-bottom: 1rem; }
+.folder-header { 
+    margin: 0.25rem 0 0.25rem; 
+    font-size: 0.85rem; 
+    letter-spacing: .3px; 
+    opacity: .9; 
+    display:flex; 
+    align-items:center; 
+    gap:.35rem;
+}
+.folder-count { font-size:.75rem; opacity:.7; }
+/* Make each folder group span the full grid width inside the outer grid */
+.sound-pads-grid > .folder-group { grid-column: 1 / -1; }
+.folder-group .sound-pads-grid { padding: .25rem 0 .5rem; }
 
 .sortable-ghost {
     opacity: 0.3;

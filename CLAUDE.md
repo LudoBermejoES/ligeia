@@ -62,11 +62,13 @@ The backend has been **completely refactored** into a modular architecture with 
 
 -   **Modular Structure** (`src-tauri/src/`):
     -   `main.rs`: Main entry point and Tauri command handlers
-    -   `models.rs`: Data structures (AudioFile, RpgTag, TagVocabulary, etc.)
-    -   `database.rs`: Database operations, schema management, and queries
-    -   `audio_handler.rs`: Audio metadata processing with full ID3v2.4 support
-    -   `tag_manager.rs`: RPG tag business logic and validation
-    -   `file_scanner.rs`: Recursive directory scanning with performance optimization
+    -   `models.rs`: Data structures (AudioFile, Atmosphere, RpgTag, TagVocabulary, etc.)
+    -   `database/` module: schema, queries, and table-specific ops split across files (`schema.rs`, `audio_files.rs`, `rpg_tags.rs`, `vocabulary.rs`, `atmospheres.rs`, `search.rs`)
+    -   `audio_handler.rs`: Audio metadata processing (duration, BPM) and ID3v2.4 read/write
+    -   `audio_processing_handler.rs`: Batch duration/BPM calculation (`calculate_missing_durations`)
+    -   `tag_manager.rs` and `tag_handler.rs`: RPG tag business logic and Tauri commands
+    -   `file_scanner.rs`: Recursive directory scanning with filtering
+    -   `import_export_handler.rs`: Library backup/restore logic
 
 -   **Enhanced Tauri Commands**: The Rust backend exposes comprehensive commands:
     -   **Audio File Operations**: `load_audio_file`, `save_audio_file`, `get_all_audio_files`, `delete_audio_file`, `update_audio_file_tags`, `write_rpg_tags_to_file`
@@ -156,6 +158,7 @@ The atmosphere system provides professional-grade soundscape management:
 - **Visual Feedback**: Progress bars, status indicators, and real-time update displays
 - **Confirmation Dialogs**: Diff preview before loading atmospheres to show expected changes
 - **Category Management**: Organized atmosphere browsing with metadata-based filtering
+ - **Theme Switching**: Atmospheres can switch UI theme dynamically via `ThemeService` (e.g., default, fantasy, horror, superheroes)
 
 ### 2.5. Technology Stack Summary
 
@@ -167,6 +170,10 @@ The atmosphere system provides professional-grade soundscape management:
 -   **Audio Processing**: Symphonia for format support, Aubio for BPM detection
 -   **UI Libraries**: SortableJS for drag-and-drop functionality, native file dialogs
 -   **Build Tools**: Node.js/npm for frontend dependencies and Tauri CLI commands
+
+Notes:
+-   BPM detection uses `aubio-rs` with Symphonia decoding; no direct `aubio-sys` dependency is declared in this project (any `aubio-sys` is transitive in aubio-rs).
+-   A unified `PadEventHandler` and `padStateManager` keep pad state and events consistent between mixer and atmosphere contexts.
 
 ## 3. Code Structure and Key Files
 
@@ -266,7 +273,12 @@ src-tauri/src/
 - **Smart Audio Loading**: Automatic sound pad creation and management through LibraryManager
 - **Crossfade Support**: Smooth volume transitions with cancellation support for professional audio mixing
 
-### 4.2. Professional RPG Audio Tagging System
+### 4.2. Mixer UI Grouping (New)
+- **Ambient vs. Others split**: Mixer shows a visual split between ambient-like items and other sounds (heuristic based on path/title/genre).
+- **Folder-based grouping**: Within each split, pads are grouped by their parent folder for faster browsing of large libraries.
+- **Unified pad events**: Actions (play, loop, mute, edit-tags) are routed via a single pad event system.
+
+### 4.3. Professional RPG Audio Tagging System
 - **Complete TAGS.md Implementation**: 700+ controlled vocabulary tags across four categories
 - **Hierarchical Tag Structure**: Parent-child relationships with proper inheritance (e.g., `orchestral:cinematic`)
 - **Faceted Keyword System**: Organized prefixes for biomes, locations, creatures, styles, technology, weather, SFX, and utility
@@ -275,14 +287,14 @@ src-tauri/src/
 - **Visual Tag Management**: Interactive tag chips with clear visual feedback
 - **Legacy Category Removal**: Eliminated redundant ambient/nature/music/effects in favor of comprehensive tagging
 
-### 4.3. Advanced Search and Discovery
+### 4.4. Advanced Search and Discovery
 - **Multi-Tag Filtering**: Combine tags from different categories for precise searches
 - **AND/OR Logic**: Choose between "match all tags" or "match any tags" search modes
 - **Real-time Results**: Instant filtering as tags are selected or deselected
 - **Search Statistics**: Display result counts and filter status
 - **Tag-First Navigation**: Primary filtering through RPG taxonomy instead of basic categories
 
-### 4.4. Professional Atmosphere Management
+### 4.5. Professional Atmosphere Management
 - **Complete Atmosphere System**: Create, save, load, and manage atmospheric soundscapes
 - **Advanced Crossfade Engine**: Smooth transitions between atmosphere states with configurable duration and curves
 - **Membership Management**: Add/remove sounds to atmospheres with individual volume, loop, and mute settings
@@ -294,7 +306,12 @@ src-tauri/src/
 - **Progress Tracking**: Real-time feedback during crossfade operations with cancellation support
 - **Professional Metadata**: Complete atmosphere categorization with keywords and descriptions
 
-### 4.5. Export/Import Library Management
+### 4.6. Atmosphere Membership Editor Grouping (New)
+- **Duration-based grouping**: Membership panel groups pads into sections: More than 30 seconds, More than 10 seconds, Below ten seconds (unknown durations are listed last).
+- **Drag and drop**: Add from mixer via native HTML5 drag or mouse-based drag helper; internal reordering uses SortableJS (headers are non-draggable).
+- **State sync**: Pad state mirrors mixer where relevant; membership changes auto-persist with debounce to the backend.
+
+### 4.7. Export/Import Library Management
 - **Complete Library Backup**: Export all audio files, tag data, and atmosphere configurations to readable JSON format
 - **Flexible Export Options**: Native file save dialog with custom location and filename selection
 - **Readable JSON Format**: Clear field names for easy understanding and manual editing
@@ -303,7 +320,7 @@ src-tauri/src/
 - **Data Validation**: Import validation ensures file format integrity before processing
 - **User-Friendly Interface**: Clear confirmation dialogs and progress feedback
 
-### 4.6. User Interface Enhancements
+### 4.8. User Interface Enhancements
 - **Professional Modal System**: Comprehensive atmosphere creation/editing, bulk tag editor, search interfaces, and export/import dialogs
 - **Side Panel Architecture**: Resizable atmosphere membership editor with dedicated controls and drag-and-drop support
 - **Responsive Design**: Adapts to different screen sizes and resolutions with professional layout management
@@ -315,25 +332,30 @@ src-tauri/src/
 
 ## 5. Development and Build Process
 
--   **Dependencies**: Managed by `package.json` (frontend) and `Cargo.toml` (backend).
--   **Development**: `npm run dev` starts the Tauri development server with hot-reloading.
--   **Build**: `npm run build` builds the production-ready application for the target platform.
--   **Testing**: Comprehensive testing procedures documented in `TESTING.md`.
+-   **Dependencies**: Managed by root `package.json` (drives Tauri via frontend) and `src-tauri/Cargo.toml` (Rust).
+-   **Development**: `npm run dev` invokes `npm --prefix ./src-fe exec tauri dev` (Windows-friendly).
+-   **Build**: `npm run build` invokes `npm --prefix ./src-fe exec tauri build`.
+-   **Testing**: Manual smoke tests currently; automated tests to be added.
 
 ### 5.1. Development Commands
-```bash
-# Start development server
+```powershell
+# Start development (Windows PowerShell)
 npm run dev
 
 # Build for production
 npm run build
 
-# Check Rust code
-cd src-tauri && cargo check
-
-# Run tests (if configured)
-npm test
+# Optional: Rust check
+cd src-tauri; cargo check
 ```
+
+### 5.2. Windows/WSL notes
+- If you see "'src-fe' is not recognized as an internal or external command", ensure scripts use the `npm --prefix ./src-fe exec tauri ...` form (already configured in root `package.json`).
+- Linux/WSL builds need GTK/WebKit dependencies. On Ubuntu: install `libgtk-3-dev`, `libwebkit2gtk-4.1-dev`, `libayatana-appindicator3-dev`, `librsvg2-dev`, `pkg-config`, `clang` (and optionally `libaubio-dev` for system aubio).
+
+### 5.3. App icons
+- Place a high-res PNG at `src-tauri/icons/icon.png`.
+- Generate platform assets: `npm --prefix ./src-fe exec tauri icon ./src-tauri/icons/icon.png`.
 
 ## 6. Usage Workflows
 
@@ -412,12 +434,11 @@ Maintains controlled vocabulary:
 
 ## 9. Testing and Quality Assurance
 
-Comprehensive testing procedures are documented in `TESTING.md`, covering:
-- Basic functionality testing
-- Bulk tag editor testing
-- Tag search and filtering testing
-- Integration testing
-- Error handling testing
+Current coverage (manual):
+- Core mixer operations and pad actions
+- Tag search and filtering flows
+- Atmosphere create/save/load and crossfade
+- Membership editor add/remove/reorder flows
 
 ## 10. Future Extensibility
 
@@ -460,8 +481,10 @@ Ligeia has evolved into a sophisticated and professional desktop application tha
 
 The combination of Tauri's cross-platform capabilities, Rust's performance and safety, comprehensive RPG audio taxonomy, and modern JavaScript architecture makes Ligeia a professional-grade foundation for ambient audio management in tabletop gaming environments. The application now serves as a complete audio library management system specifically designed for RPG and ambient audio needs.
 
-# important-instruction-reminders
-Do what has been asked; nothing more, nothing less.
-NEVER create files unless they're absolutely necessary for achieving your goal.
-ALWAYS prefer editing an existing file to creating a new one.
-NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+---
+
+Changelog highlights (recent):
+- Mixer: visual grouping by parent folder within Ambient/Others.
+- Membership editor: duration-based grouping with non-draggable headers and SortableJS reordering.
+- Unified pad event/state system across mixer and atmosphere contexts.
+- Root npm scripts updated to use Windows-friendly `npm --prefix ./src-fe exec tauri ...`.
