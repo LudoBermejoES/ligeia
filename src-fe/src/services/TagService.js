@@ -47,15 +47,27 @@ export class TagService {
     async loadTagIcons() {
         try {
             const response = await fetch('./data/rpg_audio_tags_with_icons.json');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
             const iconData = await response.json();
+            
+            // Validate the structure
+            if (!iconData || typeof iconData !== 'object') {
+                throw new Error('Invalid icon data structure - not an object');
+            }
             
             // Process all categories (genres, moods, occasions, keywords)
             const categories = ['genres', 'moods', 'occasions', 'keywords'];
             
             categories.forEach(category => {
                 if (iconData[category]) {
+                    if (!Array.isArray(iconData[category])) {
+                        console.warn(`Category ${category} is not an array:`, typeof iconData[category], iconData[category]);
+                        return;
+                    }
                     iconData[category].forEach(tag => {
-                        if (tag.slug && tag.icon) {
+                        if (tag && tag.slug && tag.icon) {
                             this.tagIcons.set(tag.slug, tag.icon);
                         }
                     });

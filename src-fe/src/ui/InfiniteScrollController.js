@@ -359,9 +359,9 @@ export class InfiniteScrollController {
    * Get parent folder from file path
    */
   getParentFolder(filePath) {
-    if (!filePath) return 'No Folder';
-    const parts = filePath.split('/');
-    return parts.length > 1 ? parts[parts.length - 2] : 'No Folder';
+    const parts = (filePath || '').split(/[/\\]/).filter(Boolean);
+    if (parts.length >= 2) return parts[parts.length - 2];
+    return 'No Folder';
   }
 
   /**
