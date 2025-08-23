@@ -89,15 +89,15 @@ function generateControlButtons(controls, state) {
   const buttons = [];
   
   if (controls.includes('toggle')) {
-    buttons.push(`<button class="pad-btn ${state.isPlaying ? 'active' : ''}" data-action="toggle" draggable="false">${state.isPlaying ? 'Stop' : 'Play'}</button>`);
+    buttons.push(`<button class="pad-btn ${state.isPlaying ? 'active' : ''}" data-action="toggle" title="${state.isPlaying ? 'Stop' : 'Play'}" draggable="false">${state.isPlaying ? '⏸️' : '▶️'}</button>`);
   }
   
   if (controls.includes('loop')) {
-    buttons.push(`<button class="pad-btn ${state.isLooping ? 'active' : ''}" data-action="loop" draggable="false">Loop</button>`);
+    buttons.push(`<button class="pad-btn ${state.isLooping ? 'active' : ''}" data-action="loop" title="Loop" draggable="false">🔁</button>`);
   }
   
   if (controls.includes('mute')) {
-    buttons.push(`<button class="pad-btn ${state.isMuted ? 'active' : ''}" data-action="mute" draggable="false">Mute</button>`);
+    buttons.push(`<button class="pad-btn ${state.isMuted ? 'active' : ''}" data-action="mute" title="Mute" draggable="false">${state.isMuted ? '🔇' : '🔊'}</button>`);
   }
   
   if (controls.includes('remove')) {

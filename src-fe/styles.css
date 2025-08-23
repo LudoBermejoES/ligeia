@@ -212,6 +212,31 @@ body {
 #membershipPanelBody .sound-pad-buttons { gap:2px; }
 #membershipPanelBody .sound-pad-buttons .pad-btn { font-size:.55rem; padding:.2rem .35rem; }
 
+/* When maximized, use normal-sized pads like mixer grid */
+#membership-container.maximized #membershipPanelBody .sound-pad {
+  font-size: inherit !important;
+}
+
+#membership-container.maximized #membershipPanelBody .sound-pad .sound-pad-title {
+  font-size: inherit !important;
+}
+
+#membership-container.maximized #membershipPanelBody .sound-pad-buttons {
+  gap: 0.5rem !important;
+}
+
+#membership-container.maximized #membershipPanelBody .sound-pad-buttons .pad-btn {
+  font-size: 1rem !important;
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  padding: 0 !important;
+}
+
+#membership-container.maximized #atmoMembershipPadGrid {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+  gap: 1rem !important;
+}
+
 /* Remove floating styles now that panel is integrated */
 .atmo-membership-float { display:none !important; }
 

@@ -286,9 +286,9 @@ export class AtmosphereMembershipEditor {
       </div>
       <div class="sound-pad-controls">
         <div class="sound-pad-buttons">
-          <button class="pad-btn ${playActive}" data-action="toggle">${isPlaying ? 'Stop' : 'Play'}</button>
-          <button class="pad-btn ${loopActive}" data-action="loop">Loop</button>
-          <button class="pad-btn ${muteActive}" data-action="mute">Mute</button>
+          <button class="pad-btn ${playActive}" data-action="toggle" title="${isPlaying ? 'Stop' : 'Play'}">${isPlaying ? '⏸️' : '▶️'}</button>
+          <button class="pad-btn ${loopActive}" data-action="loop" title="Loop">🔁</button>
+          <button class="pad-btn ${muteActive}" data-action="mute" title="Mute">${meta.is_muted ? '🔇' : '🔊'}</button>
           <button class="pad-btn" data-action="remove" title="Remove">✕</button>
         </div>
         <div class="volume-control-pad">

@@ -147,7 +147,8 @@ export class PadEventHandler {
         }
         const toggleBtn = pad.querySelector('[data-action="toggle"]');
         if (toggleBtn) {
-          toggleBtn.textContent = stateChanges.isPlaying ? 'Stop' : 'Play';
+          toggleBtn.textContent = stateChanges.isPlaying ? '⏸️' : '▶️';
+          toggleBtn.title = stateChanges.isPlaying ? 'Stop' : 'Play';
           toggleBtn.classList.toggle('active', stateChanges.isPlaying);
         }
       }

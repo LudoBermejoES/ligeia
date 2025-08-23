@@ -151,17 +151,20 @@ body {
   color: var(--text-primary);
   font-family: var(--font-ui);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   border-radius: 0.375rem;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.875rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  font-size: 1rem;
   box-shadow: var(--shadow-small);
   transition: all 0.2s ease;
   cursor: pointer;
   position: static;
   overflow: visible;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pad-btn:hover {

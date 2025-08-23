@@ -344,7 +344,8 @@ export class UIController {
     }
 
     updatePadPlayButton(element, isPlaying) {
-        element.textContent = isPlaying ? 'Stop' : 'Play';
+        element.textContent = isPlaying ? '⏸️' : '▶️';
+        element.title = isPlaying ? 'Stop' : 'Play';
         element.className = `pad-btn ${isPlaying ? 'active' : ''}`;
     }
 
