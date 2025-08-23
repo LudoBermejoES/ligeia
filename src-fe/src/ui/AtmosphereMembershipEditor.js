@@ -209,27 +209,38 @@ export class AtmosphereMembershipEditor {
       return;
     }
     
-    // Use unified rendering system
+    // Use unified rendering system with duration-based grouping
     grid.innerHTML = '';
     const audioFilesMap = this.libraryManager.getAudioFiles();
-    
-    for (const [audioId, meta] of this.members.entries()) {
-      const audioFile = [...audioFilesMap.values()].find(f => f.id === audioId);
-      if (!audioFile) continue;
-      
+
+    // Build groups
+    const groups = {
+      gt30: { label: 'More than 30 seconds', items: [] },
+      gt10: { label: 'More than 10 seconds', items: [] },
+      lt10: { label: 'Below ten seconds', items: [] },
+      unknown: { label: 'Unknown duration', items: [] }
+    };
+
+    const getGroupKey = (sec) => {
+      if (typeof sec !== 'number' || isNaN(sec) || sec <= 0) return 'unknown';
+      if (sec > 30) return 'gt30';
+      if (sec > 10) return 'gt10';
+      return 'lt10';
+    };
+
+    const createPadEl = (audioId, audioFile, meta) => {
       // Get unified pad state or create from local meta
       let padState = padStateManager.getPadState(audioId);
       if (!padState && this.padEventHandler) {
-        // Initialize pad in unified system with atmosphere context
         this.padEventHandler.addPadToContext(audioId, 'atmosphere', {
-          isPlaying: false, // We'll sync this below
+          isPlaying: false,
           isLooping: meta.is_looping || false,
           isMuted: meta.is_muted || false,
           volume: meta.volume ?? 0.5
         });
         padState = padStateManager.getPadState(audioId);
       }
-      
+
       // Sync playing state from mixer if available
       const mixerPad = document.querySelector(`.sound-pad[data-audio-id="${audioId}"][data-context="mixer"]`);
       if (mixerPad && padState) {
@@ -238,19 +249,15 @@ export class AtmosphereMembershipEditor {
           padStateManager.updatePadState(audioId, { isPlaying });
         }
       }
-      
-      // Render using unified system
+
       const wrapper = document.createElement('div');
       wrapper.innerHTML = renderSoundPad(audioFile, padState, {
         escapeHtml: (text) => text.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]),
         context: 'atmosphere',
         origin: 'membership'
       });
-      
       const el = wrapper.firstElementChild;
-      if (!el) continue;
-      
-      // Handle highlighting
+      if (!el) return null;
       if (audioId === this._highlightId) {
         el.classList.add('flash');
         el.addEventListener('animationend', () => { 
@@ -258,8 +265,26 @@ export class AtmosphereMembershipEditor {
           if (this._highlightId === audioId) this._highlightId = null; 
         }, { once: true });
       }
-      
-      grid.appendChild(el);
+      return el;
+    };
+
+    for (const [audioId, meta] of this.members.entries()) {
+      const audioFile = [...audioFilesMap.values()].find(f => f.id === audioId);
+      if (!audioFile) continue;
+      const key = getGroupKey(audioFile.duration);
+      const el = createPadEl(audioId, audioFile, meta);
+      if (el) groups[key].items.push(el);
+    }
+
+    const order = ['gt30', 'gt10', 'lt10', 'unknown'];
+    for (const key of order) {
+      const { label, items } = groups[key];
+      if (!items.length) continue;
+      const header = document.createElement('div');
+      header.className = 'duration-group';
+      header.innerHTML = `<h5 class="duration-header">${label} <span class="duration-count">(${items.length})</span></h5>`;
+      grid.appendChild(header);
+      for (const el of items) grid.appendChild(el);
     }
     
     // Event listeners are now handled by unified system - no need for manual attachment
@@ -459,7 +484,7 @@ export class AtmosphereMembershipEditor {
           animation: 120,
           ghostClass: 'pad-ghost-moving',
           dragClass: 'pad-dragging',
-          filter: '.pad-ghost', // Exclude ghost elements from sorting
+          filter: '.pad-ghost, .duration-group', // Exclude ghost and group headers from sorting
           onStart: (evt) => {
             logger.debug('membership', 'sortable drag started', { index: evt.oldIndex });
           },
