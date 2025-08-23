@@ -232,8 +232,59 @@ export class PadEventHandler {
       await this.handlePadAction(event, 'volume', audioId, context);
     });
 
+    // Prevent event bubbling on buttons and volume controls
+    document.addEventListener('mousedown', (event) => {
+      // Prevent bubbling if clicking on buttons or interactive elements
+      if (event.target.matches('.pad-btn, .edit-tags-btn, .volume-slider-pad, input[type="range"], button')) {
+        event.stopPropagation();
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      // Prevent bubbling if clicking on buttons or interactive elements
+      if (event.target.matches('.pad-btn, .edit-tags-btn, .volume-slider-pad, input[type="range"], button')) {
+        event.stopPropagation();
+      }
+    });
+
+    document.addEventListener('input', (event) => {
+      // Prevent bubbling on volume slider input
+      if (event.target.matches('.volume-slider-pad, input[type="range"]')) {
+        event.stopPropagation();
+      }
+    });
+
+    // Prevent drag when interacting with volume controls
+    let isVolumeInteracting = false;
+
+    document.addEventListener('mousedown', (event) => {
+      // Track when we're interacting with volume controls
+      if (event.target.matches('.volume-slider-pad, input[type="range"]')) {
+        isVolumeInteracting = true;
+      }
+    });
+
+    document.addEventListener('mouseup', (event) => {
+      // Reset volume interaction flag
+      isVolumeInteracting = false;
+    });
+
     // Handle drag start events
     document.addEventListener('dragstart', (event) => {
+      // Prevent drag if we're currently interacting with volume controls
+      if (isVolumeInteracting) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
+
+      // Prevent drag if the drag started from interactive elements
+      if (event.target.matches('.pad-btn, .edit-tags-btn, .volume-slider-pad, input[type="range"], button')) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
+
       const pad = event.target.closest('.sound-pad');
       if (!pad) return;
 
