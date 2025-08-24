@@ -58,24 +58,7 @@ impl AtmosphereRepository {
             conn.execute("ALTER TABLE atmospheres ADD COLUMN fade_curve TEXT NOT NULL DEFAULT 'linear'", [])?;
         }
 
-        // Add min_seconds and max_seconds columns to atmosphere_sounds if they don't exist
-        let mut stmt = conn.prepare("PRAGMA table_info(atmosphere_sounds)")?;
-        let mut has_min_seconds = false;
-        let mut has_max_seconds = false;
-        let mut rows = stmt.query([])?;
-        while let Some(row) = rows.next()? {
-            let col_name: String = row.get(1)?; // 1 = name
-            if col_name == "min_seconds" { has_min_seconds = true; }
-            if col_name == "max_seconds" { has_max_seconds = true; }
-        }
-        if !has_min_seconds {
-            conn.execute("ALTER TABLE atmosphere_sounds ADD COLUMN min_seconds INTEGER DEFAULT 0", [])?;
-        }
-        if !has_max_seconds {
-            conn.execute("ALTER TABLE atmosphere_sounds ADD COLUMN max_seconds INTEGER DEFAULT 0", [])?;
-        }
-
-        // Create atmosphere_sounds mapping table
+        // Create atmosphere_sounds mapping table FIRST
         conn.execute(
             "CREATE TABLE IF NOT EXISTS atmosphere_sounds (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -93,6 +76,23 @@ impl AtmosphereRepository {
             )",
             [],
         )?;
+
+        // THEN add min_seconds and max_seconds columns if they don't exist (for existing databases)
+        let mut stmt = conn.prepare("PRAGMA table_info(atmosphere_sounds)")?;
+        let mut has_min_seconds = false;
+        let mut has_max_seconds = false;
+        let mut rows = stmt.query([])?;
+        while let Some(row) = rows.next()? {
+            let col_name: String = row.get(1)?; // 1 = name
+            if col_name == "min_seconds" { has_min_seconds = true; }
+            if col_name == "max_seconds" { has_max_seconds = true; }
+        }
+        if !has_min_seconds {
+            conn.execute("ALTER TABLE atmosphere_sounds ADD COLUMN min_seconds INTEGER DEFAULT 0", [])?;
+        }
+        if !has_max_seconds {
+            conn.execute("ALTER TABLE atmosphere_sounds ADD COLUMN max_seconds INTEGER DEFAULT 0", [])?;
+        }
 
         // Create atmosphere categories table (predefined categories)
         conn.execute(

@@ -129,10 +129,11 @@ export class PadEventHandler {
             this._updatePadUI(audioId, { min_seconds: minSeconds });
           }
           
-          // Trigger save to backend in atmosphere context
+          // Sync with membership editor (it handles persistence automatically)
           const contextFromDOM = this._getContextFromDOM(audioId);
           if (contextFromDOM === 'atmosphere') {
-            this._saveAtmosphereDelayChanges(audioId, currentState);
+            const updatedState = padStateManager.getPadState(audioId);
+            this._syncDelayWithMembershipEditor(audioId, updatedState.min_seconds, updatedState.max_seconds);
           }
         }
         return true;
@@ -153,10 +154,11 @@ export class PadEventHandler {
             this._updatePadUI(audioId, { max_seconds: maxSeconds });
           }
           
-          // Trigger save to backend in atmosphere context
+          // Sync with membership editor (it handles persistence automatically)
           const contextFromDOM = this._getContextFromDOM(audioId);
           if (contextFromDOM === 'atmosphere') {
-            this._saveAtmosphereDelayChanges(audioId, currentState);
+            const updatedState = padStateManager.getPadState(audioId);
+            this._syncDelayWithMembershipEditor(audioId, updatedState.min_seconds, updatedState.max_seconds);
           }
         }
         return true;
@@ -489,18 +491,35 @@ export class PadEventHandler {
   }
 
   /**
+   * Sync delay values with the membership editor
+   * @param {number|string} audioId 
+   * @param {number} minSeconds 
+   * @param {number} maxSeconds 
+   */
+  _syncDelayWithMembershipEditor(audioId, minSeconds, maxSeconds) {
+    if (window.atmosphereMembershipEditor && typeof window.atmosphereMembershipEditor.updateDelayValues === 'function') {
+      window.atmosphereMembershipEditor.updateDelayValues(audioId, minSeconds, maxSeconds);
+    }
+  }
+
+  /**
    * Get the current atmosphere ID from the UI context
    * @returns {number|null} 
    */
   _getCurrentAtmosphereId() {
-    // Check if there's a currently loaded atmosphere in the UI
-    // This would typically be stored in the atmosphere manager or similar
+    // Check if there's a currently loaded atmosphere in the atmosphere membership editor
+    // The membership editor is globally accessible at window.atmosphereMembershipEditor
+    if (window.atmosphereMembershipEditor && window.atmosphereMembershipEditor.atmosphere) {
+      return window.atmosphereMembershipEditor.atmosphere.id;
+    }
+    
+    // Fallback: check for atmosphere editor panel data attribute
     const atmosphereEditor = document.querySelector('.atmosphere-membership-editor');
     if (atmosphereEditor && atmosphereEditor.dataset.atmosphereId) {
       return parseInt(atmosphereEditor.dataset.atmosphereId);
     }
     
-    // Fallback: check for global atmosphere state
+    // Another fallback: check for global atmosphere state
     if (window.app && window.app.currentAtmosphereId) {
       return window.app.currentAtmosphereId;
     }

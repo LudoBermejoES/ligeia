@@ -134,7 +134,13 @@ export class AtmosphereMembershipEditor {
     try {
       logger.info('membership','opening membership editor',{ id: atmosphere.id });
       const detail = await this.service.getAtmosphereWithSounds(atmosphere.id);
-      (detail?.sounds || []).forEach(m => this.members.set(m.audio_file_id, { volume:m.volume, is_looping:m.is_looping, is_muted:m.is_muted }));
+      (detail?.sounds || []).forEach(m => this.members.set(m.audio_file_id, { 
+        volume: m.volume, 
+        is_looping: m.is_looping, 
+        is_muted: m.is_muted,
+        min_seconds: m.min_seconds || 0,
+        max_seconds: m.max_seconds || 0
+      }));
       this._setTitle(detail?.atmosphere?.name || atmosphere.name || atmosphere.title || 'Atmosphere');
       this._detailLoaded = true;
       
@@ -236,7 +242,9 @@ export class AtmosphereMembershipEditor {
           isPlaying: false,
           isLooping: meta.is_looping || false,
           isMuted: meta.is_muted || false,
-          volume: meta.volume ?? 0.5
+          volume: meta.volume ?? 0.5,
+          min_seconds: meta.min_seconds || 0,
+          max_seconds: meta.max_seconds || 0
         });
         padState = padStateManager.getPadState(audioId);
       }
@@ -463,7 +471,7 @@ export class AtmosphereMembershipEditor {
         }
         
         logger.info('membership', 'adding audio to atmosphere', { audioId, title: f.title || f.file_path });
-        this.members.set(audioId, { volume:0.5, is_looping:false, is_muted:false });
+        this.members.set(audioId, { volume:0.5, is_looping:false, is_muted:false, min_seconds:0, max_seconds:0 });
         this._highlightId = audioId;
         this.renderPads();
         this._schedulePersist();
@@ -530,7 +538,7 @@ export class AtmosphereMembershipEditor {
     }
     
     logger.info('membership', 'adding audio to atmosphere via mouse drag', { audioId: numericAudioId, title: f.title || f.file_path });
-    this.members.set(numericAudioId, { volume:0.5, is_looping:false, is_muted:false });
+    this.members.set(numericAudioId, { volume:0.5, is_looping:false, is_muted:false, min_seconds:0, max_seconds:0 });
     this._highlightId = numericAudioId;
     this.renderPads();
     this._schedulePersist();
@@ -624,6 +632,22 @@ export class AtmosphereMembershipEditor {
   this._schedulePersist();
   }
 
+  /**
+   * Update delay values in the membership metadata (called by PadEventHandler)
+   * @param {number} audioId 
+   * @param {number} minSeconds 
+   * @param {number} maxSeconds 
+   */
+  updateDelayValues(audioId, minSeconds, maxSeconds) {
+    const meta = this.members.get(audioId);
+    if (meta) {
+      meta.min_seconds = minSeconds;
+      meta.max_seconds = maxSeconds;
+      this._schedulePersist();
+      logger.debug('membership', `Updated delay values for audio ${audioId}: min=${minSeconds}, max=${maxSeconds}`);
+    }
+  }
+
   async persist() {
     if (!this.atmosphere) return;
     try {
@@ -644,6 +668,8 @@ export class AtmosphereMembershipEditor {
         volume: meta.volume,
         is_looping: meta.is_looping,
         is_muted: meta.is_muted,
+        min_seconds: meta.min_seconds || 0,
+        max_seconds: meta.max_seconds || 0,
         created_at: new Date().toISOString()
       }));
       const payload = { ...detail.atmosphere, sounds };
