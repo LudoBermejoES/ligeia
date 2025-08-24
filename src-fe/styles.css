@@ -30,10 +30,9 @@ body {
     border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-.header h1 {
-    font-size: 1.5rem;
-    font-weight: 600;
-}
+.header .brand { display:flex; align-items:center; gap:.6rem; }
+.header h1 { font-size: 1.5rem; font-weight: 600; }
+.app-logo { width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)); }
 
 .controls {
     display: flex;
