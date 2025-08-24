@@ -125,18 +125,34 @@ impl ImportExportHandler {
 
     /// Import library data from enhanced format
     pub fn import_library_data(app_handle: AppHandle, data: ExportData) -> Result<(), String> {
+        log::info!("Import library data called - function entry");
+        
         let state = app_handle.state::<AppState>();
+        log::info!("Got app state successfully");
+        
         let db = state.db.lock().unwrap();
+        log::info!("Acquired database lock successfully");
         
         log::info!("Starting library import, version: {}, files_count: {}, tags_count: {}, has_vocabulary: {}", data.version, data.files.len(), data.tags.len(), data.tag_vocabulary.is_some());
         
+        // Validate data structure
+        if data.files.is_empty() {
+            log::error!("Validation failed: No files to import");
+            return Err("No files to import".to_string());
+        }
+        log::info!("Data structure validation passed");
+        
         // Clear existing data
-        log::info!("Clearing existing data");
-        db.clear_all_data().map_err(|e| {
-            log::error!("Failed to clear existing data, error: {}", e.to_string());
-            e.to_string()
-        })?;
-        log::info!("Existing data cleared successfully");
+        log::info!("About to clear existing data");
+        match db.clear_all_data() {
+            Ok(_) => {
+                log::info!("Existing data cleared successfully");
+            },
+            Err(e) => {
+                log::error!("Failed to clear existing data, error: {}", e.to_string());
+                return Err(format!("Failed to clear existing data: {}", e.to_string()));
+            }
+        }
         
         let mut files_imported = 0;
         let mut tags_imported = 0;
@@ -153,7 +169,7 @@ impl ImportExportHandler {
             
             let new_id = db.save_audio_file(&audio_file).map_err(|e| {
                 log::error!("Failed to save audio file, file_path: {}, error: {}", export_file.file_path, e.to_string());
-                e.to_string()
+                format!("Failed to save audio file '{}': {}", export_file.file_path, e.to_string())
             })?;
             
             files_imported += 1;
@@ -161,12 +177,18 @@ impl ImportExportHandler {
             
             // Process genre tags
             if let Some(genre_str) = &export_file.genre {
-                tags_imported += Self::process_tag_field(&state, new_id, "genre", genre_str)?;
+                match Self::process_tag_field(&state, new_id, "genre", genre_str) {
+                    Ok(count) => tags_imported += count,
+                    Err(e) => log::error!("Failed to process genre tags for file_id: {}, file_path: {}, error: {}", new_id, export_file.file_path, e)
+                }
             }
             
             // Process mood tags
             if let Some(mood_str) = &export_file.mood {
-                tags_imported += Self::process_tag_field(&state, new_id, "mood", mood_str)?;
+                match Self::process_tag_field(&state, new_id, "mood", mood_str) {
+                    Ok(count) => tags_imported += count,
+                    Err(e) => log::error!("Failed to process mood tags for file_id: {}, file_path: {}, error: {}", new_id, export_file.file_path, e)
+                }
             }
             
             // Import traditional RPG tags (excluding processed ones)
@@ -191,11 +213,23 @@ impl ImportExportHandler {
             
             // Import enhanced RPG fields as tags
             if let Some(occasions) = &export_file.rpg_occasion {
-                rpg_occasions_imported += Self::process_tag_array(&state, new_id, "occasion", occasions)?;
+                match Self::process_tag_array(&state, new_id, "occasion", occasions) {
+                    Ok(count) => rpg_occasions_imported += count,
+                    Err(e) => {
+                        log::error!("Failed to process RPG occasions for file_id: {}, file_path: {}, error: {}", new_id, export_file.file_path, e);
+                        // Continue processing other files
+                    }
+                }
             }
             
             if let Some(keywords) = &export_file.rpg_keywords {
-                rpg_keywords_imported += Self::process_tag_array(&state, new_id, "keyword", keywords)?;
+                match Self::process_tag_array(&state, new_id, "keyword", keywords) {
+                    Ok(count) => rpg_keywords_imported += count,
+                    Err(e) => {
+                        log::error!("Failed to process RPG keywords for file_id: {}, file_path: {}, error: {}", new_id, export_file.file_path, e);
+                        // Continue processing other files
+                    }
+                }
             }
             
             // Import quality if available

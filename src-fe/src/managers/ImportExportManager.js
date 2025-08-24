@@ -72,7 +72,11 @@ export class ImportExportManager {
 
       logger.info('import', 'Reading JSON file', { filePath });
       const text = await readTextFile(filePath);
+      logger.info('import', 'JSON file read successfully', { textLength: text.length });
+      
       const importData = JSON.parse(text);
+      logger.info('import', 'JSON parsed successfully', { version: importData.version, hasFiles: !!importData.files, hasTags: !!importData.tags, hasVocabulary: !!importData.tag_vocabulary });
+      
       if (!importData.version || !importData.files) throw new Error('Invalid file format - missing version or files');
 
       const tagCount = importData.tags ? importData.tags.length : 0;
@@ -87,9 +91,21 @@ export class ImportExportManager {
       logger.info('import', 'Import data analysis', { fileCount, tagCount, filesWithOccasions, totalOccasions, filesWithKeywords, totalKeywords });
 
       const confirmed = await this.showImportConfirmation(fileCount, tagCount);
-      if (!confirmed) return;
+      if (!confirmed) {
+        logger.info('import', 'Import cancelled by user');
+        return;
+      }
 
-      await invoke('import_library_data', { data: importData });
+      logger.info('import', 'Calling Rust import_library_data', { dataKeys: Object.keys(importData), fileCount: importData.files.length, tagCount: importData.tags.length });
+      
+      try {
+        // Send the original JSON string to Rust instead of the parsed object
+        await invoke('import_library_data', { data: text });
+        logger.info('import', 'Rust import_library_data completed successfully');
+      } catch (invokeError) {
+        logger.error('import', 'Rust import_library_data failed', { error: invokeError.message, stack: invokeError.stack });
+        throw invokeError;
+      }
       // Clear in-memory and reload
       this.library.getAudioFiles().clear();
       this.library.getSoundPads().clear();
@@ -97,7 +113,8 @@ export class ImportExportManager {
       if (this.tagSearchController) await this.tagSearchController.showAllSounds();
       this.ui.showSuccess(`Imported ${fileCount} files${tagCount ? ` with ${tagCount} tags` : ''} successfully!`);
     } catch (e) {
-      logger.error('import', 'Import failed', { error: e.message });
+      logger.error('import', 'Import failed', { error: e.message, stack: e.stack });
+      console.error('Full import error details:', e);
       this.ui.showError(`Failed to import library data: ${e.message}`);
     }
   }

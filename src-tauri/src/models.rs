@@ -1,4 +1,29 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, Deserializer};
+use serde_json::Value;
+
+// Custom deserializer to handle both string and array formats for genre/mood fields
+fn deserialize_string_or_array<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value: Option<Value> = Option::deserialize(deserializer)?;
+    match value {
+        Some(Value::String(s)) => Ok(Some(s)),
+        Some(Value::Array(arr)) => {
+            let strings: Vec<String> = arr
+                .into_iter()
+                .filter_map(|v| v.as_str().map(|s| s.to_string()))
+                .collect();
+            if strings.is_empty() {
+                Ok(None)
+            } else {
+                Ok(Some(strings.join("; ")))
+            }
+        }
+        Some(Value::Null) | None => Ok(None),
+        _ => Ok(None), // Handle other types gracefully
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AudioFile {
@@ -136,6 +161,7 @@ pub struct ExportAudioFile {
     pub title: Option<String>,
     pub artist: Option<String>,
     pub album: Option<String>,
+    #[serde(deserialize_with = "deserialize_string_or_array")]
     pub genre: Option<String>,
     pub year: Option<i32>,
     pub duration: Option<f64>,
@@ -143,6 +169,7 @@ pub struct ExportAudioFile {
     pub track_number: Option<u32>,
     pub bpm: Option<u32>,
     pub initial_key: Option<String>,
+    #[serde(deserialize_with = "deserialize_string_or_array")]
     pub mood: Option<String>,
     pub language: Option<String>,
     // Enhanced RPG fields (optional for backwards compatibility)
