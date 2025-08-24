@@ -102,14 +102,14 @@ impl AtmosphereHandler {
     }
 
     /// Update atmosphere sound settings
-    pub fn update_atmosphere_sound(app_handle: AppHandle, atmosphere_id: i64, audio_file_id: i64, volume: f32, is_looping: bool, is_muted: bool) -> Result<(), String> {
+    pub fn update_atmosphere_sound(app_handle: AppHandle, atmosphere_id: i64, audio_file_id: i64, volume: f32, is_looping: bool, is_muted: bool, min_seconds: i32, max_seconds: i32) -> Result<(), String> {
         let state = app_handle.state::<AppState>();
         let db = state.db.lock().unwrap();
         
-        log::debug!("Updating atmosphere sound: atmosphere_id={}, audio_file_id={}, volume={}, is_looping={}, is_muted={}", 
-                   atmosphere_id, audio_file_id, volume, is_looping, is_muted);
+        log::debug!("Updating atmosphere sound: atmosphere_id={}, audio_file_id={}, volume={}, is_looping={}, is_muted={}, min_seconds={}, max_seconds={}", 
+                   atmosphere_id, audio_file_id, volume, is_looping, is_muted, min_seconds, max_seconds);
         
-        db.update_atmosphere_sound(atmosphere_id, audio_file_id, volume, is_looping, is_muted).map_err(|e| {
+        db.update_atmosphere_sound(atmosphere_id, audio_file_id, volume, is_looping, is_muted, min_seconds, max_seconds).map_err(|e| {
             log::error!("Failed to update atmosphere sound settings: {}", e);
             e.to_string()
         })

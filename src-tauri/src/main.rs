@@ -175,8 +175,8 @@ async fn remove_sound_from_atmosphere(app_handle: AppHandle, atmosphere_id: i64,
 }
 
 #[tauri::command]
-async fn update_atmosphere_sound(app_handle: AppHandle, atmosphere_id: i64, audio_file_id: i64, volume: f32, is_looping: bool, is_muted: bool) -> Result<(), String> {
-    AtmosphereHandler::update_atmosphere_sound(app_handle, atmosphere_id, audio_file_id, volume, is_looping, is_muted)
+async fn update_atmosphere_sound(app_handle: AppHandle, atmosphere_id: i64, audio_file_id: i64, volume: f32, is_looping: bool, is_muted: bool, min_seconds: i32, max_seconds: i32) -> Result<(), String> {
+    AtmosphereHandler::update_atmosphere_sound(app_handle, atmosphere_id, audio_file_id, volume, is_looping, is_muted, min_seconds, max_seconds)
 }
 
 #[tauri::command]

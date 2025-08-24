@@ -156,8 +156,8 @@ impl Database {
         self.atmospheres.remove_sound(&self.conn, atmosphere_id, audio_file_id)
     }
 
-    pub fn update_atmosphere_sound(&self, atmosphere_id: i64, audio_file_id: i64, volume: f32, is_looping: bool, is_muted: bool) -> Result<()> {
-        self.atmospheres.update_sound(&self.conn, atmosphere_id, audio_file_id, volume, is_looping, is_muted)
+    pub fn update_atmosphere_sound(&self, atmosphere_id: i64, audio_file_id: i64, volume: f32, is_looping: bool, is_muted: bool, min_seconds: i32, max_seconds: i32) -> Result<()> {
+        self.atmospheres.update_sound(&self.conn, atmosphere_id, audio_file_id, volume, is_looping, is_muted, min_seconds, max_seconds)
     }
 
     pub fn get_atmosphere_with_sounds(&self, atmosphere_id: i64) -> Result<AtmosphereWithSounds> {

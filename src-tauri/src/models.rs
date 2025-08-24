@@ -241,6 +241,8 @@ pub struct AtmosphereSoundMapping {
     pub volume: f32,        // Individual volume for this sound in atmosphere
     pub is_looping: bool,   // Whether this sound loops in atmosphere
     pub is_muted: bool,     // Whether this sound is muted in atmosphere
+    pub min_seconds: i32,   // Minimum random delay in seconds (0 = disabled)
+    pub max_seconds: i32,   // Maximum random delay in seconds (0 = disabled)
     pub created_at: String,
 }
 

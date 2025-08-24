@@ -58,6 +58,23 @@ impl AtmosphereRepository {
             conn.execute("ALTER TABLE atmospheres ADD COLUMN fade_curve TEXT NOT NULL DEFAULT 'linear'", [])?;
         }
 
+        // Add min_seconds and max_seconds columns to atmosphere_sounds if they don't exist
+        let mut stmt = conn.prepare("PRAGMA table_info(atmosphere_sounds)")?;
+        let mut has_min_seconds = false;
+        let mut has_max_seconds = false;
+        let mut rows = stmt.query([])?;
+        while let Some(row) = rows.next()? {
+            let col_name: String = row.get(1)?; // 1 = name
+            if col_name == "min_seconds" { has_min_seconds = true; }
+            if col_name == "max_seconds" { has_max_seconds = true; }
+        }
+        if !has_min_seconds {
+            conn.execute("ALTER TABLE atmosphere_sounds ADD COLUMN min_seconds INTEGER DEFAULT 0", [])?;
+        }
+        if !has_max_seconds {
+            conn.execute("ALTER TABLE atmosphere_sounds ADD COLUMN max_seconds INTEGER DEFAULT 0", [])?;
+        }
+
         // Create atmosphere_sounds mapping table
         conn.execute(
             "CREATE TABLE IF NOT EXISTS atmosphere_sounds (
@@ -67,6 +84,8 @@ impl AtmosphereRepository {
                 volume REAL DEFAULT 0.5,
                 is_looping BOOLEAN DEFAULT FALSE,
                 is_muted BOOLEAN DEFAULT FALSE,
+                min_seconds INTEGER DEFAULT 0,
+                max_seconds INTEGER DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (atmosphere_id) REFERENCES atmospheres (id) ON DELETE CASCADE,
                 FOREIGN KEY (audio_file_id) REFERENCES audio_files (id) ON DELETE CASCADE,
@@ -232,9 +251,9 @@ impl AtmosphereRepository {
     pub fn add_sound(&self, conn: &Connection, atmosphere_id: i64, audio_file_id: i64, volume: f32, is_looping: bool) -> Result<i64> {
         conn.execute(
             "INSERT OR REPLACE INTO atmosphere_sounds 
-             (atmosphere_id, audio_file_id, volume, is_looping, is_muted)
-             VALUES (?1, ?2, ?3, ?4, ?5)",
-            params![atmosphere_id, audio_file_id, volume, is_looping, false],
+             (atmosphere_id, audio_file_id, volume, is_looping, is_muted, min_seconds, max_seconds)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            params![atmosphere_id, audio_file_id, volume, is_looping, false, 0, 0],
         )?;
         Ok(conn.last_insert_rowid())
     }
@@ -249,11 +268,11 @@ impl AtmosphereRepository {
     }
 
     /// Update sound settings in atmosphere
-    pub fn update_sound(&self, conn: &Connection, atmosphere_id: i64, audio_file_id: i64, volume: f32, is_looping: bool, is_muted: bool) -> Result<()> {
+    pub fn update_sound(&self, conn: &Connection, atmosphere_id: i64, audio_file_id: i64, volume: f32, is_looping: bool, is_muted: bool, min_seconds: i32, max_seconds: i32) -> Result<()> {
         conn.execute(
-            "UPDATE atmosphere_sounds SET volume = ?3, is_looping = ?4, is_muted = ?5
+            "UPDATE atmosphere_sounds SET volume = ?3, is_looping = ?4, is_muted = ?5, min_seconds = ?6, max_seconds = ?7
              WHERE atmosphere_id = ?1 AND audio_file_id = ?2",
-            params![atmosphere_id, audio_file_id, volume, is_looping, is_muted],
+            params![atmosphere_id, audio_file_id, volume, is_looping, is_muted, min_seconds, max_seconds],
         )?;
         Ok(())
     }
@@ -264,7 +283,7 @@ impl AtmosphereRepository {
         
         // Get sound mappings
         let mut stmt = conn.prepare(
-            "SELECT id, atmosphere_id, audio_file_id, volume, is_looping, is_muted, created_at
+            "SELECT id, atmosphere_id, audio_file_id, volume, is_looping, is_muted, min_seconds, max_seconds, created_at
              FROM atmosphere_sounds WHERE atmosphere_id = ?1 ORDER BY created_at"
         )?;
 
@@ -276,7 +295,9 @@ impl AtmosphereRepository {
                 volume: row.get(3)?,
                 is_looping: row.get(4)?,
                 is_muted: row.get(5)?,
-                created_at: row.get(6)?,
+                min_seconds: row.get(6).unwrap_or(0),
+                max_seconds: row.get(7).unwrap_or(0),
+                created_at: row.get(8)?,
             })
         })?;
 
@@ -363,7 +384,7 @@ impl AtmosphereRepository {
         )?;
         let new_id = conn.last_insert_rowid();
         conn.execute(
-            "INSERT INTO atmosphere_sounds (atmosphere_id, audio_file_id, volume, is_looping, is_muted) SELECT ?1, audio_file_id, volume, is_looping, is_muted FROM atmosphere_sounds WHERE atmosphere_id = ?2",
+            "INSERT INTO atmosphere_sounds (atmosphere_id, audio_file_id, volume, is_looping, is_muted, min_seconds, max_seconds) SELECT ?1, audio_file_id, volume, is_looping, is_muted, min_seconds, max_seconds FROM atmosphere_sounds WHERE atmosphere_id = ?2",
             params![new_id, id]
         )?;
         Ok(new_id)
@@ -613,9 +634,9 @@ impl AtmosphereRepository {
         for sound in sounds {
             conn.execute(
                 "INSERT INTO atmosphere_sounds 
-                 (atmosphere_id, audio_file_id, volume, is_looping, is_muted)
-                 VALUES (?1, ?2, ?3, ?4, ?5)",
-                params![atmosphere_id, sound.audio_file_id, sound.volume, sound.is_looping, sound.is_muted],
+                 (atmosphere_id, audio_file_id, volume, is_looping, is_muted, min_seconds, max_seconds)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+                params![atmosphere_id, sound.audio_file_id, sound.volume, sound.is_looping, sound.is_muted, sound.min_seconds, sound.max_seconds],
             )?;
         }
         
