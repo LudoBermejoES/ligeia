@@ -22,8 +22,7 @@ impl AudioFileHandler {
 
     /// Get all audio files from database
     pub fn get_all_audio_files(app_handle: AppHandle) -> Result<Vec<AudioFile>, String> {
-        // Test unified logging system
-        log::info!("Frontend requested all audio files - unified logging test successful!");
+        log::debug!("Getting all audio files from database");
         
         let state = app_handle.state::<AppState>();
         let db = state.db.lock().unwrap();

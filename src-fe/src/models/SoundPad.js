@@ -12,6 +12,12 @@ export class SoundPad {
         this.isMuted = false;
         this.volume = 0.5;
         
+        // Delay state (random delay between plays when looping)
+        this.minSeconds = 0;
+        this.maxSeconds = 0;
+        this._delayTimeoutId = null;
+        this._isWaitingForDelay = false;
+        
         // Web Audio nodes
         this.audio = null;
         this.source = null;
@@ -27,7 +33,25 @@ export class SoundPad {
         
         this.audio = new Audio();
         this.audio.src = this.audioUrl;
-        this.audio.loop = this.isLooping;
+        
+        // Always add ended event listener for proper state management
+        this.audio.addEventListener('ended', () => this._handleAudioEnd());
+        
+        // Handle looping with delays
+        if (this.hasDelaySettings()) {
+            // Disable native looping when delays are configured
+            this.audio.loop = false;
+            
+            if (typeof logger !== 'undefined' && logger.debug) {
+                logger.debug('delay', `Audio ${this.audioFile.id || 'unknown'}: Set up delay handlers during loadAudio()`);
+            }
+        } else {
+            this.audio.loop = this.isLooping;
+            
+            if (typeof logger !== 'undefined' && logger.debug) {
+                logger.debug('delay', `Audio ${this.audioFile.id || 'unknown'}: Set up normal looping during loadAudio()`);
+            }
+        }
         
         return this.audio;
     }
@@ -44,6 +68,10 @@ export class SoundPad {
     }
 
     async play() {
+        if (typeof logger !== 'undefined' && logger.debug) {
+            logger.debug('delay', `SoundPad.play() called for audio ${this.audioFile.id || 'unknown'}: hasDelay=${this.hasDelaySettings()}, isLooping=${this.isLooping}, minSeconds=${this.minSeconds}, maxSeconds=${this.maxSeconds}`);
+        }
+        
         if (!this.audio) {
             await this.loadAudio();
         }
@@ -58,7 +86,34 @@ export class SoundPad {
         }
 
         this.isPlaying = true;
-        await this.audio.play();
+        
+        // If delays are configured, start with a delay (looping is automatically enabled)
+        if (this.hasDelaySettings()) {
+            const delayMs = this._calculateRandomDelay();
+            if (typeof logger !== 'undefined' && logger.info) {
+                logger.info('delay', `Starting audio ${this.audioFile.id || 'unknown'} with initial delay of ${delayMs}ms`);
+            }
+            
+            // Set state to "playing with delay" - this will update the UI to show play button as active
+            this._isWaitingForDelay = true;
+            
+            this._delayTimeoutId = setTimeout(async () => {
+                if (this.isPlaying && this.audio) {
+                    if (typeof logger !== 'undefined' && logger.debug) {
+                        logger.debug('delay', `Initial delay expired, actually playing audio ${this.audioFile.id || 'unknown'}`);
+                    }
+                    this._isWaitingForDelay = false;
+                    await this.audio.play();
+                }
+                this._delayTimeoutId = null;
+            }, delayMs);
+        } else {
+            // Normal immediate play
+            if (typeof logger !== 'undefined' && logger.debug) {
+                logger.debug('delay', `Playing audio ${this.audioFile.id || 'unknown'} immediately (no delays configured)`);
+            }
+            await this.audio.play();
+        }
     }
 
     pause() {
@@ -70,6 +125,19 @@ export class SoundPad {
     }
 
     stop() {
+        // Clear any pending delay timeout
+        if (this._delayTimeoutId) {
+            clearTimeout(this._delayTimeoutId);
+            this._delayTimeoutId = null;
+            
+            if (typeof logger !== 'undefined' && logger.debug) {
+                logger.debug('delay', `Cancelled pending delay for audio ${this.audioFile.id || 'unknown'}`);
+            }
+        }
+        
+        // Reset delay waiting state
+        this._isWaitingForDelay = false;
+        
         this.pause();
         this.disconnectAudio();
     }
@@ -90,15 +158,279 @@ export class SoundPad {
     }
 
     setLoop(loop) {
-        this.isLooping = loop;
+        // If delays are configured, force looping to be true regardless of requested setting
+        if (this.hasDelaySettings()) {
+            this.isLooping = true;
+            if (typeof logger !== 'undefined' && logger.debug) {
+                logger.debug('delay', `setLoop(${loop}) called but forced to true due to delay settings for audio ${this.audioFile.id || 'unknown'}`);
+            }
+        } else {
+            this.isLooping = loop;
+        }
+        
         if (this.audio) {
-            this.audio.loop = loop;
+            if (this.hasDelaySettings()) {
+                // When delays are configured, always disable native looping
+                this.audio.loop = false;
+            } else {
+                this.audio.loop = this.isLooping;
+            }
         }
     }
 
     toggleLoop() {
         this.setLoop(!this.isLooping);
         return this.isLooping;
+    }
+
+    /**
+     * Set delay settings for random intervals between plays
+     * @param {number} minSeconds - Minimum delay in seconds (0 = disabled)
+     * @param {number} maxSeconds - Maximum delay in seconds (0 = disabled)
+     */
+    setDelaySettings(minSeconds, maxSeconds) {
+        this.minSeconds = Math.max(0, minSeconds || 0);
+        this.maxSeconds = Math.max(0, maxSeconds || 0);
+        
+        if (typeof logger !== 'undefined' && logger.debug) {
+            logger.debug('delay', `SoundPad.setDelaySettings called for audio ${this.audioFile.id || 'unknown'}: min=${this.minSeconds}s, max=${this.maxSeconds}s, hasDelaySettings=${this.hasDelaySettings()}`);
+        }
+        
+        // If delays are configured, force looping on and disable native loop
+        if (this.hasDelaySettings()) {
+            this.isLooping = true; // Force looping when delays are active
+            
+            if (typeof logger !== 'undefined' && logger.debug) {
+                logger.debug('delay', `Audio ${this.audioFile.id || 'unknown'}: Forced looping ON due to delay settings`);
+            }
+            
+            if (this.audio) {
+                this.audio.loop = false; // Disable native looping
+                
+                // Remove old event listener and add new one
+                this.audio.removeEventListener('ended', this._handleAudioEnd);
+                this.audio.addEventListener('ended', () => this._handleAudioEnd());
+                
+                if (typeof logger !== 'undefined' && logger.debug) {
+                    logger.debug('delay', `Audio ${this.audioFile.id || 'unknown'}: Disabled native loop and added custom ended handler`);
+                }
+            } else {
+                if (typeof logger !== 'undefined' && logger.warn) {
+                    logger.warn('delay', `Audio ${this.audioFile.id || 'unknown'}: Delay settings applied but audio element not yet loaded`);
+                }
+            }
+        } else if (this.audio) {
+            // Restore normal looping behavior
+            this.audio.loop = this.isLooping;
+            
+            if (typeof logger !== 'undefined' && logger.debug) {
+                logger.debug('delay', `Audio ${this.audioFile.id || 'unknown'}: Restored normal looping behavior`);
+            }
+        }
+    }
+
+    /**
+     * Check if delay settings are configured
+     * @returns {boolean} True if delays are active
+     */
+    hasDelaySettings() {
+        return this.minSeconds > 0 || this.maxSeconds > 0;
+    }
+
+    /**
+     * Calculate random delay between min and max seconds
+     * @returns {number} Random delay in milliseconds
+     */
+    _calculateRandomDelay() {
+        if (!this.hasDelaySettings()) return 0;
+        
+        const min = this.minSeconds;
+        const max = Math.max(this.maxSeconds, min); // Ensure max >= min
+        const delaySeconds = min + Math.random() * (max - min);
+        return Math.floor(delaySeconds * 1000);
+    }
+
+    /**
+     * Handle audio end event for custom looping with delays
+     */
+    _handleAudioEnd() {
+        if (typeof logger !== 'undefined' && logger.debug) {
+            logger.debug('delay', `_handleAudioEnd called for audio ${this.audioFile.id || 'unknown'}: isPlaying=${this.isPlaying}, isLooping=${this.isLooping}, hasDelaySettings=${this.hasDelaySettings()}`);
+        }
+        
+        // Always emit an ended event for UI tracking
+        this._emitEndedEvent();
+        
+        if (!this.isPlaying || !this.isLooping) {
+            if (typeof logger !== 'undefined' && logger.debug) {
+                logger.debug('delay', `Audio ${this.audioFile.id || 'unknown'}: Skipping replay - isPlaying=${this.isPlaying}, isLooping=${this.isLooping}`);
+            }
+            
+            // For non-looping sounds, set state to stopped
+            if (!this.isLooping) {
+                this.isPlaying = false;
+                this._isWaitingForDelay = false;
+                this._notifyStateChange();
+                this._emitStateChangeEvent();
+            }
+            return;
+        }
+        
+        if (this.hasDelaySettings()) {
+            const delayMs = this._calculateRandomDelay();
+            // Use proper logger if available, fallback to console
+            if (typeof logger !== 'undefined' && logger.info) {
+              logger.info('delay', `Audio ${this.audioFile.id || 'unknown'} finished, waiting ${delayMs}ms before replay`);
+            } else {
+              console.log(`Audio ${this.audioFile.id || 'unknown'} ended, waiting ${delayMs}ms before replay`);
+            }
+            
+            // Mark as waiting for delay (keeps play button active)
+            this._isWaitingForDelay = true;
+            
+            // Notify UI that we're now in "waiting for delay" state
+            this._notifyStateChange();
+            this._emitStateChangeEvent();
+            
+            this._delayTimeoutId = setTimeout(() => {
+                if (this.isPlaying && this.isLooping && this.audio) {
+                    this._isWaitingForDelay = false;
+                    // Notify UI that we've transitioned out of waiting state
+                    this._notifyStateChange();
+                    this._emitStateChangeEvent();
+                    
+                    this.audio.currentTime = 0;
+                    this.audio.play().catch(err => {
+                        console.error('Failed to replay audio after delay:', err);
+                    });
+                }
+                this._delayTimeoutId = null;
+            }, delayMs);
+        } else if (this.isLooping) {
+            // Fallback: immediate replay if no delays configured
+            this.audio.currentTime = 0;
+            this.audio.play().catch(err => {
+                console.error('Failed to replay audio:', err);
+            });
+        }
+    }
+
+    /**
+     * Notify PadStateManager of state changes
+     */
+    _notifyStateChange() {
+        // Find the audio file ID to update PadStateManager
+        const audioId = this.audioFile.id;
+        if (!audioId) return;
+        
+        const currentState = this.getState();
+        
+        // Try multiple ways to access the padStateManager
+        let padStateManager = null;
+        
+        // Method 1: Window global
+        if (typeof window !== 'undefined' && window.padStateManager) {
+            padStateManager = window.padStateManager;
+        }
+        
+        // Method 2: App global  
+        if (!padStateManager && typeof window !== 'undefined' && window.app && window.app.padEventHandler) {
+            // Try to access via the app's padEventHandler which should have access to padStateManager
+            if (window.app.padEventHandler._updatePadUI) {
+                window.app.padEventHandler._updatePadUI(audioId, { isPlaying: currentState.isPlaying });
+                
+                if (typeof logger !== 'undefined' && logger.debug) {
+                    logger.debug('delay', `Notified UI directly for audio ${audioId}: isPlaying=${currentState.isPlaying}`);
+                }
+                return;
+            }
+        }
+        
+        // Method 3: Try to import padStateManager module directly
+        if (!padStateManager) {
+            try {
+                // This might work if padStateManager is available globally
+                if (typeof window !== 'undefined' && window.padStateManager) {
+                    padStateManager = window.padStateManager;
+                }
+            } catch (e) {
+                // Ignore import errors
+            }
+        }
+        
+        if (padStateManager) {
+            padStateManager.updatePadState(audioId, {
+                isPlaying: currentState.isPlaying,
+                isWaitingForDelay: currentState.isWaitingForDelay
+            });
+            
+            if (typeof logger !== 'undefined' && logger.debug) {
+                logger.debug('delay', `Notified state change for audio ${audioId}: isPlaying=${currentState.isPlaying}`);
+            }
+        } else {
+            if (typeof logger !== 'undefined' && logger.warn) {
+                logger.warn('delay', `Could not find padStateManager to update state for audio ${audioId}`);
+            }
+        }
+    }
+    
+    /**
+     * Emit custom event for state changes as backup communication method
+     */
+    _emitStateChangeEvent() {
+        try {
+            const audioId = this.audioFile.id;
+            const currentState = this.getState();
+            
+            // Create and dispatch custom event
+            const event = new CustomEvent('soundpad-state-change', {
+                detail: {
+                    audioId: audioId,
+                    isPlaying: currentState.isPlaying,
+                    isWaitingForDelay: currentState.isWaitingForDelay,
+                    filePath: currentState.filePath
+                }
+            });
+            
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(event);
+                
+                if (typeof logger !== 'undefined' && logger.debug) {
+                    logger.debug('delay', `Emitted state change event for audio ${audioId}: isPlaying=${currentState.isPlaying}`);
+                }
+            }
+        } catch (e) {
+            // Ignore event dispatch errors
+        }
+    }
+
+    /**
+     * Emit ended event when audio finishes playing (before any delay)
+     */
+    _emitEndedEvent() {
+        try {
+            const audioId = this.audioFile.id;
+            
+            // Create and dispatch ended event
+            const event = new CustomEvent('soundpad-ended', {
+                detail: {
+                    audioId: audioId,
+                    isLooping: this.isLooping,
+                    hasDelaySettings: this.hasDelaySettings(),
+                    filePath: this.audioFile.file_path
+                }
+            });
+            
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(event);
+                
+                if (typeof logger !== 'undefined' && logger.debug) {
+                    logger.debug('delay', `Emitted ended event for audio ${audioId}: looping=${this.isLooping}, hasDelays=${this.hasDelaySettings()}`);
+                }
+            }
+        } catch (e) {
+            // Ignore event dispatch errors
+        }
     }
 
     updateGainValue() {
@@ -219,6 +551,13 @@ export class SoundPad {
 
     cleanup() {
         this.stop();
+        
+        // Clear any pending delay timeout
+        if (this._delayTimeoutId) {
+            clearTimeout(this._delayTimeoutId);
+            this._delayTimeoutId = null;
+        }
+        
         if (this.audioUrl) {
             this.fileService.cleanupBlobUrl(this.audioUrl);
             this.audioUrl = null;
@@ -231,7 +570,10 @@ export class SoundPad {
             isPlaying: this.isPlaying,
             isLooping: this.isLooping,
             isMuted: this.isMuted,
-            volume: this.volume
+            volume: this.volume,
+            min_seconds: this.minSeconds,
+            max_seconds: this.maxSeconds,
+            isWaitingForDelay: this._isWaitingForDelay
         };
     }
 
@@ -240,8 +582,17 @@ export class SoundPad {
         this.isMuted = state.isMuted || false;
         this.volume = state.volume || 0.5;
         
+        // Set delay settings if provided
+        if ('min_seconds' in state || 'max_seconds' in state) {
+            this.setDelaySettings(state.min_seconds || 0, state.max_seconds || 0);
+        }
+        
         if (this.audio) {
-            this.audio.loop = this.isLooping;
+            if (this.hasDelaySettings()) {
+                this.audio.loop = false; // Disable native looping when delays are configured
+            } else {
+                this.audio.loop = this.isLooping;
+            }
         }
         this.updateGainValue();
     }

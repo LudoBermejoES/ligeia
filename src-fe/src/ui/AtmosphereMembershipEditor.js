@@ -238,18 +238,22 @@ export class AtmosphereMembershipEditor {
       // Get unified pad state or create from local meta
       let padState = padStateManager.getPadState(audioId);
       if (!padState && this.padEventHandler) {
+        const minSeconds = meta.min_seconds || 0;
+        const maxSeconds = meta.max_seconds || 0;
+        const hasDelays = minSeconds > 0 || maxSeconds > 0;
+        
         this.padEventHandler.addPadToContext(audioId, 'atmosphere', {
           isPlaying: false,
-          isLooping: meta.is_looping || false,
+          isLooping: hasDelays ? true : (meta.is_looping || false), // Force looping when delays present
           isMuted: meta.is_muted || false,
           volume: meta.volume ?? 0.5,
-          min_seconds: meta.min_seconds || 0,
-          max_seconds: meta.max_seconds || 0
+          min_seconds: minSeconds,
+          max_seconds: maxSeconds
         });
         padState = padStateManager.getPadState(audioId);
       }
 
-      // Sync playing state from mixer if available
+      // Sync playing state from mixer if available or from actual SoundPad instance
       const mixerPad = document.querySelector(`.sound-pad[data-audio-id="${audioId}"][data-context="mixer"]`);
       if (mixerPad && padState) {
         const isPlaying = mixerPad.classList.contains('active');
@@ -257,6 +261,23 @@ export class AtmosphereMembershipEditor {
           padStateManager.updatePadState(audioId, { isPlaying });
         }
       }
+      
+      // Also check SoundPad instance directly for more accurate state
+      const allAudioFiles = window.app?.libraryManager?.audioFiles;
+      const foundAudioFile = allAudioFiles?.find(f => f.id == audioId);
+      const soundPad = foundAudioFile ? window.app?.libraryManager?.soundPads?.get(foundAudioFile.file_path) : null;
+      if (soundPad && padState) {
+        const actualState = soundPad.getState();
+        if (padState.isPlaying !== actualState.isPlaying) {
+          padStateManager.updatePadState(audioId, { 
+            isPlaying: actualState.isPlaying,
+            isWaitingForDelay: actualState.isWaitingForDelay || false
+          });
+        }
+      }
+
+      // Get the latest padState after all updates
+      padState = padStateManager.getPadState(audioId);
 
       const wrapper = document.createElement('div');
       wrapper.innerHTML = renderSoundPad(audioFile, padState, {
@@ -266,6 +287,18 @@ export class AtmosphereMembershipEditor {
       });
       const el = wrapper.firstElementChild;
       if (!el) return null;
+      
+      // Apply delay-based loop button styling after pad is rendered
+      if (this.padEventHandler && padState) {
+        const hasDelays = padState.min_seconds > 0 || padState.max_seconds > 0;
+        if (hasDelays) {
+          logger.debug('membership', `Applying delay UI updates for audio ${audioId}: min=${padState.min_seconds}s, max=${padState.max_seconds}s, isLooping=${padState.isLooping}`);
+        }
+        setTimeout(() => {
+          this.padEventHandler._updateLoopButtonForDelays(el, padState);
+        }, 0);
+      }
+      
       if (audioId === this._highlightId) {
         el.classList.add('flash');
         el.addEventListener('animationend', () => { 
@@ -644,7 +677,11 @@ export class AtmosphereMembershipEditor {
       meta.min_seconds = minSeconds;
       meta.max_seconds = maxSeconds;
       this._schedulePersist();
-      logger.debug('membership', `Updated delay values for audio ${audioId}: min=${minSeconds}, max=${maxSeconds}`);
+      if (minSeconds > 0 || maxSeconds > 0) {
+        logger.info('delay', `Set atmosphere delay for audio ${audioId}: ${minSeconds}s-${maxSeconds}s`);
+      } else {
+        logger.debug('delay', `Cleared atmosphere delay for audio ${audioId}`);
+      }
     }
   }
 

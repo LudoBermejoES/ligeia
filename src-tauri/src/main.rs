@@ -122,18 +122,18 @@ async fn export_library_data(app_handle: AppHandle) -> Result<ExportData, String
 
 #[tauri::command]
 async fn import_library_data(app_handle: AppHandle, data: String) -> Result<(), String> {
-    log::info!("Tauri command import_library_data called with JSON string length: {}", data.len());
+    log::info!("Starting library import: JSON size={}KB", data.len() / 1024);
     
     // Parse the JSON string into ExportData
     let export_data: ExportData = match serde_json::from_str(&data) {
         Ok(data) => data,
         Err(e) => {
-            log::error!("Failed to parse JSON: {}", e);
+            log::error!("Failed to parse import JSON: {}", e);
             return Err(format!("Failed to parse import data: {}", e));
         }
     };
     
-    log::info!("JSON parsed successfully, version: {}, files count: {}", export_data.version, export_data.files.len());
+    log::info!("Parsed library data: version={}, files={}", export_data.version, export_data.files.len());
     
     let result = ImportExportHandler::import_library_data(app_handle, export_data);
     match &result {
@@ -181,8 +181,7 @@ async fn update_atmosphere_sound(app_handle: AppHandle, atmosphere_id: i64, audi
 
 #[tauri::command]
 async fn get_atmosphere_with_sounds(app_handle: AppHandle, atmosphere_id: i64) -> Result<AtmosphereWithSounds, String> {
-    // Instrumentation: confirm command invocation
-    log::debug!("(cmd) get_atmosphere_with_sounds invoked: id={}", atmosphere_id);
+    log::debug!("Getting atmosphere details: id={}", atmosphere_id);
     AtmosphereHandler::get_atmosphere_with_sounds(app_handle, atmosphere_id)
 }
 

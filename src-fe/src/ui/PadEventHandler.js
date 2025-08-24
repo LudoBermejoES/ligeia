@@ -10,6 +10,45 @@ export class PadEventHandler {
     this.libraryManager = libraryManager;
     this.contextHandlers = new Map(); // context -> handler functions
     this._initializeEventDelegation();
+    this._initializeSoundPadEventListeners();
+  }
+
+  /**
+   * Initialize listeners for custom events from SoundPad instances
+   * This handles state synchronization when sounds end naturally
+   */
+  _initializeSoundPadEventListeners() {
+    // Listen for state changes from SoundPad instances
+    window.addEventListener('soundpad-state-change', (event) => {
+      const { audioId, isPlaying, isWaitingForDelay } = event.detail;
+      logger.debug('pad-events', `Received state change event for audio ${audioId}: playing=${isPlaying}, waiting=${isWaitingForDelay}`);
+      
+      // Update the padStateManager
+      const updateData = { isPlaying };
+      if (isWaitingForDelay !== undefined) {
+        updateData.isWaitingForDelay = isWaitingForDelay;
+      }
+      
+      padStateManager.updatePadState(audioId, updateData);
+      
+      // Update the UI across all contexts
+      this._updatePadUI(audioId, { isPlaying });
+    });
+
+    // Listen for sound-ended events specifically (for non-looping sounds)
+    window.addEventListener('soundpad-ended', (event) => {
+      const { audioId } = event.detail;
+      logger.debug('pad-events', `Received ended event for audio ${audioId}`);
+      
+      // Update state to not playing
+      padStateManager.updatePadState(audioId, { 
+        isPlaying: false,
+        isWaitingForDelay: false
+      });
+      
+      // Update UI to show not playing
+      this._updatePadUI(audioId, { isPlaying: false });
+    });
   }
 
   /**
@@ -31,7 +70,9 @@ export class PadEventHandler {
    */
   async handlePadAction(event, action, audioId, context, additionalData = null) {
     try {
-      logger.debug('pad-events', `Handling ${action} for audio ${audioId} in context ${context}`);
+      if (action.includes('delay')) {
+        logger.debug('delay', `Handling ${action} for audio ${audioId} in ${context} context`);
+      }
       
       // Get current pad state
       const currentState = padStateManager.getPadState(audioId);
@@ -75,14 +116,31 @@ export class PadEventHandler {
         try {
           if (currentState.isPlaying) {
             soundPad.stop();
-            padStateManager.updatePadState(audioId, { isPlaying: false });
+            // Get the updated state after stop (includes isWaitingForDelay reset)
+            const updatedState = soundPad.getState();
+            padStateManager.updatePadState(audioId, { 
+              isPlaying: false, 
+              isWaitingForDelay: updatedState.isWaitingForDelay 
+            });
             // Update UI for all contexts
             this._updatePadUI(audioId, { isPlaying: false });
           } else {
             await soundPad.play();
-            padStateManager.updatePadState(audioId, { isPlaying: true });
-            // Update UI for all contexts
+            // Get the updated state after play (includes isWaitingForDelay)
+            const updatedState = soundPad.getState();
+            padStateManager.updatePadState(audioId, { 
+              isPlaying: true,
+              isWaitingForDelay: updatedState.isWaitingForDelay
+            });
+            // Update UI for all contexts  
             this._updatePadUI(audioId, { isPlaying: true });
+            
+            // For delayed sounds, ensure UI shows as playing even during delay
+            if (updatedState.isWaitingForDelay) {
+              logger.debug('delay', `Sound ${audioId} is waiting for delay but should show as playing`);
+              // Set up periodic sync to ensure UI stays updated
+              this._ensureDelayedSoundShowsAsPlaying(audioId, soundPad);
+            }
           }
           return true;
         } catch (error) {
@@ -91,6 +149,13 @@ export class PadEventHandler {
         }
 
       case 'loop':
+        // Check if delays are configured - if so, ignore loop toggle attempts
+        const hasDelays = (currentState.min_seconds > 0 || currentState.max_seconds > 0);
+        if (hasDelays) {
+          logger.info('delay', `Loop toggle ignored for audio ${audioId} - forced by delay settings`);
+          return true; // Handled but ignored
+        }
+        
         const newLooping = !currentState.isLooping;
         soundPad.toggleLoop();
         padStateManager.updatePadState(audioId, { isLooping: newLooping });
@@ -122,9 +187,11 @@ export class PadEventHandler {
           let adjustedMaxSeconds = currentMaxSeconds;
           if (minSeconds > currentMaxSeconds) {
             adjustedMaxSeconds = minSeconds;
+            logger.info(`delay: Auto-adjusted max delay for audio ${audioId}: min=${minSeconds}s forced max=${adjustedMaxSeconds}s`);
             padStateManager.updatePadState(audioId, { min_seconds: minSeconds, max_seconds: adjustedMaxSeconds });
             this._updatePadUI(audioId, { min_seconds: minSeconds, max_seconds: adjustedMaxSeconds, autoAdjusted: true });
           } else {
+            logger.debug(`delay: Updated min delay for audio ${audioId}: ${minSeconds}s`);
             padStateManager.updatePadState(audioId, { min_seconds: minSeconds });
             this._updatePadUI(audioId, { min_seconds: minSeconds });
           }
@@ -147,9 +214,11 @@ export class PadEventHandler {
           let adjustedMinSeconds = currentMinSeconds;
           if (maxSeconds < currentMinSeconds) {
             adjustedMinSeconds = maxSeconds;
+            logger.info(`delay: Auto-adjusted min delay for audio ${audioId}: max=${maxSeconds}s forced min=${adjustedMinSeconds}s`);
             padStateManager.updatePadState(audioId, { min_seconds: adjustedMinSeconds, max_seconds: maxSeconds });
             this._updatePadUI(audioId, { min_seconds: adjustedMinSeconds, max_seconds: maxSeconds, autoAdjusted: true });
           } else {
+            logger.debug(`delay: Updated max delay for audio ${audioId}: ${maxSeconds}s`);
             padStateManager.updatePadState(audioId, { max_seconds: maxSeconds });
             this._updatePadUI(audioId, { max_seconds: maxSeconds });
           }
@@ -266,7 +335,77 @@ export class PadEventHandler {
           }
         }
       }
+      
+      // Update loop button when delay settings change
+      if ('min_seconds' in stateChanges || 'max_seconds' in stateChanges) {
+        this._updateLoopButtonForDelays(pad, stateChanges);
+      }
     });
+  }
+
+  /**
+   * Update loop button styling and state when delay settings change
+   */
+  _updateLoopButtonForDelays(pad, stateChanges) {
+    const audioId = parseInt(pad.dataset.audioId);
+    const currentState = padStateManager.getPadState(audioId);
+    if (!currentState) return;
+
+    const loopBtn = pad.querySelector('[data-action="loop"]');
+    if (!loopBtn) return;
+
+    const hasDelays = (currentState.min_seconds > 0 || currentState.max_seconds > 0);
+    
+    if (hasDelays) {
+      // Force loop button to active state and add forced styling
+      loopBtn.classList.add('active', 'forced-loop');
+      loopBtn.disabled = true;
+      loopBtn.title = "Loop (forced by delay settings)";
+      
+      // Ensure the pad state reflects forced looping
+      if (!currentState.isLooping) {
+        padStateManager.updatePadState(audioId, { isLooping: true });
+      }
+      
+      logger.debug('delay', `Loop button forced for audio ${audioId} due to delay settings`);
+    } else {
+      // Remove forced styling and restore normal behavior
+      loopBtn.classList.remove('forced-loop');
+      loopBtn.disabled = false;
+      loopBtn.title = "Loop";
+      
+      logger.debug('delay', `Loop button restored to normal for audio ${audioId}`);
+    }
+  }
+
+  /**
+   * Ensure delayed sound shows as playing in UI
+   */
+  _ensureDelayedSoundShowsAsPlaying(audioId, soundPad) {
+    // Check every 500ms if the sound should show as playing
+    const checkInterval = setInterval(() => {
+      const currentState = soundPad.getState();
+      const padState = padStateManager.getPadState(audioId);
+      
+      if (!currentState.isPlaying) {
+        // Sound stopped, clear interval
+        clearInterval(checkInterval);
+        return;
+      }
+      
+      // If SoundPad thinks it's playing but PadState doesn't, sync it
+      if (currentState.isPlaying && (!padState || !padState.isPlaying)) {
+        padStateManager.updatePadState(audioId, {
+          isPlaying: true,
+          isWaitingForDelay: currentState.isWaitingForDelay
+        });
+        this._updatePadUI(audioId, { isPlaying: true });
+        logger.debug('delay', `Synced delayed sound state: audio ${audioId} should show as playing`);
+      }
+      
+      // Stop checking after 30 seconds to avoid memory leaks
+      setTimeout(() => clearInterval(checkInterval), 30000);
+    }, 500);
   }
 
   /**

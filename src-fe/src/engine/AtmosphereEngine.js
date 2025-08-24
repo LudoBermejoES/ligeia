@@ -109,10 +109,24 @@ export class AtmosphereEngine {
         }
         if (!pad) continue;
         const targetVol = mapping.volume ?? 0.5;
+        
+        // Set delay settings BEFORE setting loop/mute/play states
+        const minSeconds = mapping.min_seconds || 0;
+        const maxSeconds = mapping.max_seconds || 0;
+        
+        logger.debug('atmo', `Setting delay settings for ${audioFile.file_path}: min=${minSeconds}s, max=${maxSeconds}s`);
+        pad.setDelaySettings(minSeconds, maxSeconds);
+        
+        logger.debug('atmo', `Setting loop=${!!mapping.is_looping}, mute=${!!mapping.is_muted} for ${audioFile.file_path}`);
         pad.setLoop(!!mapping.is_looping);
         pad.setMute(!!mapping.is_muted);
+        
+        if (minSeconds > 0 || maxSeconds > 0) {
+          logger.info('delay', `Applied delay settings to pad: ${audioFile.file_path} = ${minSeconds}s-${maxSeconds}s`);
+        }
         if (!pad.isPlaying) {
           pad.setVolume(0.0001);
+          logger.debug('atmo', `About to call pad.play() for ${audioFile.file_path}`);
           try { 
             await pad.play(); 
             // Update UI to show pad is now playing

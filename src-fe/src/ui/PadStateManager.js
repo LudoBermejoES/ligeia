@@ -58,7 +58,36 @@ export class PadStateManager {
     const newState = { ...currentState, ...updates };
     this.pads.set(audioId, newState);
     this._notifyStateChange(audioId, newState);
+    
+    // If delay settings are updated, sync with the actual SoundPad instance
+    if ('min_seconds' in updates || 'max_seconds' in updates) {
+      this._syncDelayWithSoundPad(audioId, newState);
+    }
+    
     return true;
+  }
+
+  /**
+   * Sync delay settings with the actual SoundPad instance
+   * @param {number|string} audioId 
+   * @param {object} state 
+   */
+  _syncDelayWithSoundPad(audioId, state) {
+    // Find the SoundPad instance via the LibraryManager
+    const libraryManager = window.app?.libraryManager;
+    if (!libraryManager) return;
+
+    // Find the audio file by ID to get the file path
+    const audioFiles = libraryManager.audioFiles;
+    const audioFile = audioFiles.find(f => f.id == audioId);
+    if (!audioFile) return;
+
+    // Get the SoundPad instance
+    const soundPad = libraryManager.soundPads.get(audioFile.file_path);
+    if (soundPad) {
+      soundPad.setDelaySettings(state.min_seconds || 0, state.max_seconds || 0);
+      logger.debug('delay', `Synced delay settings to SoundPad for audio ${audioId}: ${state.min_seconds || 0}s-${state.max_seconds || 0}s`);
+    }
   }
 
   /**

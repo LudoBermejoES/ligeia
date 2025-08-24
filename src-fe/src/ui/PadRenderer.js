@@ -109,7 +109,11 @@ function generateControlButtons(controls, state) {
   }
   
   if (controls.includes('loop')) {
-    buttons.push(`<button class="pad-btn ${state.isLooping ? 'active' : ''}" data-action="loop" title="Loop" draggable="false">🔁</button>`);
+    const hasDelays = (state.min_seconds > 0 || state.max_seconds > 0);
+    const isForced = hasDelays && state.isLooping;
+    const title = hasDelays ? (isForced ? "Loop (forced by delay settings)" : "Loop (required for delays)") : "Loop";
+    const disabled = hasDelays ? "disabled" : "";
+    buttons.push(`<button class="pad-btn ${state.isLooping ? 'active' : ''} ${hasDelays ? 'forced-loop' : ''}" data-action="loop" title="${title}" draggable="false" ${disabled}>🔁</button>`);
   }
   
   if (controls.includes('mute')) {

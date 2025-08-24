@@ -13,13 +13,21 @@ impl AtmosphereHandler {
         let state = app_handle.state::<AppState>();
         let db = state.db.lock().unwrap();
         
-        log::info!("Saving atmosphere: name={}, category={}, subcategory={}, crossfade_ms={}, curve={}", 
-              payload.atmosphere.name, payload.atmosphere.category, payload.atmosphere.subcategory, 
-              payload.atmosphere.default_crossfade_ms, payload.atmosphere.fade_curve);
+        log::info!("Saving atmosphere: name={}, sounds_count={}", payload.atmosphere.name, 
+                  payload.sounds.as_ref().map_or(0, |s| s.len()));
         
-        // If sounds are provided, use the comprehensive save method
+        // Log delay configurations if any sounds have delay settings
         if let Some(sounds) = &payload.sounds {
-            log::info!("Saving atmosphere with {} sounds", sounds.len());
+            let delay_sounds: Vec<_> = sounds.iter()
+                .filter(|s| s.min_seconds > 0 || s.max_seconds > 0)
+                .collect();
+            if !delay_sounds.is_empty() {
+                log::info!("Atmosphere has {} sounds with delay settings:", delay_sounds.len());
+                for sound in delay_sounds {
+                    log::info!("  Audio {} delay: {}s-{}s", sound.audio_file_id, sound.min_seconds, sound.max_seconds);
+                }
+            }
+            
             db.save_atmosphere_with_sounds(&payload.atmosphere, sounds).map_err(|e| {
                 log::error!("Failed to save atmosphere with sounds: {}", e);
                 e.to_string()
@@ -106,8 +114,10 @@ impl AtmosphereHandler {
         let state = app_handle.state::<AppState>();
         let db = state.db.lock().unwrap();
         
-        log::debug!("Updating atmosphere sound: atmosphere_id={}, audio_file_id={}, volume={}, is_looping={}, is_muted={}, min_seconds={}, max_seconds={}", 
-                   atmosphere_id, audio_file_id, volume, is_looping, is_muted, min_seconds, max_seconds);
+        if min_seconds > 0 || max_seconds > 0 {
+            log::info!("Updating atmosphere sound with delay: atmosphere_id={}, audio_file_id={}, delay={}s-{}s, volume={}, loop={}, muted={}", 
+                      atmosphere_id, audio_file_id, min_seconds, max_seconds, volume, is_looping, is_muted);
+        }
         
         db.update_atmosphere_sound(atmosphere_id, audio_file_id, volume, is_looping, is_muted, min_seconds, max_seconds).map_err(|e| {
             log::error!("Failed to update atmosphere sound settings: {}", e);
@@ -120,21 +130,19 @@ impl AtmosphereHandler {
         let state = app_handle.state::<AppState>();
         let db = state.db.lock().unwrap();
         
-        log::debug!("Retrieving atmosphere with sounds: atmosphere_id={}", atmosphere_id);
-        // First test if atmosphere exists
-        if let Err(exists_err) = db.get_atmosphere_by_id(atmosphere_id) {
-            log::warn!("Atmosphere {} not found prior to detail fetch: {}", atmosphere_id, exists_err);
-        }
-        let start = std::time::Instant::now();
         match db.get_atmosphere_with_sounds(atmosphere_id) {
             Ok(res) => {
-                let ms = start.elapsed().as_millis();
-                log::debug!("Fetched atmosphere {} with {} sound mappings ({} audio files) in {}ms", atmosphere_id, res.sounds.len(), res.audio_files.len(), ms);
+                // Log delay configurations if any sounds have delay settings
+                let delay_sounds: Vec<_> = res.sounds.iter()
+                    .filter(|s| s.min_seconds > 0 || s.max_seconds > 0)
+                    .collect();
+                if !delay_sounds.is_empty() {
+                    log::info!("Atmosphere {} has {} sounds with delay settings:", atmosphere_id, delay_sounds.len());
+                }
                 Ok(res)
             }
             Err(e) => {
-                let ms = start.elapsed().as_millis();
-                log::error!("Failed to get atmosphere with sounds {} after {}ms: {}", atmosphere_id, ms, e);
+                log::error!("Failed to get atmosphere with sounds {}: {}", atmosphere_id, e);
                 Err(e.to_string())
             }
         }

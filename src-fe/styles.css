@@ -2045,3 +2045,44 @@ body {
     margin: 0 0 8px 0;
 }
 .sound-group .group-body { display: contents; }
+
+/* Forced loop button styling when delays are configured */
+.pad-btn.forced-loop {
+    background: rgba(255, 193, 7, 0.8) !important;
+    color: #000 !important;
+    cursor: not-allowed;
+    border: 2px solid rgba(255, 193, 7, 1);
+    position: relative;
+}
+
+.pad-btn.forced-loop:hover {
+    background: rgba(255, 193, 7, 0.9) !important;
+    transform: none !important;
+}
+
+.pad-btn.forced-loop:active {
+    transform: none !important;
+}
+
+.pad-btn.forced-loop::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 4px;
+    height: 4px;
+    background: #ff5722;
+    border-radius: 50%;
+    animation: pulse-delay 2s infinite;
+}
+
+@keyframes pulse-delay {
+    0%, 70%, 100% { 
+        opacity: 0;
+        transform: scale(1);
+    }
+    35% { 
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
