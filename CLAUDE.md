@@ -10,7 +10,8 @@ The application is built with modern web technologies and packaged as a desktop 
 - **Grid-based Mixer**: A visual interface with "sound pads" for each audio track with drag-and-drop organization.
 - **Advanced Audio Controls**: Per-sound play/stop, loop, volume, and mute controls with crossfade capabilities.
 - **Master Controls**: Global volume and mute for all sounds.
-- **Professional Atmosphere System**: Create, save, load, and manage atmospheric soundscapes with crossfade transitions, metadata, and categorization.
+- **Professional Atmosphere System**: Create, save, load, and manage atmospheric soundscapes with crossfade transitions, metadata, categorization, and random delay timing.
+- **Random Delay Engine**: Configure min/max seconds (0-60s) for natural, varied ambient sound timing with automatic loop enforcement.
 - **Crossfade Engine**: Smooth transitions between different atmosphere states with configurable duration and curves.
 - **Atmosphere Management**: Side panel interface for creating, editing, duplicating, and organizing atmospheres with real-time feedback.
 - **Professional RPG Audio Tagging**: Complete TAGS.md implementation with 700+ controlled vocabulary tags across four categories.
@@ -84,7 +85,7 @@ The backend has been **completely refactored** into a modular architecture with 
     -   **`rpg_tags` table**: RPG-specific tag associations with foreign key constraints
     -   **`tag_vocabulary` table**: Controlled vocabulary management with descriptions
     -   **`atmospheres` table**: Complete atmosphere metadata with crossfade settings
-    -   **`atmosphere_sounds` table**: Sound memberships in atmospheres with volume and playback settings
+    -   **`atmosphere_sounds` table**: Sound memberships in atmospheres with volume, playback settings, and random delay timing (min_seconds, max_seconds)
     -   **Proper indexing**: Optimized for search performance across all tables
 
 -   **Dependencies**: Uses **`id3`** crate for comprehensive tag support, **`scan_dir`** for recursive scanning, **`rusqlite`** for database operations, **`symphonia`** for advanced audio format support, **`aubio-rs`** for BPM detection and audio analysis, and **`chrono`** for timestamp management.
@@ -140,7 +141,8 @@ The atmosphere system provides professional-grade soundscape management:
 
 **Core Atmosphere Capabilities:**
 - **Atmosphere Creation**: Create empty atmospheres with full metadata (name, description, category, subcategory, keywords)
-- **Sound Membership Management**: Add/remove sounds to atmospheres with individual volume, loop, and mute settings
+- **Sound Membership Management**: Add/remove sounds to atmospheres with individual volume, loop, mute settings, and random delay timing
+- **Random Delay System**: Configure min/max seconds (0-60s) for randomized playback intervals with automatic loop enforcement
 - **Crossfade Engine**: Smooth transitions between atmosphere states with configurable duration (default 2500ms) and curve types
 - **Atmosphere Duplication**: Create copies of existing atmospheres with automatic naming
 - **Search and Organization**: Search atmospheres by name, category, and keywords with real-time filtering
@@ -155,10 +157,11 @@ The atmosphere system provides professional-grade soundscape management:
 
 **Professional UI Integration:**
 - **Side Panel Editor**: Dedicated atmosphere membership editing with drag-and-drop functionality
-- **Visual Feedback**: Progress bars, status indicators, and real-time update displays
+- **Random Delay Controls**: Dual slider interface (min/max seconds) with smart validation and visual feedback
+- **Visual Feedback**: Progress bars, status indicators, real-time update displays, and auto-adjustment animations
 - **Confirmation Dialogs**: Diff preview before loading atmospheres to show expected changes
 - **Category Management**: Organized atmosphere browsing with metadata-based filtering
- - **Theme Switching**: Atmospheres can switch UI theme dynamically via `ThemeService` (e.g., default, fantasy, horror, superheroes)
+- **Theme Switching**: Atmospheres can switch UI theme dynamically via `ThemeService` (e.g., default, fantasy, horror, superheroes)
 
 ### 2.5. Technology Stack Summary
 
@@ -396,6 +399,21 @@ cd src-tauri; cargo check
    - Confirm to clear current library and restore from backup
    - Automatic UI refresh with imported data
 
+### 6.5. Atmosphere Random Delay Configuration
+1. **Access Atmosphere Editor**: Open an atmosphere in the membership editor panel
+2. **Configure Delay Sliders**: Each atmosphere pad includes two orange delay sliders:
+   - **Min Slider** (left): Set minimum seconds (0-60s) for random delay intervals
+   - **Max Slider** (right): Set maximum seconds (0-60s) for random delay intervals
+3. **Smart Validation**: System automatically ensures min ≤ max:
+   - Moving min above max automatically adjusts max to match min
+   - Moving max below min automatically adjusts min to match max
+   - Visual feedback shows auto-adjusted sliders with brief orange highlight
+4. **Automatic Behavior**: When delays are configured (both > 0):
+   - Sound automatically enables loop mode for continuous playback
+   - Random delay calculated between min-max range after each play cycle
+   - Creates natural, varied ambient soundscape timing
+5. **Real-time Updates**: All delay changes automatically save to atmosphere configuration
+
 ## 7. Database Schema
 
 ### 7.1. Audio Files Table
@@ -417,6 +435,21 @@ Maintains controlled vocabulary:
 - Tag descriptions for user guidance
 - Active/inactive tag management
 - Extensible for future vocabulary additions
+
+### 7.4. Atmosphere Tables
+**Atmospheres Table**: Stores atmosphere metadata:
+- Basic info: name, title, description, category, subcategory
+- Keywords: JSON array for searchable tags
+- Crossfade settings: default_crossfade_ms, fade_curve
+- UI theming: theme selection for atmosphere-specific themes
+- Timestamps: created_at, updated_at
+
+**Atmosphere Sounds Table**: Manages sound memberships in atmospheres:
+- Playback settings: volume, is_looping, is_muted
+- **Random Delay Fields**: min_seconds, max_seconds (0-60 range)
+- Foreign key relationships to atmospheres and audio_files
+- Unique constraints prevent duplicate sound memberships
+- Automatic migration support for existing databases
 
 ## 8. Performance and Optimization
 
@@ -484,6 +517,10 @@ The combination of Tauri's cross-platform capabilities, Rust's performance and s
 ---
 
 Changelog highlights (recent):
+- **Random Delay System**: Complete implementation of min/max seconds delay controls (0-60s range) for atmosphere pads with smart validation, visual feedback, and automatic database persistence
+- **Enhanced Database Schema**: Added min_seconds and max_seconds columns to atmosphere_sounds table with automatic migration support for existing databases
+- **Advanced UI Controls**: Dual slider interface with orange styling, real-time validation (min ≤ max), auto-adjustment animations, and CSS layout fixes to prevent overflow
+- **Backend Integration**: Updated Tauri commands, Rust handlers, and database operations to support delay fields with comprehensive error handling
 - Mixer: visual grouping by parent folder within Ambient/Others.
 - Membership editor: duration-based grouping with non-draggable headers and SortableJS reordering.
 - Unified pad event/state system across mixer and atmosphere contexts.
