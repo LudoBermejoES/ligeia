@@ -113,6 +113,54 @@ export class PadEventHandler {
         }
         return true;
 
+      case 'min-delay':
+        if (event && event.target) {
+          const minSeconds = parseInt(event.target.value);
+          const currentMaxSeconds = currentState.max_seconds ?? 0;
+          
+          // Ensure min <= max: if new min is greater than current max, adjust max
+          let adjustedMaxSeconds = currentMaxSeconds;
+          if (minSeconds > currentMaxSeconds) {
+            adjustedMaxSeconds = minSeconds;
+            padStateManager.updatePadState(audioId, { min_seconds: minSeconds, max_seconds: adjustedMaxSeconds });
+            this._updatePadUI(audioId, { min_seconds: minSeconds, max_seconds: adjustedMaxSeconds, autoAdjusted: true });
+          } else {
+            padStateManager.updatePadState(audioId, { min_seconds: minSeconds });
+            this._updatePadUI(audioId, { min_seconds: minSeconds });
+          }
+          
+          // Trigger save to backend in atmosphere context
+          const contextFromDOM = this._getContextFromDOM(audioId);
+          if (contextFromDOM === 'atmosphere') {
+            this._saveAtmosphereDelayChanges(audioId, currentState);
+          }
+        }
+        return true;
+
+      case 'max-delay':
+        if (event && event.target) {
+          const maxSeconds = parseInt(event.target.value);
+          const currentMinSeconds = currentState.min_seconds ?? 0;
+          
+          // Ensure min <= max: if new max is less than current min, adjust min
+          let adjustedMinSeconds = currentMinSeconds;
+          if (maxSeconds < currentMinSeconds) {
+            adjustedMinSeconds = maxSeconds;
+            padStateManager.updatePadState(audioId, { min_seconds: adjustedMinSeconds, max_seconds: maxSeconds });
+            this._updatePadUI(audioId, { min_seconds: adjustedMinSeconds, max_seconds: maxSeconds, autoAdjusted: true });
+          } else {
+            padStateManager.updatePadState(audioId, { max_seconds: maxSeconds });
+            this._updatePadUI(audioId, { max_seconds: maxSeconds });
+          }
+          
+          // Trigger save to backend in atmosphere context
+          const contextFromDOM = this._getContextFromDOM(audioId);
+          if (contextFromDOM === 'atmosphere') {
+            this._saveAtmosphereDelayChanges(audioId, currentState);
+          }
+        }
+        return true;
+
       default:
         return false; // Not handled universally
     }
@@ -178,6 +226,44 @@ export class PadEventHandler {
           volumeDisplay.textContent = `${Math.round(stateChanges.volume * 100)}%`;
         }
       }
+      
+      if ('min_seconds' in stateChanges) {
+        const minDelaySlider = pad.querySelector('[data-action="min-delay"]');
+        if (minDelaySlider) {
+          minDelaySlider.value = stateChanges.min_seconds;
+          // Update the display for the min slider specifically
+          const minDelayGroup = minDelaySlider.closest('.delay-slider-group');
+          const minDelayDisplay = minDelayGroup?.querySelector('.delay-display');
+          if (minDelayDisplay) {
+            minDelayDisplay.textContent = `${stateChanges.min_seconds}s`;
+          }
+          
+          // Add animation if this was an auto-adjustment
+          if (stateChanges.autoAdjusted) {
+            minDelaySlider.classList.add('auto-adjusted');
+            setTimeout(() => minDelaySlider.classList.remove('auto-adjusted'), 800);
+          }
+        }
+      }
+      
+      if ('max_seconds' in stateChanges) {
+        const maxDelaySlider = pad.querySelector('[data-action="max-delay"]');
+        if (maxDelaySlider) {
+          maxDelaySlider.value = stateChanges.max_seconds;
+          // Update the display for the max slider specifically
+          const maxDelayGroup = maxDelaySlider.closest('.delay-slider-group');
+          const maxDelayDisplay = maxDelayGroup?.querySelector('.delay-display');
+          if (maxDelayDisplay) {
+            maxDelayDisplay.textContent = `${stateChanges.max_seconds}s`;
+          }
+          
+          // Add animation if this was an auto-adjustment
+          if (stateChanges.autoAdjusted) {
+            maxDelaySlider.classList.add('auto-adjusted');
+            setTimeout(() => maxDelaySlider.classList.remove('auto-adjusted'), 800);
+          }
+        }
+      }
     });
   }
 
@@ -220,37 +306,46 @@ export class PadEventHandler {
       await this.handlePadAction(event, action, audioId, context);
     });
 
-    // Handle input events (volume sliders)
+    // Handle input events (volume sliders and delay sliders)
     document.addEventListener('input', async (event) => {
-      if (!event.target.classList.contains('volume-slider-pad')) return;
+      if (event.target.classList.contains('volume-slider-pad')) {
+        const pad = event.target.closest('.sound-pad');
+        if (!pad) return;
 
-      const pad = event.target.closest('.sound-pad');
-      if (!pad) return;
+        const audioId = parseInt(pad.dataset.audioId);
+        const context = pad.dataset.context || 'mixer';
 
-      const audioId = parseInt(pad.dataset.audioId);
-      const context = pad.dataset.context || 'mixer';
+        await this.handlePadAction(event, 'volume', audioId, context);
+      } else if (event.target.classList.contains('delay-slider-pad')) {
+        const pad = event.target.closest('.sound-pad');
+        if (!pad) return;
 
-      await this.handlePadAction(event, 'volume', audioId, context);
+        const audioId = parseInt(pad.dataset.audioId);
+        const context = pad.dataset.context || 'mixer';
+        const action = event.target.dataset.action; // 'min-delay' or 'max-delay'
+
+        await this.handlePadAction(event, action, audioId, context);
+      }
     });
 
     // Prevent event bubbling on buttons and volume controls
     document.addEventListener('mousedown', (event) => {
       // Prevent bubbling if clicking on buttons or interactive elements
-      if (event.target.matches('.pad-btn, .edit-tags-btn, .volume-slider-pad, input[type="range"], button')) {
+      if (event.target.matches('.pad-btn, .edit-tags-btn, .volume-slider-pad, .delay-slider-pad, input[type="range"], button')) {
         event.stopPropagation();
       }
     });
 
     document.addEventListener('click', (event) => {
       // Prevent bubbling if clicking on buttons or interactive elements
-      if (event.target.matches('.pad-btn, .edit-tags-btn, .volume-slider-pad, input[type="range"], button')) {
+      if (event.target.matches('.pad-btn, .edit-tags-btn, .volume-slider-pad, .delay-slider-pad, input[type="range"], button')) {
         event.stopPropagation();
       }
     });
 
     document.addEventListener('input', (event) => {
-      // Prevent bubbling on volume slider input
-      if (event.target.matches('.volume-slider-pad, input[type="range"]')) {
+      // Prevent bubbling on volume slider and delay slider input
+      if (event.target.matches('.volume-slider-pad, .delay-slider-pad, input[type="range"]')) {
         event.stopPropagation();
       }
     });
@@ -259,8 +354,8 @@ export class PadEventHandler {
     let isVolumeInteracting = false;
 
     document.addEventListener('mousedown', (event) => {
-      // Track when we're interacting with volume controls
-      if (event.target.matches('.volume-slider-pad, input[type="range"]')) {
+      // Track when we're interacting with volume or delay controls
+      if (event.target.matches('.volume-slider-pad, .delay-slider-pad, input[type="range"]')) {
         isVolumeInteracting = true;
       }
     });
@@ -280,7 +375,7 @@ export class PadEventHandler {
       }
 
       // Prevent drag if the drag started from interactive elements
-      if (event.target.matches('.pad-btn, .edit-tags-btn, .volume-slider-pad, input[type="range"], button')) {
+      if (event.target.matches('.pad-btn, .edit-tags-btn, .volume-slider-pad, .delay-slider-pad, input[type="range"], button')) {
         event.preventDefault();
         event.stopPropagation();
         return false;
@@ -348,6 +443,69 @@ export class PadEventHandler {
     } catch (error) {
       logger.warn('pad-events', `Could not sync state for audio ${audioId}:`, error);
     }
+  }
+
+  /**
+   * Save delay changes to the backend for atmosphere context
+   * @param {number|string} audioId 
+   * @param {object} currentState 
+   */
+  async _saveAtmosphereDelayChanges(audioId, currentState) {
+    try {
+      // Get the current atmosphere ID from the membership editor or context
+      const atmosphereId = this._getCurrentAtmosphereId();
+      if (!atmosphereId) {
+        logger.warn('pad-events', `No atmosphere ID found for delay change for audio ${audioId}`);
+        return;
+      }
+
+      const updatedState = padStateManager.getPadState(audioId);
+      
+      // Call the backend to update atmosphere sound with delay values
+      await window.__TAURI__.core.invoke('update_atmosphere_sound', {
+        atmosphere_id: atmosphereId,
+        audio_file_id: audioId,
+        volume: updatedState.volume ?? 0.5,
+        is_looping: updatedState.isLooping ?? false,
+        is_muted: updatedState.isMuted ?? false,
+        min_seconds: updatedState.min_seconds ?? 0,
+        max_seconds: updatedState.max_seconds ?? 0
+      });
+
+      logger.debug('pad-events', `Saved delay changes for audio ${audioId}: min=${updatedState.min_seconds}, max=${updatedState.max_seconds}`);
+    } catch (error) {
+      logger.error('pad-events', `Failed to save delay changes for audio ${audioId}:`, error);
+    }
+  }
+
+  /**
+   * Get the context from DOM for a given audio ID
+   * @param {number|string} audioId 
+   * @returns {string|null} 
+   */
+  _getContextFromDOM(audioId) {
+    const pad = document.querySelector(`.sound-pad[data-audio-id="${audioId}"]`);
+    return pad?.dataset.context || null;
+  }
+
+  /**
+   * Get the current atmosphere ID from the UI context
+   * @returns {number|null} 
+   */
+  _getCurrentAtmosphereId() {
+    // Check if there's a currently loaded atmosphere in the UI
+    // This would typically be stored in the atmosphere manager or similar
+    const atmosphereEditor = document.querySelector('.atmosphere-membership-editor');
+    if (atmosphereEditor && atmosphereEditor.dataset.atmosphereId) {
+      return parseInt(atmosphereEditor.dataset.atmosphereId);
+    }
+    
+    // Fallback: check for global atmosphere state
+    if (window.app && window.app.currentAtmosphereId) {
+      return window.app.currentAtmosphereId;
+    }
+    
+    return null;
   }
 
   /**

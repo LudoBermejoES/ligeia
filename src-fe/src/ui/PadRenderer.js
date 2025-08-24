@@ -11,7 +11,7 @@ const CONTEXTS = {
     layout: 'grid'
   },
   atmosphere: {
-    controls: ['toggle', 'loop', 'mute', 'volume', 'remove'],
+    controls: ['toggle', 'loop', 'mute', 'volume', 'delay', 'remove'],
     cssClasses: ['sound-pad', 'atmosphere-pad'],
     showArtist: false,
     showTags: false,
@@ -33,6 +33,8 @@ export function renderSoundPad(audioFile, padState, options = {}) {
   const isLooping = padState?.isLooping || false;
   const isMuted = padState?.isMuted || false;
   const volumePercent = Math.round(((padState?.volume) ?? 0.5) * 100);
+  const minSeconds = (padState?.min_seconds) ?? 0;
+  const maxSeconds = (padState?.max_seconds) ?? 0;
 
   const title = audioFile.title || fileNameFromPath(audioFile.file_path);
   const artist = audioFile.artist || 'Unknown Artist';
@@ -79,6 +81,20 @@ export function renderSoundPad(audioFile, padState, options = {}) {
         ${config.controls.includes('volume') ? `<div class="volume-control-pad">
           <input type="range" class="volume-slider-pad" min="0" max="100" value="${volumePercent}" data-action="volume" aria-label="Pad Volume" draggable="false">
           <span class="volume-display-pad">${volumePercent}%</span>
+        </div>` : ''}
+        ${config.controls.includes('delay') ? `<div class="delay-control-pad">
+          <div class="delay-sliders-row">
+            <div class="delay-slider-group">
+              <label class="delay-label">Min</label>
+              <input type="range" class="delay-slider-pad min-delay-slider" min="0" max="60" value="${minSeconds}" data-action="min-delay" aria-label="Min Delay Seconds" draggable="false">
+              <span class="delay-display">${minSeconds}s</span>
+            </div>
+            <div class="delay-slider-group">
+              <label class="delay-label">Max</label>
+              <input type="range" class="delay-slider-pad max-delay-slider" min="0" max="60" value="${maxSeconds}" data-action="max-delay" aria-label="Max Delay Seconds" draggable="false">
+              <span class="delay-display">${maxSeconds}s</span>
+            </div>
+          </div>
         </div>` : ''}
       </div>
       ${config.showTags && rpgTags.length ? `<div class="sound-pad-tags">${rpgTags.map(t => `<span class="tag-chip tag-${t.tagType}">${escapeHtml(t.tagValue)}</span>`).join('')}</div>` : ''}
