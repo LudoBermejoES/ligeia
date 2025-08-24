@@ -124,6 +124,20 @@ export class AtmosphereEngine {
         if (minSeconds > 0 || maxSeconds > 0) {
           logger.info('delay', `Applied delay settings to pad: ${audioFile.file_path} = ${minSeconds}s-${maxSeconds}s`);
         }
+        
+        // Skip playing if the sound is muted in the atmosphere
+        if (mapping.is_muted) {
+          logger.debug('atmo', `Skipping play for muted sound: ${audioFile.file_path}`);
+          // Update UI to show muted state but not playing
+          this._updatePadUI(audioFile.id, { 
+            isPlaying: false, 
+            isLooping: !!mapping.is_looping, 
+            isMuted: true,
+            volume: targetVol
+          });
+          continue; // Skip to next sound
+        }
+        
         if (!pad.isPlaying) {
           pad.setVolume(0.0001);
           logger.debug('atmo', `About to call pad.play() for ${audioFile.file_path}`);
@@ -133,27 +147,41 @@ export class AtmosphereEngine {
             this._updatePadUI(audioFile.id, { 
               isPlaying: true, 
               isLooping: !!mapping.is_looping, 
-              isMuted: !!mapping.is_muted,
+              isMuted: false, // We know it's not muted since we checked above
               volume: targetVol
             });
           } catch (e) { 
             logger.error('atmo','play failed',{e: e.message}); 
             continue; 
           }
-          if (targetVol > 0 && !pad.isMuted) {
+          if (targetVol > 0) { // Remove && !pad.isMuted check since we already know it's not muted
             fadePromises.push(pad.fadeTo(targetVol, durationMs));
           }
         } else {
-          // Pad is already playing - update UI with current states even if no fade needed
-          this._updatePadUI(audioFile.id, { 
-            isLooping: !!mapping.is_looping, 
-            isMuted: !!mapping.is_muted,
-            volume: targetVol
-          });
-          // If volume differs significantly, also apply fade
-          if (Math.abs((pad.volume ?? 0) - targetVol) > 0.01) {
+          // Pad is already playing
+          if (mapping.is_muted) {
+            // Should be muted - stop the pad and update UI
+            logger.debug('atmo', `Stopping currently playing pad due to mute state: ${audioFile.file_path}`);
             pad.cancelFades?.();
-            fadePromises.push(pad.fadeTo(targetVol, durationMs));
+            fadePromises.push(pad.fadeTo(0, durationMs, { stopWhenZero: true }));
+            this._updatePadUI(audioFile.id, { 
+              isPlaying: false, 
+              isLooping: !!mapping.is_looping, 
+              isMuted: true,
+              volume: targetVol
+            });
+          } else {
+            // Update UI with current states even if no fade needed
+            this._updatePadUI(audioFile.id, { 
+              isLooping: !!mapping.is_looping, 
+              isMuted: false,
+              volume: targetVol
+            });
+            // If volume differs significantly, also apply fade
+            if (Math.abs((pad.volume ?? 0) - targetVol) > 0.01) {
+              pad.cancelFades?.();
+              fadePromises.push(pad.fadeTo(targetVol, durationMs));
+            }
           }
         }
       }
