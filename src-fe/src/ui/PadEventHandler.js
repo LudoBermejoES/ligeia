@@ -70,6 +70,8 @@ export class PadEventHandler {
    */
   async handlePadAction(event, action, audioId, context, additionalData = null) {
     try {
+      logger.debug('pad-events', `Handling pad action: ${action} for audioId: ${audioId} in context: ${context}`);
+      
       if (action.includes('delay')) {
         logger.debug('delay', `Handling ${action} for audio ${audioId} in ${context} context`);
       }
@@ -83,14 +85,18 @@ export class PadEventHandler {
 
       // Handle universal actions that work the same in all contexts
       let handled = await this._handleUniversalAction(action, audioId, currentState, event);
+      logger.debug('pad-events', `Universal action handler result for ${action}: ${handled}`);
       
       // If not handled universally, try context-specific handlers
       if (!handled) {
         handled = await this._handleContextSpecificAction(action, audioId, context, currentState, additionalData);
+        logger.debug('pad-events', `Context-specific handler result for ${context}.${action}: ${handled}`);
       }
 
       if (!handled) {
         logger.warn('pad-events', `Unhandled action: ${action} for context ${context}`);
+      } else {
+        logger.debug('pad-events', `Successfully handled action: ${action} for audioId: ${audioId}`);
       }
 
     } catch (error) {
@@ -412,16 +418,34 @@ export class PadEventHandler {
    * Handle context-specific actions
    */
   async _handleContextSpecificAction(action, audioId, context, currentState, additionalData) {
+    logger.debug('pad-events', `Looking for context handler: ${context}.${action}`);
+    
     const contextHandlers = this.contextHandlers.get(context);
-    if (!contextHandlers || !contextHandlers[action]) {
+    logger.debug('pad-events', `Context handlers for ${context}:`, contextHandlers ? Object.keys(contextHandlers) : 'none');
+    
+    if (!contextHandlers) {
+      logger.warn('pad-events', `No context handlers registered for context: ${context}`);
+      return false;
+    }
+    
+    if (!contextHandlers[action]) {
+      logger.warn('pad-events', `No handler found for action: ${action} in context: ${context}`);
       return false;
     }
 
     try {
+      logger.debug('pad-events', `Calling context handler ${context}.${action} with audioId: ${audioId}`);
       await contextHandlers[action](audioId, currentState, additionalData);
+      logger.debug('pad-events', `Successfully handled ${context}.${action}`);
       return true;
     } catch (error) {
-      logger.error('pad-events', `Error in context handler for ${context}.${action}:`, error);
+      logger.error('pad-events', `Error in context handler for ${context}.${action}:`, {
+        error: error.message,
+        stack: error.stack,
+        audioId,
+        context,
+        action
+      });
       return false;
     }
   }
@@ -556,13 +580,64 @@ export class PadEventHandler {
    * @param {string} context 
    */
   removePadFromContext(audioId, context) {
-    padStateManager.removeFromContext(audioId, context);
-    
-    // If pad is not in any other context, stop it and clean up
-    const remainingContexts = padStateManager.getPadContexts(audioId);
-    if (remainingContexts.length === 0) {
-      this.audioService.stopSound(audioId);
-      padStateManager.removePad(audioId);
+    try {
+      logger.debug('pad-events', `Removing pad ${audioId} from context ${context}`);
+      
+      padStateManager.removeFromContext(audioId, context);
+      logger.debug('pad-events', `Successfully removed from context`);
+      
+      // If pad is not in any other context, stop it and clean up
+      const remainingContexts = padStateManager.getPadContexts(audioId);
+      logger.debug('pad-events', `Remaining contexts for pad ${audioId}:`, remainingContexts);
+      
+      if (remainingContexts.length === 0) {
+        logger.debug('pad-events', `No remaining contexts, stopping sound ${audioId}`);
+        
+        // Find and stop the SoundPad instance
+        const libraryManager = this.libraryManager;
+        logger.debug('pad-events', `LibraryManager available:`, !!libraryManager);
+        
+        if (libraryManager) {
+          logger.debug('pad-events', `Searching for audio file with ID ${audioId}`);
+          logger.debug('pad-events', `AudioFiles type:`, typeof libraryManager.audioFiles, `isArray:`, Array.isArray(libraryManager.audioFiles), `length:`, libraryManager.audioFiles?.length);
+          
+          // Find the audio file by ID to get the file path
+          let audioFile = null;
+          if (libraryManager.audioFiles && Array.isArray(libraryManager.audioFiles)) {
+            audioFile = libraryManager.audioFiles.find(f => f.id == audioId);
+            logger.debug('pad-events', `Found audio file:`, !!audioFile, audioFile?.file_path);
+          } else {
+            logger.error('pad-events', `libraryManager.audioFiles is not a valid array:`, libraryManager.audioFiles);
+            return; // Exit early if audioFiles is not valid
+          }
+          
+          if (audioFile) {
+            const soundPad = libraryManager.soundPads.get(audioFile.file_path);
+            logger.debug('pad-events', `Found SoundPad:`, !!soundPad, `isPlaying:`, soundPad?.isPlaying);
+            
+            if (soundPad && soundPad.isPlaying) {
+              logger.debug('pad-events', `Calling stop() on SoundPad`);
+              soundPad.stop();
+              logger.debug('pad-events', `Stopped SoundPad for ${audioFile.file_path}`);
+            } else if (soundPad) {
+              logger.debug('pad-events', `SoundPad exists but not playing, skipping stop`);
+            } else {
+              logger.warn('pad-events', `No SoundPad found for file path: ${audioFile.file_path}`);
+            }
+          } else {
+            logger.warn('pad-events', `No audio file found with ID ${audioId}`);
+          }
+        } else {
+          logger.warn('pad-events', `No libraryManager available`);
+        }
+        
+        logger.debug('pad-events', `Sound stopped, removing pad state`);
+        padStateManager.removePad(audioId);
+        logger.debug('pad-events', `Pad ${audioId} completely removed`);
+      }
+    } catch (error) {
+      logger.error('pad-events', `Error in removePadFromContext for ${audioId}:`, error);
+      throw error;
     }
   }
 

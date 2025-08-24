@@ -23,22 +23,44 @@ export class AtmosphereMembershipEditor {
   }
   
   _initializeAtmosphereEventHandlers() {
+    logger.debug('membership', 'Initializing atmosphere event handlers');
     if (this.padEventHandler) {
+      logger.debug('membership', 'Registering atmosphere context handlers');
       // Register atmosphere-specific event handlers
       this.padEventHandler.registerContextHandlers('atmosphere', {
-        'remove': (audioId) => this._handleRemoveFromAtmosphere(audioId)
+        'remove': (audioId, currentState, additionalData) => this._handleRemoveFromAtmosphere(audioId, currentState, additionalData)
       });
+      logger.debug('membership', 'Atmosphere context handlers registered successfully');
+    } else {
+      logger.warn('membership', 'No padEventHandler available to register context handlers');
     }
   }
   
-  _handleRemoveFromAtmosphere(audioId) {
-    logger.debug('membership', `Removing audio ${audioId} from atmosphere`);
-    this.members.delete(audioId);
-    if (this.padEventHandler) {
-      this.padEventHandler.removePadFromContext(audioId, 'atmosphere');
+  _handleRemoveFromAtmosphere(audioId, currentState, additionalData) {
+    try {
+      logger.debug('membership', `Removing audio ${audioId} from atmosphere`);
+      
+      logger.debug('membership', `Deleting ${audioId} from members map`);
+      this.members.delete(audioId);
+      
+      if (this.padEventHandler) {
+        logger.debug('membership', `Removing pad ${audioId} from atmosphere context`);
+        this.padEventHandler.removePadFromContext(audioId, 'atmosphere');
+      } else {
+        logger.warn('membership', 'No padEventHandler available for removePadFromContext');
+      }
+      
+      logger.debug('membership', `Re-rendering pads after removal`);
+      this.renderPads();
+      
+      logger.debug('membership', `Scheduling persist after removal`);
+      this._schedulePersist();
+      
+      logger.debug('membership', `Successfully removed audio ${audioId} from atmosphere`);
+    } catch (error) {
+      logger.error('membership', `Error removing audio ${audioId} from atmosphere:`, error);
+      throw error; // Re-throw so the calling code can handle it
     }
-    this.renderPads();
-    this._schedulePersist();
   }
   
   /**
