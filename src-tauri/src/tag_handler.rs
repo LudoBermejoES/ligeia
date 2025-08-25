@@ -47,12 +47,19 @@ impl TagHandler {
     pub fn get_rpg_tags_for_file(app_handle: AppHandle, audio_file_id: i64) -> Result<Vec<RpgTag>, String> {
         let state = app_handle.state::<AppState>();
         
-        log::debug!("Getting RPG tags for file: {}", audio_file_id);
+        log::debug!("TagHandler::get_rpg_tags_for_file called with audio_file_id: {}", audio_file_id);
         
-        state.tag_manager.get_rpg_tags_for_file(audio_file_id).map_err(|e| {
+        let result = state.tag_manager.get_rpg_tags_for_file(audio_file_id).map_err(|e| {
             log::error!("Failed to get RPG tags for file {}: {}", audio_file_id, e);
             e.to_string()
-        })
+        });
+        
+        match &result {
+            Ok(tags) => log::debug!("TagHandler::get_rpg_tags_for_file returning {} tags for file {}", tags.len(), audio_file_id),
+            Err(e) => log::error!("TagHandler::get_rpg_tags_for_file failed for file {}: {}", audio_file_id, e),
+        }
+        
+        result
     }
 
     /// Bulk tag multiple files

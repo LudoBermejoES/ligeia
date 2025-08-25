@@ -140,6 +140,11 @@ impl AudioHandler {
     }
 
     pub fn update_audio_file_tags(file_path: &str, updates: &AudioFile) -> Result<(), String> {
+        // Check if file exists before attempting to update tags
+        if !std::path::Path::new(file_path).exists() {
+            return Err(format!("File not found: {}", file_path));
+        }
+        
         let mut tag = Tag::read_from_path(file_path).unwrap_or_else(|_| Tag::new());
         
         // Update basic tags
@@ -229,6 +234,11 @@ impl AudioHandler {
     }
 
     pub fn write_rpg_tags_to_file(file_path: &str, rpg_tags: &[(String, Vec<String>)]) -> Result<(), String> {
+        // Check if file exists before attempting to write RPG tags
+        if !std::path::Path::new(file_path).exists() {
+            return Err(format!("File not found: {}", file_path));
+        }
+        
         let mut tag = Tag::read_from_path(file_path).unwrap_or_else(|_| Tag::new());
         
         // Remove existing RPG TXXX frames first

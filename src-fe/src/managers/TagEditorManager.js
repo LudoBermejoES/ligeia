@@ -58,7 +58,7 @@ export class TagEditorManager {
 
     if (audioFile.id) {
       try {
-  const rpgTags = await invoke('get_rpg_tags_for_file', { audio_file_id: audioFile.id, audioFileId: audioFile.id });
+        const rpgTags = await invoke('get_rpg_tags_for_file', { audioFileId: audioFile.id });
         const map = {};
         rpgTags.forEach(t => { if (!map[t.tag_type]) map[t.tag_type] = []; map[t.tag_type].push(t.tag_value); });
         const occEl = document.getElementById('tag-rpg-occasions');
@@ -89,20 +89,48 @@ export class TagEditorManager {
     }
     updates.file_path = this.currentEditingFile;
 
-    await invoke('update_audio_file_tags', { filePath: this.currentEditingFile, updates });
+    try {
+      await invoke('update_audio_file_tags', { filePath: this.currentEditingFile, updates });
+    } catch (error) {
+      console.error('Failed to update audio file tags:', error);
+      if (error.includes('File not found')) {
+        this.ui.showError(`File no longer exists: ${this.currentEditingFile}`);
+        // Remove the file from the library since it doesn't exist
+        this.library.getAudioFiles().delete(this.currentEditingFile);
+        this.ui.renderSoundPadsGrid(this.library.getAudioFiles(), this.library.getSoundPads());
+        this.close();
+        return;
+      }
+      this.ui.showError(`Failed to update tags: ${error}`);
+      return;
+    }
 
     const audioFileId = audioFile.id;
-  const currentRpg = await invoke('get_rpg_tags_for_file', { audio_file_id: audioFileId, audioFileId });
+  const currentRpg = await invoke('get_rpg_tags_for_file', { audioFileId: audioFileId });
     const replaceSet = async (type, raw) => {
       const existing = currentRpg.filter(t => t.tag_type === type);
-  for (const t of existing) await invoke('remove_rpg_tag', { audio_file_id: audioFileId, audioFileId, tag_type: type, tag_value: t.tag_value });
-  raw.filter(v => v.length).forEach(async v => await invoke('add_rpg_tag', { audio_file_id: audioFileId, audioFileId, tag_type: type, tag_value: v }));
+  for (const t of existing) await invoke('remove_rpg_tag', { audioFileId: audioFileId, tagType: type, tagValue: t.tag_value });
+  raw.filter(v => v.length).forEach(async v => await invoke('add_rpg_tag', { audioFileId: audioFileId, tagType: type, tagValue: v }));
     };
-    await replaceSet('occasion', (formData.get('rpg_occasions') || '').split(';').map(s=>s.trim()).filter(Boolean));
-    await replaceSet('keyword', (formData.get('rpg_keywords') || '').split(';').map(s=>s.trim()).filter(Boolean));
-    await replaceSet('quality', [(formData.get('rpg_quality') || '').trim()].filter(Boolean));
+    try {
+      await replaceSet('occasion', (formData.get('rpg_occasions') || '').split(';').map(s=>s.trim()).filter(Boolean));
+      await replaceSet('keyword', (formData.get('rpg_keywords') || '').split(';').map(s=>s.trim()).filter(Boolean));
+      await replaceSet('quality', [(formData.get('rpg_quality') || '').trim()].filter(Boolean));
 
-    await invoke('write_rpg_tags_to_file', { filePath: this.currentEditingFile });
+      await invoke('write_rpg_tags_to_file', { filePath: this.currentEditingFile });
+    } catch (error) {
+      console.error('Failed to write RPG tags:', error);
+      if (error.includes('File not found')) {
+        this.ui.showError(`File no longer exists: ${this.currentEditingFile}`);
+        // Remove the file from the library since it doesn't exist
+        this.library.getAudioFiles().delete(this.currentEditingFile);
+        this.ui.renderSoundPadsGrid(this.library.getAudioFiles(), this.library.getSoundPads());
+        this.close();
+        return;
+      }
+      this.ui.showError(`Failed to write RPG tags: ${error}`);
+      return;
+    }
 
     Object.assign(audioFile, updates);
     // Refresh UI components after save

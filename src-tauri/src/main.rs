@@ -88,7 +88,13 @@ async fn remove_rpg_tag(app_handle: AppHandle, audio_file_id: i64, tag_type: Str
 
 #[tauri::command]
 async fn get_rpg_tags_for_file(app_handle: AppHandle, audio_file_id: i64) -> Result<Vec<RpgTag>, String> {
-    TagHandler::get_rpg_tags_for_file(app_handle, audio_file_id)
+    log::info!("Tauri command get_rpg_tags_for_file called with audio_file_id: {}", audio_file_id);
+    let result = TagHandler::get_rpg_tags_for_file(app_handle, audio_file_id);
+    match &result {
+        Ok(tags) => log::info!("Tauri command get_rpg_tags_for_file returning {} tags", tags.len()),
+        Err(e) => log::error!("Tauri command get_rpg_tags_for_file failed: {}", e),
+    }
+    result
 }
 
 #[tauri::command]

@@ -30,6 +30,8 @@ impl RpgTagRepository {
 
     /// Get all RPG tags for a specific audio file
     pub fn get_for_file(&self, conn: &Connection, audio_file_id: i64) -> Result<Vec<RpgTag>> {
+        log::debug!("RpgTagRepository::get_for_file called with audio_file_id: {}", audio_file_id);
+        
         let mut stmt = conn.prepare(
             "SELECT id, audio_file_id, tag_type, tag_value, created_at
              FROM rpg_tags WHERE audio_file_id = ?1 ORDER BY tag_type, tag_value"
@@ -49,6 +51,8 @@ impl RpgTagRepository {
         for row in rows {
             tags.push(row?);
         }
+        
+        log::debug!("RpgTagRepository::get_for_file returning {} tags for audio_file_id: {}", tags.len(), audio_file_id);
         Ok(tags)
     }
 

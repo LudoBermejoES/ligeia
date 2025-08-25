@@ -97,11 +97,9 @@ export class TagService {
     async addRpgTag(audioFileId, tagType, tagValue) {
         try {
             const result = await invoke('add_rpg_tag', {
-                // Send both naming conventions for compatibility
-                audio_file_id: audioFileId,
                 audioFileId: audioFileId,
-                tag_type: tagType,
-                tag_value: tagValue
+                tagType: tagType,
+                tagValue: tagValue
             });
             console.log(`Added RPG tag: ${tagType}=${tagValue} to file ${audioFileId}`);
             return result;
@@ -114,10 +112,9 @@ export class TagService {
     async removeRpgTag(audioFileId, tagType, tagValue) {
         try {
             await invoke('remove_rpg_tag', {
-                audio_file_id: audioFileId,
                 audioFileId: audioFileId,
-                tag_type: tagType,
-                tag_value: tagValue
+                tagType: tagType,
+                tagValue: tagValue
             });
             console.log(`Removed RPG tag: ${tagType}=${tagValue} from file ${audioFileId}`);
         } catch (error) {
@@ -128,7 +125,7 @@ export class TagService {
 
     async getRpgTagsForFile(audioFileId) {
         try {
-            const tags = await invoke('get_rpg_tags_for_file', { audio_file_id: audioFileId, audioFileId });
+            const tags = await invoke('get_rpg_tags_for_file', { audioFileId: audioFileId });
             return tags;
         } catch (error) {
             console.error('Failed to get RPG tags for file:', error);
