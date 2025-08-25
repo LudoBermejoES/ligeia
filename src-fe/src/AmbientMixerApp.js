@@ -14,6 +14,7 @@ import { BulkTagEditorController } from './ui/BulkTagEditorController.js';
 import { TagSearchController } from './ui/TagSearchController.js';
 import logger from './utils/logger.js';
 import { ImportExportManager } from './managers/ImportExportManager.js';
+import { StoreTagsManager } from './managers/StoreTagsManager.js';
 import { AtmosphereManager } from './managers/AtmosphereManager.js';
 import { AtmosphereUIController } from './ui/AtmosphereUIController.js';
 import { AtmosphereMembershipEditor } from './ui/AtmosphereMembershipEditor.js';
@@ -42,6 +43,7 @@ export class AmbientMixerApp {
     this.audioFiles = this.libraryManager.getAudioFiles();
     this.soundPads = this.libraryManager.getSoundPads();
     this.importExportManager = new ImportExportManager(this.uiController, this.libraryManager);
+    this.storeTagsManager = new StoreTagsManager(this.uiController);
     // Atmospheres (manager + UI)
     this.atmosphereUI = new AtmosphereUIController();
     this.atmosphereManager = new AtmosphereManager(this.libraryManager, this.uiController);
@@ -58,6 +60,7 @@ export class AmbientMixerApp {
             loadDirectory: () => this.handleLoadDirectory(),
             exportData: () => this.importExportManager.exportData(),
             importData: () => this.importExportManager.importData(),
+            storeTagsInFiles: () => this.storeTagsManager.storeAllTagsInFiles(),
             calculateDurations: () => this.handleCalculateDurations(),
             stopAll: () => this.handleStopAll(),
             fadeAllIn: () => this.handleFadeAllIn(),

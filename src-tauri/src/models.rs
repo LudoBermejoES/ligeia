@@ -303,3 +303,29 @@ impl Default for Atmosphere {
         }
     }
 }
+
+// Store Tags functionality models
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct StoreTagsResult {
+    pub total_files: usize,
+    pub updated_files: usize,
+    pub skipped_files: usize,
+    pub failed_files: usize,
+    pub errors: Vec<String>,
+    pub duration_seconds: f64,
+}
+
+#[derive(Debug, Clone)]
+pub struct FileTagComparison {
+    pub file_path: String,
+    pub needs_update: bool,
+    pub missing_tags: Vec<String>,
+    pub different_values: Vec<TagDifference>,
+}
+
+#[derive(Debug, Clone)]
+pub struct TagDifference {
+    pub field_name: String,
+    pub current_value: String,
+    pub new_value: String,
+}

@@ -43,6 +43,7 @@ The frontend follows a **Model-View-Controller (MVC)** pattern with an additiona
     -   `AtmosphereManager.js`: Orchestrates atmosphere operations including creation, loading, deletion, and search functionality.
     -   `TagEditorManager.js`: Manages tag editing operations and modal interactions.
     -   `ImportExportManager.js`: Handles library backup and restoration operations.
+    -   `StoreTagsManager.js`: Manages storing all database tags directly into audio files using ID3v2.4 standard.
 -   **Engine** (`src/engine/`):
     -   `AtmosphereEngine.js`: Core crossfade engine with cancellation support, progress tracking, and event emission for atmosphere transitions.
 -   **Models** (`src/models/`):
@@ -70,6 +71,7 @@ The backend has been **completely refactored** into a modular architecture with 
     -   `tag_manager.rs` and `tag_handler.rs`: RPG tag business logic and Tauri commands
     -   `file_scanner.rs`: Recursive directory scanning with filtering
     -   `import_export_handler.rs`: Library backup/restore logic
+    -   `store_tags_handler.rs`: Store all database tags into audio files using ID3v2.4 standard
 
 -   **Enhanced Tauri Commands**: The Rust backend exposes comprehensive commands:
     -   **Audio File Operations**: `load_audio_file`, `save_audio_file`, `get_all_audio_files`, `delete_audio_file`, `update_audio_file_tags`, `write_rpg_tags_to_file`
@@ -78,6 +80,7 @@ The backend has been **completely refactored** into a modular architecture with 
     -   **Search Operations**: `search_files_by_tags`, `get_all_audio_files_with_tags`, `get_tag_statistics`
     -   **Export/Import Operations**: `export_library_data`, `import_library_data` for complete library backup and restoration
     -   **Audio Processing Operations**: `calculate_missing_durations` for comprehensive audio metadata analysis
+    -   **Store Tags Operations**: `store_all_tags_in_files` for writing all database metadata and RPG tags into audio files
     -   **Atmosphere Operations**: `save_atmosphere`, `get_all_atmospheres`, `get_atmosphere_by_id`, `delete_atmosphere`, `add_sound_to_atmosphere`, `remove_sound_from_atmosphere`, `update_atmosphere_sound`, `get_atmosphere_with_sounds`, `get_atmosphere_categories`, `duplicate_atmosphere`, `compute_atmosphere_integrity`, `compute_all_atmosphere_integrities`, `search_atmospheres`
 
 -   **Enhanced Database Schema**:
@@ -194,7 +197,8 @@ src-fe/src/
 │   ├── LibraryManager.js           # Audio library state management
 │   ├── AtmosphereManager.js        # Atmosphere operations orchestration
 │   ├── TagEditorManager.js         # Tag editing operations
-│   └── ImportExportManager.js      # Library backup/restoration
+│   ├── ImportExportManager.js      # Library backup/restoration
+│   └── StoreTagsManager.js         # Store database tags into audio files
 ├── engine/
 │   └── AtmosphereEngine.js         # Crossfade engine with cancellation
 ├── models/
@@ -234,6 +238,7 @@ src-tauri/src/
 ├── tag_manager.rs                  # RPG tag management logic
 ├── atmosphere_handler.rs           # Atmosphere command handlers
 ├── import_export_handler.rs        # Library import/export handlers
+├── store_tags_handler.rs           # Store database tags into audio files
 ├── file_scanner.rs                 # Recursive directory scanning
 └── data/
     ├── genre_vocabulary.rs         # Genre tag vocabulary definitions
@@ -258,6 +263,7 @@ src-tauri/src/
 │   └── tauri.conf.json        # Tauri configuration
 ├── db/                        # SQLite database storage
 ├── CLAUDE.md                  # Project documentation (this file)
+├── STORE_TAGS.md              # Store tags in files strategy and implementation
 ├── AUTOTAG.md                 # Automated tagging system documentation
 ├── TAGS.md                    # RPG tag vocabulary specification
 ├── README.md                  # Project overview and setup instructions
@@ -323,8 +329,17 @@ src-tauri/src/
 - **Data Validation**: Import validation ensures file format integrity before processing
 - **User-Friendly Interface**: Clear confirmation dialogs and progress feedback
 
-### 4.8. User Interface Enhancements
-- **Professional Modal System**: Comprehensive atmosphere creation/editing, bulk tag editor, search interfaces, and export/import dialogs
+### 4.8. Store Tags in Files System
+- **Complete Tag Storage**: Write all database metadata and RPG tags directly into audio files using ID3v2.4 standard
+- **Smart File Comparison**: Only update files that need changes by comparing current file tags with database values
+- **TXXX Custom Fields**: Store RPG-specific tags in standardized ID3v2.4 TXXX frames with semicolon separation
+- **Batch Processing**: Handle large libraries efficiently with progress tracking and error isolation
+- **Professional UI**: Confirmation dialog explaining the operation, animated progress modal, and comprehensive results summary
+- **Error Handling**: Graceful handling of read-only files, corrupted files, and permission issues with detailed error reporting
+- **Data Portability**: Create portable audio files with embedded metadata that work with other audio software
+
+### 4.9. User Interface Enhancements
+- **Professional Modal System**: Comprehensive atmosphere creation/editing, bulk tag editor, search interfaces, export/import dialogs, and store tags interface
 - **Side Panel Architecture**: Resizable atmosphere membership editor with dedicated controls and drag-and-drop support
 - **Responsive Design**: Adapts to different screen sizes and resolutions with professional layout management
 - **Advanced Visual Feedback**: Progress bars, status indicators, crossfade progress tracking, and real-time atmosphere state updates
@@ -399,7 +414,21 @@ cd src-tauri; cargo check
    - Confirm to clear current library and restore from backup
    - Automatic UI refresh with imported data
 
-### 6.5. Atmosphere Random Delay Configuration
+### 6.5. Store Tags in Files Workflow
+1. **Access Feature**: Click "📝 Store Tags" button in the header (after Export Library button)
+2. **Review Operation**: Read the detailed confirmation dialog explaining:
+   - What metadata will be written (standard tags, RPG tags, technical data)
+   - Benefits (portability, backup, compatibility with other software)
+   - Smart processing (only files needing updates are modified)
+3. **Confirm Operation**: Click "📝 Store Tags in Files" to proceed with the batch operation
+4. **Monitor Progress**: Watch the animated progress modal during processing
+5. **Review Results**: Examine the comprehensive results summary showing:
+   - Total files processed and statistics breakdown
+   - Processing time and performance metrics  
+   - Detailed error list for any failed files
+   - Explanation of what was accomplished
+
+### 6.6. Atmosphere Random Delay Configuration
 1. **Access Atmosphere Editor**: Open an atmosphere in the membership editor panel
 2. **Configure Delay Sliders**: Each atmosphere pad includes two orange delay sliders:
    - **Min Slider** (left): Set minimum seconds (0-60s) for random delay intervals
@@ -517,6 +546,12 @@ The combination of Tauri's cross-platform capabilities, Rust's performance and s
 ---
 
 Changelog highlights (recent):
+- **Store Tags in Files System**: Complete implementation of storing all database metadata and RPG tags into audio files using ID3v2.4 standard with TXXX custom fields, smart file comparison, batch processing, and professional UI with confirmation/progress/results dialogs
+- **Enhanced Rust Backend**: Added `store_tags_handler.rs` with comprehensive tag writing logic, file comparison, and error handling for batch processing operations
+- **Professional UI Integration**: New `StoreTagsManager.js` with modal system including detailed confirmation dialog, animated progress tracking, and comprehensive results summary with error reporting
+- **ID3v2.4 Tag Writing**: Complete implementation of standard metadata fields and RPG-specific TXXX frames with semicolon-separated multi-value support for portable audio file tagging
+- **Sidebar Resizing**: Added resize control to sidebar-container with drag functionality to adjust panel widths while maintaining responsive layout proportions
+- **Bug Fixes**: Fixed muted sounds playing in atmospheres, resolved atmosphere remove action errors, and corrected CSS issues preventing sidebar width adjustment
 - **Random Delay System**: Complete implementation of min/max seconds delay controls (0-60s range) for atmosphere pads with smart validation, visual feedback, and automatic database persistence
 - **Enhanced Database Schema**: Added min_seconds and max_seconds columns to atmosphere_sounds table with automatic migration support for existing databases
 - **Advanced UI Controls**: Dual slider interface with orange styling, real-time validation (min ≤ max), auto-adjustment animations, and CSS layout fixes to prevent overflow

@@ -48,6 +48,7 @@ export class UIController {
     // Export / Import
     this.getElementById('exportData')?.addEventListener('click', eventHandlers.exportData);
         this.getElementById('importData')?.addEventListener('click', eventHandlers.importData);
+        this.getElementById('storeTagsInFiles')?.addEventListener('click', eventHandlers.storeTagsInFiles);
         this.getElementById('calculateDurations')?.addEventListener('click', eventHandlers.calculateDurations);
         
         // Global controls

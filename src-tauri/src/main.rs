@@ -17,6 +17,7 @@ mod import_export_handler;
 mod audio_processing_handler;
 mod audio_file_handler;
 mod tag_handler;
+mod store_tags_handler;
 
 use models::*;
 use database::Database;
@@ -143,6 +144,11 @@ async fn import_library_data(app_handle: AppHandle, data: String) -> Result<(), 
     result
 }
 
+#[tauri::command]
+async fn store_all_tags_in_files(app_handle: AppHandle) -> Result<StoreTagsResult, String> {
+    store_tags_handler::store_all_tags_in_files(app_handle)
+}
+
 // Atmosphere Commands
 #[tauri::command]
 async fn save_atmosphere(app_handle: AppHandle, atmosphere: AtmosphereSavePayload) -> Result<i64, String> {
@@ -258,6 +264,7 @@ pub fn run() {
             get_existing_tags,
             export_library_data,
             import_library_data,
+            store_all_tags_in_files,
             calculate_missing_durations,
             save_atmosphere,
             get_all_atmospheres,
