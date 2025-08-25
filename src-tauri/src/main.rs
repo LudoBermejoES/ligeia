@@ -146,7 +146,7 @@ async fn import_library_data(app_handle: AppHandle, data: String) -> Result<(), 
 
 #[tauri::command]
 async fn store_all_tags_in_files(app_handle: AppHandle) -> Result<StoreTagsResult, String> {
-    store_tags_handler::store_all_tags_in_files(app_handle)
+    store_tags_handler::store_all_tags_in_files(app_handle).await
 }
 
 // Atmosphere Commands

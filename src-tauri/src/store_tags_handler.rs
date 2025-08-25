@@ -1,6 +1,5 @@
 use crate::models::{StoreTagsResult, FileTagComparison, TagDifference};
-use crate::database::audio_files::get_all_audio_files_with_full_metadata;
-use crate::database::rpg_tags::get_rpg_tags_for_file;
+use crate::database::Database;
 use tauri::AppHandle;
 use id3::{Tag, TagLike, Frame, Content};
 use std::path::Path;
@@ -8,7 +7,7 @@ use std::time::Instant;
 use log::{info, warn, error};
 
 /// Store all database metadata and RPG tags into the actual audio files
-pub async fn store_all_tags_in_files(app_handle: AppHandle) -> Result<StoreTagsResult, String> {
+pub async fn store_all_tags_in_files(_app_handle: AppHandle) -> Result<StoreTagsResult, String> {
     let start_time = Instant::now();
     info!("Starting store tags in files operation");
 
@@ -21,8 +20,17 @@ pub async fn store_all_tags_in_files(app_handle: AppHandle) -> Result<StoreTagsR
         duration_seconds: 0.0,
     };
 
+    // Get database instance
+    let db = match Database::new() {
+        Ok(db) => db,
+        Err(e) => {
+            error!("Failed to create database connection: {}", e);
+            return Err(format!("Failed to create database connection: {}", e));
+        }
+    };
+
     // Get all audio files with metadata
-    let audio_files = match get_all_audio_files_with_full_metadata(app_handle.clone()) {
+    let audio_files = match db.get_all_audio_files() {
         Ok(files) => files,
         Err(e) => {
             error!("Failed to get audio files from database: {}", e);
@@ -34,7 +42,7 @@ pub async fn store_all_tags_in_files(app_handle: AppHandle) -> Result<StoreTagsR
     info!("Processing {} audio files", result.total_files);
 
     for audio_file in audio_files {
-        match process_single_file(&app_handle, &audio_file, &mut result).await {
+        match process_single_file(&db, &audio_file, &mut result) {
             Ok(updated) => {
                 if updated {
                     result.updated_files += 1;
@@ -65,8 +73,8 @@ pub async fn store_all_tags_in_files(app_handle: AppHandle) -> Result<StoreTagsR
 }
 
 /// Process a single audio file - compare current tags with database and update if needed
-async fn process_single_file(
-    app_handle: &AppHandle,
+fn process_single_file(
+    db: &Database,
     audio_file: &crate::models::AudioFile,
     _result: &mut StoreTagsResult,
 ) -> Result<bool, String> {
@@ -87,12 +95,16 @@ async fn process_single_file(
     };
 
     // Get RPG tags for this file from database
-    let rpg_tags = match get_rpg_tags_for_file(app_handle.clone(), audio_file.id) {
-        Ok(tags) => tags,
-        Err(e) => {
-            warn!("Failed to get RPG tags for file {}: {}", file_path, e);
-            Vec::new()
+    let rpg_tags = if let Some(audio_file_id) = audio_file.id {
+        match db.get_rpg_tags_for_file(audio_file_id) {
+            Ok(tags) => tags,
+            Err(e) => {
+                warn!("Failed to get RPG tags for file {}: {}", file_path, e);
+                Vec::new()
+            }
         }
+    } else {
+        Vec::new()
     };
 
     // Compare current file tags with database values
@@ -358,8 +370,12 @@ fn write_metadata_to_tag(
         set_text_frame(tag, "TLEN", &duration_ms.to_string());
     }
 
-    if let Some(ref encoding_info) = audio_file.encoding_info {
-        set_text_frame(tag, "TENC", encoding_info);
+    if let Some(ref encoding_settings) = audio_file.encoding_settings {
+        set_text_frame(tag, "TSSE", encoding_settings);
+    }
+
+    if let Some(ref encoded_by) = audio_file.encoded_by {
+        set_text_frame(tag, "TENC", encoded_by);
     }
 
     // Write RPG tags as TXXX fields
@@ -368,7 +384,9 @@ fn write_metadata_to_tag(
     // Add Ligeia-specific metadata
     set_txxx_frame(tag, "LIGEIA_VERSION", "1.0")?;
     set_txxx_frame(tag, "LIGEIA_TIMESTAMP", &chrono::Utc::now().to_rfc3339())?;
-    set_txxx_frame(tag, "LIGEIA_DATABASE_ID", &audio_file.id.to_string())?;
+    if let Some(id) = audio_file.id {
+        set_txxx_frame(tag, "LIGEIA_DATABASE_ID", &id.to_string())?;
+    }
     set_txxx_frame(tag, "ORIGINAL_PATH", &audio_file.file_path)?;
 
     Ok(())
@@ -429,7 +447,6 @@ fn set_text_frame(tag: &mut Tag, frame_id: &str, value: &str) {
 /// Set a TXXX (user-defined text) frame
 fn set_txxx_frame(tag: &mut Tag, description: &str, value: &str) -> Result<(), String> {
     let content = Content::ExtendedText(id3::frame::ExtendedText {
-        encoding: id3::Encoding::UTF8,
         description: description.to_string(),
         value: value.to_string(),
     });
