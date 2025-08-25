@@ -181,6 +181,9 @@ export class AmbientMixerApp {
                 }
             } catch (e) { console.warn('Atmospheres init failed', e); }
 
+            // Initialize sidebar resizer
+            this.initSidebarResize();
+
             console.log('Ambient Mixer initialized successfully');
             return true;
         } catch (error) {
@@ -342,6 +345,43 @@ export class AmbientMixerApp {
             resizer.setAttribute('aria-hidden','true');
         });
         this._membershipResizeInit = true;
+    }
+
+    initSidebarResize() {
+        if (this._sidebarResizeInit) return; // once
+        const resizer = document.getElementById('sidebar-resizer');
+        const sidebar = document.getElementById('sidebar-container');
+        if (!resizer || !sidebar) return;
+        
+        let dragging = false; 
+        let startX = 0; 
+        let startWidth = 0;
+        const minW = 200; // Minimum sidebar width
+        const maxW = 600; // Maximum sidebar width
+        
+        const onMove = (e) => {
+            if (!dragging) return;
+            const dx = e.clientX - startX;
+            let newW = Math.min(maxW, Math.max(minW, startWidth + dx));
+            sidebar.style.flex = `0 0 ${newW}px`;
+        };
+        
+        const onUp = () => { 
+            dragging = false; 
+            document.removeEventListener('mousemove', onMove); 
+            document.removeEventListener('mouseup', onUp); 
+        };
+        
+        resizer.addEventListener('mousedown', e => {
+            if (e.button !== 0) return;
+            dragging = true; 
+            startX = e.clientX; 
+            startWidth = sidebar.getBoundingClientRect().width || sidebar.offsetWidth;
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        });
+        
+        this._sidebarResizeInit = true;
     }
 
     async handleUpdateAtmosphere(id, meta) {

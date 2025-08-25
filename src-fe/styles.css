@@ -135,10 +135,11 @@ body {
 
 /* Ensure layout containers inside main flex properly */
 #sidebar-container {
-    flex: 0 0 300px; /* Match .sidebar width */
+    flex: 0 0 300px; /* Default width - will be overridden by JavaScript */
     display: flex;
     flex-direction: column;
-    min-width: 0;
+    min-width: 200px; /* Minimum sidebar width */
+    max-width: 600px; /* Maximum sidebar width */
 }
 
 #membership-container {
@@ -168,6 +169,19 @@ body {
 }
 
 #membership-resizer.hidden { display:none; }
+
+#sidebar-resizer {
+    width: 6px;
+    cursor: col-resize;
+    background: linear-gradient(to right, rgba(255,255,255,0.05), rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+    position: relative;
+    z-index: 50;
+    flex: 0 0 auto;
+}
+
+#sidebar-resizer:hover {
+    background: linear-gradient(to right, rgba(255,255,255,0.1), rgba(255,255,255,0.25), rgba(255,255,255,0.1));
+}
 
 #mixer-container {
     flex: 1 1 auto;
@@ -257,7 +271,7 @@ body {
 .membership-remove-target { box-shadow: inset 0 0 0 3px #d9534f99; transition: box-shadow .15s ease; }
 
 .sidebar {
-    width: 300px;
+    width: 100%; /* Fill the resizable parent container */
     background: rgba(0, 0, 0, 0.2);
     border-right: 2px solid rgba(255, 255, 255, 0.1);
     padding: 1rem;
