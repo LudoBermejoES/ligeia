@@ -120,3 +120,38 @@ impl VocabularyRepository {
         self.insert_batch(conn, &keywords)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::database::schema::SchemaManager;
+
+    fn setup() -> (Connection, VocabularyRepository) {
+        let conn = Connection::open_in_memory().expect("mem db");
+        conn.execute("PRAGMA foreign_keys = ON", []).ok();
+        let schema = SchemaManager::new(&conn);
+        schema.create_tables(&conn).expect("schema");
+        (conn, VocabularyRepository::new())
+    }
+
+    #[test]
+    fn initialize_and_get() {
+        let (conn, repo) = setup();
+        repo.initialize_tag_vocabulary(&conn).expect("init vocab");
+        // Should have at least some entries after init
+        let all = repo.get(&conn, None).expect("get all");
+        assert!(!all.is_empty());
+        // Filter by type
+        let genres = repo.get(&conn, Some("genre")).expect("get genres");
+        assert!(!genres.is_empty());
+    }
+
+    #[test]
+    fn add_custom_tag_and_fetch() {
+        let (conn, repo) = setup();
+        repo.initialize_tag_vocabulary(&conn).unwrap();
+        repo.add(&conn, "keyword", "custom", Some("Custom tag"), None, true).unwrap();
+        let keywords = repo.get(&conn, Some("keyword")).unwrap();
+        assert!(keywords.iter().any(|v| v.tag_value == "custom"));
+    }
+}

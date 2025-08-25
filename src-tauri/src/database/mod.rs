@@ -30,6 +30,16 @@ impl Database {
     pub fn new() -> Result<Self> {
         let conn = Connection::open("../db/audio_player.db")?;
         
+        Self::from_connection(conn)
+    }
+
+    /// Build a Database from an existing rusqlite Connection (e.g., in-memory for tests)
+    pub fn with_connection(conn: Connection) -> Result<Self> {
+        Self::from_connection(conn)
+    }
+
+    fn from_connection(conn: Connection) -> Result<Self> {
+        
         let schema = SchemaManager::new(&conn);
         let audio_files = AudioFileRepository::new();
         let rpg_tags = RpgTagRepository::new();

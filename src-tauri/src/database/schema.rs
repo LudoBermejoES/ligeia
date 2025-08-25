@@ -150,3 +150,48 @@ impl SchemaManager {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn setup_in_memory() -> Connection {
+        let conn = Connection::open_in_memory().expect("open in-memory db");
+        // Ensure foreign keys if needed later
+        conn.execute("PRAGMA foreign_keys = ON", []).ok();
+        let schema = SchemaManager::new(&conn);
+        schema.create_tables(&conn).expect("create tables");
+        conn
+    }
+
+    #[test]
+    fn creates_audio_files_with_extended_columns() {
+        let conn = setup_in_memory();
+        let mut stmt = conn
+            .prepare("PRAGMA table_info(audio_files)")
+            .expect("pragma");
+        let cols: Vec<String> = stmt
+            .query_map([], |row| row.get::<_, String>(1))
+            .unwrap()
+            .map(|r| r.unwrap())
+            .collect();
+
+        // Base
+        assert!(cols.contains(&"file_path".to_string()));
+        assert!(cols.contains(&"title".to_string()));
+        // Extended examples
+        assert!(cols.contains(&"album_artist".to_string()));
+        assert!(cols.contains(&"bpm".to_string()));
+        assert!(cols.contains(&"occasion".to_string()));
+        assert!(cols.contains(&"category".to_string()));
+    }
+
+    #[test]
+    fn creates_rpg_tags_and_vocabulary() {
+        let conn = setup_in_memory();
+        // rpg_tags exists
+        conn.prepare("SELECT 1 FROM rpg_tags WHERE 1=0").unwrap();
+        // tag_vocabulary exists
+        conn.prepare("SELECT 1 FROM tag_vocabulary WHERE 1=0").unwrap();
+    }
+}

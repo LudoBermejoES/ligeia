@@ -157,3 +157,57 @@ impl RpgTagRepository {
         Ok(values)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::database::schema::SchemaManager;
+    use crate::database::audio_files::AudioFileRepository;
+    use crate::models::AudioFile;
+
+    fn setup() -> (Connection, RpgTagRepository, i64) {
+        let conn = Connection::open_in_memory().expect("mem db");
+        conn.execute("PRAGMA foreign_keys = ON", []).ok();
+        let schema = SchemaManager::new(&conn);
+        schema.create_tables(&conn).expect("schema");
+        // Insert a file to tag
+        let file_repo = AudioFileRepository::new();
+        let file = AudioFile {
+            id: None,
+            file_path: "/tmp/test2.mp3".into(),
+            title: None, artist: None, album: None, album_artist: None,
+            genre: None, year: None, date: None, track_number: None,
+            total_tracks: None, disc_number: None, total_discs: None,
+            duration: None, composer: None, conductor: None, lyricist: None,
+            original_artist: None, remixer: None, arranger: None, engineer: None,
+            producer: None, dj_mixer: None, mixer: None, content_group: None,
+            subtitle: None, initial_key: None, bpm: None, language: None,
+            media_type: None, original_filename: None, original_lyricist: None,
+            original_release_time: None, playlist_delay: None, recording_time: None,
+            release_time: None, tagging_time: None, encoding_time: None, encoding_settings: None,
+            encoded_by: None, copyright: None, file_owner: None,
+            internet_radio_station_name: None, internet_radio_station_owner: None,
+            isrc: None, publisher: None, mood: None, occasion: None, tempo: None,
+            content_type: None, category: None,
+        };
+        let file_id = file_repo.save(&conn, &file).unwrap();
+
+        (conn, RpgTagRepository::new(), file_id)
+    }
+
+    #[test]
+    fn add_get_remove_tags() {
+        let (conn, repo, file_id) = setup();
+        let _ = repo.add(&conn, file_id, "genre", "ambient").unwrap();
+        let _ = repo.add(&conn, file_id, "mood", "calm").unwrap();
+
+        let tags = repo.get_for_file(&conn, file_id).unwrap();
+        assert_eq!(tags.len(), 2);
+        assert!(tags.iter().any(|t| t.tag_type == "genre" && t.tag_value == "ambient"));
+
+        repo.remove(&conn, file_id, "genre", "ambient").unwrap();
+        let tags = repo.get_for_file(&conn, file_id).unwrap();
+        assert_eq!(tags.len(), 1);
+        assert!(tags.iter().all(|t| t.tag_type != "genre" || t.tag_value != "ambient"));
+    }
+}

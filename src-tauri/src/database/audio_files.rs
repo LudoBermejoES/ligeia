@@ -311,3 +311,102 @@ impl AudioFileRepository {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::database::schema::SchemaManager;
+
+    fn setup() -> (Connection, AudioFileRepository) {
+        let conn = Connection::open_in_memory().expect("mem db");
+        conn.execute("PRAGMA foreign_keys = ON", []).ok();
+        let schema = SchemaManager::new(&conn);
+        schema.create_tables(&conn).expect("schema");
+        (conn, AudioFileRepository::new())
+    }
+
+    fn sample_file() -> AudioFile {
+        AudioFile {
+            id: None,
+            file_path: "/tmp/test.mp3".into(),
+            title: Some("Title".into()),
+            artist: Some("Artist".into()),
+            album: Some("Album".into()),
+            album_artist: Some("AlbumArtist".into()),
+            genre: Some("ambient".into()),
+            year: Some(2024),
+            date: Some("2024-01-01".into()),
+            track_number: Some(1),
+            total_tracks: Some(10),
+            disc_number: Some(1),
+            total_discs: Some(1),
+            duration: Some(123.4),
+            composer: None,
+            conductor: None,
+            lyricist: None,
+            original_artist: None,
+            remixer: None,
+            arranger: None,
+            engineer: None,
+            producer: None,
+            dj_mixer: None,
+            mixer: None,
+            content_group: None,
+            subtitle: None,
+            initial_key: None,
+            bpm: Some(90),
+            language: None,
+            media_type: None,
+            original_filename: None,
+            original_lyricist: None,
+            original_release_time: None,
+            playlist_delay: None,
+            recording_time: None,
+            release_time: None,
+            tagging_time: None,
+            encoding_time: None,
+            encoding_settings: None,
+            encoded_by: None,
+            copyright: None,
+            file_owner: None,
+            internet_radio_station_name: None,
+            internet_radio_station_owner: None,
+            isrc: None,
+            publisher: None,
+            mood: Some("calm".into()),
+            occasion: Some("exploration".into()),
+            tempo: None,
+            content_type: None,
+            category: Some("keyword1; keyword2".into()),
+        }
+    }
+
+    #[test]
+    fn save_and_get_all() {
+        let (conn, repo) = setup();
+        let file = sample_file();
+        let id = repo.save(&conn, &file).expect("save");
+        assert!(id > 0);
+        let all = repo.get_all(&conn).expect("get_all");
+        assert_eq!(all.len(), 1);
+        let got = &all[0];
+        assert_eq!(got.file_path, file.file_path);
+        assert_eq!(got.genre.as_deref(), Some("ambient"));
+        assert_eq!(got.mood.as_deref(), Some("calm"));
+    }
+
+    #[test]
+    fn update_helpers_and_delete() {
+        let (conn, repo) = setup();
+        let file = sample_file();
+        let id = repo.save(&conn, &file).unwrap();
+        repo.update_duration(&conn, id, 200.0).unwrap();
+        repo.update_bpm(&conn, id, 120).unwrap();
+        let all = repo.get_all(&conn).unwrap();
+        assert_eq!(all[0].duration, Some(200.0));
+        assert_eq!(all[0].bpm, Some(120));
+        repo.delete(&conn, id).unwrap();
+        let all = repo.get_all(&conn).unwrap();
+        assert!(all.is_empty());
+    }
+}

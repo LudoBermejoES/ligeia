@@ -14,6 +14,12 @@ impl TagManager {
         })
     }
 
+    /// For tests: build a TagManager with a prebuilt Database
+    #[cfg(test)]
+    pub fn with_database(db: Database) -> Self {
+        TagManager { db: Mutex::new(db) }
+    }
+
     pub fn get_tag_vocabulary(&self, tag_type: Option<&str>) -> Result<Vec<TagVocabulary>, String> {
         let db = self.db.lock().unwrap();
         db.get_tag_vocabulary(tag_type).map_err(|e| e.to_string())
@@ -192,6 +198,50 @@ impl TagManager {
         // This would require a query to get tag usage statistics
         // For now, return empty vector as placeholder
         Ok(Vec::new())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::database::Database;
+    use rusqlite::Connection;
+    use crate::models::AudioFile;
+
+    fn setup_manager() -> TagManager {
+        let conn = Connection::open_in_memory().unwrap();
+        conn.execute("PRAGMA foreign_keys = ON", []).ok();
+        let db = Database::with_connection(conn).unwrap();
+        TagManager::with_database(db)
+    }
+
+    #[test]
+    fn auto_adds_unknown_tag_and_lists_existing() {
+        let mgr = setup_manager();
+        // Insert a file
+        let file = AudioFile { id: None, file_path: "/tmp/auto.mp3".into(), title: None, artist: None, album: None,
+            album_artist: None, genre: Some("ambient".into()), year: None, date: None, track_number: None,
+            total_tracks: None, disc_number: None, total_discs: None, duration: None, composer: None,
+            conductor: None, lyricist: None, original_artist: None, remixer: None, arranger: None, engineer: None,
+            producer: None, dj_mixer: None, mixer: None, content_group: None, subtitle: None, initial_key: None,
+            bpm: None, language: None, media_type: None, original_filename: None, original_lyricist: None,
+            original_release_time: None, playlist_delay: None, recording_time: None, release_time: None,
+            tagging_time: None, encoding_time: None, encoding_settings: None, encoded_by: None, copyright: None,
+            file_owner: None, internet_radio_station_name: None, internet_radio_station_owner: None, isrc: None,
+            publisher: None, mood: Some("calm".into()), occasion: None, tempo: None, content_type: None, category: None };
+        let db = mgr.db.lock().unwrap();
+        let id = db.save_audio_file(&file).unwrap();
+        drop(db);
+
+        // Add a new, not-in-vocabulary keyword -> auto-add to vocabulary
+        let _ = mgr.add_rpg_tag(id, "keyword", "rare-key").unwrap();
+
+        // Verify it shows up in vocabulary and existing tags
+        let vocab_keywords = mgr.get_tag_vocabulary(Some("keyword")).unwrap();
+        assert!(vocab_keywords.iter().any(|v| v.tag_value == "rare-key"));
+
+        let existing = mgr.get_existing_tags().unwrap();
+        assert!(existing.get("genre").unwrap().contains("ambient"));
     }
 }
 
