@@ -241,9 +241,9 @@ async fn calculate_missing_durations(app_handle: AppHandle) -> Result<String, St
 // Import virtual folder commands from handler
 use virtual_folder_handler::{
     create_virtual_folder, get_virtual_folder_by_id, update_virtual_folder, delete_virtual_folder,
-    get_virtual_folder_tree, move_virtual_folder, add_files_to_virtual_folder, 
-    remove_files_from_virtual_folder, get_virtual_folder_contents, search_virtual_folders,
-    get_folders_containing_files
+    get_virtual_folder_tree, get_folder_children, get_folder_path, move_virtual_folder, 
+    add_files_to_virtual_folder, remove_files_from_virtual_folder, get_virtual_folder_contents,
+    get_file_virtual_folders, search_virtual_folders, get_folders_containing_files
 };
 
 use tauri_plugin_log::{Target, TargetKind};
@@ -311,10 +311,13 @@ pub fn run() {
             update_virtual_folder,
             delete_virtual_folder,
             get_virtual_folder_tree,
+            get_folder_children,
+            get_folder_path,
             move_virtual_folder,
             add_files_to_virtual_folder,
             remove_files_from_virtual_folder,
             get_virtual_folder_contents,
+            get_file_virtual_folders,
             search_virtual_folders,
             get_folders_containing_files
         ])

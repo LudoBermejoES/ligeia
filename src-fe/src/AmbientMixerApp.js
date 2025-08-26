@@ -18,6 +18,7 @@ import { StoreTagsManager } from './managers/StoreTagsManager.js';
 import { AtmosphereManager } from './managers/AtmosphereManager.js';
 import { AtmosphereUIController } from './ui/AtmosphereUIController.js';
 import { AtmosphereMembershipEditor } from './ui/AtmosphereMembershipEditor.js';
+import { VirtualFolderManager } from './managers/VirtualFolderManager.js';
 
 /**
  * AmbientMixerApp - Main application controller
@@ -50,6 +51,9 @@ export class AmbientMixerApp {
     this.atmoMembershipEditor = new AtmosphereMembershipEditor(this.atmosphereManager.service, this.libraryManager);
     // Make the atmosphere membership editor globally accessible for mouse-based drag and drop
     window.atmosphereMembershipEditor = this.atmoMembershipEditor;
+    
+    // Virtual Folders system
+    this.virtualFolderManager = new VirtualFolderManager(this.libraryManager, this.tagService, this.uiController);
     this.currentEditingFile = null; // deprecated; kept for backward compatibility
         this.updateUIThrottled = this.throttle(this.updateUI.bind(this), 100);
         this.lastToggleTime = new Map(); // Track last toggle time per pad to prevent rapid toggling
@@ -94,6 +98,9 @@ export class AmbientMixerApp {
             
             // Make theme service globally available
             window.themeService = this.themeService;
+            
+            // Make app instance globally available for virtual folders integration
+            window.ambientMixerApp = this;
 
             // Template system removed; UI renders directly without templates
 
