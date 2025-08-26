@@ -312,123 +312,150 @@ impl VirtualFolderHandler {
 
 ## Frontend Implementation Strategy
 
-### CSS-Based Panel Architecture
+### Separate Panel Architecture
 
-Virtual Folders will be implemented using Ligeia's existing **CSS-based panel system**, similar to the current atmosphere membership editor. This approach leverages the proven architecture with flexbox layouts and CSS transforms.
+Virtual Folders will be implemented as a **dedicated main panel**, similar to how the sidebar and mixer area work. This provides a focused, full-featured interface for hierarchical file organization that can replace or supplement the mixer view.
 
-#### Integration with Existing Sidebar Architecture
+#### Three-Panel Layout System
 
-Virtual Folders will extend the current sidebar system with a dedicated panel that follows the same patterns as the atmosphere panel:
+Virtual Folders will be a primary panel that users can switch to, creating a flexible workspace:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│ Header: [📂 Load] [📁 Load Dir] [🔧 Calc] [📤 Export] [📁 Folders]    │
+│ Header: [📂 Load] [🔧 Calc] [📤 Export] [📁 Virtual Folders] [🎵 Mixer] │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
+│ ┌─────────────────┐ ┌─────────────────────────────────────────────┐ │
+│ │    Sidebar      │ │            Virtual Folders Panel            │ │
+│ │                 │ │                                             │ │
+│ │ 🏷️ RPG Search   │ │ ┌─────────────────┐ ┌─────────────────────┐ │ │
+│ │ ┌─────────────┐ │ │ │   Folder Tree   │ │   Folder Contents   │ │ │
+│ │ │[Search...]  │ │ │ │                 │ │                     │ │ │
+│ │ └─────────────┘ │ │ │ 📁 Combat       │ │ [🔊] sword_clash.wav│ │ │
+│ │                 │ │ │  └ 📁 Weapons   │ │ [🔊] metal_hit.wav  │ │ │
+│ │ 🎵 Atmospheres  │ │ │    └ 📁 Swords  │ │ [🔊] blade_ring.wav │ │ │
+│ │ ┌─────────────┐ │ │ │ 📁 Environment  │ │                     │ │ │
+│ │ │ [Atmos List]│ │ │ │  └ 📁 Dungeons  │ │ Files: 12          │ │ │
+│ │ └─────────────┘ │ │ │ 📁 Creatures    │ │ Total: 347 files   │ │ │
+│ │                 │ │ │                 │ │                     │ │ │
+│ │                 │ │ └─────────────────┘ └─────────────────────┘ │ │
+│ └─────────────────┘ └─────────────────────────────────────────────┘ │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+#### Panel Switching System
+
+Users can toggle between different main panel views:
+
+**Mixer View (Default):**
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ Header: [📂 Load] [🔧 Calc] [🎵 Mixer] [📁 Virtual Folders]           │
+├─────────────────────────────────────────────────────────────────────┤
 │ ┌─────────────────┐ ┌───────────────────┐ ┌─────────────────────┐ │
 │ │    Sidebar      │ │   Mixer Area      │ │ Membership Editor   │ │
 │ │                 │ │                   │ │ (when active)       │ │
-│ │ 🏷️ RPG Search   │ │ [🔊] sound_01.wav │ │ ┌─────────────────┐ │ │
-│ │ ┌─────────────┐ │ │ [🔊] sound_02.wav │ │ │   Atmosphere    │ │ │
-│ │ │[Search...]  │ │ │ [🔊] sound_03.wav │ │ │   Contents      │ │ │
-│ │ └─────────────┘ │ │ [🔊] sound_04.wav │ │ └─────────────────┘ │ │
-│ │                 │ │                   │ │                     │ │
-│ │ 🎵 Atmospheres  │ │                   │ │                     │ │
-│ │ ┌─────────────┐ │ │                   │ │                     │ │
-│ │ │ [Atmos List]│ │ │                   │ │                     │ │
-│ │ └─────────────┘ │ │                   │ │                     │ │
-│ │                 │ │                   │ │                     │ │
-│ │ 📁 Virt Folders │ │                   │ │                     │ │
-│ │ ┌─────────────┐ │ │                   │ │                     │ │
-│ │ │[Folder Tree]│ │ │                   │ │                     │ │
-│ │ └─────────────┘ │ │                   │ │                     │ │
+│ │ 🏷️ RPG Search   │ │ [🔊] sound_01.wav │ │                     │ │
+│ │ 🎵 Atmospheres  │ │ [🔊] sound_02.wav │ │                     │ │
 │ └─────────────────┘ └───────────────────┘ └─────────────────────┘ │
-│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Virtual Folders View:**
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ Header: [📂 Load] [🔧 Calc] [📁 Virtual Folders] [🎵 Mixer]           │
+├─────────────────────────────────────────────────────────────────────┤
+│ ┌─────────────────┐ ┌─────────────────────────────────────────────┐ │
+│ │    Sidebar      │ │         Virtual Folders Workspace          │ │
+│ │                 │ │                                             │ │
+│ │ 🏷️ RPG Search   │ │ ┌──────────────┐ ┌─────────────────────────┐ │ │
+│ │ 🎵 Atmospheres  │ │ │ Folder Tree  │ │    Folder Contents      │ │ │
+│ │                 │ │ │              │ │                         │ │ │
+│ └─────────────────┘ │ └──────────────┘ └─────────────────────────┘ │ │
+│                     └─────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
 #### Virtual Folders Panel Structure
 
-The Virtual Folders panel will follow the membership editor pattern with a dual-pane layout:
+The Virtual Folders panel replaces the mixer area when activated, providing a full workspace:
 
 ```html
-<!-- Virtual Folders Panel (similar to membership-container) -->
-<div id="virtual-folders-container" class="panel-container">
-    <div class="panel-header">
-        <div class="panel-title">
-            <span class="panel-icon">📁</span>
-            Virtual Folders
-        </div>
-        <div class="panel-controls">
-            <button class="panel-btn new-folder-btn" title="New Folder">
-                <span>➕</span>
-            </button>
-            <button class="panel-btn search-btn" title="Search">
-                <span>🔍</span>
-            </button>
-            <button class="panel-btn settings-btn" title="Settings">
-                <span>⚙️</span>
-            </button>
-            <button class="panel-btn close-btn" title="Close">
-                <span>✖</span>
-            </button>
-        </div>
-    </div>
-    
-    <div class="panel-content">
-        <div class="vf-dual-pane">
-            <!-- Left Pane: Folder Tree -->
-            <div class="vf-tree-section">
-                <div class="vf-tree-header">
+<!-- Virtual Folders Panel (replaces mixer-area when active) -->
+<div id="virtual-folders-panel" class="main-panel" style="display: none;">
+    <div class="vf-workspace">
+        <!-- Left Section: Folder Tree -->
+        <div class="vf-tree-section">
+            <div class="vf-tree-header">
+                <h3 class="vf-section-title">📁 Folder Structure</h3>
+                <div class="vf-tree-controls">
                     <input type="text" class="vf-search-input" 
                            placeholder="🔍 Search folders..." 
                            autocomplete="off">
-                </div>
-                <div class="vf-tree-content scrollable-content">
-                    <div class="vf-tree-loading">
-                        <div class="loading-spinner"></div>
-                        <span>Loading folders...</span>
-                    </div>
-                </div>
-                <div class="vf-tree-footer">
-                    <button class="vf-new-folder-btn">
-                        ➕ New Folder
-                    </button>
+                    <button class="vf-new-folder-btn" title="New Folder">➕</button>
                 </div>
             </div>
             
-            <!-- Right Pane: Folder Contents -->
-            <div class="vf-content-section">
-                <div class="vf-breadcrumb-header">
+            <div class="vf-tree-content">
+                <div class="vf-tree-loading">
+                    <div class="loading-spinner"></div>
+                    <span>Loading folder structure...</span>
+                </div>
+            </div>
+            
+            <div class="vf-tree-footer">
+                <div class="vf-tree-stats">
+                    <span class="vf-folder-count">0 folders</span>
+                    <span class="vf-total-files">0 total files</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Section: Folder Contents -->
+        <div class="vf-content-section">
+            <div class="vf-content-header">
+                <div class="vf-breadcrumb-nav">
                     <nav class="vf-breadcrumb">
-                        <span class="vf-breadcrumb-home">📁 Home</span>
+                        <span class="vf-breadcrumb-home">📁 Library</span>
                     </nav>
-                    <div class="vf-content-controls">
-                        <button class="vf-view-btn" data-view="list" title="List View">☰</button>
-                        <button class="vf-view-btn" data-view="grid" title="Grid View">⊞</button>
-                        <button class="vf-select-all-btn" title="Select All">☑</button>
-                    </div>
                 </div>
                 
                 <div class="vf-content-toolbar">
-                    <select class="vf-sort-select">
-                        <option value="name">Sort by Name</option>
-                        <option value="date">Sort by Date Added</option>
-                        <option value="duration">Sort by Duration</option>
-                        <option value="custom">Custom Order</option>
-                    </select>
-                    <span class="vf-file-count">0 files</span>
-                    <button class="vf-add-files-btn">
-                        ➕ Add Files
-                    </button>
+                    <div class="vf-view-controls">
+                        <button class="vf-view-btn active" data-view="list" title="List View">☰</button>
+                        <button class="vf-view-btn" data-view="grid" title="Grid View">⊞</button>
+                    </div>
+                    
+                    <div class="vf-sort-controls">
+                        <select class="vf-sort-select">
+                            <option value="name">Sort by Name</option>
+                            <option value="date">Date Added</option>
+                            <option value="duration">Duration</option>
+                            <option value="custom">Custom Order</option>
+                        </select>
+                    </div>
+                    
+                    <div class="vf-file-actions">
+                        <span class="vf-selection-count">0 selected</span>
+                        <button class="vf-add-files-btn">➕ Add Files</button>
+                        <button class="vf-play-all-btn">▶️ Play All</button>
+                    </div>
                 </div>
-                
-                <div class="vf-files-area scrollable-content">
+            </div>
+            
+            <div class="vf-content-main">
+                <div class="vf-files-area">
                     <div class="vf-drop-zone">
-                        <div class="vf-empty-state">
-                            <div class="vf-empty-icon">📂</div>
-                            <h3>Select a folder to view its contents</h3>
-                            <p>Choose a folder from the tree on the left, or create a new folder to get started.</p>
+                        <div class="vf-welcome-state">
+                            <div class="vf-welcome-icon">📁</div>
+                            <h2>Welcome to Virtual Folders</h2>
+                            <p>Create custom folder structures to organize your RPG audio library</p>
+                            <div class="vf-welcome-actions">
+                                <button class="vf-create-first-folder">Create Your First Folder</button>
+                                <button class="vf-import-template">Use Template</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -587,21 +614,22 @@ export class VirtualFoldersPanelManager {
         this.service = virtualFolderService;
         this.libraryManager = libraryManager;
         this.uiController = uiController;
-        this.isVisible = false;
+        this.isActive = false;
         this.currentFolder = null;
         this.selectedFiles = new Set();
         this.treeComponent = null;
         this.contentComponent = null;
+        this.currentView = 'list';
     }
 
-    // Panel State Management (similar to AtmosphereMembershipEditor)
+    // Panel State Management - Main Panel Architecture
     togglePanel() {
-        this.isVisible = !this.isVisible;
+        this.isActive = !this.isActive;
         this.updatePanelVisibility();
     }
 
     showPanel() {
-        this.isVisible = true;
+        this.isActive = true;
         this.updatePanelVisibility();
         if (!this.treeComponent) {
             this.initializeComponents();
@@ -609,24 +637,44 @@ export class VirtualFoldersPanelManager {
     }
 
     hidePanel() {
-        this.isVisible = false;
+        this.isActive = false;
         this.updatePanelVisibility();
     }
 
     updatePanelVisibility() {
-        const container = document.getElementById('virtual-folders-container');
+        const vfPanel = document.getElementById('virtual-folders-panel');
+        const mixerArea = document.getElementById('mixer-area');
         const membershipEditor = document.getElementById('membership-container');
         
-        if (this.isVisible) {
-            // Hide atmosphere membership editor if visible
+        if (this.isActive) {
+            // Hide other main panels
+            if (mixerArea) mixerArea.style.display = 'none';
             if (membershipEditor.classList.contains('show')) {
                 membershipEditor.classList.remove('show');
             }
             
-            container.classList.add('show');
+            // Show virtual folders panel
+            vfPanel.style.display = 'flex';
+            this.updateHeaderButtons();
             this.loadInitialData();
         } else {
-            container.classList.remove('show');
+            // Show mixer area, hide virtual folders
+            vfPanel.style.display = 'none';
+            if (mixerArea) mixerArea.style.display = 'flex';
+            this.updateHeaderButtons();
+        }
+    }
+
+    updateHeaderButtons() {
+        const vfButton = document.getElementById('virtual-folders-btn');
+        const mixerButton = document.getElementById('mixer-btn');
+        
+        if (this.isActive) {
+            vfButton?.classList.add('active');
+            mixerButton?.classList.remove('active');
+        } else {
+            vfButton?.classList.remove('active');
+            mixerButton?.classList.add('active');
         }
     }
 
@@ -1018,95 +1066,137 @@ export class VirtualFolderTree {
 #### Virtual Folders Panel Styling (`src-fe/styles.css` additions)
 
 ```css
-/* Virtual Folders Panel - CSS-based Architecture */
+/* Virtual Folders Panel - Main Panel Architecture */
 
-/* Panel Container (similar to membership-container) */
-#virtual-folders-container {
-    position: fixed;
-    top: 50px;
-    right: 0;
-    width: 0;
-    height: calc(100vh - 50px);
-    background: linear-gradient(135deg, #0f0f23, #1a1a2e);
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
-    transition: width 0.3s ease;
-    overflow: hidden;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-}
-
-#virtual-folders-container.show {
-    width: 650px;
-}
-
-/* Panel Header */
-#virtual-folders-container .panel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    color: #fff;
-    min-height: 50px;
-}
-
-#virtual-folders-container .panel-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px;
-    font-weight: 500;
-}
-
-#virtual-folders-container .panel-icon {
-    font-size: 18px;
-}
-
-#virtual-folders-container .panel-controls {
-    display: flex;
-    gap: 4px;
-}
-
-#virtual-folders-container .panel-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    padding: 6px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s ease;
-}
-
-#virtual-folders-container .panel-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
-}
-
-/* Dual Pane Layout */
-#virtual-folders-container .vf-dual-pane {
-    display: flex;
+/* Panel Container (replaces mixer-area when active) */
+#virtual-folders-panel {
+    display: none; /* Hidden by default */
     flex: 1;
+    background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+    color: #fff;
     overflow: hidden;
 }
 
-#virtual-folders-container .vf-tree-section {
-    width: 40%;
-    min-width: 200px;
-    max-width: 50%;
+#virtual-folders-panel.active {
+    display: flex;
+}
+
+/* Main Workspace Layout */
+.vf-workspace {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    gap: 1px; /* Subtle separator */
+}
+
+/* Header Button States */
+#virtual-folders-btn.active,
+#mixer-btn.active {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(74, 175, 80, 0.3);
+}
+
+/* Tree Section Styling */
+.vf-tree-section {
+    width: 300px;
+    min-width: 250px;
+    max-width: 400px;
     display: flex;
     flex-direction: column;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.3);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-#virtual-folders-container .vf-content-section {
+.vf-tree-header {
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.vf-section-title {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.vf-tree-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.vf-search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.vf-search-input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(74, 175, 80, 0.2);
+}
+
+.vf-new-folder-btn {
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vf-new-folder-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(74, 175, 80, 0.3);
+}
+
+/* Content Section Styling */
+.vf-content-section {
     flex: 1;
     display: flex;
     flex-direction: column;
     background: rgba(0, 0, 0, 0.1);
+}
+
+.vf-content-header {
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 16px;
+}
+
+.vf-breadcrumb-nav {
+    margin-bottom: 12px;
+}
+
+.vf-breadcrumb {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.vf-content-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.vf-view-controls,
+.vf-sort-controls,
+.vf-file-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 /* Tree Section */
