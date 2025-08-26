@@ -1,6 +1,6 @@
-// AtmosphereMembershipEditor (panel-only, SortableJS for internal reordering, custom HTML5 for external add)
+// AtmosphereMembershipEditor (panel-only, mouse-based drag for external add)
 // Responsibilities: maintain in-memory membership map, render membership pad list inside panel body,
-// enable dropping mixer pads into membership (HTML5 drag) and allow reordering via SortableJS.
+// enable dropping mixer pads into membership via mouse-based drag and drop.
 import logger from '../utils/logger.js';
 import { renderSoundPad } from './PadRenderer.js';
 import { padStateManager } from './PadStateManager.js';
@@ -15,7 +15,7 @@ export class AtmosphereMembershipEditor {
     this._highlightId = null;
     this._detailLoaded = false;
   this._panelDnDInit = false;
-  this._sortable = null;
+  // Sortable functionality removed
   this._persistTimer = null;
   
   // Initialize atmosphere-specific event handlers
@@ -540,35 +540,7 @@ export class AtmosphereMembershipEditor {
     
     // Store references for cleanup
     this._dragHandlers = { handleDragEnter, handleDragOver, handleDrop };
-    // Initialize SortableJS for internal reordering
-    if (typeof Sortable !== 'undefined' && window.Sortable) {
-      try {
-        this._sortable = new Sortable(grid, {
-          animation: 120,
-          ghostClass: 'pad-ghost-moving',
-          dragClass: 'pad-dragging',
-          filter: '.pad-ghost, .duration-group', // Exclude ghost and group headers from sorting
-          onStart: (evt) => {
-            logger.debug('membership', 'sortable drag started', { index: evt.oldIndex });
-          },
-          onEnd: (evt) => {
-            logger.debug('membership', 'sortable drag ended', { oldIndex: evt.oldIndex, newIndex: evt.newIndex });
-            const newOrder = [];
-            grid.querySelectorAll('.sound-pad:not(.pad-ghost)').forEach(el => {
-              const id = Number(el.dataset.audioId);
-              if (!isNaN(id) && this.members.has(id)) newOrder.push([id, this.members.get(id)]);
-            });
-            this.members = new Map(newOrder);
-            this._schedulePersist();
-          }
-        });
-        logger.debug('membership', 'SortableJS initialized successfully');
-      } catch (sortableError) {
-        logger.error('membership', 'SortableJS initialization failed', { error: sortableError.message });
-      }
-    } else {
-      logger.warn('membership', 'SortableJS not available: membership reordering disabled');
-    }
+    // SortableJS removed - internal reordering disabled
     this._panelDnDInit = true;
   }
 
@@ -603,14 +575,7 @@ export class AtmosphereMembershipEditor {
   reinitializeDragDrop() {
     this._cleanupDragHandlers();
     this._panelDnDInit = false;
-    if (this._sortable) {
-      try {
-        this._sortable.destroy();
-      } catch (e) {
-        logger.warn('membership', 'error destroying old sortable instance', { error: e.message });
-      }
-      this._sortable = null;
-    }
+    // Sortable functionality removed
     this._ensurePanelDnD();
   }
 
