@@ -366,6 +366,12 @@ export class VirtualFoldersPanelManager {
      */
     async loadInitialData() {
         try {
+            // Initialize with grid view by default
+            const filesArea = this.elements.filesArea;
+            if (filesArea) {
+                filesArea.classList.add('vf-grid-view');
+            }
+            
             await this.loadFolderTree();
         } catch (error) {
             console.error('Failed to load initial data:', error);
@@ -572,7 +578,7 @@ export class VirtualFoldersPanelManager {
             }
         } else {
             const html = files.map(file => this.renderFileCard(file)).join('');
-            dropZone.innerHTML = `<div class="vf-file-grid">${html}</div>`;
+            dropZone.innerHTML = `<div class="vf-files-grid">${html}</div>`;
         }
     }
 
@@ -589,44 +595,20 @@ export class VirtualFoldersPanelManager {
         
         return `
             <div class="vf-file-card" data-file-id="${file.id}" data-file-path="${this.escapeHtml(file.file_path)}">
-                <div class="vf-file-header">
-                    <div class="vf-file-title">${this.escapeHtml(title)}</div>
-                    <div class="vf-file-actions">
-                        <button class="vf-file-action-btn" data-action="play" title="Play/Pause">▶️</button>
-                        <button class="vf-file-action-btn" data-action="remove" title="Remove from folder">🗑️</button>
-                        <button class="vf-file-action-btn" data-action="tags" title="Edit tags">🏷️</button>
+                <div class="vf-file-icon">🎵</div>
+                <div class="vf-file-info">
+                    <div class="vf-file-name">${this.escapeHtml(title)}</div>
+                    <div class="vf-file-meta">
+                        <span>${this.escapeHtml(artist)}</span>
+                        ${album ? `<span>• ${this.escapeHtml(album)}</span>` : ''}
+                        <span>• ${duration}</span>
+                        ${genre ? `<span>• ${this.escapeHtml(genre)}</span>` : ''}
                     </div>
                 </div>
-                
-                <div class="vf-file-meta">
-                    <span class="vf-meta-item">
-                        <span class="vf-meta-label">Artist:</span>
-                        <span class="vf-meta-value">${this.escapeHtml(artist)}</span>
-                    </span>
-                    ${album ? `<span class="vf-meta-item">
-                        <span class="vf-meta-label">Album:</span>
-                        <span class="vf-meta-value">${this.escapeHtml(album)}</span>
-                    </span>` : ''}
-                </div>
-                
-                <div class="vf-file-meta">
-                    <span class="vf-meta-item">
-                        <span class="vf-meta-label">Duration:</span>
-                        <span class="vf-meta-value">${duration}</span>
-                    </span>
-                    ${genre ? `<span class="vf-meta-item">
-                        <span class="vf-meta-label">Genre:</span>
-                        <span class="vf-meta-value">${this.escapeHtml(genre)}</span>
-                    </span>` : ''}
-                    ${year ? `<span class="vf-meta-item">
-                        <span class="vf-meta-label">Year:</span>
-                        <span class="vf-meta-value">${year}</span>
-                    </span>` : ''}
-                </div>
-                
-                <div class="vf-file-path">
-                    <span class="vf-meta-label">Path:</span>
-                    <span class="vf-meta-value vf-path-text">${this.escapeHtml(file.file_path)}</span>
+                <div class="vf-file-actions">
+                    <button class="vf-file-action-btn" data-action="play" title="Play/Pause">▶️</button>
+                    <button class="vf-file-action-btn" data-action="remove" title="Remove from folder">🗑️</button>
+                    <button class="vf-file-action-btn" data-action="tags" title="Edit tags">🏷️</button>
                 </div>
             </div>
         `;
@@ -1097,10 +1079,27 @@ export class VirtualFoldersPanelManager {
     toggleView(view) {
         this.panel.querySelectorAll('.vf-view-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.view === view);
+            // Update visual states
+            if (btn.dataset.view === view) {
+                btn.classList.remove('bg-card', 'border-border', 'text-text');
+                btn.classList.add('bg-accent/20', 'border-accent/30', 'text-accent');
+            } else {
+                btn.classList.remove('bg-accent/20', 'border-accent/30', 'text-accent');
+                btn.classList.add('bg-card', 'border-border', 'text-text');
+            }
         });
         
-        // TODO: Implement view mode switching
-        console.log('View mode:', view);
+        // Apply view mode to files area
+        const filesArea = this.elements.filesArea;
+        if (filesArea) {
+            filesArea.classList.toggle('vf-list-view', view === 'list');
+            filesArea.classList.toggle('vf-grid-view', view === 'grid');
+        }
+        
+        // Re-render current folder to apply new layout
+        if (this.currentFolderId) {
+            this.selectFolder(this.currentFolderId);
+        }
     }
 
     /**

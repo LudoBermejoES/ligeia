@@ -190,14 +190,10 @@ export class AtmosphereUIController {
   }
 
   showCreateModal() {
-    console.log('🌌 showCreateModal called, modal exists:', !!this.modal);
     if (!this.modal) {
-      console.error('🌌 Modal not found! Trying to find it again...');
       this.modal = document.getElementById('atmosphereSaveModal');
-      console.log('🌌 Modal after retry:', !!this.modal);
       if (!this.modal) return;
     }
-    console.log('🌌 Showing create modal');
     this.modal.classList.remove('hidden');
     this.modal.setAttribute('data-hidden','false');
     this.modal.style.display = 'flex';
@@ -208,9 +204,7 @@ export class AtmosphereUIController {
   }
 
   showEditModal(atmosphere) {
-    console.log('🌌 showEditModal called, modal exists:', !!this.modal, 'atmosphere:', atmosphere);
     if (!this.modal || !atmosphere) return;
-    console.log('🌌 Showing edit modal');
     this.modal.classList.remove('hidden');
     this.modal.setAttribute('data-hidden','false');
     this.modal.style.display = 'flex';

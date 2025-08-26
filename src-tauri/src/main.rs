@@ -265,7 +265,10 @@ pub fn run() {
                 .level(log::LevelFilter::Debug)
                 .targets([
                     Target::new(TargetKind::Stdout),
-                    Target::new(TargetKind::LogDir { file_name: Some("ligeia".into()) }),
+                    Target::new(TargetKind::Folder { 
+                        path: std::path::PathBuf::from("../logs"), 
+                        file_name: Some("ligeia".into()) 
+                    }),
                     Target::new(TargetKind::Webview),
                 ])
                 .build(),

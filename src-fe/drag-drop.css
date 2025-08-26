@@ -72,3 +72,109 @@ main.side-by-side .panel-resize-handle {
 main:not(.side-by-side) .panel-resize-handle {
   @apply hidden;
 }
+
+/* Virtual Folders View Modes */
+
+/* Grid View: Cards in a grid layout */
+.vf-files-area.vf-grid-view .vf-files-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+  gap: 16px !important;
+}
+
+.vf-files-area.vf-grid-view .vf-file-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  padding: 16px !important;
+  background: var(--bg-color, #2a2a2a) !important;
+  border: 1px solid var(--border-color, #444) !important;
+  border-radius: 8px !important;
+  min-height: 160px !important;
+  text-align: center !important;
+  transition: all 0.2s ease !important;
+}
+
+.vf-files-area.vf-grid-view .vf-file-card:hover {
+  background: var(--hover-color, #333) !important;
+  transform: translateY(-2px) !important;
+}
+
+.vf-files-area.vf-grid-view .vf-file-icon {
+  font-size: 2rem !important;
+  margin-bottom: 8px !important;
+}
+
+.vf-files-area.vf-grid-view .vf-file-info {
+  flex: 1 !important;
+  width: 100% !important;
+}
+
+.vf-files-area.vf-grid-view .vf-file-name {
+  font-weight: 500 !important;
+  margin-bottom: 4px !important;
+  word-break: break-word !important;
+}
+
+.vf-files-area.vf-grid-view .vf-file-actions {
+  margin-top: 12px !important;
+  display: flex !important;
+  gap: 8px !important;
+}
+
+/* List View: Horizontal rows */
+.vf-files-area.vf-list-view .vf-files-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.vf-files-area.vf-list-view .vf-file-card {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  padding: 12px 16px !important;
+  background: var(--bg-color, #1a1a1a) !important;
+  border: 1px solid var(--border-color, #333) !important;
+  border-radius: 4px !important;
+  min-height: 60px !important;
+  width: 100% !important;
+  transition: all 0.2s ease !important;
+}
+
+.vf-files-area.vf-list-view .vf-file-card:hover {
+  background: var(--hover-color, #2a2a2a) !important;
+}
+
+.vf-files-area.vf-list-view .vf-file-icon {
+  font-size: 1.5rem !important;
+  margin-right: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+.vf-files-area.vf-list-view .vf-file-info {
+  flex: 1 !important;
+  min-width: 0 !important;
+  text-align: left !important;
+}
+
+.vf-files-area.vf-list-view .vf-file-name {
+  font-weight: 500 !important;
+  margin-bottom: 2px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.vf-files-area.vf-list-view .vf-file-meta {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.vf-files-area.vf-list-view .vf-file-actions {
+  margin-left: 16px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  gap: 6px !important;
+}
