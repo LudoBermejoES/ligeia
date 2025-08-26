@@ -31,6 +31,355 @@ HyperUI provides production-ready Tailwind CSS v4 components that offer:
 4. **File Cards Grid** → HyperUI Responsive Grid System
 5. **Settings Panels** → HyperUI Input Modal with Form Elements
 
+### HyperUI Component Examples
+
+#### 1. Virtual Folder Modal (HyperUI Modal with Actions)
+
+```html
+<!-- HyperUI Modal Adaptation for Virtual Folders -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80" role="dialog" aria-modal="true">
+  <div class="relative w-full max-w-md overflow-hidden bg-white rounded-lg shadow-xl dark:bg-gray-800">
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+        Create New Folder
+      </h3>
+      <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Modal Body -->
+    <div class="p-4 space-y-4">
+      <div>
+        <label for="folder-name" class="block text-sm font-medium text-gray-700 dark:text-gray-200">
+          Folder Name
+        </label>
+        <input type="text" id="folder-name" 
+               class="mt-1 w-full rounded-md border-gray-300 shadow-sm 
+                      focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+               placeholder="Enter folder name">
+      </div>
+      
+      <div>
+        <label for="folder-description" class="block text-sm font-medium text-gray-700 dark:text-gray-200">
+          Description
+        </label>
+        <textarea id="folder-description" rows="3" 
+                  class="mt-1 w-full rounded-md border-gray-300 shadow-sm 
+                         focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Optional description"></textarea>
+      </div>
+    </div>
+    
+    <!-- Modal Actions -->
+    <div class="flex items-center justify-end gap-3 p-4 border-t border-gray-200 dark:border-gray-700">
+      <button type="button" 
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 
+                     dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500">
+        Cancel
+      </button>
+      <button type="submit" 
+              class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 
+                     focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 
+                     dark:focus:ring-offset-gray-800">
+        Create Folder
+      </button>
+    </div>
+  </div>
+</div>
+```
+
+#### 2. Enhanced Search Interface (HyperUI Input with Icon)
+
+```html
+<!-- HyperUI Input with Icon for Search -->
+<div class="relative">
+  <label for="search" class="sr-only">Search</label>
+  <input type="text" id="search" 
+         class="w-full rounded-md border-gray-300 pe-10 shadow-sm 
+                focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white
+                sm:text-sm"
+         placeholder="Search folders and files...">
+  
+  <span class="absolute inset-y-0 end-0 grid w-10 place-content-center">
+    <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+    </svg>
+  </span>
+</div>
+
+<!-- HyperUI Filter Component for Advanced Search -->
+<div class="flex flex-wrap gap-2 mt-3">
+  <details class="dropdown relative">
+    <summary class="inline-flex items-center gap-2 rounded border border-gray-300 bg-white px-3 py-2 text-sm 
+                   hover:bg-gray-50 focus:outline-none focus:ring dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700">
+      <span>File Type</span>
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+      </svg>
+    </summary>
+    
+    <div class="absolute start-0 top-auto z-50 mt-2 w-56 rounded border border-gray-200 bg-white shadow-lg 
+                dark:border-gray-700 dark:bg-gray-800">
+      <div class="p-2">
+        <label class="flex items-center gap-2 rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <input type="checkbox" class="h-4 w-4 rounded border-gray-300 focus:ring-green-500">
+          <span class="text-sm text-gray-700 dark:text-gray-200">All Types</span>
+        </label>
+        <label class="flex items-center gap-2 rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <input type="checkbox" class="h-4 w-4 rounded border-gray-300 focus:ring-green-500">
+          <span class="text-sm text-gray-700 dark:text-gray-200">Audio Files</span>
+        </label>
+        <label class="flex items-center gap-2 rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <input type="checkbox" class="h-4 w-4 rounded border-gray-300 focus:ring-green-500">
+          <span class="text-sm text-gray-700 dark:text-gray-200">FLAC Files</span>
+        </label>
+      </div>
+    </div>
+  </details>
+  
+  <!-- Active Filter Tags -->
+  <span class="inline-flex items-center gap-1 rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 
+               dark:bg-blue-900 dark:text-blue-200">
+    Audio Files
+    <button type="button" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200">
+      <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </span>
+</div>
+```
+
+#### 3. Panel Navigation (HyperUI Side Menu with Accordion)
+
+```html
+<!-- HyperUI Side Menu Adaptation for Virtual Folders Tree -->
+<div class="flex h-screen w-64 flex-col overflow-y-auto border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+  <div class="flex items-center justify-between p-4">
+    <span class="text-lg font-semibold text-gray-900 dark:text-white">Virtual Folders</span>
+    <button class="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700">
+      <svg class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+      </svg>
+    </button>
+  </div>
+  
+  <nav class="flex-1 space-y-1 p-2">
+    <!-- Accordion Item -->
+    <details class="group">
+      <summary class="flex cursor-pointer items-center justify-between rounded-lg px-4 py-2 text-gray-500 
+                     hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200">
+        <div class="flex items-center gap-2">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7z"></path>
+          </svg>
+          <span class="text-sm font-medium">Audio Collection</span>
+        </div>
+        <svg class="h-4 w-4 shrink-0 transition duration-300 group-open:-rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </summary>
+      
+      <!-- Accordion Content -->
+      <div class="mt-2 space-y-1 px-4">
+        <a href="#" class="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-700 
+                          dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200">
+          Ambient Sounds
+        </a>
+        <a href="#" class="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-700 
+                          dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200">
+          Music Tracks
+        </a>
+        <a href="#" class="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-700 
+                          dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200">
+          Sound Effects
+        </a>
+      </div>
+    </details>
+    
+    <!-- Single Menu Item -->
+    <a href="#" class="flex items-center gap-2 rounded-lg px-4 py-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 
+                      dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200">
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 7a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"></path>
+      </svg>
+      <span class="text-sm font-medium">All Files</span>
+    </a>
+  </nav>
+</div>
+```
+
+#### 4. File Cards Grid (HyperUI Responsive Grid System)
+
+```html
+<!-- HyperUI Grid System for File Cards -->
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+  <!-- File Card -->
+  <article class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-lg 
+                  dark:border-gray-700 dark:bg-gray-800">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
+          <svg class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M9 19V6l6-6v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-sm font-medium text-gray-900 dark:text-white">
+            Audio File Name.mp3
+          </h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            Artist Name • 3:45
+          </p>
+        </div>
+      </div>
+      
+      <!-- Action Dropdown -->
+      <details class="relative">
+        <summary class="cursor-pointer text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01"></path>
+          </svg>
+        </summary>
+        
+        <div class="absolute right-0 top-full z-10 mt-2 w-48 rounded border border-gray-200 bg-white py-1 shadow-lg 
+                    dark:border-gray-700 dark:bg-gray-800">
+          <button class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 
+                         dark:text-gray-200 dark:hover:bg-gray-700">
+            Play
+          </button>
+          <button class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 
+                         dark:text-gray-200 dark:hover:bg-gray-700">
+            Edit Tags
+          </button>
+          <button class="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 
+                         dark:text-red-400 dark:hover:bg-gray-700">
+            Remove
+          </button>
+        </div>
+      </details>
+    </div>
+    
+    <!-- File Path -->
+    <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+      <p class="text-xs font-mono text-gray-500 dark:text-gray-400 break-all">
+        /path/to/audio/file.mp3
+      </p>
+    </div>
+  </article>
+</div>
+```
+
+#### 5. Settings Panel (HyperUI Input Modal with Form Elements)
+
+```html
+<!-- HyperUI Form Modal for Settings -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80" role="dialog" aria-modal="true">
+  <div class="relative w-full max-w-2xl overflow-hidden bg-white rounded-lg shadow-xl dark:bg-gray-800">
+    <!-- Form Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+        Audio Settings
+      </h2>
+      <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Form Body -->
+    <form class="p-6 space-y-6">
+      <!-- Input Group -->
+      <div class="grid gap-6 sm:grid-cols-2">
+        <div>
+          <label for="master-volume" class="block text-sm font-medium text-gray-700 dark:text-gray-200">
+            Master Volume
+          </label>
+          <input type="range" id="master-volume" min="0" max="100" value="75" 
+                 class="mt-1 w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+          <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <span>0%</span>
+            <span>100%</span>
+          </div>
+        </div>
+        
+        <div>
+          <label for="crossfade-duration" class="block text-sm font-medium text-gray-700 dark:text-gray-200">
+            Crossfade Duration (ms)
+          </label>
+          <input type="number" id="crossfade-duration" min="100" max="10000" value="2500" step="100"
+                 class="mt-1 w-full rounded-md border-gray-300 shadow-sm 
+                        focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+        </div>
+      </div>
+      
+      <!-- Select Dropdown -->
+      <div>
+        <label for="theme" class="block text-sm font-medium text-gray-700 dark:text-gray-200">
+          Interface Theme
+        </label>
+        <select id="theme" 
+                class="mt-1 w-full rounded-md border-gray-300 bg-white shadow-sm 
+                       focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+          <option>Default</option>
+          <option>Fantasy</option>
+          <option>Horror</option>
+          <option>Superheroes</option>
+        </select>
+      </div>
+      
+      <!-- Checkbox Group -->
+      <fieldset>
+        <legend class="text-sm font-medium text-gray-700 dark:text-gray-200">Audio Processing</legend>
+        <div class="mt-2 space-y-2">
+          <label class="flex items-center">
+            <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500 dark:border-gray-600">
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-200">Auto-calculate BPM</span>
+          </label>
+          <label class="flex items-center">
+            <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500 dark:border-gray-600">
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-200">Normalize volume levels</span>
+          </label>
+          <label class="flex items-center">
+            <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500 dark:border-gray-600">
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-200">Enable random delay</span>
+          </label>
+        </div>
+      </fieldset>
+      
+      <!-- Form Actions -->
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <button type="button" 
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 
+                       dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500">
+          Reset to Defaults
+        </button>
+        <button type="button" 
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 
+                       dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500">
+          Cancel
+        </button>
+        <button type="submit" 
+                class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 
+                       focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 
+                       dark:focus:ring-offset-gray-800">
+          Save Settings
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+```
+
 ## Current Architecture Analysis
 
 ### Panel System Overview
