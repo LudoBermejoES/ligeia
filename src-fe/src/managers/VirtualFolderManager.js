@@ -1,6 +1,7 @@
 import { VirtualFolderService } from '../services/VirtualFolderService.js';
 import { VirtualFoldersPanelManager } from '../ui/VirtualFoldersPanelManager.js';
 import { VirtualFolderModals } from '../ui/VirtualFolderModals.js';
+import { VirtualFolderDragDrop } from '../ui/VirtualFolderDragDrop.js';
 
 /**
  * VirtualFolderManager - Main manager for virtual folders system
@@ -18,6 +19,7 @@ export class VirtualFolderManager {
         // UI components
         this.panelManager = null;
         this.modals = null;
+        this.dragDrop = null;
         
         // State
         this.isInitialized = false;
@@ -43,6 +45,12 @@ export class VirtualFolderManager {
                 this.service,
                 this.libraryManager,
                 this.uiController
+            );
+
+            // Initialize drag and drop system
+            this.dragDrop = new VirtualFolderDragDrop(
+                this.service,
+                this.libraryManager
             );
 
             // Make panel manager globally accessible for error recovery
@@ -105,12 +113,15 @@ export class VirtualFolderManager {
     }
 
     /**
-     * Setup mixer integration for future drag and drop functionality
+     * Setup mixer integration with drag and drop functionality
      */
     setupMixerIntegration() {
-        // TODO: Phase 3 - Implement drag and drop from mixer to virtual folders
-        // This will integrate with the existing mouse-based drag system
-        console.log('Mixer integration ready for Phase 3 implementation');
+        // Drag and drop is now implemented via VirtualFolderDragDrop
+        // It integrates with the existing mouse-based drag system in UIController
+        if (this.dragDrop) {
+            this.dragDrop.enable();
+            console.log('Virtual Folders drag and drop integration enabled');
+        }
     }
 
     /**
@@ -157,6 +168,11 @@ export class VirtualFolderManager {
         
         try {
             await this.panelManager.showPanel();
+            
+            // Enable drag and drop when panel is shown
+            if (this.dragDrop) {
+                this.dragDrop.enable();
+            }
         } catch (error) {
             console.error('Failed to show virtual folders panel:', error);
             this.showError('Failed to open Virtual Folders panel');
@@ -171,6 +187,11 @@ export class VirtualFolderManager {
         
         try {
             this.panelManager.hidePanel();
+            
+            // Disable drag and drop when panel is hidden
+            if (this.dragDrop) {
+                this.dragDrop.disable();
+            }
         } catch (error) {
             console.error('Failed to hide virtual folders panel:', error);
         }

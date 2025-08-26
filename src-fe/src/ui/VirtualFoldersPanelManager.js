@@ -143,10 +143,17 @@ export class VirtualFoldersPanelManager {
             }
         });
 
-        // File selection in content area (delegated)
+        // File selection and action handling in content area (delegated)
         this.elements.filesArea?.addEventListener('click', (e) => {
-            if (e.target.closest('.vf-file-card')) {
-                this.handleFileClick(e);
+            const fileCard = e.target.closest('.vf-file-card');
+            if (fileCard) {
+                // Check if clicking on action button
+                const actionBtn = e.target.closest('.vf-file-action-btn');
+                if (actionBtn) {
+                    this.handleFileAction(actionBtn, fileCard);
+                } else {
+                    this.handleFileClick(e);
+                }
             }
         });
     }
@@ -433,13 +440,51 @@ export class VirtualFoldersPanelManager {
         const duration = file.duration ? this.formatDuration(file.duration) : 'Unknown';
         const artist = file.artist || 'Unknown Artist';
         const title = file.title || file.filename || 'Unknown';
+        const album = file.album || '';
+        const genre = file.genre || '';
+        const year = file.year || '';
         
         return `
-            <div class="vf-file-card" data-file-id="${file.id}">
-                <div class="vf-file-title">${this.escapeHtml(title)}</div>
-                <div class="vf-file-meta">Artist: ${this.escapeHtml(artist)}</div>
-                <div class="vf-file-meta">Duration: ${duration}</div>
-                <div class="vf-file-meta">Path: ${this.escapeHtml(file.file_path)}</div>
+            <div class="vf-file-card" data-file-id="${file.id}" data-file-path="${this.escapeHtml(file.file_path)}">
+                <div class="vf-file-header">
+                    <div class="vf-file-title">${this.escapeHtml(title)}</div>
+                    <div class="vf-file-actions">
+                        <button class="vf-file-action-btn" data-action="play" title="Play/Pause">▶️</button>
+                        <button class="vf-file-action-btn" data-action="remove" title="Remove from folder">🗑️</button>
+                        <button class="vf-file-action-btn" data-action="tags" title="Edit tags">🏷️</button>
+                    </div>
+                </div>
+                
+                <div class="vf-file-meta">
+                    <span class="vf-meta-item">
+                        <span class="vf-meta-label">Artist:</span>
+                        <span class="vf-meta-value">${this.escapeHtml(artist)}</span>
+                    </span>
+                    ${album ? `<span class="vf-meta-item">
+                        <span class="vf-meta-label">Album:</span>
+                        <span class="vf-meta-value">${this.escapeHtml(album)}</span>
+                    </span>` : ''}
+                </div>
+                
+                <div class="vf-file-meta">
+                    <span class="vf-meta-item">
+                        <span class="vf-meta-label">Duration:</span>
+                        <span class="vf-meta-value">${duration}</span>
+                    </span>
+                    ${genre ? `<span class="vf-meta-item">
+                        <span class="vf-meta-label">Genre:</span>
+                        <span class="vf-meta-value">${this.escapeHtml(genre)}</span>
+                    </span>` : ''}
+                    ${year ? `<span class="vf-meta-item">
+                        <span class="vf-meta-label">Year:</span>
+                        <span class="vf-meta-value">${year}</span>
+                    </span>` : ''}
+                </div>
+                
+                <div class="vf-file-path">
+                    <span class="vf-meta-label">Path:</span>
+                    <span class="vf-meta-value vf-path-text">${this.escapeHtml(file.file_path)}</span>
+                </div>
             </div>
         `;
     }
@@ -531,11 +576,181 @@ export class VirtualFoldersPanelManager {
     }
 
     /**
+     * Handle file action button clicks
+     */
+    async handleFileAction(actionBtn, fileCard) {
+        const action = actionBtn.dataset.action;
+        const fileId = parseInt(fileCard.dataset.fileId);
+        const filePath = fileCard.dataset.filePath;
+        
+        switch (action) {
+            case 'play':
+                this.handlePlayFile(fileId, filePath);
+                break;
+            case 'remove':
+                await this.handleRemoveFile(fileId);
+                break;
+            case 'tags':
+                this.handleEditTags(fileId, filePath);
+                break;
+            default:
+                console.warn('Unknown file action:', action);
+        }
+    }
+
+    /**
+     * Handle play/pause file
+     */
+    handlePlayFile(fileId, filePath) {
+        // Integrate with existing sound pad system
+        const app = window.ambientMixerApp;
+        if (app && app.libraryManager) {
+            const soundPad = app.libraryManager.getSoundPads().get(filePath);
+            if (soundPad) {
+                // Toggle play state using existing system
+                soundPad.toggle();
+                this.showSuccess(`${soundPad.isPlaying ? 'Playing' : 'Paused'} audio file`);
+            } else {
+                this.showError('Audio file not found in library');
+            }
+        }
+    }
+
+    /**
+     * Handle remove file from folder
+     */
+    async handleRemoveFile(fileId) {
+        if (!this.currentFolderId) {
+            this.showError('No folder selected');
+            return;
+        }
+
+        if (!confirm('Remove this file from the folder? The file will not be deleted from your library.')) {
+            return;
+        }
+
+        try {
+            await this.service.removeFilesFromFolder(this.currentFolderId, [fileId]);
+            this.showSuccess('File removed from folder');
+            
+            // Refresh folder contents
+            await this.loadFolderContents(this.currentFolderId);
+        } catch (error) {
+            console.error('Failed to remove file from folder:', error);
+            this.showError('Failed to remove file from folder');
+        }
+    }
+
+    /**
+     * Handle edit tags for file
+     */
+    handleEditTags(fileId, filePath) {
+        // Integrate with existing tag editor system
+        const event = new CustomEvent('openTagEditor', {
+            detail: { filePath, audioId: fileId }
+        });
+        document.dispatchEvent(event);
+        this.showSuccess('Opening tag editor...');
+    }
+
+    /**
+     * Handle file card click (selection)
+     */
+    handleFileClick(e) {
+        const fileCard = e.target.closest('.vf-file-card');
+        if (!fileCard) return;
+        
+        // Toggle selection state
+        fileCard.classList.toggle('selected');
+        
+        // Update selection count display
+        this.updateSelectionCount();
+    }
+
+    /**
+     * Update selection count display
+     */
+    updateSelectionCount() {
+        const selectedCards = this.elements.filesArea.querySelectorAll('.vf-file-card.selected');
+        const count = selectedCards.length;
+        
+        // Update toolbar display
+        const toolbar = this.panel.querySelector('.vf-content-toolbar');
+        let selectionInfo = toolbar.querySelector('.vf-selection-info');
+        
+        if (count > 0) {
+            if (!selectionInfo) {
+                selectionInfo = document.createElement('div');
+                selectionInfo.className = 'vf-selection-info';
+                
+                const toolbarLeft = toolbar.querySelector('.vf-toolbar-left');
+                toolbarLeft.appendChild(selectionInfo);
+            }
+            
+            selectionInfo.innerHTML = `
+                <span class="vf-selection-count">${count} selected</span>
+                <button class="vf-bulk-remove-btn" title="Remove selected files from folder">🗑️ Remove Selected</button>
+            `;
+            
+            // Add bulk remove handler
+            const bulkRemoveBtn = selectionInfo.querySelector('.vf-bulk-remove-btn');
+            bulkRemoveBtn?.addEventListener('click', () => this.handleBulkRemove());
+            
+        } else if (selectionInfo) {
+            selectionInfo.remove();
+        }
+    }
+
+    /**
+     * Handle bulk remove selected files
+     */
+    async handleBulkRemove() {
+        const selectedCards = this.elements.filesArea.querySelectorAll('.vf-file-card.selected');
+        const fileIds = Array.from(selectedCards).map(card => parseInt(card.dataset.fileId));
+        
+        if (fileIds.length === 0) {
+            this.showError('No files selected');
+            return;
+        }
+
+        if (!confirm(`Remove ${fileIds.length} selected file${fileIds.length !== 1 ? 's' : ''} from this folder? The files will not be deleted from your library.`)) {
+            return;
+        }
+
+        try {
+            await this.service.removeFilesFromFolder(this.currentFolderId, fileIds);
+            this.showSuccess(`${fileIds.length} file${fileIds.length !== 1 ? 's' : ''} removed from folder`);
+            
+            // Refresh folder contents
+            await this.loadFolderContents(this.currentFolderId);
+        } catch (error) {
+            console.error('Failed to remove files from folder:', error);
+            this.showError('Failed to remove files from folder');
+        }
+    }
+
+    /**
+     * Show success message
+     */
+    showSuccess(message) {
+        console.log('VF Success:', message);
+        // TODO: Integrate with existing notification system
+        const app = window.ambientMixerApp;
+        if (app && app.uiController && typeof app.uiController.showNotification === 'function') {
+            app.uiController.showNotification('success', message, true);
+        }
+    }
+
+    /**
      * Show error message
      */
     showError(message) {
         // TODO: Integrate with existing notification system
         console.error('VF Error:', message);
+        const app = window.ambientMixerApp;
+        if (app && app.uiController && typeof app.uiController.showNotification === 'function') {
+            app.uiController.showNotification('error', message, true);
+        }
     }
 
     /**
