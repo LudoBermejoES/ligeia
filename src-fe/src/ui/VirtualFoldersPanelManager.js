@@ -37,11 +37,23 @@ export class VirtualFoldersPanelManager {
             treeSection: this.panel.querySelector('.vf-tree-section'),
             contentSection: this.panel.querySelector('.vf-content-section'),
             searchInput: this.panel.querySelector('.vf-search-input'),
+            searchToggle: this.panel.querySelector('.vf-search-toggle'),
+            searchClear: this.panel.querySelector('.vf-search-clear'),
+            searchFilters: this.panel.querySelector('.vf-search-filters'),
             treeContent: this.panel.querySelector('.vf-tree-content'),
             breadcrumb: this.panel.querySelector('.vf-breadcrumb'),
             filesArea: this.panel.querySelector('.vf-files-area'),
             newFolderBtn: this.panel.querySelector('.vf-new-folder-btn'),
             addFilesBtn: this.panel.querySelector('.vf-add-files-btn')
+        };
+        
+        // Search state
+        this.searchState = {
+            query: '',
+            scope: ['folders', 'files'],
+            fileType: '',
+            isAdvancedVisible: false,
+            results: null
         };
     }
 
@@ -54,7 +66,31 @@ export class VirtualFoldersPanelManager {
                 <!-- Left Section: Folder Tree -->
                 <div class="vf-tree-section">
                     <div class="vf-tree-header">
-                        <input type="text" class="vf-search-input" placeholder="Search folders..." />
+                        <div class="vf-search-container">
+                            <input type="text" class="vf-search-input" placeholder="Search folders and files..." />
+                            <div class="vf-search-filters" style="display: none;">
+                                <div class="vf-filter-section">
+                                    <label class="vf-filter-label">Search in:</label>
+                                    <div class="vf-filter-options">
+                                        <label class="vf-filter-option">
+                                            <input type="checkbox" name="search-scope" value="folders" checked> Folders
+                                        </label>
+                                        <label class="vf-filter-option">
+                                            <input type="checkbox" name="search-scope" value="files" checked> Files
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="vf-filter-section">
+                                    <label class="vf-filter-label">File type:</label>
+                                    <select class="vf-filter-select" name="file-type">
+                                        <option value="">All types</option>
+                                        <option value="audio">Audio files</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="button" class="vf-search-toggle" title="Advanced search">⚙️</button>
+                            <button type="button" class="vf-search-clear" title="Clear search" style="display: none;">✕</button>
+                        </div>
                     </div>
                     <div class="vf-tree-content scrollable-content">
                         <div class="vf-tree-loading">
@@ -117,6 +153,24 @@ export class VirtualFoldersPanelManager {
         // Search functionality
         this.elements.searchInput?.addEventListener('input', (e) => {
             this.handleSearch(e.target.value);
+        });
+        
+        // Advanced search toggle
+        this.elements.searchToggle?.addEventListener('click', () => {
+            this.toggleAdvancedSearch();
+        });
+        
+        // Search clear
+        this.elements.searchClear?.addEventListener('click', () => {
+            this.clearSearch();
+        });
+        
+        // Search filter changes
+        this.elements.searchFilters?.addEventListener('change', () => {
+            this.updateSearchFilters();
+            if (this.searchState.query) {
+                this.performSearch();
+            }
         });
 
         // New folder button
@@ -493,43 +547,428 @@ export class VirtualFoldersPanelManager {
      * Handle search input
      */
     async handleSearch(query) {
-        if (query.length < 2) {
-            await this.loadFolderTree();
+        this.searchState.query = query.trim();
+        
+        // Show/hide clear button
+        if (this.elements.searchClear) {
+            this.elements.searchClear.style.display = this.searchState.query ? 'block' : 'none';
+        }
+        
+        if (this.searchState.query.length === 0) {
+            await this.clearSearch();
             return;
         }
         
+        if (this.searchState.query.length < 2) {
+            return; // Wait for more characters
+        }
+        
+        await this.performSearch();
+    }
+    
+    /**
+     * Perform search with current filters
+     */
+    async performSearch() {
         try {
-            const results = await this.service.searchFolders(query);
+            this.showSearchLoading();
+            
+            let results = {
+                folders: [],
+                files: []
+            };
+            
+            // Search folders if enabled
+            if (this.searchState.scope.includes('folders')) {
+                results.folders = await this.service.searchFolders(this.searchState.query);
+            }
+            
+            // Search files if enabled
+            if (this.searchState.scope.includes('files')) {
+                results.files = await this.searchFilesInFolders(this.searchState.query);
+            }
+            
+            this.searchState.results = results;
             this.renderSearchResults(results);
+            
         } catch (error) {
-            console.error('Failed to search folders:', error);
+            console.error('Failed to perform search:', error);
+            this.showSearchError('Search failed');
+        }
+    }
+    
+    /**
+     * Search files across all folders
+     */
+    async searchFilesInFolders(query) {
+        try {
+            // Get all folders first
+            const allFolders = await this.getAllFoldersFlat();
+            let allFiles = [];
+            
+            // Get files from all folders
+            for (const folder of allFolders) {
+                try {
+                    const contents = await this.service.getFolderContents(folder.id);
+                    const files = contents.audio_files || contents.files || [];
+                    
+                    // Add folder context to files
+                    files.forEach(file => {
+                        file.folderName = folder.name;
+                        file.folderId = folder.id;
+                    });
+                    
+                    allFiles.push(...files);
+                } catch (error) {
+                    console.warn(`Failed to get contents for folder ${folder.id}:`, error);
+                }
+            }
+            
+            // Filter files by query
+            const searchTerm = query.toLowerCase();
+            return allFiles.filter(file => {
+                return (
+                    (file.title && file.title.toLowerCase().includes(searchTerm)) ||
+                    (file.artist && file.artist.toLowerCase().includes(searchTerm)) ||
+                    (file.album && file.album.toLowerCase().includes(searchTerm)) ||
+                    (file.filename && file.filename.toLowerCase().includes(searchTerm)) ||
+                    (file.genre && file.genre.toLowerCase().includes(searchTerm))
+                );
+            });
+            
+        } catch (error) {
+            console.error('Failed to search files:', error);
+            return [];
+        }
+    }
+    
+    /**
+     * Get all folders in a flat array
+     */
+    async getAllFoldersFlat() {
+        try {
+            const tree = await this.service.getFolderTree();
+            const folders = [];
+            
+            const flattenTree = (nodes) => {
+                for (const node of nodes) {
+                    const folder = node.folder || node;
+                    folders.push(folder);
+                    
+                    if (node.children && node.children.length > 0) {
+                        flattenTree(node.children);
+                    }
+                }
+            };
+            
+            flattenTree(tree);
+            return folders;
+        } catch (error) {
+            console.error('Failed to get all folders:', error);
+            return [];
+        }
+    }
+    
+    /**
+     * Toggle advanced search filters
+     */
+    toggleAdvancedSearch() {
+        this.searchState.isAdvancedVisible = !this.searchState.isAdvancedVisible;
+        
+        if (this.elements.searchFilters) {
+            this.elements.searchFilters.style.display = 
+                this.searchState.isAdvancedVisible ? 'block' : 'none';
+        }
+        
+        // Update toggle button appearance
+        if (this.elements.searchToggle) {
+            this.elements.searchToggle.textContent = 
+                this.searchState.isAdvancedVisible ? '⚙️' : '⚙️';
+            this.elements.searchToggle.classList.toggle('active', this.searchState.isAdvancedVisible);
+        }
+    }
+    
+    /**
+     * Update search filters from form
+     */
+    updateSearchFilters() {
+        if (!this.elements.searchFilters) return;
+        
+        // Update scope
+        const scopeCheckboxes = this.elements.searchFilters.querySelectorAll('input[name="search-scope"]:checked');
+        this.searchState.scope = Array.from(scopeCheckboxes).map(cb => cb.value);
+        
+        // Update file type
+        const fileTypeSelect = this.elements.searchFilters.querySelector('select[name="file-type"]');
+        this.searchState.fileType = fileTypeSelect ? fileTypeSelect.value : '';
+    }
+    
+    /**
+     * Clear search and return to normal view
+     */
+    async clearSearch() {
+        this.searchState.query = '';
+        this.searchState.results = null;
+        
+        if (this.elements.searchInput) {
+            this.elements.searchInput.value = '';
+        }
+        
+        if (this.elements.searchClear) {
+            this.elements.searchClear.style.display = 'none';
+        }
+        
+        // Return to normal folder tree view
+        await this.loadFolderTree();
+        
+        // Clear content area if no folder selected
+        if (!this.currentFolderId) {
+            this.showDefaultContentState();
+        }
+    }
+    
+    /**
+     * Show search loading state
+     */
+    showSearchLoading() {
+        this.elements.treeContent.innerHTML = `
+            <div class="vf-tree-loading">
+                <div class="loading-spinner"></div>
+                <div>Searching...</div>
+            </div>
+        `;
+    }
+    
+    /**
+     * Show search error
+     */
+    showSearchError(message) {
+        this.elements.treeContent.innerHTML = `
+            <div class="vf-tree-loading" style="color: #ff6b6b;">
+                <div>⚠️</div>
+                <div>${message}</div>
+                <button onclick="window.virtualFoldersPanel?.clearSearch()" 
+                        style="margin-top: 10px; padding: 5px 10px; background: #333; border: 1px solid #555; color: white; border-radius: 4px; cursor: pointer;">
+                    Clear Search
+                </button>
+            </div>
+        `;
+    }
+    
+    /**
+     * Show default content state
+     */
+    showDefaultContentState() {
+        const dropZone = this.elements.filesArea.querySelector('.vf-drop-zone');
+        if (dropZone) {
+            dropZone.innerHTML = `
+                <div class="vf-empty-state">
+                    <div class="vf-empty-icon">🔍</div>
+                    <h3>Search Results</h3>
+                    <p>Use the search box above to find folders and files.</p>
+                </div>
+            `;
         }
     }
 
     /**
      * Render search results
      */
-    renderSearchResults(folders) {
-        if (folders.length === 0) {
+    renderSearchResults(results) {
+        const { folders = [], files = [] } = results;
+        const totalResults = folders.length + files.length;
+        
+        if (totalResults === 0) {
             this.elements.treeContent.innerHTML = `
                 <div class="vf-empty-tree">
                     <div>🔍</div>
-                    <div>No folders found</div>
+                    <div>No results found</div>
+                    <div style="font-size: 0.9em; margin-top: 5px; opacity: 0.7;">
+                        Try adjusting your search terms or filters
+                    </div>
                 </div>
             `;
+            
+            this.showDefaultContentState();
             return;
         }
         
-        const html = folders.map(folder => `
-            <div class="vf-tree-node" data-folder-id="${folder.id}">
-                <span class="vf-expand-icon"></span>
-                <span class="vf-folder-icon">📁</span>
-                <span class="vf-folder-name">${this.escapeHtml(folder.name)}</span>
-                <span class="vf-file-count">${folder.file_count || 0}</span>
+        let html = `<div class="vf-search-results">`;
+        
+        // Add results summary
+        html += `
+            <div class="vf-search-summary">
+                Found ${totalResults} result${totalResults !== 1 ? 's' : ''} 
+                ${folders.length > 0 ? `(${folders.length} folder${folders.length !== 1 ? 's' : ''})` : ''}
+                ${files.length > 0 ? `(${files.length} file${files.length !== 1 ? 's' : ''})` : ''}
             </div>
-        `).join('');
+        `;
+        
+        // Render folder results
+        if (folders.length > 0) {
+            html += `<div class="vf-search-section">`;
+            html += `<div class="vf-search-section-title">📁 Folders</div>`;
+            
+            folders.forEach(folder => {
+                html += `
+                    <div class="vf-tree-node vf-search-result" data-folder-id="${folder.id}">
+                        <span class="vf-expand-icon"></span>
+                        <span class="vf-folder-icon">📁</span>
+                        <span class="vf-folder-name">${this.escapeHtml(folder.name)}</span>
+                        <span class="vf-file-count">${folder.file_count || 0}</span>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+        }
+        
+        // Render file results
+        if (files.length > 0) {
+            html += `<div class="vf-search-section">`;
+            html += `<div class="vf-search-section-title">🎵 Files</div>`;
+            
+            files.forEach(file => {
+                const title = file.title || file.filename || 'Unknown';
+                const artist = file.artist || 'Unknown Artist';
+                const folderName = file.folderName || 'Unknown Folder';
+                
+                html += `
+                    <div class="vf-file-result" data-file-id="${file.id}" data-folder-id="${file.folderId}">
+                        <div class="vf-file-result-main">
+                            <div class="vf-file-result-title">${this.escapeHtml(title)}</div>
+                            <div class="vf-file-result-artist">${this.escapeHtml(artist)}</div>
+                        </div>
+                        <div class="vf-file-result-folder">
+                            <span class="vf-folder-label">in</span>
+                            <span class="vf-folder-link" data-folder-id="${file.folderId}">${this.escapeHtml(folderName)}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+        }
+        
+        html += `</div>`;
         
         this.elements.treeContent.innerHTML = html;
+        
+        // Add click handlers for search results
+        this.setupSearchResultHandlers();
+        
+        // Show file results in content area if files were found
+        if (files.length > 0) {
+            this.showFileSearchResults(files);
+        }
+    }
+    
+    /**
+     * Setup event handlers for search results
+     */
+    setupSearchResultHandlers() {
+        // Folder result clicks
+        this.elements.treeContent.querySelectorAll('.vf-tree-node[data-folder-id]').forEach(node => {
+            node.addEventListener('click', async () => {
+                const folderId = parseInt(node.dataset.folderId);
+                await this.selectFolder(folderId);
+            });
+        });
+        
+        // File result clicks - open containing folder
+        this.elements.treeContent.querySelectorAll('.vf-file-result').forEach(result => {
+            result.addEventListener('click', async () => {
+                const folderId = parseInt(result.dataset.folderId);
+                const fileId = parseInt(result.dataset.fileId);
+                
+                // Select the folder containing this file
+                await this.selectFolder(folderId);
+                
+                // Highlight the file in the content area
+                setTimeout(() => {
+                    this.highlightFileInContent(fileId);
+                }, 300);
+            });
+        });
+        
+        // Folder link clicks in file results
+        this.elements.treeContent.querySelectorAll('.vf-folder-link').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const folderId = parseInt(link.dataset.folderId);
+                await this.selectFolder(folderId);
+            });
+        });
+    }
+    
+    /**
+     * Show file search results in content area
+     */
+    showFileSearchResults(files) {
+        const dropZone = this.elements.filesArea.querySelector('.vf-drop-zone');
+        
+        // Update breadcrumb
+        this.elements.breadcrumb.textContent = `Search Results (${files.length} files)`;
+        
+        // Update file count
+        const fileCount = files.length;
+        this.elements.filesArea.parentNode.querySelector('.vf-file-count').textContent = 
+            `${fileCount} file${fileCount !== 1 ? 's' : ''} found`;
+        
+        // Group files by folder for better organization
+        const filesByFolder = {};
+        files.forEach(file => {
+            const folderId = file.folderId || 'unknown';
+            if (!filesByFolder[folderId]) {
+                filesByFolder[folderId] = {
+                    folderName: file.folderName || 'Unknown Folder',
+                    files: []
+                };
+            }
+            filesByFolder[folderId].files.push(file);
+        });
+        
+        let html = '<div class="vf-search-files-content">';
+        
+        Object.entries(filesByFolder).forEach(([folderId, folderData]) => {
+            html += `
+                <div class="vf-search-folder-group" data-folder-id="${folderId}">
+                    <div class="vf-search-folder-header">
+                        <span class="vf-search-folder-name">📁 ${this.escapeHtml(folderData.folderName)}</span>
+                        <span class="vf-search-folder-count">${folderData.files.length} file${folderData.files.length !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div class="vf-file-grid">
+                        ${folderData.files.map(file => this.renderFileCard(file)).join('')}
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        
+        dropZone.innerHTML = html;
+    }
+    
+    /**
+     * Highlight a specific file in the content area
+     */
+    highlightFileInContent(fileId) {
+        // Remove existing highlights
+        this.elements.filesArea.querySelectorAll('.vf-file-card.highlighted').forEach(card => {
+            card.classList.remove('highlighted');
+        });
+        
+        // Add highlight to target file
+        const targetCard = this.elements.filesArea.querySelector(`[data-file-id="${fileId}"]`);
+        if (targetCard) {
+            targetCard.classList.add('highlighted');
+            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Remove highlight after a few seconds
+            setTimeout(() => {
+                targetCard.classList.remove('highlighted');
+            }, 3000);
+        }
     }
 
     /**
