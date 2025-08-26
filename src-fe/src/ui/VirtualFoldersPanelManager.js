@@ -62,80 +62,151 @@ export class VirtualFoldersPanelManager {
      */
     createPanelHTML() {
         return `
-            <div class="vf-workspace">
+            <!-- HyperUI Workspace Layout for Virtual Folders -->
+            <div class="vf-workspace flex h-full w-full bg-bg">
                 <!-- Left Section: Folder Tree -->
-                <div class="vf-tree-section">
-                    <div class="vf-tree-header">
-                        <div class="vf-search-container">
-                            <input type="text" class="vf-search-input" placeholder="Search folders and files..." />
-                            <div class="vf-search-filters" style="display: none;">
-                                <div class="vf-filter-section">
-                                    <label class="vf-filter-label">Search in:</label>
-                                    <div class="vf-filter-options">
-                                        <label class="vf-filter-option">
-                                            <input type="checkbox" name="search-scope" value="folders" checked> Folders
+                <div class="vf-tree-section flex-1 min-w-[200px] border-r border-border flex flex-col bg-card">
+                    <!-- Tree Header -->
+                    <div class="vf-tree-header p-3 border-b border-border">
+                        <div class="vf-search-container relative">
+                            <!-- Main Search Input -->
+                            <div class="relative">
+                                <input type="text" 
+                                       class="vf-search-input w-full px-3 py-2 pl-10 bg-bg border border-border rounded text-text text-sm
+                                              focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
+                                              placeholder:text-muted" 
+                                       placeholder="Search folders and files..." />
+                                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" 
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            
+                            <!-- Search Action Buttons -->
+                            <div class="flex items-center gap-1 mt-2">
+                                <button type="button" 
+                                        class="vf-search-toggle px-2 py-1 bg-bg border border-border text-text rounded text-xs
+                                               hover:bg-hover transition-colors duration-200" 
+                                        title="Advanced search">
+                                    ⚙️ Advanced
+                                </button>
+                                <button type="button" 
+                                        class="vf-search-clear px-2 py-1 bg-red-500/20 border border-red-500/30 text-red-400 rounded text-xs
+                                               hover:bg-red-500/30 transition-colors duration-200 hidden" 
+                                        title="Clear search">
+                                    ✕ Clear
+                                </button>
+                            </div>
+                            
+                            <!-- Advanced Search Filters -->
+                            <div class="vf-search-filters hidden mt-3 p-3 bg-bg border border-border rounded">
+                                <!-- Search Scope -->
+                                <div class="vf-filter-section mb-3">
+                                    <label class="vf-filter-label block text-xs font-medium text-text mb-2">Search in:</label>
+                                    <div class="vf-filter-options space-y-1">
+                                        <label class="vf-filter-option flex items-center gap-2 text-sm text-text cursor-pointer">
+                                            <input type="checkbox" name="search-scope" value="folders" checked 
+                                                   class="w-3 h-3 text-accent focus:ring-accent/20 border-border rounded"> 
+                                            Folders
                                         </label>
-                                        <label class="vf-filter-option">
-                                            <input type="checkbox" name="search-scope" value="files" checked> Files
+                                        <label class="vf-filter-option flex items-center gap-2 text-sm text-text cursor-pointer">
+                                            <input type="checkbox" name="search-scope" value="files" checked 
+                                                   class="w-3 h-3 text-accent focus:ring-accent/20 border-border rounded"> 
+                                            Files
                                         </label>
                                     </div>
                                 </div>
+                                
+                                <!-- File Type Filter -->
                                 <div class="vf-filter-section">
-                                    <label class="vf-filter-label">File type:</label>
-                                    <select class="vf-filter-select" name="file-type">
+                                    <label class="vf-filter-label block text-xs font-medium text-text mb-2">File type:</label>
+                                    <select class="vf-filter-select w-full px-2 py-1 bg-bg border border-border rounded text-text text-sm
+                                                   focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" 
+                                            name="file-type">
                                         <option value="">All types</option>
                                         <option value="audio">Audio files</option>
                                     </select>
                                 </div>
                             </div>
-                            <button type="button" class="vf-search-toggle" title="Advanced search">⚙️</button>
-                            <button type="button" class="vf-search-clear" title="Clear search" style="display: none;">✕</button>
                         </div>
                     </div>
-                    <div class="vf-tree-content scrollable-content">
-                        <div class="vf-tree-loading">
-                            <div class="loading-spinner"></div>
-                            <div>Loading folders...</div>
+                    
+                    <!-- Tree Content -->
+                    <div class="vf-tree-content scrollable-content flex-1 overflow-y-auto p-2">
+                        <div class="vf-tree-loading flex flex-col items-center justify-center h-32 text-center text-muted">
+                            <div class="loading-spinner w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin mb-2"></div>
+                            <div class="text-sm">Loading folders...</div>
                         </div>
                     </div>
-                    <div class="vf-tree-footer">
-                        <button class="vf-new-folder-btn">
+                    
+                    <!-- Tree Footer -->
+                    <div class="vf-tree-footer p-3 border-t border-border">
+                        <button class="vf-new-folder-btn w-full px-3 py-2.5 bg-gradient-to-br from-accent to-green-600 
+                                       text-white rounded font-medium transition-all duration-200 
+                                       hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/30
+                                       flex items-center justify-center gap-2">
                             <span class="btn-icon">📁</span> New Folder
                         </button>
                     </div>
                 </div>
 
                 <!-- Right Section: Folder Contents -->
-                <div class="vf-content-section">
-                    <div class="vf-breadcrumb-header">
-                        <div class="vf-breadcrumb">Select a folder</div>
-                        <div class="vf-content-controls">
-                            <button class="vf-view-btn active" data-view="grid" title="Grid view">⊞</button>
-                            <button class="vf-view-btn" data-view="list" title="List view">☰</button>
+                <div class="vf-content-section flex-1 flex flex-col bg-bg">
+                    <!-- Breadcrumb Header -->
+                    <div class="vf-breadcrumb-header flex justify-between items-center p-3 bg-card border-b border-border">
+                        <div class="vf-breadcrumb text-sm text-text font-medium">
+                            Select a folder
+                        </div>
+                        <div class="vf-content-controls flex gap-1">
+                            <button class="vf-view-btn active bg-accent/20 border border-accent/30 text-accent px-2 py-1.5 rounded text-xs
+                                           hover:bg-accent/30 transition-colors duration-200" 
+                                    data-view="grid" title="Grid view">
+                                ⊞
+                            </button>
+                            <button class="vf-view-btn bg-card border border-border text-text px-2 py-1.5 rounded text-xs
+                                           hover:bg-hover transition-colors duration-200" 
+                                    data-view="list" title="List view">
+                                ☰
+                            </button>
                         </div>
                     </div>
                     
-                    <div class="vf-content-toolbar">
-                        <div class="vf-toolbar-left">
-                            <select class="vf-sort-select">
+                    <!-- Content Toolbar -->
+                    <div class="vf-content-toolbar flex justify-between items-center p-2 bg-card border-b border-border gap-3">
+                        <div class="vf-toolbar-left flex items-center gap-3">
+                            <select class="vf-sort-select px-2 py-1 bg-bg border border-border rounded text-text text-xs
+                                           focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20">
                                 <option value="name">Name</option>
                                 <option value="date">Date Modified</option>
                                 <option value="size">Duration</option>
                                 <option value="artist">Artist</option>
                             </select>
+                            <div class="vf-file-count text-sm text-muted">0 files</div>
                         </div>
-                        <div class="vf-file-count">0 files</div>
+                        
                         <div class="vf-toolbar-right">
-                            <button class="vf-add-files-btn" disabled>+ Add Files</button>
+                            <button class="vf-add-files-btn bg-gradient-to-br from-blue-500 to-blue-700 text-white 
+                                           px-4 py-2 rounded text-xs font-medium transition-all duration-200 whitespace-nowrap
+                                           hover:-translate-y-px hover:shadow-lg hover:shadow-blue-500/30
+                                           disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-600
+                                           disabled:hover:translate-y-0 disabled:hover:shadow-none" 
+                                    disabled>
+                                + Add Files
+                            </button>
                         </div>
                     </div>
                     
-                    <div class="vf-files-area scrollable-content">
-                        <div class="vf-drop-zone">
-                            <div class="vf-empty-state">
-                                <div class="vf-empty-icon">📂</div>
-                                <h3>No folder selected</h3>
-                                <p>Select a folder from the tree on the left to view its contents.</p>
+                    <!-- Files Area -->
+                    <div class="vf-files-area scrollable-content flex-1 overflow-y-auto relative">
+                        <div class="vf-drop-zone min-h-full p-4 transition-all duration-200">
+                            <!-- Empty State -->
+                            <div class="vf-empty-state flex flex-col items-center justify-center h-[300px] text-center text-muted">
+                                <div class="vf-empty-icon text-5xl mb-4 opacity-50">📂</div>
+                                <h3 class="text-lg text-text mb-2 m-0">No folder selected</h3>
+                                <p class="text-sm m-0 max-w-[300px]">
+                                    Select a folder from the tree on the left to view its contents.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -238,8 +309,9 @@ export class VirtualFoldersPanelManager {
             this.addResizeHandle(mainContent);
         }
 
-        // Show virtual folders panel
-        this.panel.style.display = 'flex';
+        // Remove hidden class to show panel
+        this.panel.classList.remove('hidden');
+        this.panel.style.display = ''; // Clear any inline display style
         this.isVisible = true;
         
         // Set initial balanced widths
@@ -261,17 +333,25 @@ export class VirtualFoldersPanelManager {
     hidePanel() {
         if (!this.isVisible) return;
 
-        // Hide virtual folders panel
-        this.panel.style.display = 'none';
+        // Add hidden class to hide panel (Tailwind approach)
+        this.panel.classList.add('hidden');
+        this.panel.style.display = ''; // Clear any inline display style
         this.isVisible = false;
 
         // Remove side-by-side layout class to restore original mixer layout
         const mainContent = document.querySelector('.main') || document.querySelector('main');
+        const mixerContainer = document.getElementById('mixer-container');
         
         if (mainContent) {
             mainContent.classList.remove('side-by-side');
             // Remove resize handle
             this.removeResizeHandle(mainContent);
+        }
+
+        // Reset mixer container to take full width
+        if (mixerContainer) {
+            mixerContainer.style.flex = '';
+            mixerContainer.style.width = '';
         }
 
         // Update header button state
@@ -1242,11 +1322,11 @@ export class VirtualFoldersPanelManager {
         const minWidth = 250;
         const finalWidth = Math.max(minWidth, halfWidth);
         
-        // Set balanced widths
-        virtualFoldersPanel.style.width = `${finalWidth}px`;
-        mixerContainer.style.width = `${finalWidth}px`;
-        virtualFoldersPanel.style.flex = '0 0 auto';
-        mixerContainer.style.flex = '0 0 auto';
+        // Let CSS flexbox handle the layout with flex-1
+        virtualFoldersPanel.style.width = '';
+        mixerContainer.style.width = '';
+        virtualFoldersPanel.style.flex = '';
+        mixerContainer.style.flex = '';
         
         console.log(`Width calculation: Total=${totalWidth}px, Used=${usedWidth}px, Available=${availableWidth}px, Each panel=${finalWidth}px`);
     }
@@ -1353,11 +1433,14 @@ export class VirtualFoldersPanelManager {
             newVfWidth = Math.max(minWidth, Math.min(maxVfWidth, newVfWidth));
             newMixerWidth = availableWidth - newVfWidth;
             
-            // Apply new widths as pixels for precise control
-            virtualFoldersPanel.style.width = `${newVfWidth}px`;
-            mixerContainer.style.width = `${newMixerWidth}px`;
-            virtualFoldersPanel.style.flex = '0 0 auto';
-            mixerContainer.style.flex = '0 0 auto';
+            // Use flexbox flex-basis to control proportional sizing
+            const vfFlex = newVfWidth / availableWidth;
+            const mixerFlex = newMixerWidth / availableWidth;
+            
+            virtualFoldersPanel.style.flex = `${vfFlex} 1 0`;
+            mixerContainer.style.flex = `${mixerFlex} 1 0`;
+            virtualFoldersPanel.style.width = '';
+            mixerContainer.style.width = '';
             
             e.preventDefault();
         };

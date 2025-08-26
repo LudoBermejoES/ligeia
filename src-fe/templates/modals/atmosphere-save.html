@@ -1,57 +1,176 @@
-<div id="atmosphereSaveModal" class="modal-overlay" data-hidden="true">
-  <div class="modal-container atmo-modal">
-    <div class="modal-header">
-      <h2 id="atmoModalTitle">Save Atmosphere</h2>
-      <button class="modal-close" id="closeAtmoModal" aria-label="Close">×</button>
+<!-- HyperUI Form Modal - Atmosphere Save -->
+<div id="atmosphereSaveModal" 
+     class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 hidden pointer-events-auto" 
+     role="dialog" 
+     aria-modal="true"
+     data-hidden="true">
+  
+  <div class="modal-container atmo-modal relative w-full max-w-2xl overflow-hidden bg-card rounded-lg shadow-xl">
+    <!-- Modal Header -->
+    <div class="modal-header flex items-center justify-between p-6 border-b border-border">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+          🌌
+        </div>
+        <h2 id="atmoModalTitle" class="text-xl font-semibold text-text m-0">Save Atmosphere</h2>
+      </div>
+      <button class="modal-close text-muted hover:text-text transition-colors duration-200 text-2xl w-8 h-8 flex items-center justify-center rounded hover:bg-hover" 
+              id="closeAtmoModal" 
+              aria-label="Close">
+        ×
+      </button>
     </div>
-    <form id="atmoSaveForm" class="modal-body atmo-form">
-      <div class="atmo-field">
-        <label for="atmoName">Name *</label>
-        <input id="atmoName" name="name" required placeholder="Forest Dawn" />
-      </div>
-      <div class="atmo-field">
-        <label for="atmoDescription">Description</label>
-        <textarea id="atmoDescription" name="description" rows="3" placeholder="Short description..."></textarea>
-      </div>
-      <div class="atmo-grid2">
+    
+    <!-- Form Body -->
+    <form id="atmoSaveForm" class="modal-body atmo-form p-6 space-y-6">
+      
+      <!-- Basic Info -->
+      <div class="space-y-4">
+        <!-- Name Field -->
         <div class="atmo-field">
-          <label for="atmoCategory">Category</label>
-          <input id="atmoCategory" name="category" placeholder="Nature" />
+          <label for="atmoName" class="block text-sm font-medium text-text mb-1">
+            Name *
+          </label>
+          <input id="atmoName" 
+                 name="name" 
+                 type="text"
+                 required 
+                 placeholder="Forest Dawn"
+                 class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                        focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
+                        placeholder:text-muted" />
         </div>
+        
+        <!-- Description Field -->
         <div class="atmo-field">
-          <label for="atmoSubcategory">Subcategory</label>
-          <input id="atmoSubcategory" name="subcategory" placeholder="Dawn" />
+          <label for="atmoDescription" class="block text-sm font-medium text-text mb-1">
+            Description
+          </label>
+          <textarea id="atmoDescription" 
+                    name="description" 
+                    rows="3" 
+                    placeholder="Short description..."
+                    class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm resize-y
+                           focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
+                           placeholder:text-muted min-h-[80px]"></textarea>
         </div>
       </div>
-      <div class="atmo-field">
-        <label for="atmoKeywords">Keywords (comma separated)</label>
-        <input id="atmoKeywords" name="keywords" placeholder="gentle,birds,morning" />
+      
+      <!-- Category Grid -->
+      <div class="atmo-grid2 grid gap-4 sm:grid-cols-2">
+        <div class="atmo-field">
+          <label for="atmoCategory" class="block text-sm font-medium text-text mb-1">
+            Category
+          </label>
+          <input id="atmoCategory" 
+                 name="category" 
+                 type="text"
+                 placeholder="Nature"
+                 class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                        focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
+                        placeholder:text-muted" />
+        </div>
+        
+        <div class="atmo-field">
+          <label for="atmoSubcategory" class="block text-sm font-medium text-text mb-1">
+            Subcategory
+          </label>
+          <input id="atmoSubcategory" 
+                 name="subcategory" 
+                 type="text"
+                 placeholder="Dawn"
+                 class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                        focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
+                        placeholder:text-muted" />
+        </div>
       </div>
+      
+      <!-- Keywords Field -->
       <div class="atmo-field">
-        <label for="atmoTheme">Theme</label>
-        <select id="atmoTheme" name="theme">
+        <label for="atmoKeywords" class="block text-sm font-medium text-text mb-1">
+          Keywords <span class="text-muted text-xs">(comma separated)</span>
+        </label>
+        <input id="atmoKeywords" 
+               name="keywords" 
+               type="text"
+               placeholder="gentle,birds,morning"
+               class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                      focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
+                      placeholder:text-muted" />
+      </div>
+      
+      <!-- Theme Field -->
+      <div class="atmo-field">
+        <label for="atmoTheme" class="block text-sm font-medium text-text mb-1">
+          Interface Theme
+        </label>
+        <select id="atmoTheme" 
+                name="theme"
+                class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm cursor-pointer
+                       focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20">
           <option value="default">Default</option>
+          <option value="fantasy">Fantasy</option>
+          <option value="horror">Horror</option>
+          <option value="superheroes">Superheroes</option>
         </select>
       </div>
-      <fieldset class="atmo-options">
-        <legend>Playback</legend>
-        <div class="atmo-field-inline">
-          <label for="atmoCrossfadeMs">Crossfade (ms)</label>
-          <input id="atmoCrossfadeMs" name="crossfadeMs" type="number" min="0" step="100" value="2500" />
-        </div>
-        <div class="atmo-field-inline">
-          <label for="atmoCurve">Curve</label>
-          <select id="atmoCurve" name="curve">
-            <option value="linear" selected>Linear</option>
-            <option value="equal_power" disabled>Equal Power (coming)</option>
-            <option value="exp" disabled>Exponential (coming)</option>
-          </select>
+      
+      <!-- Playback Options -->
+      <fieldset class="atmo-options border border-border rounded-lg p-4 bg-bg/50">
+        <legend class="text-sm font-medium text-text px-2">🔊 Playback Settings</legend>
+        
+        <div class="grid gap-4 sm:grid-cols-2 mt-4">
+          <!-- Crossfade Duration -->
+          <div class="atmo-field-inline">
+            <label for="atmoCrossfadeMs" class="block text-sm font-medium text-text mb-1">
+              Crossfade Duration (ms)
+            </label>
+            <input id="atmoCrossfadeMs" 
+                   name="crossfadeMs" 
+                   type="number" 
+                   min="0" 
+                   step="100" 
+                   value="2500"
+                   class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                          focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
+          </div>
+          
+          <!-- Crossfade Curve -->
+          <div class="atmo-field-inline">
+            <label for="atmoCurve" class="block text-sm font-medium text-text mb-1">
+              Crossfade Curve
+            </label>
+            <select id="atmoCurve" 
+                    name="curve"
+                    class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm cursor-pointer
+                           focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20">
+              <option value="linear" selected>Linear</option>
+              <option value="equal_power" disabled class="text-muted">Equal Power (coming)</option>
+              <option value="exp" disabled class="text-muted">Exponential (coming)</option>
+            </select>
+          </div>
         </div>
       </fieldset>
+      
+      <!-- Hidden Field -->
       <input type="hidden" id="atmoEditingId" name="editingId" value="" />
-      <div class="atmo-actions-row">
-        <button type="button" id="cancelAtmoSave" class="btn btn-secondary">Cancel</button>
-        <button type="submit" id="confirmAtmoSave" class="btn btn-primary">Save</button>
+      
+      <!-- Action Buttons -->
+      <div class="atmo-actions-row flex items-center justify-end gap-3 pt-4 border-t border-border">
+        <button type="button" 
+                id="cancelAtmoSave" 
+                class="btn btn-secondary px-5 py-2.5 bg-gray-600 text-white rounded font-medium
+                       hover:bg-gray-700 transition-colors duration-200">
+          Cancel
+        </button>
+        
+        <button type="submit" 
+                id="confirmAtmoSave" 
+                class="btn btn-primary px-5 py-2.5 bg-accent text-white rounded font-medium
+                       hover:bg-green-600 transition-colors duration-200
+                       disabled:opacity-50 disabled:cursor-not-allowed">
+          💾 Save Atmosphere
+        </button>
       </div>
     </form>
   </div>

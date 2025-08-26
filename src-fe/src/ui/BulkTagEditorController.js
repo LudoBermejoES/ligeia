@@ -45,6 +45,7 @@ export class BulkTagEditorController {
             // Show modal
             const modal = document.getElementById('bulkTagEditorModal');
             if (modal) {
+                modal.classList.remove('hidden');
                 modal.style.display = 'flex';
             }
             
@@ -64,6 +65,7 @@ export class BulkTagEditorController {
     closeBulkTagEditor() {
         const modal = document.getElementById('bulkTagEditorModal');
         if (modal) {
+            modal.classList.add('hidden');
             modal.style.display = 'none';
         }
         

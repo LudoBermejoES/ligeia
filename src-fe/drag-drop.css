@@ -1,0 +1,74 @@
+/* Critical Drag & Drop Classes - Preserve with @apply directives */
+
+/* Ghost pad styling - used by JavaScript */
+.sound-pad.pad-ghost {
+  @apply opacity-55 outline-dashed outline-1 outline-blue-400 bg-gray-700;
+}
+
+/* Drop zone states - applied dynamically */
+#membershipPanelBody.dragover {
+  @apply outline-dashed outline-2 outline-white/40;
+  outline-offset: -4px;
+}
+
+#membershipPanelBody.drag-over {
+  @apply outline-dashed outline-2 outline-blue-500/80 bg-blue-500/10;
+}
+
+#membershipPanelBody.membership-drop-active {
+  @apply bg-green-500/8 transition-colors duration-150;
+}
+
+/* Panel resizing states - applied during drag operations */
+body.panel-resizing {
+  @apply cursor-col-resize select-none;
+}
+
+body.panel-resizing * {
+  @apply cursor-col-resize select-none;
+}
+
+/* Virtual folder drag states */
+.vf-tree-node.drop-target {
+  @apply bg-green-500/20 border-2 border-dashed border-accent scale-105 transition-all duration-200;
+}
+
+.vf-drop-zone.drop-active {
+  @apply bg-blue-500/10 border-2 border-dashed border-blue-500/50;
+}
+
+.vf-file-card.highlighted {
+  @apply bg-yellow-400/10 border-yellow-400 animate-highlight-pulse;
+}
+
+.vf-file-card.removing {
+  @apply animate-slide-out-right pointer-events-none;
+}
+
+.vf-file-card.selecting {
+  @apply animate-pulse-glow;
+}
+
+/* Side-by-side layout states - applied by JavaScript */
+main.side-by-side {
+  @apply flex gap-0 w-full box-border items-stretch;
+}
+
+/* When in side-by-side mode, show the virtual folders panel and resize handle */
+main.side-by-side #virtual-folders-panel {
+  @apply flex flex-1 min-w-[300px] overflow-hidden;
+  display: flex !important; /* Override hidden class */
+}
+
+main.side-by-side #mixer-container {
+  @apply flex-1 min-w-[300px] overflow-hidden;
+}
+
+main.side-by-side .panel-resize-handle {
+  @apply flex;
+}
+
+/* Hide resize handle when not in side-by-side mode */
+main:not(.side-by-side) .panel-resize-handle {
+  @apply hidden;
+}

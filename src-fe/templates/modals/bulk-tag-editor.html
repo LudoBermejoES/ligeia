@@ -1,32 +1,139 @@
-<div id="bulkTagEditorModal" class="modal-overlay" style="display: none;">
-  <div class="modal-container bulk-tag-modal">
-    <div class="modal-header">
-      <h2>Bulk Tag Editor</h2>
-      <button class="modal-close" id="closeBulkTagEditor">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="bulk-tag-content">
-        <div class="file-selection-panel">
-          <h3>Select Audio Files</h3>
-          <div class="selection-controls">
-            <button id="selectAllFiles" class="btn btn-sm btn-secondary">Select All</button>
-            <button id="clearSelection" class="btn btn-sm btn-secondary">Clear Selection</button>
-            <span class="selection-count">0 files selected</span>
-          </div>
-          <div class="file-list-container"><div id="bulkTagFileList" class="file-list"></div></div>
+<!-- HyperUI Modal Pattern - Bulk Tag Editor -->
+<div id="bulkTagEditorModal" 
+     class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 hidden pointer-events-auto" 
+     role="dialog" 
+     aria-modal="true">
+  
+  <div class="modal-container bulk-tag-modal relative w-full max-w-6xl max-h-[90vh] overflow-hidden bg-card rounded-lg shadow-xl">
+    <!-- Modal Header -->
+    <div class="modal-header flex items-center justify-between p-6 border-b border-border">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+          🏷️
         </div>
-        <div class="tag-editor-panel">
-          <h3>RPG Audio Tags</h3>
-          <div class="tag-category"><h4>Genre</h4><div class="tag-vocabulary" id="genreVocabulary"></div></div>
-          <div class="tag-category"><h4>Mood</h4><div class="tag-vocabulary" id="moodVocabulary"></div></div>
-          <div class="tag-category"><h4>Occasion</h4><div class="tag-vocabulary" id="occasionVocabulary"></div></div>
-          <div class="tag-category"><h4>Keywords</h4><div class="tag-vocabulary" id="keywordVocabulary"></div></div>
+        <h2 class="text-xl font-semibold text-text m-0">Bulk Tag Editor</h2>
+      </div>
+      <button class="modal-close text-muted hover:text-text transition-colors duration-200 text-2xl w-8 h-8 flex items-center justify-center rounded hover:bg-hover" 
+              id="closeBulkTagEditor">
+        ×
+      </button>
+    </div>
+    
+    <!-- Modal Body -->
+    <div class="modal-body overflow-hidden flex flex-col h-[calc(90vh-140px)]">
+      <div class="bulk-tag-content flex h-full gap-6 p-6">
+        
+        <!-- File Selection Panel -->
+        <div class="file-selection-panel w-1/2 flex flex-col border border-border rounded-lg bg-bg">
+          <!-- Panel Header -->
+          <div class="p-4 border-b border-border">
+            <h3 class="text-lg font-medium text-text mb-3 m-0 flex items-center gap-2">
+              📁 Select Audio Files
+            </h3>
+            
+            <!-- Selection Controls -->
+            <div class="selection-controls flex items-center gap-3 flex-wrap">
+              <button id="selectAllFiles" 
+                      class="btn btn-sm btn-secondary px-3 py-1.5 bg-gray-600 text-white rounded text-sm
+                             hover:bg-gray-700 transition-colors duration-200">
+                Select All
+              </button>
+              
+              <button id="clearSelection" 
+                      class="btn btn-sm btn-secondary px-3 py-1.5 bg-gray-600 text-white rounded text-sm
+                             hover:bg-gray-700 transition-colors duration-200">
+                Clear Selection
+              </button>
+              
+              <span class="selection-count text-sm px-3 py-1.5 bg-accent/10 text-accent rounded border border-accent/30 font-medium">
+                0 files selected
+              </span>
+            </div>
+          </div>
+          
+          <!-- File List Container -->
+          <div class="file-list-container flex-1 overflow-hidden">
+            <div id="bulkTagFileList" 
+                 class="file-list h-full overflow-y-auto p-4 space-y-2">
+              <!-- File list items will be rendered here -->
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tag Editor Panel -->
+        <div class="tag-editor-panel w-1/2 flex flex-col border border-border rounded-lg bg-bg">
+          <!-- Panel Header -->
+          <div class="p-4 border-b border-border">
+            <h3 class="text-lg font-medium text-text m-0 flex items-center gap-2">
+              🎵 RPG Audio Tags
+            </h3>
+            <p class="text-sm text-muted mt-1">Click tags to apply to selected files</p>
+          </div>
+          
+          <!-- Tag Categories -->
+          <div class="flex-1 overflow-y-auto p-4 space-y-6">
+            
+            <!-- Genre Category -->
+            <div class="tag-category">
+              <h4 class="text-md font-medium text-text mb-3 pb-2 border-b border-border flex items-center gap-2">
+                🎼 Genre
+              </h4>
+              <div class="tag-vocabulary flex flex-wrap gap-2" id="genreVocabulary">
+                <!-- Genre tags will be rendered here -->
+              </div>
+            </div>
+            
+            <!-- Mood Category -->
+            <div class="tag-category">
+              <h4 class="text-md font-medium text-text mb-3 pb-2 border-b border-border flex items-center gap-2">
+                😊 Mood
+              </h4>
+              <div class="tag-vocabulary flex flex-wrap gap-2" id="moodVocabulary">
+                <!-- Mood tags will be rendered here -->
+              </div>
+            </div>
+            
+            <!-- Occasion Category -->
+            <div class="tag-category">
+              <h4 class="text-md font-medium text-text mb-3 pb-2 border-b border-border flex items-center gap-2">
+                🎭 Occasion
+              </h4>
+              <div class="tag-vocabulary flex flex-wrap gap-2" id="occasionVocabulary">
+                <!-- Occasion tags will be rendered here -->
+              </div>
+            </div>
+            
+            <!-- Keywords Category -->
+            <div class="tag-category">
+              <h4 class="text-md font-medium text-text mb-3 pb-2 border-b border-border flex items-center gap-2">
+                🔑 Keywords
+              </h4>
+              <div class="tag-vocabulary flex flex-wrap gap-2" id="keywordVocabulary">
+                <!-- Keyword tags will be rendered here -->
+              </div>
+            </div>
+            
+          </div>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" id="cancelBulkTagEdit">Cancel</button>
-      <button type="button" class="btn btn-primary" id="applyBulkTags">Apply Tags</button>
+    
+    <!-- Modal Footer -->
+    <div class="modal-footer flex items-center justify-end gap-3 p-6 border-t border-border bg-card">
+      <button type="button" 
+              class="btn btn-secondary px-5 py-2.5 bg-gray-600 text-white rounded font-medium
+                     hover:bg-gray-700 transition-colors duration-200" 
+              id="cancelBulkTagEdit">
+        Cancel
+      </button>
+      
+      <button type="button" 
+              class="btn btn-primary px-5 py-2.5 bg-accent text-white rounded font-medium
+                     hover:bg-green-600 transition-colors duration-200 
+                     disabled:opacity-50 disabled:cursor-not-allowed" 
+              id="applyBulkTags">
+        Apply Tags
+      </button>
     </div>
   </div>
 </div>

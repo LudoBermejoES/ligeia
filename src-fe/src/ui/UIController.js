@@ -507,23 +507,20 @@ export class UIController {
     createDragIndicator(x, y) {
         const indicator = document.createElement('div');
         indicator.id = 'mouse-drag-indicator';
-        indicator.style.cssText = `
-            position: fixed;
-            top: ${y + 10}px;
-            left: ${x + 10}px;
-            width: 100px;
-            height: 30px;
-            background: rgba(0, 123, 255, 0.8);
-            color: white;
-            padding: 5px;
-            border-radius: 4px;
-            pointer-events: none;
-            z-index: 9999;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        
+        // Use Tailwind classes instead of inline styles
+        indicator.className = `
+            fixed z-[9999] pointer-events-none
+            bg-blue-500/80 text-white px-2 py-1 rounded
+            shadow-lg backdrop-blur-sm border border-blue-400/50
+            text-xs flex items-center justify-center
+            min-w-[100px] h-[30px] font-medium
         `;
+        
+        // Position using inline styles (required for dynamic positioning)
+        indicator.style.top = `${y + 10}px`;
+        indicator.style.left = `${x + 10}px`;
+        
         indicator.textContent = 'Dragging...';
         document.body.appendChild(indicator);
     }

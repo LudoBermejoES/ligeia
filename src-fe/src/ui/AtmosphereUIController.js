@@ -190,9 +190,17 @@ export class AtmosphereUIController {
   }
 
   showCreateModal() {
-    if (!this.modal) return;
-  this.modal.setAttribute('data-hidden','false');
-  this.modal.style.display = 'flex';
+    console.log('🌌 showCreateModal called, modal exists:', !!this.modal);
+    if (!this.modal) {
+      console.error('🌌 Modal not found! Trying to find it again...');
+      this.modal = document.getElementById('atmosphereSaveModal');
+      console.log('🌌 Modal after retry:', !!this.modal);
+      if (!this.modal) return;
+    }
+    console.log('🌌 Showing create modal');
+    this.modal.classList.remove('hidden');
+    this.modal.setAttribute('data-hidden','false');
+    this.modal.style.display = 'flex';
     document.getElementById('atmoModalTitle').textContent = 'Save Atmosphere';
     this.form?.reset();
     const hidden = document.getElementById('atmoEditingId');
@@ -200,9 +208,12 @@ export class AtmosphereUIController {
   }
 
   showEditModal(atmosphere) {
+    console.log('🌌 showEditModal called, modal exists:', !!this.modal, 'atmosphere:', atmosphere);
     if (!this.modal || !atmosphere) return;
-  this.modal.setAttribute('data-hidden','false');
-  this.modal.style.display = 'flex';
+    console.log('🌌 Showing edit modal');
+    this.modal.classList.remove('hidden');
+    this.modal.setAttribute('data-hidden','false');
+    this.modal.style.display = 'flex';
     document.getElementById('atmoModalTitle').textContent = 'Edit Atmosphere';
     this.form?.reset();
     // Prefill fields
@@ -225,6 +236,7 @@ export class AtmosphereUIController {
 
   hideModal() {
     if (this.modal) {
+      this.modal.classList.add('hidden');
       this.modal.style.display = 'none';
       this.modal.setAttribute('data-hidden','true');
     }

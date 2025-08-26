@@ -1,155 +1,325 @@
-<div id="tagEditorModal" class="modal-overlay" style="display: none;">
-  <div class="modal-container">
-    <div class="modal-header">
-      <div class="modal-title-section">
-        <h2>Edit Audio Tags</h2>
-        <div class="editing-track-info">
-          <span class="track-name" id="editingTrackName">Unknown Track</span>
-          <span class="track-path" id="editingTrackPath"></span>
+<!-- HyperUI Large Form Modal - Tag Editor -->
+<div id="tagEditorModal" 
+     class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 hidden pointer-events-auto" 
+     role="dialog" 
+     aria-modal="true">
+  
+  <div class="modal-container relative w-full max-w-4xl max-h-[90vh] overflow-hidden bg-card rounded-lg shadow-xl">
+    <!-- Modal Header -->
+    <div class="modal-header flex items-start justify-between p-6 border-b border-border">
+      <div class="modal-title-section flex items-start gap-4">
+        <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+          🏷️
+        </div>
+        <div>
+          <h2 class="text-xl font-semibold text-text m-0 mb-2">Edit Audio Tags</h2>
+          <div class="editing-track-info space-y-1">
+            <div class="track-name text-lg font-medium text-text" id="editingTrackName">Unknown Track</div>
+            <div class="track-path text-sm font-mono text-muted bg-bg px-2 py-1 rounded" id="editingTrackPath"></div>
+          </div>
         </div>
       </div>
-      <button class="modal-close" id="closeTagEditor">×</button>
+      <button class="modal-close text-muted hover:text-text transition-colors duration-200 text-2xl w-8 h-8 flex items-center justify-center rounded hover:bg-hover flex-shrink-0" 
+              id="closeTagEditor">
+        ×
+      </button>
     </div>
-    <div class="modal-body">
-      <form id="tagEditorForm">
-        <!-- Identification -->
+    <!-- Modal Body -->
+    <div class="modal-body overflow-y-auto max-h-[calc(90vh-200px)] p-6">
+      <form id="tagEditorForm" class="space-y-8">
+        
+        <!-- Identification Section -->
         <div class="tag-section">
-          <h3>Identification</h3>
-          <div class="form-row">
+          <h3 class="text-lg font-medium text-text mb-4 pb-2 border-b border-border flex items-center gap-2">
+            📋 Identification
+          </h3>
+          
+          <!-- Title and Artist -->
+          <div class="form-row grid gap-4 sm:grid-cols-2 mb-4">
             <div class="form-group">
-              <label for="tag-title">Title</label>
-              <input type="text" id="tag-title" name="title" />
+              <label for="tag-title" class="block text-sm font-medium text-text mb-1">Title</label>
+              <input type="text" 
+                     id="tag-title" 
+                     name="title"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
             </div>
             <div class="form-group">
-              <label for="tag-artist">Artist</label>
-              <input type="text" id="tag-artist" name="artist" />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="tag-album">Album</label>
-              <input type="text" id="tag-album" name="album" />
-            </div>
-            <div class="form-group">
-              <label for="tag-album-artist">Album Artist</label>
-              <input type="text" id="tag-album-artist" name="album_artist" />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="tag-genre">Genre (semicolon-separated)</label>
-              <input type="text" id="tag-genre" name="genre" placeholder="ambient; horror; orchestral:cinematic" />
-            </div>
-            <div class="form-group">
-              <label for="tag-year">Year</label>
-              <input type="number" id="tag-year" name="year" />
+              <label for="tag-artist" class="block text-sm font-medium text-text mb-1">Artist</label>
+              <input type="text" 
+                     id="tag-artist" 
+                     name="artist"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
             </div>
           </div>
-          <div class="form-row">
+          
+          <!-- Album and Album Artist -->
+          <div class="form-row grid gap-4 sm:grid-cols-2 mb-4">
             <div class="form-group">
-              <label for="tag-track-number">Track #</label>
-              <input type="number" id="tag-track-number" name="track_number" />
+              <label for="tag-album" class="block text-sm font-medium text-text mb-1">Album</label>
+              <input type="text" 
+                     id="tag-album" 
+                     name="album"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
             </div>
             <div class="form-group">
-              <label for="tag-total-tracks">Total Tracks</label>
-              <input type="number" id="tag-total-tracks" name="total_tracks" />
+              <label for="tag-album-artist" class="block text-sm font-medium text-text mb-1">Album Artist</label>
+              <input type="text" 
+                     id="tag-album-artist" 
+                     name="album_artist"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
+            </div>
+          </div>
+          
+          <!-- Genre and Year -->
+          <div class="form-row grid gap-4 sm:grid-cols-2 mb-4">
+            <div class="form-group">
+              <label for="tag-genre" class="block text-sm font-medium text-text mb-1">
+                Genre <span class="text-muted text-xs">(semicolon-separated)</span>
+              </label>
+              <input type="text" 
+                     id="tag-genre" 
+                     name="genre" 
+                     placeholder="ambient; horror; orchestral:cinematic"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
+                            placeholder:text-muted" />
+            </div>
+            <div class="form-group">
+              <label for="tag-year" class="block text-sm font-medium text-text mb-1">Year</label>
+              <input type="number" 
+                     id="tag-year" 
+                     name="year"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
+            </div>
+          </div>
+          
+          <!-- Track Numbers -->
+          <div class="form-row grid gap-4 sm:grid-cols-2">
+            <div class="form-group">
+              <label for="tag-track-number" class="block text-sm font-medium text-text mb-1">Track #</label>
+              <input type="number" 
+                     id="tag-track-number" 
+                     name="track_number"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
+            </div>
+            <div class="form-group">
+              <label for="tag-total-tracks" class="block text-sm font-medium text-text mb-1">Total Tracks</label>
+              <input type="number" 
+                     id="tag-total-tracks" 
+                     name="total_tracks"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
             </div>
           </div>
         </div>
 
-        <!-- Credits -->
+        <!-- Credits Section -->
         <div class="tag-section">
-          <h3>Credits</h3>
-          <div class="form-row">
+          <h3 class="text-lg font-medium text-text mb-4 pb-2 border-b border-border flex items-center gap-2">
+            🎼 Credits
+          </h3>
+          
+          <!-- Composer and Conductor -->
+          <div class="form-row grid gap-4 sm:grid-cols-2 mb-4">
             <div class="form-group">
-              <label for="tag-composer">Composer</label>
-              <input type="text" id="tag-composer" name="composer" />
+              <label for="tag-composer" class="block text-sm font-medium text-text mb-1">Composer</label>
+              <input type="text" 
+                     id="tag-composer" 
+                     name="composer"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
             </div>
             <div class="form-group">
-              <label for="tag-conductor">Conductor</label>
-              <input type="text" id="tag-conductor" name="conductor" />
+              <label for="tag-conductor" class="block text-sm font-medium text-text mb-1">Conductor</label>
+              <input type="text" 
+                     id="tag-conductor" 
+                     name="conductor"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
             </div>
           </div>
-          <div class="form-row">
+          
+          <!-- Producer and Remixer -->
+          <div class="form-row grid gap-4 sm:grid-cols-2">
             <div class="form-group">
-              <label for="tag-producer">Producer</label>
-              <input type="text" id="tag-producer" name="producer" />
+              <label for="tag-producer" class="block text-sm font-medium text-text mb-1">Producer</label>
+              <input type="text" 
+                     id="tag-producer" 
+                     name="producer"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
             </div>
             <div class="form-group">
-              <label for="tag-remixer">Remixer</label>
-              <input type="text" id="tag-remixer" name="remixer" />
+              <label for="tag-remixer" class="block text-sm font-medium text-text mb-1">Remixer</label>
+              <input type="text" 
+                     id="tag-remixer" 
+                     name="remixer"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
             </div>
           </div>
         </div>
 
-        <!-- Content -->
+        <!-- Content Section -->
         <div class="tag-section">
-          <h3>Content</h3>
-          <div class="form-row">
+          <h3 class="text-lg font-medium text-text mb-4 pb-2 border-b border-border flex items-center gap-2">
+            🎵 Content
+          </h3>
+          
+          <!-- BPM and Key -->
+          <div class="form-row grid gap-4 sm:grid-cols-2 mb-4">
             <div class="form-group">
-              <label for="tag-bpm">BPM</label>
-              <input type="number" id="tag-bpm" name="bpm" />
+              <label for="tag-bpm" class="block text-sm font-medium text-text mb-1">BPM</label>
+              <input type="number" 
+                     id="tag-bpm" 
+                     name="bpm"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
             </div>
             <div class="form-group">
-              <label for="tag-initial-key">Key</label>
-              <input type="text" id="tag-initial-key" name="initial_key" />
+              <label for="tag-initial-key" class="block text-sm font-medium text-text mb-1">Key</label>
+              <input type="text" 
+                     id="tag-initial-key" 
+                     name="initial_key"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
             </div>
           </div>
-          <div class="form-row">
+          
+          <!-- Mood and Language -->
+          <div class="form-row grid gap-4 sm:grid-cols-2">
             <div class="form-group">
-              <label for="tag-mood">Mood (semicolon-separated)</label>
-              <input type="text" id="tag-mood" name="mood" placeholder="ominous; atmospheric; mysterious" />
+              <label for="tag-mood" class="block text-sm font-medium text-text mb-1">
+                Mood <span class="text-muted text-xs">(semicolon-separated)</span>
+              </label>
+              <input type="text" 
+                     id="tag-mood" 
+                     name="mood" 
+                     placeholder="ominous; atmospheric; mysterious"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
+                            placeholder:text-muted" />
             </div>
             <div class="form-group">
-              <label for="tag-language">Language</label>
-              <input type="text" id="tag-language" name="language" />
+              <label for="tag-language" class="block text-sm font-medium text-text mb-1">Language</label>
+              <input type="text" 
+                     id="tag-language" 
+                     name="language"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
             </div>
           </div>
         </div>
 
-        <!-- Legal -->
+        <!-- Legal Section -->
         <div class="tag-section">
-          <h3>Legal & Copyright</h3>
-          <div class="form-row">
+          <h3 class="text-lg font-medium text-text mb-4 pb-2 border-b border-border flex items-center gap-2">
+            ⚖️ Legal & Copyright
+          </h3>
+          
+          <div class="form-row grid gap-4 sm:grid-cols-2">
             <div class="form-group">
-              <label for="tag-copyright">Copyright</label>
-              <input type="text" id="tag-copyright" name="copyright" />
+              <label for="tag-copyright" class="block text-sm font-medium text-text mb-1">Copyright</label>
+              <input type="text" 
+                     id="tag-copyright" 
+                     name="copyright"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
             </div>
             <div class="form-group">
-              <label for="tag-publisher">Publisher</label>
-              <input type="text" id="tag-publisher" name="publisher" />
+              <label for="tag-publisher" class="block text-sm font-medium text-text mb-1">Publisher</label>
+              <input type="text" 
+                     id="tag-publisher" 
+                     name="publisher"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" />
             </div>
           </div>
         </div>
 
-        <!-- RPG Tags -->
+        <!-- RPG Tags Section -->
         <div class="tag-section">
-          <h3>RPG Tags (TXXX Frames)</h3>
-          <div class="form-row">
+          <h3 class="text-lg font-medium text-text mb-4 pb-2 border-b border-border flex items-center gap-2">
+            🎲 RPG Tags <span class="text-xs font-normal text-muted">(TXXX Frames)</span>
+          </h3>
+          
+          <!-- Occasions and Quality -->
+          <div class="form-row grid gap-4 sm:grid-cols-2 mb-4">
             <div class="form-group">
-              <label for="tag-rpg-occasions">Occasions (semicolon-separated)</label>
-              <input type="text" id="tag-rpg-occasions" name="rpg_occasions" placeholder="exploration; combat; scene-transition" />
+              <label for="tag-rpg-occasions" class="block text-sm font-medium text-text mb-1">
+                Occasions <span class="text-muted text-xs">(semicolon-separated)</span>
+              </label>
+              <input type="text" 
+                     id="tag-rpg-occasions" 
+                     name="rpg_occasions" 
+                     placeholder="exploration; combat; scene-transition"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
+                            placeholder:text-muted" />
             </div>
             <div class="form-group">
-              <label for="tag-rpg-quality">Quality</label>
-              <input type="text" id="tag-rpg-quality" name="rpg_quality" placeholder="High" />
+              <label for="tag-rpg-quality" class="block text-sm font-medium text-text mb-1">Quality</label>
+              <input type="text" 
+                     id="tag-rpg-quality" 
+                     name="rpg_quality" 
+                     placeholder="High"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
+                            placeholder:text-muted" />
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group full-width">
-              <label for="tag-rpg-keywords">Keywords (semicolon-separated)</label>
-              <input type="text" id="tag-rpg-keywords" name="rpg_keywords" placeholder="biome:forest; util:loopable; style:cinematic" />
+          
+          <!-- Keywords (full width) -->
+          <div class="form-row mb-4">
+            <div class="form-group">
+              <label for="tag-rpg-keywords" class="block text-sm font-medium text-text mb-1">
+                Keywords <span class="text-muted text-xs">(semicolon-separated)</span>
+              </label>
+              <input type="text" 
+                     id="tag-rpg-keywords" 
+                     name="rpg_keywords" 
+                     placeholder="biome:forest; util:loopable; style:cinematic"
+                     class="w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                            focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
+                            placeholder:text-muted" />
             </div>
           </div>
-          <div class="rpg-note">
-            <small>Note: These will be written as TXXX:Occasion, TXXX:Keywords, and TXXX:Quality frames in the audio file according to TAGS.md specification.</small>
+          
+          <!-- RPG Note -->
+          <div class="rpg-note bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+            <div class="flex items-start gap-2">
+              <div class="text-blue-400 text-sm flex-shrink-0 mt-0.5">ℹ️</div>
+              <div class="text-sm text-blue-200">
+                <strong>Note:</strong> These will be written as TXXX:Occasion, TXXX:Keywords, and TXXX:Quality frames in the audio file according to TAGS.md specification.
+              </div>
+            </div>
           </div>
         </div>
       </form>
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" id="cancelTagEdit">Cancel</button>
-      <button type="button" class="btn btn-primary" id="saveTagEdit">Save Changes</button>
+    
+    <!-- Modal Footer -->
+    <div class="modal-footer flex items-center justify-end gap-3 p-6 border-t border-border bg-card">
+      <button type="button" 
+              class="btn btn-secondary px-5 py-2.5 bg-gray-600 text-white rounded font-medium
+                     hover:bg-gray-700 transition-colors duration-200" 
+              id="cancelTagEdit">
+        Cancel
+      </button>
+      
+      <button type="button" 
+              class="btn btn-primary px-5 py-2.5 bg-accent text-white rounded font-medium
+                     hover:bg-green-600 transition-colors duration-200
+                     disabled:opacity-50 disabled:cursor-not-allowed" 
+              id="saveTagEdit">
+        💾 Save Changes
+      </button>
     </div>
   </div>
 </div>

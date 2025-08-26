@@ -1,21 +1,105 @@
-<header class="header">
-  <div class="brand">
-    <img class="app-logo" src="src/icons/icon.png" alt="Ligeia logo" />
+<header class="header bg-card border-b border-border px-4 py-3 flex items-center justify-between">
+  <!-- Brand Section -->
+  <div class="brand flex items-center gap-3">
+    <img class="app-logo w-8 h-8 rounded" src="src/icons/icon.png" alt="Ligeia logo" />
+    <span class="text-lg font-semibold text-text hidden sm:inline">Ligeia</span>
   </div>
-  <div class="controls">
-    <button id="loadFiles" class="btn btn-primary" title="Load individual audio files">📂 Load Sounds</button>
-    <button id="loadDirectory" class="btn btn-secondary" title="Scan directory recursively">📁 Load Directory</button>
-    <button id="bulkTagEditor" class="btn btn-warning" title="Bulk tag editor">🏷️ Bulk Tag</button>
-    <button id="exportData" class="btn btn-outline" title="Export library">📤 Export</button>
-    <button id="importData" class="btn btn-outline" title="Import library">📥 Import</button>
-    <button id="storeTagsInFiles" class="btn btn-outline" title="Store all database tags into audio files">📝 Store Tags</button>
-    <button id="calculateDurations" class="btn btn-outline" title="Calculate durations & BPM">⏱️ Dur/BPM</button>
-    <button id="virtual-folders-btn" class="btn btn-secondary" title="Virtual Folders">📁 Folders</button>
-    <button id="stopAll" class="btn btn-danger" title="Stop all playback">⏹️ Stop All</button>
-    <div class="topbar-master-volume" title="Master volume">
-      <button id="masterMute" class="mute-btn" aria-label="Toggle Master Mute">🔊</button>
-      <input type="range" id="masterVolumeSlider" min="0" max="100" value="50" class="volume-slider" aria-label="Master Volume">
-      <span class="volume-display" aria-live="polite">50%</span>
+  
+  <!-- Controls Section -->
+  <div class="controls flex items-center gap-2 flex-wrap">
+    <!-- File Operations -->
+    <div class="flex items-center gap-1">
+      <button id="loadFiles" 
+              class="btn btn-primary px-3 py-1.5 bg-accent text-white rounded text-sm font-medium
+                     hover:bg-green-600 transition-colors duration-200 whitespace-nowrap" 
+              title="Load individual audio files">
+        📂 Load Sounds
+      </button>
+      
+      <button id="loadDirectory" 
+              class="btn btn-secondary px-3 py-1.5 bg-gray-600 text-white rounded text-sm font-medium
+                     hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap" 
+              title="Scan directory recursively">
+        📁 Load Directory
+      </button>
+      
+      <button id="bulkTagEditor" 
+              class="btn btn-warning px-3 py-1.5 bg-yellow-600 text-white rounded text-sm font-medium
+                     hover:bg-yellow-700 transition-colors duration-200 whitespace-nowrap" 
+              title="Bulk tag editor">
+        🏷️ Bulk Tag
+      </button>
+    </div>
+    
+    <!-- Data Operations -->
+    <div class="flex items-center gap-1">
+      <button id="exportData" 
+              class="btn btn-outline px-3 py-1.5 border border-border text-text bg-card rounded text-sm font-medium
+                     hover:bg-hover transition-colors duration-200 whitespace-nowrap" 
+              title="Export library">
+        📤 Export
+      </button>
+      
+      <button id="importData" 
+              class="btn btn-outline px-3 py-1.5 border border-border text-text bg-card rounded text-sm font-medium
+                     hover:bg-hover transition-colors duration-200 whitespace-nowrap" 
+              title="Import library">
+        📥 Import
+      </button>
+      
+      <button id="storeTagsInFiles" 
+              class="btn btn-outline px-3 py-1.5 border border-border text-text bg-card rounded text-sm font-medium
+                     hover:bg-hover transition-colors duration-200 whitespace-nowrap" 
+              title="Store all database tags into audio files">
+        📝 Store Tags
+      </button>
+      
+      <button id="calculateDurations" 
+              class="btn btn-outline px-3 py-1.5 border border-border text-text bg-card rounded text-sm font-medium
+                     hover:bg-hover transition-colors duration-200 whitespace-nowrap" 
+              title="Calculate durations & BPM">
+        ⏱️ Dur/BPM
+      </button>
+    </div>
+    
+    <!-- Panel & Playback Controls -->
+    <div class="flex items-center gap-1">
+      <button id="virtual-folders-btn" 
+              class="btn btn-secondary px-3 py-1.5 bg-gray-600 text-white rounded text-sm font-medium
+                     hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap" 
+              title="Virtual Folders">
+        📁 Folders
+      </button>
+      
+      <button id="stopAll" 
+              class="btn btn-danger px-3 py-1.5 bg-red-600 text-white rounded text-sm font-medium
+                     hover:bg-red-700 transition-colors duration-200 whitespace-nowrap" 
+              title="Stop all playback">
+        ⏹️ Stop All
+      </button>
+    </div>
+    
+    <!-- Master Volume Control -->
+    <div class="topbar-master-volume flex items-center gap-2 ml-2 px-3 py-1.5 bg-bg rounded border border-border" 
+         title="Master volume">
+      <button id="masterMute" 
+              class="mute-btn text-lg hover:text-accent transition-colors duration-200" 
+              aria-label="Toggle Master Mute">
+        🔊
+      </button>
+      
+      <input type="range" 
+             id="masterVolumeSlider" 
+             min="0" max="100" value="50" 
+             class="volume-slider w-20 h-1 bg-border rounded appearance-none cursor-pointer
+                    [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 
+                    [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full 
+                    [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:cursor-pointer" 
+             aria-label="Master Volume">
+      
+      <span class="volume-display text-xs text-muted min-w-[2rem] text-right" aria-live="polite">
+        50%
+      </span>
     </div>
   </div>
 </header>
