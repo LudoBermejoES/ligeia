@@ -18,6 +18,7 @@ mod audio_processing_handler;
 mod audio_file_handler;
 mod tag_handler;
 mod store_tags_handler;
+mod virtual_folder_handler;
 
 use models::*;
 use database::Database;
@@ -237,6 +238,14 @@ async fn calculate_missing_durations(app_handle: AppHandle) -> Result<String, St
     AudioProcessingHandler::calculate_missing_durations(app_handle)
 }
 
+// Import virtual folder commands from handler
+use virtual_folder_handler::{
+    create_virtual_folder, get_virtual_folder_by_id, update_virtual_folder, delete_virtual_folder,
+    get_virtual_folder_tree, move_virtual_folder, add_files_to_virtual_folder, 
+    remove_files_from_virtual_folder, get_virtual_folder_contents, search_virtual_folders,
+    get_folders_containing_files
+};
+
 use tauri_plugin_log::{Target, TargetKind};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -296,7 +305,18 @@ pub fn run() {
             duplicate_atmosphere,
             compute_atmosphere_integrity,
             compute_all_atmosphere_integrities,
-            search_atmospheres
+            search_atmospheres,
+            create_virtual_folder,
+            get_virtual_folder_by_id,
+            update_virtual_folder,
+            delete_virtual_folder,
+            get_virtual_folder_tree,
+            move_virtual_folder,
+            add_files_to_virtual_folder,
+            remove_files_from_virtual_folder,
+            get_virtual_folder_contents,
+            search_virtual_folders,
+            get_folders_containing_files
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

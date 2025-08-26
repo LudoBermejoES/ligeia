@@ -329,3 +329,79 @@ pub struct TagDifference {
     pub current_value: String,
     pub new_value: String,
 }
+
+// Virtual Folders models
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct VirtualFolder {
+    pub id: Option<i64>,
+    pub name: String,
+    pub description: Option<String>,
+    pub parent_folder_id: Option<i64>,
+    pub color: Option<String>,
+    pub icon: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
+    pub created_by: Option<String>,
+    pub folder_order: i32,
+    pub is_system_folder: bool,
+    pub metadata: Option<String>, // JSON string
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct VirtualFolderContent {
+    pub id: Option<i64>,
+    pub folder_id: i64,
+    pub audio_file_id: i64,
+    pub added_at: String,
+    pub added_by: Option<String>,
+    pub file_order: i32,
+    pub notes: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct VirtualFolderTree {
+    pub folder: VirtualFolder,
+    pub children: Vec<VirtualFolderTree>,
+    pub file_count: i64,
+    pub total_file_count: i64, // Including subfolders
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct VirtualFolderWithContents {
+    pub folder: VirtualFolder,
+    pub audio_files: Vec<AudioFile>,
+    pub subfolders: Vec<VirtualFolder>,
+    pub breadcrumb: Vec<VirtualFolder>, // Path from root
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FolderTemplate {
+    pub id: Option<i64>,
+    pub name: String,
+    pub description: Option<String>,
+    pub template_data: String, // JSON structure
+    pub category: String,
+    pub is_public: bool,
+    pub created_at: String,
+    pub created_by: Option<String>,
+}
+
+impl Default for VirtualFolder {
+    fn default() -> Self {
+        let now = chrono::Utc::now().to_rfc3339();
+        VirtualFolder {
+            id: None,
+            name: String::new(),
+            description: None,
+            parent_folder_id: None,
+            color: None,
+            icon: None,
+            created_at: now.clone(),
+            updated_at: now,
+            created_by: None,
+            folder_order: 0,
+            is_system_folder: false,
+            metadata: None,
+        }
+    }
+}

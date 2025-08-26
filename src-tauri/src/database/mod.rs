@@ -1,5 +1,5 @@
 use rusqlite::{Connection, Result};
-use crate::models::{AudioFile, RpgTag, TagVocabulary, AudioFileWithTags, Atmosphere, AtmosphereWithSounds, AtmosphereSoundMapping, AtmosphereCategory};
+use crate::models::{AudioFile, RpgTag, TagVocabulary, AudioFileWithTags, Atmosphere, AtmosphereWithSounds, AtmosphereSoundMapping, AtmosphereCategory, VirtualFolder, VirtualFolderTree, VirtualFolderWithContents, FolderTemplate};
 
 pub mod schema;
 pub mod audio_files;
@@ -7,6 +7,7 @@ pub mod rpg_tags;
 pub mod vocabulary;
 pub mod search;
 pub mod atmospheres;
+pub mod virtual_folders;
 
 pub use schema::SchemaManager;
 pub use audio_files::AudioFileRepository;
@@ -14,6 +15,7 @@ pub use rpg_tags::RpgTagRepository;
 pub use vocabulary::VocabularyRepository;
 pub use search::SearchRepository;
 pub use atmospheres::AtmosphereRepository;
+pub use virtual_folders::VirtualFolderOps;
 
 /// Main database struct that coordinates all repositories
 pub struct Database {
@@ -176,5 +178,71 @@ impl Database {
 
     pub fn get_atmosphere_categories(&self) -> Result<Vec<AtmosphereCategory>> {
         self.atmospheres.get_categories(&self.conn)
+    }
+
+    // Virtual Folders methods
+    
+    pub fn create_virtual_folder(&self, folder: &VirtualFolder) -> Result<i64> {
+        VirtualFolderOps::create_virtual_folder(&self.conn, folder)
+    }
+
+    pub fn get_virtual_folder_by_id(&self, id: i64) -> Result<VirtualFolder> {
+        VirtualFolderOps::get_virtual_folder_by_id(&self.conn, id)
+    }
+
+    pub fn update_virtual_folder(&self, folder: &VirtualFolder) -> Result<()> {
+        VirtualFolderOps::update_virtual_folder(&self.conn, folder)
+    }
+
+    pub fn delete_virtual_folder(&self, id: i64) -> Result<()> {
+        VirtualFolderOps::delete_virtual_folder(&self.conn, id)
+    }
+
+    pub fn get_folder_children(&self, parent_id: Option<i64>) -> Result<Vec<VirtualFolder>> {
+        VirtualFolderOps::get_folder_children(&self.conn, parent_id)
+    }
+
+    pub fn get_virtual_folder_tree(&self) -> Result<Vec<VirtualFolderTree>> {
+        VirtualFolderOps::get_folder_tree(&self.conn)
+    }
+
+    pub fn get_folder_path(&self, folder_id: i64) -> Result<Vec<VirtualFolder>> {
+        VirtualFolderOps::get_folder_path(&self.conn, folder_id)
+    }
+
+    pub fn move_virtual_folder(&self, folder_id: i64, new_parent_id: Option<i64>) -> Result<()> {
+        VirtualFolderOps::move_folder(&self.conn, folder_id, new_parent_id)
+    }
+
+    pub fn add_file_to_virtual_folder(&self, folder_id: i64, audio_file_id: i64) -> Result<()> {
+        VirtualFolderOps::add_file_to_folder(&self.conn, folder_id, audio_file_id)
+    }
+
+    pub fn remove_file_from_virtual_folder(&self, folder_id: i64, audio_file_id: i64) -> Result<()> {
+        VirtualFolderOps::remove_file_from_folder(&self.conn, folder_id, audio_file_id)
+    }
+
+    pub fn get_virtual_folder_contents(&self, folder_id: i64) -> Result<VirtualFolderWithContents> {
+        VirtualFolderOps::get_folder_contents(&self.conn, folder_id)
+    }
+
+    pub fn get_file_virtual_folders(&self, audio_file_id: i64) -> Result<Vec<VirtualFolder>> {
+        VirtualFolderOps::get_file_folders(&self.conn, audio_file_id)
+    }
+
+    pub fn search_virtual_folders(&self, query: &str) -> Result<Vec<VirtualFolder>> {
+        VirtualFolderOps::search_folders(&self.conn, query)
+    }
+
+    pub fn get_folders_containing_files(&self, file_ids: &[i64]) -> Result<Vec<VirtualFolder>> {
+        VirtualFolderOps::get_folders_containing_files(&self.conn, file_ids)
+    }
+
+    pub fn create_folder_template(&self, template: &FolderTemplate) -> Result<i64> {
+        VirtualFolderOps::create_folder_template(&self.conn, template)
+    }
+
+    pub fn get_folder_templates(&self, category: Option<&str>) -> Result<Vec<FolderTemplate>> {
+        VirtualFolderOps::get_folder_templates(&self.conn, category)
     }
 }
