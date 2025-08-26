@@ -66,9 +66,29 @@ export class LibraryManager {
   async processAudioFile(filePath) {
     if (this.audioFiles.has(filePath)) return;
     try {
-      const audioFile = await this.databaseService.loadAudioFile(filePath);
-      const id = await this.databaseService.saveAudioFile(audioFile);
-      audioFile.id = id;
+      // Try to load audio file with RPG tags first
+      let audioFile, rpgTags;
+      try {
+        [audioFile, rpgTags] = await this.databaseService.loadAudioFileWithRpgTags(filePath);
+        
+        if (rpgTags && rpgTags.length > 0) {
+          logger.info('library', `Found ${rpgTags.length} RPG tags in file: ${filePath}`, { rpgTags });
+          // Save audio file with imported RPG tags
+          const id = await this.databaseService.saveAudioFileWithRpgTags(audioFile, rpgTags);
+          audioFile.id = id;
+        } else {
+          // No RPG tags found, save normally
+          const id = await this.databaseService.saveAudioFile(audioFile);
+          audioFile.id = id;
+        }
+      } catch (tagError) {
+        logger.warn('library', `RPG tag import failed, falling back to standard loading: ${filePath}`, { error: tagError.message });
+        // Fallback to standard loading if RPG tag import fails
+        audioFile = await this.databaseService.loadAudioFile(filePath);
+        const id = await this.databaseService.saveAudioFile(audioFile);
+        audioFile.id = id;
+      }
+      
       this.audioFiles.set(filePath, audioFile);
       this.createSoundPad(audioFile);
     } catch (e) {

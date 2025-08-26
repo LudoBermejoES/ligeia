@@ -138,6 +138,95 @@ impl AudioHandler {
 
         Ok(audio_file)
     }
+    
+    /// Read RPG tags from TXXX fields in audio file
+    pub fn read_rpg_tags_from_file(file_path: &str) -> Result<Vec<(String, String)>, String> {
+        let mut rpg_tags = Vec::new();
+        
+        if let Ok(tag) = Tag::read_from_path(file_path) {
+            // Look for RPG-specific TXXX frames following the format from STORE_TAGS.md
+            for frame in tag.frames() {
+                if let Some(extended_text) = frame.content().extended_text() {
+                    match extended_text.description.as_str() {
+                        "RPG_GENRE" => {
+                            // Split semicolon-separated values
+                            for genre_tag in extended_text.value.split(';').map(|s| s.trim()) {
+                                if !genre_tag.is_empty() {
+                                    rpg_tags.push(("genre".to_string(), genre_tag.to_string()));
+                                }
+                            }
+                        }
+                        "RPG_MOOD" => {
+                            for mood_tag in extended_text.value.split(';').map(|s| s.trim()) {
+                                if !mood_tag.is_empty() {
+                                    rpg_tags.push(("mood".to_string(), mood_tag.to_string()));
+                                }
+                            }
+                        }
+                        "RPG_OCCASION" => {
+                            for occasion_tag in extended_text.value.split(';').map(|s| s.trim()) {
+                                if !occasion_tag.is_empty() {
+                                    rpg_tags.push(("occasion".to_string(), occasion_tag.to_string()));
+                                }
+                            }
+                        }
+                        "RPG_KEYWORDS" => {
+                            for keyword_tag in extended_text.value.split(';').map(|s| s.trim()) {
+                                if !keyword_tag.is_empty() {
+                                    rpg_tags.push(("keywords".to_string(), keyword_tag.to_string()));
+                                }
+                            }
+                        }
+                        // Also check for the combined RPG_ALL_TAGS field as fallback
+                        "RPG_ALL_TAGS" => {
+                            // If specific RPG_* fields aren't found, try to categorize from ALL_TAGS
+                            if rpg_tags.is_empty() {
+                                for tag_value in extended_text.value.split(';').map(|s| s.trim()) {
+                                    if !tag_value.is_empty() {
+                                        // Try to categorize based on tag patterns
+                                        let tag_type = Self::categorize_rpg_tag(tag_value);
+                                        rpg_tags.push((tag_type, tag_value.to_string()));
+                                    }
+                                }
+                            }
+                        }
+                        _ => {} // Ignore other TXXX fields
+                    }
+                }
+            }
+        }
+        
+        Ok(rpg_tags)
+    }
+    
+    /// Categorize an RPG tag based on its content and structure
+    fn categorize_rpg_tag(tag_value: &str) -> String {
+        // Heuristic categorization based on tag patterns from TAGS.md
+        if tag_value.contains(':') {
+            let prefix = tag_value.split(':').next().unwrap_or("");
+            match prefix {
+                // Genre prefixes
+                "orchestral" | "electronic" | "hybrid" | "world" | "acoustic" | "vocal" => "genre".to_string(),
+                // Keyword prefixes  
+                "biome" | "loc" | "creature" | "style" | "tech" | "weather" | "sfx" | "util" => "keywords".to_string(),
+                _ => "keywords".to_string() // Default hierarchical tags to keywords
+            }
+        } else {
+            // Single-word tags - categorize by common patterns
+            match tag_value {
+                // Common mood tags
+                "happy" | "sad" | "angry" | "peaceful" | "tense" | "mysterious" | "heroic" | "dark" |
+                "light" | "calm" | "excited" | "melancholic" | "triumphant" | "ominous" | "serene" |
+                "aggressive" | "contemplative" | "nostalgic" | "hopeful" | "fearful" | "joyful" => "mood".to_string(),
+                
+                // Common occasion tags
+                "combat" | "exploration" | "tavern" | "dungeon" | "boss" | "ambient" | "chase" |
+                "negotiation" | "travel" | "ceremony" | "festival" | "market" | "ritual" => "occasion".to_string(),
+                
+                _ => "keywords".to_string() // Default unrecognized single words to keywords
+            }
+        }
+    }
 
     pub fn update_audio_file_tags(file_path: &str, updates: &AudioFile) -> Result<(), String> {
         // Check if file exists before attempting to update tags

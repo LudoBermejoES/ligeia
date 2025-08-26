@@ -55,6 +55,59 @@ impl AudioFileHandler {
             e.to_string()
         })
     }
+    
+    /// Load audio file metadata and import RPG tags from embedded TXXX fields
+    pub fn load_audio_file_with_rpg_tags(_app_handle: AppHandle, file_path: String) -> Result<(AudioFile, Vec<(String, String)>), String> {
+        log::debug!("Loading audio file with RPG tags: {}", file_path);
+        
+        // Load basic audio file metadata
+        let audio_file = AudioHandler::load_audio_file_metadata(&file_path).map_err(|e| {
+            log::error!("Failed to load audio file metadata {}: {}", file_path, e);
+            e.to_string()
+        })?;
+        
+        // Read RPG tags from file
+        let rpg_tags = AudioHandler::read_rpg_tags_from_file(&file_path).map_err(|e| {
+            log::error!("Failed to read RPG tags from file {}: {}", file_path, e);
+            e.to_string()
+        })?;
+        
+        if !rpg_tags.is_empty() {
+            log::info!("Found {} RPG tags in file: {}", rpg_tags.len(), file_path);
+        }
+        
+        Ok((audio_file, rpg_tags))
+    }
+    
+    /// Save audio file with imported RPG tags to database
+    pub fn save_audio_file_with_rpg_tags(app_handle: AppHandle, audio_file: AudioFile, rpg_tags: Vec<(String, String)>) -> Result<i64, String> {
+        log::debug!("Saving audio file with RPG tags: path={}, rpg_tag_count={}", audio_file.file_path, rpg_tags.len());
+        
+        // Save the audio file first
+        let audio_file_id = Self::save_audio_file(app_handle.clone(), audio_file)?;
+        
+        // Save RPG tags if any were found
+        if !rpg_tags.is_empty() {
+            let state = app_handle.state::<AppState>();
+            let rpg_tags_count = rpg_tags.len();
+            
+            for (tag_type, tag_value) in &rpg_tags {
+                match state.tag_manager.add_rpg_tag(audio_file_id, tag_type, tag_value) {
+                    Ok(_) => {
+                        log::debug!("Added RPG tag: {}:{} to audio file {}", tag_type, tag_value, audio_file_id);
+                    }
+                    Err(e) => {
+                        log::warn!("Failed to add RPG tag {}:{} to audio file {}: {}", tag_type, tag_value, audio_file_id, e);
+                        // Continue with other tags even if one fails
+                    }
+                }
+            }
+            
+            log::info!("Imported {} RPG tags for audio file: {}", rpg_tags_count, audio_file_id);
+        }
+        
+        Ok(audio_file_id)
+    }
 
     /// Update audio file tags in the file system
     pub fn update_audio_file_tags(file_path: String, updates: AudioFile) -> Result<(), String> {

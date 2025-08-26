@@ -46,6 +46,16 @@ async fn save_audio_file(app_handle: AppHandle, audio_file: AudioFile) -> Result
 }
 
 #[tauri::command]
+async fn load_audio_file_with_rpg_tags(app_handle: AppHandle, file_path: String) -> Result<(AudioFile, Vec<(String, String)>), String> {
+    AudioFileHandler::load_audio_file_with_rpg_tags(app_handle, file_path)
+}
+
+#[tauri::command]
+async fn save_audio_file_with_rpg_tags(app_handle: AppHandle, audio_file: AudioFile, rpg_tags: Vec<(String, String)>) -> Result<i64, String> {
+    AudioFileHandler::save_audio_file_with_rpg_tags(app_handle, audio_file, rpg_tags)
+}
+
+#[tauri::command]
 async fn get_all_audio_files(app_handle: AppHandle) -> Result<Vec<AudioFile>, String> {
     AudioFileHandler::get_all_audio_files(app_handle)
 }
@@ -254,6 +264,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             load_audio_file,
             save_audio_file,
+            load_audio_file_with_rpg_tags,
+            save_audio_file_with_rpg_tags,
             get_all_audio_files,
             delete_audio_file,
             update_audio_file_tags,

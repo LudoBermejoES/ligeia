@@ -22,6 +22,24 @@ export class DatabaseService {
         }
     }
 
+    async loadAudioFileWithRpgTags(filePath) {
+        try {
+            return await invoke('load_audio_file_with_rpg_tags', { filePath });
+        } catch (error) {
+            console.error(`Error loading audio file with RPG tags for ${filePath}:`, error);
+            throw error;
+        }
+    }
+
+    async saveAudioFileWithRpgTags(audioFile, rpgTags) {
+        try {
+            return await invoke('save_audio_file_with_rpg_tags', { audioFile, rpgTags });
+        } catch (error) {
+            console.error('Error saving audio file with RPG tags to database:', error);
+            throw error;
+        }
+    }
+
     async getAllAudioFiles() {
         try {
             return await invoke('get_all_audio_files');
