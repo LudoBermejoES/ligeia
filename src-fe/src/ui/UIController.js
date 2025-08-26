@@ -73,34 +73,6 @@ export class UIController {
             this.filterCurrentSounds();
         });
 
-        // Provide drag data for sound pads (membership editor window consumes this)
-        document.addEventListener('dragstart', (e) => {
-            const pad = e.target.closest?.('.sound-pad');
-            if (!pad) return;
-            
-            const audioId = pad.dataset.audioId;
-            if (audioId && e.dataTransfer) {
-                // Simplified dataTransfer setup
-                e.dataTransfer.setData('text/plain', audioId);
-                e.dataTransfer.effectAllowed = 'copy';
-                e.dataTransfer.dropEffect = 'copy';
-                
-                // Store the dragged audio ID globally for ghost preview
-                window._draggedAudioId = audioId;
-            }
-        });
-
-        // Clear global drag state when drag ends
-        document.addEventListener('dragend', (e) => {
-            window._draggedAudioId = null;
-        });
-
-        // CRITICAL: Global dragover handler to make ALL drop zones valid
-        document.addEventListener('dragover', (e) => {
-            if (window._draggedAudioId || window._testDrag) {
-                e.preventDefault(); // This is ESSENTIAL to enable drop zones
-            }
-        });
 
         
         // Initialize mouse-based drag and drop system for Tauri webview
