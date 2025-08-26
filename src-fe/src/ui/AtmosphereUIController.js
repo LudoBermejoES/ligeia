@@ -315,4 +315,75 @@ export class AtmosphereUIController {
       setTimeout(() => this.initializeThemeDropdown(), 100);
     }
   }
+
+  /**
+   * Show atmosphere deletion confirmation modal
+   * @param {number} atmosphereId - ID of atmosphere to delete
+   * @param {Function} onConfirm - Callback when deletion is confirmed
+   */
+  showDeleteConfirmation(atmosphereId, onConfirm) {
+    // Get atmosphere name for confirmation
+    const atmosphereRow = document.querySelector(`[data-id="${atmosphereId}"]`);
+    const atmosphereName = atmosphereRow ? (atmosphereRow.querySelector('.atmo-name')?.textContent || 'Unknown') : 'Unknown';
+    
+    // Create confirmation modal
+    const modalHtml = `
+      <div class="modal-overlay" id="atmosphere-delete-modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Delete Atmosphere</h3>
+          </div>
+          <div class="modal-body">
+            <div class="confirmation-message">
+              <div class="warning-icon">⚠️</div>
+              <div class="warning-text">
+                <h4>Are you sure you want to delete this atmosphere?</h4>
+                <p><strong>"${escapeHtml(atmosphereName)}"</strong></p>
+                <p>This action cannot be undone. The atmosphere configuration and all its settings will be permanently removed.</p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancel-delete-atmosphere">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirm-delete-atmosphere">Delete Atmosphere</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Add modal to DOM
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = document.getElementById('atmosphere-delete-modal');
+    
+    // Setup event handlers
+    const cancelBtn = modal.querySelector('#cancel-delete-atmosphere');
+    const confirmBtn = modal.querySelector('#confirm-delete-atmosphere');
+    
+    const closeModal = () => {
+      modal.remove();
+    };
+    
+    cancelBtn.addEventListener('click', closeModal);
+    
+    confirmBtn.addEventListener('click', async () => {
+      try {
+        await onConfirm();
+        closeModal();
+      } catch (error) {
+        console.error('Failed to delete atmosphere:', error);
+      }
+    });
+    
+    // Click outside to close
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+    
+    // Show modal with animation
+    setTimeout(() => {
+      modal.classList.add('show');
+    }, 10);
+  }
 }

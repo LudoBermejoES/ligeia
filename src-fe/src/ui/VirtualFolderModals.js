@@ -226,6 +226,78 @@ export class VirtualFolderModals {
     }
 
     /**
+     * Show file removal confirmation modal
+     * @param {number} fileId - File ID to remove
+     * @param {number} folderId - Folder ID containing the file
+     * @param {Function} onSuccess - Callback when removal succeeds
+     */
+    showRemoveFileConfirmation(fileId, folderId, onSuccess) {
+        const modalHtml = `
+            <div class="vf-modal-content">
+                <div class="confirmation-message">
+                    <div class="warning-icon">⚠️</div>
+                    <div class="warning-text">
+                        <h3>Remove file from folder?</h3>
+                        <p>This will remove the file from this virtual folder only.</p>
+                        <em>The file will remain in your library and other folders.</em>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" data-action="cancel">Cancel</button>
+                    <button type="button" id="confirm-remove-file" class="btn btn-danger">Remove from Folder</button>
+                </div>
+            </div>
+        `;
+
+        const modal = this.createModal('remove-file-modal', 'Remove File', modalHtml);
+        
+        // Setup handlers
+        const confirmBtn = modal.querySelector('#confirm-remove-file');
+        confirmBtn?.addEventListener('click', async () => {
+            await this.handleConfirmRemoveFile(modal, fileId, folderId, onSuccess);
+        });
+        
+        this.showModal(modal);
+    }
+
+    /**
+     * Show bulk removal confirmation modal
+     * @param {Array<number>} fileIds - Array of file IDs to remove
+     * @param {number} folderId - Folder ID containing the files
+     * @param {Function} onSuccess - Callback when removal succeeds
+     */
+    showBulkRemoveConfirmation(fileIds, folderId, onSuccess) {
+        const modalHtml = `
+            <div class="vf-modal-content">
+                <div class="confirmation-message">
+                    <div class="warning-icon">⚠️</div>
+                    <div class="warning-text">
+                        <h3>Remove selected files from folder?</h3>
+                        <p>This will remove <strong>${fileIds.length} file${fileIds.length !== 1 ? 's' : ''}</strong> from this virtual folder only.</p>
+                        <em>The files will remain in your library and other folders.</em>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" data-action="cancel">Cancel</button>
+                    <button type="button" id="confirm-bulk-remove" class="btn btn-danger">Remove ${fileIds.length} File${fileIds.length !== 1 ? 's' : ''}</button>
+                </div>
+            </div>
+        `;
+
+        const modal = this.createModal('bulk-remove-modal', 'Remove Files', modalHtml);
+        
+        // Setup handlers
+        const confirmBtn = modal.querySelector('#confirm-bulk-remove');
+        confirmBtn?.addEventListener('click', async () => {
+            await this.handleConfirmBulkRemove(modal, fileIds, folderId, onSuccess);
+        });
+        
+        this.showModal(modal);
+    }
+
+    /**
      * Create modal structure
      */
     createModal(id, title, content) {
@@ -353,6 +425,44 @@ export class VirtualFolderModals {
         confirmBtn?.addEventListener('click', async () => {
             await this.handleDeleteFolder(modal, folderId);
         });
+    }
+
+    /**
+     * Handle confirmed file removal
+     */
+    async handleConfirmRemoveFile(modal, fileId, folderId, onSuccess) {
+        try {
+            await this.service.removeFilesFromFolder(folderId, [fileId]);
+            this.showSuccess('File removed from folder');
+            
+            // Close modal
+            this.hideModal(modal);
+            
+            // Call success callback
+            if (onSuccess) onSuccess();
+        } catch (error) {
+            console.error('Failed to remove file from folder:', error);
+            this.showError('Failed to remove file from folder');
+        }
+    }
+
+    /**
+     * Handle confirmed bulk removal
+     */
+    async handleConfirmBulkRemove(modal, fileIds, folderId, onSuccess) {
+        try {
+            await this.service.removeFilesFromFolder(folderId, fileIds);
+            this.showSuccess(`${fileIds.length} file${fileIds.length !== 1 ? 's' : ''} removed from folder`);
+            
+            // Close modal
+            this.hideModal(modal);
+            
+            // Call success callback
+            if (onSuccess) onSuccess();
+        } catch (error) {
+            console.error('Failed to remove files from folder:', error);
+            this.showError('Failed to remove files from folder');
+        }
     }
 
     /**

@@ -420,9 +420,11 @@ export class AmbientMixerApp {
     }
 
     async handleDeleteAtmosphere(id) {
-        if (!confirm('Delete this atmosphere?')) return;
-        await this.atmosphereManager.delete(id);
-        this.atmosphereUI.renderList(this.atmosphereManager.atmospheres, this.atmosphereManager.activeAtmosphereId);
+        // Show proper confirmation modal
+        this.atmosphereUI.showDeleteConfirmation(id, async () => {
+            await this.atmosphereManager.delete(id);
+            this.atmosphereUI.renderList(this.atmosphereManager.atmospheres, this.atmosphereManager.activeAtmosphereId);
+        });
     }
 
     async handleDuplicateAtmosphere(id) {

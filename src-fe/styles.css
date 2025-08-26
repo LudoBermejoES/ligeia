@@ -2325,6 +2325,106 @@ body {
     display: flex !important;
 }
 
+/* Side-by-side layout when both panels are visible */
+main {
+    transition: all 0.3s ease;
+}
+
+main.side-by-side {
+    display: flex !important;
+    gap: 0; /* Remove gap for resize handle */
+    width: 100%;
+    box-sizing: border-box;
+    align-items: stretch; /* Ensure panels have equal height */
+}
+
+main.side-by-side #mixer-container,
+main.side-by-side #virtual-folders-panel {
+    width: 50%;
+    flex: 1 1 50%; /* Allow flex grow and shrink with 50% basis */
+    min-width: 300px; /* Minimum viable width for usability */
+    overflow: hidden; /* Prevent content overflow */
+}
+
+/* Adjust virtual folders panel for side-by-side view */
+main.side-by-side #virtual-folders-panel .vf-tree-section {
+    width: 250px; /* Slightly smaller when in side-by-side mode */
+}
+
+main.side-by-side #virtual-folders-panel .vf-file-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Smaller cards for side-by-side */
+}
+
+/* ========================================
+   PANEL RESIZE HANDLE
+   ======================================== */
+
+/* Resize handle between mixer and virtual folders panels */
+.panel-resize-handle {
+    width: 6px;
+    background: var(--border-color);
+    cursor: col-resize;
+    position: relative;
+    flex: 0 0 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.panel-resize-handle:hover {
+    background: var(--accent-color);
+    width: 8px;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
+}
+
+.panel-resize-handle.active {
+    background: var(--accent-color) !important;
+    width: 8px !important;
+    box-shadow: 0 0 12px rgba(76, 175, 80, 0.6) !important;
+}
+
+/* Visual grip indicator */
+.resize-handle-grip {
+    width: 2px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 1px;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+.panel-resize-handle:hover .resize-handle-grip {
+    background: rgba(255, 255, 255, 0.8);
+    height: 60px;
+    opacity: 1;
+}
+
+.panel-resize-handle.active .resize-handle-grip {
+    background: rgba(255, 255, 255, 0.9) !important;
+    height: 80px !important;
+    opacity: 1 !important;
+}
+
+/* Body state during resizing */
+body.panel-resizing {
+    cursor: col-resize !important;
+    user-select: none !important;
+}
+
+body.panel-resizing * {
+    cursor: col-resize !important;
+    user-select: none !important;
+}
+
+/* Responsive adjustments for resize handle */
+@media (max-width: 900px) {
+    .panel-resize-handle {
+        display: none; /* Hide resize handle on mobile where panels stack */
+    }
+}
+
 /* Workspace layout */
 .vf-workspace {
     display: flex;
@@ -2833,6 +2933,15 @@ body {
     .vf-file-grid {
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     }
+    
+    /* Adjust side-by-side layout for medium screens */
+    main.side-by-side #virtual-folders-panel .vf-tree-section {
+        width: 200px;
+    }
+    
+    main.side-by-side #virtual-folders-panel .vf-file-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
 }
 
 @media (max-width: 900px) {
@@ -2849,6 +2958,23 @@ body {
     
     .vf-file-grid {
         grid-template-columns: 1fr;
+    }
+    
+    /* On small screens, stack panels vertically even in side-by-side mode */
+    main.side-by-side {
+        flex-direction: column !important;
+        gap: 8px;
+    }
+    
+    main.side-by-side #mixer-container,
+    main.side-by-side #virtual-folders-panel {
+        width: 100% !important;
+        height: 50vh;
+    }
+    
+    main.side-by-side #virtual-folders-panel .vf-tree-section {
+        width: 100%;
+        height: 150px;
     }
 }
 

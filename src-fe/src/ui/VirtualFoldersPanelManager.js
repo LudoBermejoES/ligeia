@@ -229,15 +229,21 @@ export class VirtualFoldersPanelManager {
     async showPanel() {
         if (this.isVisible) return;
 
-        // Hide mixer area
-        const mixerContainer = document.getElementById('mixer-container');
-        if (mixerContainer) {
-            mixerContainer.style.display = 'none';
+        // Show both panels side by side using CSS class
+        const mainContent = document.querySelector('.main') || document.querySelector('main');
+        
+        if (mainContent) {
+            mainContent.classList.add('side-by-side');
+            // Add resize handle if not already present
+            this.addResizeHandle(mainContent);
         }
 
         // Show virtual folders panel
         this.panel.style.display = 'flex';
         this.isVisible = true;
+        
+        // Set initial balanced widths
+        this.setInitialPanelWidths(mainContent);
 
         // Update header button state
         const button = document.getElementById('virtual-folders-btn');
@@ -259,10 +265,13 @@ export class VirtualFoldersPanelManager {
         this.panel.style.display = 'none';
         this.isVisible = false;
 
-        // Show mixer area
-        const mixerContainer = document.getElementById('mixer-container');
-        if (mixerContainer) {
-            mixerContainer.style.display = 'flex';
+        // Remove side-by-side layout class to restore original mixer layout
+        const mainContent = document.querySelector('.main') || document.querySelector('main');
+        
+        if (mainContent) {
+            mainContent.classList.remove('side-by-side');
+            // Remove resize handle
+            this.removeResizeHandle(mainContent);
         }
 
         // Update header button state
@@ -1064,21 +1073,17 @@ export class VirtualFoldersPanelManager {
             return;
         }
 
-        if (!confirm('Remove this file from the folder? The file will not be deleted from your library.')) {
-            return;
-        }
-
-        try {
-            await this.service.removeFilesFromFolder(this.currentFolderId, [fileId]);
-            this.showSuccess('File removed from folder');
-            
-            // Refresh folder contents
-            await this.loadFolderContents(this.currentFolderId);
-        } catch (error) {
-            console.error('Failed to remove file from folder:', error);
-            this.showError('Failed to remove file from folder');
+        // Use modals instance from manager
+        const app = window.ambientMixerApp;
+        if (app && app.virtualFolderManager && app.virtualFolderManager.modals) {
+            app.virtualFolderManager.modals.showRemoveFileConfirmation(fileId, this.currentFolderId, () => {
+                this.loadFolderContents(this.currentFolderId);
+            });
+        } else {
+            this.showError('Modal system not available');
         }
     }
+
 
     /**
      * Handle edit tags for file
@@ -1152,21 +1157,17 @@ export class VirtualFoldersPanelManager {
             return;
         }
 
-        if (!confirm(`Remove ${fileIds.length} selected file${fileIds.length !== 1 ? 's' : ''} from this folder? The files will not be deleted from your library.`)) {
-            return;
-        }
-
-        try {
-            await this.service.removeFilesFromFolder(this.currentFolderId, fileIds);
-            this.showSuccess(`${fileIds.length} file${fileIds.length !== 1 ? 's' : ''} removed from folder`);
-            
-            // Refresh folder contents
-            await this.loadFolderContents(this.currentFolderId);
-        } catch (error) {
-            console.error('Failed to remove files from folder:', error);
-            this.showError('Failed to remove files from folder');
+        // Use modals instance from manager
+        const app = window.ambientMixerApp;
+        if (app && app.virtualFolderManager && app.virtualFolderManager.modals) {
+            app.virtualFolderManager.modals.showBulkRemoveConfirmation(fileIds, this.currentFolderId, () => {
+                this.loadFolderContents(this.currentFolderId);
+            });
+        } else {
+            this.showError('Modal system not available');
         }
     }
+
 
     /**
      * Show success message
@@ -1205,5 +1206,188 @@ export class VirtualFoldersPanelManager {
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
         return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    /**
+     * Set initial balanced panel widths
+     */
+    setInitialPanelWidths(mainContent) {
+        const mixerContainer = document.getElementById('mixer-container');
+        const virtualFoldersPanel = document.getElementById('virtual-folders-panel');
+        const sidebar = document.getElementById('sidebar-container');
+        const sidebarResizer = document.getElementById('sidebar-resizer');
+        const membershipContainer = document.getElementById('membership-container');
+        const membershipResizer = document.getElementById('membership-resizer');
+        
+        if (!mixerContainer || !virtualFoldersPanel || !mainContent) return;
+        
+        // Calculate space occupied by other elements
+        let usedWidth = 10; // resize handle
+        
+        if (sidebar && sidebar.offsetWidth) usedWidth += sidebar.offsetWidth;
+        if (sidebarResizer && sidebarResizer.offsetWidth) usedWidth += sidebarResizer.offsetWidth;
+        if (membershipContainer && membershipContainer.offsetWidth && !membershipContainer.classList.contains('hidden')) {
+            usedWidth += membershipContainer.offsetWidth;
+        }
+        if (membershipResizer && membershipResizer.offsetWidth && !membershipResizer.classList.contains('hidden')) {
+            usedWidth += membershipResizer.offsetWidth;
+        }
+        
+        // Calculate available width for the two main panels
+        const totalWidth = mainContent.clientWidth;
+        const availableWidth = totalWidth - usedWidth;
+        const halfWidth = Math.floor(availableWidth / 2);
+        
+        // Ensure minimum width
+        const minWidth = 250;
+        const finalWidth = Math.max(minWidth, halfWidth);
+        
+        // Set balanced widths
+        virtualFoldersPanel.style.width = `${finalWidth}px`;
+        mixerContainer.style.width = `${finalWidth}px`;
+        virtualFoldersPanel.style.flex = '0 0 auto';
+        mixerContainer.style.flex = '0 0 auto';
+        
+        console.log(`Width calculation: Total=${totalWidth}px, Used=${usedWidth}px, Available=${availableWidth}px, Each panel=${finalWidth}px`);
+    }
+
+    /**
+     * Add resize handle between mixer and virtual folders panels
+     */
+    addResizeHandle(mainContent) {
+        // Remove existing handle if present
+        this.removeResizeHandle(mainContent);
+
+        const mixerContainer = document.getElementById('mixer-container');
+        const virtualFoldersPanel = document.getElementById('virtual-folders-panel');
+        
+        if (!mixerContainer || !virtualFoldersPanel) return;
+
+        // Create resize handle
+        const resizeHandle = document.createElement('div');
+        resizeHandle.className = 'panel-resize-handle';
+        resizeHandle.innerHTML = '<div class="resize-handle-grip"></div>';
+        resizeHandle.style.backgroundColor = 'red'; // Debug: temporary red color
+        resizeHandle.style.width = '10px'; // Debug: make it more visible
+        
+        // Insert resize handle between virtual folders panel and mixer
+        mainContent.insertBefore(resizeHandle, mixerContainer);
+        
+        console.log('Resize handle created and inserted:', resizeHandle);
+        
+        // Setup drag functionality
+        this.setupResizeDrag(resizeHandle, mixerContainer, virtualFoldersPanel);
+    }
+
+    /**
+     * Remove resize handle
+     */
+    removeResizeHandle(mainContent) {
+        const existingHandle = mainContent.querySelector('.panel-resize-handle');
+        if (existingHandle) {
+            existingHandle.remove();
+        }
+    }
+
+    /**
+     * Setup drag functionality for resize handle
+     */
+    setupResizeDrag(resizeHandle, mixerContainer, virtualFoldersPanel) {
+        let isResizing = false;
+        let startX = 0;
+        let startMixerWidth = 0;
+        let startVfWidth = 0;
+
+        const startResize = (e) => {
+            isResizing = true;
+            startX = e.clientX;
+            
+            // Get current widths
+            const mixerRect = mixerContainer.getBoundingClientRect();
+            const vfRect = virtualFoldersPanel.getBoundingClientRect();
+            startMixerWidth = mixerRect.width;
+            startVfWidth = vfRect.width;
+            
+            // Add visual feedback
+            document.body.classList.add('panel-resizing');
+            resizeHandle.classList.add('active');
+            
+            // Prevent text selection during resize
+            document.body.style.userSelect = 'none';
+            
+            e.preventDefault();
+        };
+
+        const doResize = (e) => {
+            if (!isResizing) return;
+            
+            const deltaX = e.clientX - startX;
+            const mainElement = mixerContainer.parentElement;
+            
+            // Calculate available width accounting for all other elements
+            const sidebar = document.getElementById('sidebar-container');
+            const sidebarResizer = document.getElementById('sidebar-resizer');
+            const membershipContainer = document.getElementById('membership-container');
+            const membershipResizer = document.getElementById('membership-resizer');
+            
+            let usedWidth = resizeHandle.offsetWidth;
+            if (sidebar && sidebar.offsetWidth) usedWidth += sidebar.offsetWidth;
+            if (sidebarResizer && sidebarResizer.offsetWidth) usedWidth += sidebarResizer.offsetWidth;
+            if (membershipContainer && membershipContainer.offsetWidth && !membershipContainer.classList.contains('hidden')) {
+                usedWidth += membershipContainer.offsetWidth;
+            }
+            if (membershipResizer && membershipResizer.offsetWidth && !membershipResizer.classList.contains('hidden')) {
+                usedWidth += membershipResizer.offsetWidth;
+            }
+            
+            const availableWidth = mainElement.clientWidth - usedWidth;
+            
+            // Calculate new widths based on delta
+            let newVfWidth = startVfWidth + deltaX;  // VF panel is on the left
+            let newMixerWidth = startMixerWidth - deltaX; // Mixer panel is on the right
+            
+            // Enforce minimum widths
+            const minWidth = 250;
+            const maxVfWidth = availableWidth - minWidth;
+            
+            newVfWidth = Math.max(minWidth, Math.min(maxVfWidth, newVfWidth));
+            newMixerWidth = availableWidth - newVfWidth;
+            
+            // Apply new widths as pixels for precise control
+            virtualFoldersPanel.style.width = `${newVfWidth}px`;
+            mixerContainer.style.width = `${newMixerWidth}px`;
+            virtualFoldersPanel.style.flex = '0 0 auto';
+            mixerContainer.style.flex = '0 0 auto';
+            
+            e.preventDefault();
+        };
+
+        const stopResize = () => {
+            if (!isResizing) return;
+            
+            isResizing = false;
+            document.body.classList.remove('panel-resizing');
+            resizeHandle.classList.remove('active');
+            document.body.style.userSelect = '';
+        };
+
+        // Mouse events
+        resizeHandle.addEventListener('mousedown', startResize);
+        document.addEventListener('mousemove', doResize);
+        document.addEventListener('mouseup', stopResize);
+        
+        // Touch events for mobile
+        resizeHandle.addEventListener('touchstart', (e) => {
+            startResize(e.touches[0]);
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (isResizing) doResize(e.touches[0]);
+        });
+        
+        document.addEventListener('touchend', stopResize);
+        
+        // Handle cursor
+        resizeHandle.style.cursor = 'col-resize';
     }
 }
