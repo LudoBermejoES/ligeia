@@ -17,43 +17,35 @@ export class InfiniteScrollController {
     
     // Pagination settings
     this.pageSize = 50; // Number of files per page
-    this.currentPageAmbient = 0;
-    this.currentPageSounds = 0;
+    this.currentPage = 0;
     
     // Data management
-    this.allAmbientFiles = [];
-    this.allSoundsFiles = [];
-    this.filteredAmbientFiles = [];
-    this.filteredSoundsFiles = [];
+    this.allFiles = [];
+    this.filteredFiles = [];
     
-    // Infinite scroll instances
-    this.ambientScroll = null;
-    this.soundsScroll = null;
-    
-    // Loading states
-    this.isLoadingAmbient = false;
-    this.isLoadingSounds = false;
+    // Loading state
+    this.isLoading = false;
   }
 
   /**
    * Initialize custom scroll detection for the mixer area
    */
   initialize() {
-    const mixerArea = document.querySelector('.mixer-area');
+    const scrollContainer = document.querySelector('.sound-groups');
     
-    if (!mixerArea) {
-      logger.warn('infiniteScroll', 'Mixer area not found for scroll initialization');
+    if (!scrollContainer) {
+      logger.warn('infiniteScroll', 'Scroll container not found for initialization');
       return;
     }
 
     // Remove any existing scroll listener
-    if (this.scrollHandler) {
-      mixerArea.removeEventListener('scroll', this.scrollHandler);
+    if (this.scrollHandler && this.scrollContainer) {
+      this.scrollContainer.removeEventListener('scroll', this.scrollHandler);
     }
 
     // Create custom scroll handler
     this.scrollHandler = this.throttle(() => {
-      const { scrollTop, scrollHeight, clientHeight } = mixerArea;
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
       const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
       
       // Load more when user scrolls 80% down
@@ -69,13 +61,13 @@ export class InfiniteScrollController {
     }, 200);
 
     // Add scroll listener
-    mixerArea.addEventListener('scroll', this.scrollHandler);
-    this.mixerArea = mixerArea;
+    scrollContainer.addEventListener('scroll', this.scrollHandler);
+    this.scrollContainer = scrollContainer;
 
     logger.info('infiniteScroll', 'Custom scroll detection initialized', {
-      container: mixerArea,
-      scrollHeight: mixerArea.scrollHeight,
-      clientHeight: mixerArea.clientHeight
+      container: scrollContainer,
+      scrollHeight: scrollContainer.scrollHeight,
+      clientHeight: scrollContainer.clientHeight
     });
   }
 
@@ -102,35 +94,18 @@ export class InfiniteScrollController {
     // Sort files by title
     const sortedFiles = this.sortByTitle(Array.from(audioFiles.values()));
     
-    // Separate ambient and other files
-    const ambient = [];
-    const others = [];
-    
-    sortedFiles.forEach(f => {
-      const isAmbient = (
-        (f.genre && /ambient/i.test(f.genre)) ||
-        (f.title && /ambient/i.test(f.title)) ||
-        /ambient/i.test(f.file_path)
-      );
-      (isAmbient ? ambient : others).push(f);
-    });
-
     // Apply search filter if provided
     if (searchFilter) {
-      this.allAmbientFiles = this.applySearchFilter(ambient, searchFilter);
-      this.allSoundsFiles = this.applySearchFilter(others, searchFilter);
+      this.allFiles = this.applySearchFilter(sortedFiles, searchFilter);
     } else {
-      this.allAmbientFiles = ambient;
-      this.allSoundsFiles = others;
+      this.allFiles = sortedFiles;
     }
 
     // Reset pagination
-    this.currentPageAmbient = 0;
-    this.currentPageSounds = 0;
+    this.currentPage = 0;
     
     logger.info('infiniteScroll', 'Audio files set for infinite scroll', {
-      ambient: this.allAmbientFiles.length,
-      sounds: this.allSoundsFiles.length,
+      totalFiles: this.allFiles.length,
       searchFilter: !!searchFilter
     });
   }
@@ -183,111 +158,61 @@ export class InfiniteScrollController {
   }
 
   /**
-   * Clear both containers
+   * Clear the container
    */
   clearContainers() {
-    const ambientContainer = document.getElementById('ambientPadsGrid');
-    const soundsContainer = document.getElementById('soundsPadsGrid');
+    const container = document.getElementById('allSoundsPadsGrid');
     
-    if (ambientContainer) ambientContainer.innerHTML = '';
-    if (soundsContainer) soundsContainer.innerHTML = '';
+    if (container) container.innerHTML = '';
     
     // Reset pagination
-    this.currentPageAmbient = 0;
-    this.currentPageSounds = 0;
+    this.currentPage = 0;
   }
 
   /**
-   * Load next page - tries ambient first, then sounds
+   * Load next page of files
    */
   loadNextPage() {
-    if (this.isLoadingAmbient || this.isLoadingSounds) {
+    if (this.isLoading) {
       logger.debug('infiniteScroll', 'Already loading, skipping request');
       return;
     }
     
-    // Check if we need more ambient files
-    const ambientStartIndex = this.currentPageAmbient * this.pageSize;
-    const hasMoreAmbient = ambientStartIndex < this.allAmbientFiles.length;
-    
-    // Check if we need more sounds files  
-    const soundsStartIndex = this.currentPageSounds * this.pageSize;
-    const hasMoreSounds = soundsStartIndex < this.allSoundsFiles.length;
+    // Check if we need more files
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    const hasMore = startIndex < this.allFiles.length;
     
     logger.debug('infiniteScroll', 'loadNextPage called', {
-      hasMoreAmbient,
-      hasMoreSounds,
-      ambientPage: this.currentPageAmbient,
-      soundsPage: this.currentPageSounds,
-      totalAmbient: this.allAmbientFiles.length,
-      totalSounds: this.allSoundsFiles.length
+      hasMore,
+      currentPage: this.currentPage,
+      totalFiles: this.allFiles.length,
+      startIndex,
+      endIndex
     });
     
-    if (hasMoreAmbient) {
-      this.loadNextAmbientPage();
-    } else if (hasMoreSounds) {
-      this.loadNextSoundsPage();
-    } else {
-      // No more files to load
+    if (!hasMore) {
       logger.debug('infiniteScroll', 'No more files to load');
-    }
-  }
-
-  /**
-   * Load next page of ambient files
-   */
-  loadNextAmbientPage() {
-    if (this.isLoadingAmbient) return;
-    
-    const startIndex = this.currentPageAmbient * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    const pageFiles = this.allAmbientFiles.slice(startIndex, endIndex);
-    
-    if (pageFiles.length === 0) {
-      // No more files to load
-      if (this.ambientScroll) this.ambientScroll.loadCount = 0;
       return;
     }
-
-    this.isLoadingAmbient = true;
-    logger.debug('infiniteScroll', 'Loading ambient page', { 
-      page: this.currentPageAmbient, 
+    
+    this.isLoading = true;
+    
+    // Get the next batch of files
+    const pageFiles = this.allFiles.slice(startIndex, endIndex);
+    
+    logger.debug('infiniteScroll', 'Loading page', { 
+      page: this.currentPage, 
       files: pageFiles.length 
     });
-
-    this.renderFilesToContainer(pageFiles, 'ambientPadsGrid');
-    this.currentPageAmbient++;
-    this.isLoadingAmbient = false;
-
-    // Don't modify loadCount here - let the main loadNextPage handle it
+    
+    // Render the files
+    this.renderFilesToContainer(pageFiles, 'allSoundsPadsGrid');
+    
+    this.currentPage++;
+    this.isLoading = false;
   }
 
-  /**
-   * Load next page of sound files
-   */
-  loadNextSoundsPage() {
-    if (this.isLoadingSounds) return;
-    
-    const startIndex = this.currentPageSounds * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    const pageFiles = this.allSoundsFiles.slice(startIndex, endIndex);
-    
-    if (pageFiles.length === 0) {
-      return;
-    }
-
-    this.isLoadingSounds = true;
-    logger.debug('infiniteScroll', 'Loading sounds page', { 
-      page: this.currentPageSounds, 
-      files: pageFiles.length 
-    });
-
-    this.renderFilesToContainer(pageFiles, 'soundsPadsGrid');
-    this.currentPageSounds++;
-    this.isLoadingSounds = false;
-
-    // Don't modify loadCount here - let the main loadNextPage handle it
-  }
 
   /**
    * Render files to a specific container using folder groups
@@ -424,10 +349,10 @@ export class InfiniteScrollController {
    * Destroy scroll listener
    */
   destroy() {
-    if (this.scrollHandler && this.mixerArea) {
-      this.mixerArea.removeEventListener('scroll', this.scrollHandler);
+    if (this.scrollHandler && this.scrollContainer) {
+      this.scrollContainer.removeEventListener('scroll', this.scrollHandler);
       this.scrollHandler = null;
-      this.mixerArea = null;
+      this.scrollContainer = null;
     }
     logger.info('infiniteScroll', 'Scroll listener destroyed');
   }
