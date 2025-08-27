@@ -181,7 +181,44 @@ export class InfiniteScrollController {
    */
   initialRender() {
     this.clearContainers();
-    this.loadNextPage();
+    
+    // For columns view, render all files at once (no pagination)
+    if (this.viewMode === 'columns') {
+      this.renderAllColumnsAtOnce();
+    } else {
+      this.loadNextPage();
+    }
+  }
+  
+  /**
+   * Render all columns at once for column view
+   */
+  renderAllColumnsAtOnce() {
+    const container = document.getElementById('allSoundsPadsGrid');
+    if (!container) return;
+    
+    const soundPads = this.libraryManager.getSoundPads();
+    
+    // Create columns container
+    container.innerHTML = '<div class="mixer-columns-container"></div>';
+    const columnsContainer = container.querySelector('.mixer-columns-container');
+    
+    // Render all files grouped by folder
+    const columnsHtml = this.renderColumnsView(this.allFiles, soundPads);
+    columnsContainer.innerHTML = columnsHtml;
+    
+    // Initialize pad states
+    this.allFiles.forEach(audioFile => {
+      const pad = soundPads.get(audioFile.file_path);
+      if (pad && this.padEventHandler) {
+        this.padEventHandler.addPadToContext(audioFile.id, 'mixer', {
+          isPlaying: pad.isPlaying || false,
+          isLooping: pad.isLooping || false,
+          isMuted: pad.isMuted || false,
+          volume: pad.volume ?? 0.5
+        });
+      }
+    });
   }
 
   /**
@@ -189,18 +226,26 @@ export class InfiniteScrollController {
    */
   clearContainers() {
     const container = document.getElementById('allSoundsPadsGrid');
+    const parentContainer = container?.closest('.sound-groups');
     
     if (container) {
       container.innerHTML = '';
-      // Remove any view-specific classes
+      // Remove any view-specific classes from both containers
       container.classList.remove('mixer-list-view', 'mixer-pad-view', 'mixer-columns-view');
-      // Add the current view class
+      if (parentContainer) {
+        parentContainer.classList.remove('mixer-list-view', 'mixer-pad-view', 'mixer-columns-view');
+      }
+      
+      // Add the current view class to parent for better CSS control
       if (this.viewMode === 'list') {
         container.classList.add('mixer-list-view');
+        if (parentContainer) parentContainer.classList.add('mixer-list-view');
       } else if (this.viewMode === 'columns') {
         container.classList.add('mixer-columns-view');
+        if (parentContainer) parentContainer.classList.add('mixer-columns-view');
       } else {
         container.classList.add('mixer-pad-view');
+        if (parentContainer) parentContainer.classList.add('mixer-pad-view');
       }
     }
     
@@ -212,6 +257,11 @@ export class InfiniteScrollController {
    * Load next page of files
    */
   loadNextPage() {
+    // Don't paginate in columns view
+    if (this.viewMode === 'columns') {
+      return;
+    }
+    
     if (this.isLoading) {
       logger.debug('infiniteScroll', 'Already loading, skipping request');
       return;
@@ -282,16 +332,8 @@ export class InfiniteScrollController {
         container.insertAdjacentHTML('beforeend', html);
       }
     } else if (this.viewMode === 'columns') {
-      // Columns view - render all files at once for proper column organization
-      const html = this.renderColumnsView(files, soundPads);
-      if (container.querySelector('.mixer-columns-container')) {
-        // Append new columns if needed
-        const columnsContainer = container.querySelector('.mixer-columns-container');
-        columnsContainer.insertAdjacentHTML('beforeend', html);
-      } else {
-        // Create new columns container
-        container.insertAdjacentHTML('beforeend', html);
-      }
+      // Columns view is handled differently - skip pagination
+      return;
     } else {
       // Pad view
       const html = this.renderFolderGroups(files, soundPads);
@@ -419,34 +461,14 @@ export class InfiniteScrollController {
       return a.localeCompare(b, undefined, { sensitivity: 'base' });
     });
     
-    // Create columns container if not exists
-    const container = document.getElementById('allSoundsPadsGrid');
-    let columnsContainer = container?.querySelector('.mixer-columns-container');
+    // Simply return the columns HTML, container handling is done in renderFilesToContainer
+    let html = '';
+    sortedFolders.forEach(folder => {
+      const items = this.sortByTitle(folderGroups.get(folder));
+      html += this.renderFolderColumn(folder, items, soundPads);
+    });
     
-    if (!columnsContainer) {
-      // Create new columns container
-      let html = '<div class="mixer-columns-container">';
-      
-      // Create a column for each folder
-      sortedFolders.forEach(folder => {
-        const items = this.sortByTitle(folderGroups.get(folder));
-        html += this.renderFolderColumn(folder, items, soundPads);
-      });
-      
-      html += '</div>';
-      return html;
-    } else {
-      // Append to existing columns
-      let html = '';
-      sortedFolders.forEach(folder => {
-        const existingColumn = columnsContainer.querySelector(`[data-folder="${CSS.escape(folder)}"]`);
-        if (!existingColumn) {
-          const items = this.sortByTitle(folderGroups.get(folder));
-          html += this.renderFolderColumn(folder, items, soundPads);
-        }
-      });
-      return html;
-    }
+    return html;
   }
   
   /**

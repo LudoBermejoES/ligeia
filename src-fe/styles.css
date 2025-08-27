@@ -2235,25 +2235,47 @@ body {
     display: block !important;
 }
 
-/* Mixer Column View Styles */
-.mixer-columns-view .sound-pads-grid {
-    display: block !important;
+/* Mixer Column View Styles - Override Tailwind grid with higher specificity */
+.sound-groups.mixer-columns-view .sound-pads-grid,
+.sound-groups.mixer-columns-view #allSoundsPadsGrid,
+.mixer-columns-view#allSoundsPadsGrid,
+.mixer-columns-view .sound-pads-grid,
+.mixer-columns-view #allSoundsPadsGrid {
+    display: flex !important;
+    grid-template-columns: unset !important;
+    grid-auto-rows: unset !important;
+    grid-auto-columns: unset !important;
+    grid-auto-flow: unset !important;
     height: 100%;
+    width: 100%;
+    overflow: hidden;
+    gap: 0 !important;
+    padding: 0 !important;
+}
+
+/* Override Tailwind's grid class specifically */
+.mixer-columns-view.grid,
+.mixer-columns-view .grid {
+    display: flex !important;
+    grid-template-columns: unset !important;
 }
 
 .mixer-columns-container {
-    display: flex;
+    display: flex !important;
+    flex-direction: row !important;
     gap: 1rem;
     height: 100%;
     overflow-x: auto;
     overflow-y: hidden;
     padding: 1rem;
+    width: 100%;
+    flex: 1;
 }
 
 .mixer-folder-column {
     flex: 0 0 300px;
-    min-width: 250px;
-    max-width: 400px;
+    min-width: 300px;
+    max-width: 300px;
     background: var(--card, rgba(0, 0, 0, 0.3));
     border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
     border-radius: 8px;
