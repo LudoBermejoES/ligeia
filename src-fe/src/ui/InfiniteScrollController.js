@@ -27,7 +27,7 @@ export class InfiniteScrollController {
     this.isLoading = false;
     
     // View mode
-    this.viewMode = 'pad'; // 'pad' or 'list'
+    this.viewMode = 'pad'; // 'pad', 'list', or 'columns'
   }
 
   /**
@@ -45,6 +45,7 @@ export class InfiniteScrollController {
     if (container) {
       container.classList.toggle('mixer-list-view', mode === 'list');
       container.classList.toggle('mixer-pad-view', mode === 'pad');
+      container.classList.toggle('mixer-columns-view', mode === 'columns');
     }
     
     // Re-render with new view mode
@@ -192,9 +193,15 @@ export class InfiniteScrollController {
     if (container) {
       container.innerHTML = '';
       // Remove any view-specific classes
-      container.classList.remove('mixer-list-view', 'mixer-pad-view');
+      container.classList.remove('mixer-list-view', 'mixer-pad-view', 'mixer-columns-view');
       // Add the current view class
-      container.classList.add(this.viewMode === 'list' ? 'mixer-list-view' : 'mixer-pad-view');
+      if (this.viewMode === 'list') {
+        container.classList.add('mixer-list-view');
+      } else if (this.viewMode === 'columns') {
+        container.classList.add('mixer-columns-view');
+      } else {
+        container.classList.add('mixer-pad-view');
+      }
     }
     
     // Reset pagination
@@ -272,6 +279,17 @@ export class InfiniteScrollController {
       } else {
         // Create new table
         const html = this.renderListView(files, soundPads);
+        container.insertAdjacentHTML('beforeend', html);
+      }
+    } else if (this.viewMode === 'columns') {
+      // Columns view - render all files at once for proper column organization
+      const html = this.renderColumnsView(files, soundPads);
+      if (container.querySelector('.mixer-columns-container')) {
+        // Append new columns if needed
+        const columnsContainer = container.querySelector('.mixer-columns-container');
+        columnsContainer.insertAdjacentHTML('beforeend', html);
+      } else {
+        // Create new columns container
         container.insertAdjacentHTML('beforeend', html);
       }
     } else {
@@ -376,6 +394,116 @@ export class InfiniteScrollController {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  /**
+   * Render files in column view (each folder gets its own column)
+   */
+  renderColumnsView(files, soundPads) {
+    if (!files || files.length === 0) return '';
+    
+    // Group files by folder
+    const folderGroups = new Map();
+    files.forEach(f => {
+      const folder = this.getParentFolder(f.file_path);
+      if (!folderGroups.has(folder)) {
+        folderGroups.set(folder, []);
+      }
+      folderGroups.get(folder).push(f);
+    });
+    
+    // Sort folder names
+    const sortedFolders = Array.from(folderGroups.keys()).sort((a, b) => {
+      if (a === 'No Folder') return 1;
+      if (b === 'No Folder') return -1;
+      return a.localeCompare(b, undefined, { sensitivity: 'base' });
+    });
+    
+    // Create columns container if not exists
+    const container = document.getElementById('allSoundsPadsGrid');
+    let columnsContainer = container?.querySelector('.mixer-columns-container');
+    
+    if (!columnsContainer) {
+      // Create new columns container
+      let html = '<div class="mixer-columns-container">';
+      
+      // Create a column for each folder
+      sortedFolders.forEach(folder => {
+        const items = this.sortByTitle(folderGroups.get(folder));
+        html += this.renderFolderColumn(folder, items, soundPads);
+      });
+      
+      html += '</div>';
+      return html;
+    } else {
+      // Append to existing columns
+      let html = '';
+      sortedFolders.forEach(folder => {
+        const existingColumn = columnsContainer.querySelector(`[data-folder="${CSS.escape(folder)}"]`);
+        if (!existingColumn) {
+          const items = this.sortByTitle(folderGroups.get(folder));
+          html += this.renderFolderColumn(folder, items, soundPads);
+        }
+      });
+      return html;
+    }
+  }
+  
+  /**
+   * Render a single folder column
+   */
+  renderFolderColumn(folder, files, soundPads) {
+    const html = `
+      <div class="mixer-folder-column" data-folder="${this.escapeHtml(folder)}">
+        <div class="column-header">
+          <h4 class="column-title">${this.escapeHtml(folder)}</h4>
+          <span class="column-count">${files.length}</span>
+        </div>
+        <div class="column-content">
+          <table class="column-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Duration</th>
+                <th>Play</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${files.map(file => this.renderColumnRow(file, soundPads)).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    return html;
+  }
+  
+  /**
+   * Render a single row in column view
+   */
+  renderColumnRow(audioFile, soundPads) {
+    const pad = soundPads.get(audioFile.file_path);
+    const isPlaying = pad?.isPlaying || false;
+    const title = audioFile.title || audioFile.file_path?.split('/').pop() || 'Unknown';
+    const duration = this.formatDuration(audioFile.duration_seconds);
+    
+    return `
+      <tr class="column-row ${isPlaying ? 'playing' : ''}"
+          data-audio-id="${audioFile.id}"
+          data-file-path="${this.escapeHtml(audioFile.file_path)}"
+          draggable="true">
+        <td class="column-title">${this.escapeHtml(title)}</td>
+        <td class="column-duration">${duration}</td>
+        <td class="column-play">
+          <button class="pad-btn play-btn ${isPlaying ? 'active' : ''}"
+                  data-audio-id="${audioFile.id}"
+                  data-action="play"
+                  title="${isPlaying ? 'Stop' : 'Play'}">
+            ${isPlaying ? '⏸' : '▶'}
+          </button>
+        </td>
+      </tr>
+    `;
   }
 
   /**

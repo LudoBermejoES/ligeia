@@ -2235,6 +2235,150 @@ body {
     display: block !important;
 }
 
+/* Mixer Column View Styles */
+.mixer-columns-view .sound-pads-grid {
+    display: block !important;
+    height: 100%;
+}
+
+.mixer-columns-container {
+    display: flex;
+    gap: 1rem;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1rem;
+}
+
+.mixer-folder-column {
+    flex: 0 0 300px;
+    min-width: 250px;
+    max-width: 400px;
+    background: var(--card, rgba(0, 0, 0, 0.3));
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.column-header {
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.column-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text, #fff);
+    margin: 0;
+}
+
+.column-count {
+    font-size: 0.875rem;
+    color: var(--muted, rgba(255, 255, 255, 0.6));
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+}
+
+.column-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.column-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.column-table thead {
+    position: sticky;
+    top: 0;
+    background: var(--card, rgba(0, 0, 0, 0.3));
+    z-index: 5;
+}
+
+.column-table th {
+    padding: 0.5rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--muted, rgba(255, 255, 255, 0.6));
+    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+}
+
+.column-row {
+    cursor: move;
+    user-select: none;
+    transition: background-color 0.15s ease;
+}
+
+.column-row:hover {
+    background-color: var(--hover, rgba(255, 255, 255, 0.05));
+}
+
+.column-row.playing {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.column-row td {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.column-title {
+    color: var(--text, #fff);
+    font-weight: 500;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.column-duration {
+    color: var(--muted, rgba(255, 255, 255, 0.6));
+    width: 60px;
+}
+
+.column-play {
+    width: 40px;
+    text-align: center;
+}
+
+.column-play .play-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--card, rgba(0, 0, 0, 0.3));
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    color: var(--text, #fff);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.75rem;
+}
+
+.column-play .play-btn:hover {
+    transform: scale(1.1);
+    background: var(--hover, rgba(255, 255, 255, 0.1));
+}
+
+.column-play .play-btn.active {
+    background: var(--accent, #007bff);
+    color: white;
+    border-color: var(--accent, #007bff);
+}
+
 .mixer-list-table {
     width: 100%;
     border-collapse: collapse;

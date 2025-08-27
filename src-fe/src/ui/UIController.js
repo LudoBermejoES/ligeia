@@ -472,12 +472,13 @@ export class UIController {
         let dragStartPos = { x: 0, y: 0 };
         let dragThreshold = 5; // pixels
         
-        // Mouse down on sound pads or list rows
+        // Mouse down on sound pads, list rows, or column rows
         document.addEventListener('mousedown', (e) => {
-            // Check for both pad and list row
+            // Check for pad, list row, or column row
             const pad = e.target.closest('.sound-pad');
             const listRow = e.target.closest('.mixer-list-row');
-            const draggableElement = pad || listRow;
+            const columnRow = e.target.closest('.column-row');
+            const draggableElement = pad || listRow || columnRow;
             
             if (!draggableElement) return;
             
