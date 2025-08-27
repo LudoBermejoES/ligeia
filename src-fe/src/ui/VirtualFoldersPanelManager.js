@@ -373,6 +373,11 @@ export class VirtualFoldersPanelManager {
             }
             
             await this.loadFolderTree();
+            
+            // If there's a currently selected folder, refresh its contents
+            if (this.currentFolderId) {
+                await this.loadFolderContents(this.currentFolderId);
+            }
         } catch (error) {
             console.error('Failed to load initial data:', error);
             this.showError('Failed to load folders');

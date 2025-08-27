@@ -529,11 +529,8 @@ export class AmbientMixerApp {
     }
 
     handleStopAll() {
-        for (const pad of this.soundPads.values()) {
-            if (pad.isPlaying) {
-                pad.stop();
-            }
-        }
+        // Use LibraryManager's stopAll method which handles all sound pads
+        this.libraryManager.stopAll();
         this.updateUI();
     }
 

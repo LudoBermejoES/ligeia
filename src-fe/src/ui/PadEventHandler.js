@@ -112,12 +112,13 @@ export class PadEventHandler {
     const audioFile = this._getAudioFileById(audioId);
     const soundPad = audioFile ? this.libraryManager.getSoundPads().get(audioFile.file_path) : null;
     
-    if (!soundPad && ['toggle', 'loop', 'mute', 'volume'].includes(action)) {
+    if (!soundPad && ['play', 'toggle', 'loop', 'mute', 'volume'].includes(action)) {
       logger.warn('pad-events', `No SoundPad found for audio ${audioId}`);
       return false;
     }
 
     switch (action) {
+      case 'play':
       case 'toggle':
         try {
           if (currentState.isPlaying) {
@@ -260,19 +261,23 @@ export class PadEventHandler {
    * Update pad UI across all contexts
    */
   _updatePadUI(audioId, stateChanges) {
-    // Find all pad elements with this audioId
-    const pads = document.querySelectorAll(`.sound-pad[data-audio-id="${audioId}"]`);
+    // Find all pad elements with this audioId (both .sound-pad and .column-row)
+    const pads = document.querySelectorAll(`.sound-pad[data-audio-id="${audioId}"], .column-row[data-audio-id="${audioId}"]`);
     
     pads.forEach(pad => {
       if ('isPlaying' in stateChanges) {
         pad.classList.toggle('active', stateChanges.isPlaying);
+        pad.classList.toggle('playing', stateChanges.isPlaying); // For column rows
+        
         const statusElement = pad.querySelector('.sound-pad-status');
         if (statusElement) {
           statusElement.textContent = stateChanges.isPlaying ? '▶️' : '⏸️';
         }
-        const toggleBtn = pad.querySelector('[data-action="toggle"]');
+        
+        // Handle both toggle and play buttons
+        const toggleBtn = pad.querySelector('[data-action="toggle"]') || pad.querySelector('[data-action="play"]');
         if (toggleBtn) {
-          toggleBtn.textContent = stateChanges.isPlaying ? '⏸️' : '▶️';
+          toggleBtn.textContent = stateChanges.isPlaying ? '⏸' : '▶';
           toggleBtn.title = stateChanges.isPlaying ? 'Stop' : 'Play';
           toggleBtn.classList.toggle('active', stateChanges.isPlaying);
         }
@@ -459,7 +464,8 @@ export class PadEventHandler {
       const action = event.target.dataset?.action;
       if (!action) return;
 
-      const pad = event.target.closest('.sound-pad');
+      // Look for both .sound-pad (grid/list view) and .column-row (column view) containers
+      const pad = event.target.closest('.sound-pad') || event.target.closest('.column-row');
       if (!pad) return;
 
       event.preventDefault();
