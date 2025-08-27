@@ -26,9 +26,9 @@ The application is built with modern web technologies and packaged as a desktop 
 
 Ligeia features a completely **refactored and modular architecture** from the original monolithic structure to a modern, service-oriented design with both frontend and backend modularity.
 
-### 2.1. Frontend (JavaScript)
+### 2.1. Frontend (JavaScript with Tailwind CSS)
 
-The frontend follows a **Model-View-Controller (MVC)** pattern with an additional **Service Layer** and **Manager Layer** for complex domain logic.
+The frontend follows a **Model-View-Controller (MVC)** pattern with an additional **Service Layer** and **Manager Layer** for complex domain logic, utilizing **Tailwind CSS** for modern utility-first styling and **HyperUI** components for professional interfaces.
 
 -   **Entry Point**: `main-template.js` loads HTML partials (header, sidebar, mixer, modals) then initializes the main application controller.
 -   **Main Controller** (`src/AmbientMixerApp.js`): Orchestrates all services, managers, and UI controllers, manages application state, and handles user interactions.
@@ -38,12 +38,14 @@ The frontend follows a **Model-View-Controller (MVC)** pattern with an additiona
     -   `DatabaseService.js`: Manages interactions with the Rust backend for database operations (CRUD on audio file metadata).
     -   `TagService.js`: Manages RPG tag operations, vocabulary, bulk tagging, and tag-based search functionality.
     -   `AtmosphereService.js`: Handles all atmosphere-related backend communication and data management.
+    -   `VirtualFolderService.js`: Manages virtual folder operations, hierarchical organization, and folder-file relationships.
 -   **Managers** (`src/managers/`):
     -   `LibraryManager.js`: Manages the complete audio library state, file processing, and sound pad creation.
     -   `AtmosphereManager.js`: Orchestrates atmosphere operations including creation, loading, deletion, and search functionality.
     -   `TagEditorManager.js`: Manages tag editing operations and modal interactions.
     -   `ImportExportManager.js`: Handles library backup and restoration operations.
     -   `StoreTagsManager.js`: Manages storing all database tags directly into audio files using ID3v2.4 standard.
+    -   `VirtualFolderManager.js`: Orchestrates virtual folder operations including creation, organization, and file management.
 -   **Engine** (`src/engine/`):
     -   `AtmosphereEngine.js`: Core crossfade engine with cancellation support, progress tracking, and event emission for atmosphere transitions.
 -   **Models** (`src/models/`):
@@ -54,6 +56,9 @@ The frontend follows a **Model-View-Controller (MVC)** pattern with an additiona
     -   `AtmosphereMembershipEditor.js`: Manages the side panel interface for editing atmosphere sound memberships.
     -   `BulkTagEditorController.js`: Handles the bulk tag editor modal interface for multi-file tagging.
     -   `TagSearchController.js`: Manages tag-based search and filtering interface with real-time results.
+    -   `VirtualFoldersPanelManager.js`: Manages the virtual folders panel with grid/list view toggles, drag-and-drop functionality, and folder navigation.
+    -   `VirtualFolderModals.js`: Handles virtual folder creation, editing, and management modals with HyperUI components.
+    -   `VirtualFolderDragDrop.js`: Manages drag-and-drop operations for organizing files within virtual folder structures.
     -   `PadEventHandler.js`: Unified event handling for sound pad interactions.
     -   `PadRenderer.js`: Specialized rendering logic for sound pads with enhanced visual feedback.
     -   `PadStateManager.js`: Manages sound pad state synchronization across the application.
@@ -64,11 +69,12 @@ The backend has been **completely refactored** into a modular architecture with 
 
 -   **Modular Structure** (`src-tauri/src/`):
     -   `main.rs`: Main entry point and Tauri command handlers
-    -   `models.rs`: Data structures (AudioFile, Atmosphere, RpgTag, TagVocabulary, etc.)
-    -   `database/` module: schema, queries, and table-specific ops split across files (`schema.rs`, `audio_files.rs`, `rpg_tags.rs`, `vocabulary.rs`, `atmospheres.rs`, `search.rs`)
+    -   `models.rs`: Data structures (AudioFile, Atmosphere, RpgTag, TagVocabulary, VirtualFolder, etc.)
+    -   `database/` module: schema, queries, and table-specific ops split across files (`schema.rs`, `audio_files.rs`, `rpg_tags.rs`, `vocabulary.rs`, `atmospheres.rs`, `virtual_folders.rs`, `search.rs`)
     -   `audio_handler.rs`: Audio metadata processing (duration, BPM) and ID3v2.4 read/write
     -   `audio_processing_handler.rs`: Batch duration/BPM calculation (`calculate_missing_durations`)
     -   `tag_manager.rs` and `tag_handler.rs`: RPG tag business logic and Tauri commands
+    -   `virtual_folder_handler.rs`: Virtual folder operations and hierarchical organization commands
     -   `file_scanner.rs`: Recursive directory scanning with filtering
     -   `import_export_handler.rs`: Library backup/restore logic
     -   `store_tags_handler.rs`: Store all database tags into audio files using ID3v2.4 standard
@@ -82,6 +88,7 @@ The backend has been **completely refactored** into a modular architecture with 
     -   **Audio Processing Operations**: `calculate_missing_durations` for comprehensive audio metadata analysis
     -   **Store Tags Operations**: `store_all_tags_in_files` for writing all database metadata and RPG tags into audio files
     -   **Atmosphere Operations**: `save_atmosphere`, `get_all_atmospheres`, `get_atmosphere_by_id`, `delete_atmosphere`, `add_sound_to_atmosphere`, `remove_sound_from_atmosphere`, `update_atmosphere_sound`, `get_atmosphere_with_sounds`, `get_atmosphere_categories`, `duplicate_atmosphere`, `compute_atmosphere_integrity`, `compute_all_atmosphere_integrities`, `search_atmospheres`
+    -   **Virtual Folder Operations**: `create_virtual_folder`, `get_virtual_folder_by_id`, `update_virtual_folder`, `delete_virtual_folder`, `get_virtual_folder_tree`, `get_folder_children`, `get_folder_path`, `move_virtual_folder`, `add_files_to_virtual_folder`, `remove_files_from_virtual_folder`, `get_virtual_folder_contents`, `get_file_virtual_folders`, `search_virtual_folders`, `get_folders_containing_files`
 
 -   **Enhanced Database Schema**:
     -   **`audio_files` table**: Comprehensive metadata storage with all ID3v2.4 fields
@@ -89,7 +96,10 @@ The backend has been **completely refactored** into a modular architecture with 
     -   **`tag_vocabulary` table**: Controlled vocabulary management with descriptions
     -   **`atmospheres` table**: Complete atmosphere metadata with crossfade settings
     -   **`atmosphere_sounds` table**: Sound memberships in atmospheres with volume, playback settings, and random delay timing (min_seconds, max_seconds)
-    -   **Proper indexing**: Optimized for search performance across all tables
+    -   **`virtual_folders` table**: Hierarchical folder structure with parent-child relationships for RPG-focused organization
+    -   **`virtual_folder_contents` table**: Many-to-many relationship between folders and audio files with flexible organization
+    -   **`folder_templates` table**: Predefined folder structures for common RPG scenarios and quick setup
+    -   **Proper indexing**: Optimized for search performance across all tables including hierarchical queries
 
 -   **Dependencies**: Uses **`id3`** crate for comprehensive tag support, **`scan_dir`** for recursive scanning, **`rusqlite`** for database operations, **`symphonia`** for advanced audio format support, **`aubio-rs`** for BPM detection and audio analysis, and **`chrono`** for timestamp management.
 
@@ -137,7 +147,35 @@ The system implements the complete TAGS.md specification with four comprehensive
 - **Visual Interface**: Interactive tag chips with real-time feedback
 - **Category Removal**: Eliminated redundant ambient/nature/music/effects categories in favor of comprehensive tagging
 
-### 2.4. Professional Atmosphere Management System
+### 2.4. Virtual Folder Organization System
+
+#### Hierarchical File Organization
+The virtual folder system provides flexible, RPG-focused organization capabilities that complement the tagging system:
+
+**Core Virtual Folder Features:**
+- **Hierarchical Structure**: Unlimited nesting depth with parent-child relationships (e.g., `Combat > Weapons > Firearms > Pistols`)
+- **Many-to-Many Relationships**: Audio files can exist in multiple virtual folders simultaneously
+- **Non-Destructive Organization**: Physical files remain unchanged, only database relationships are managed
+- **RPG-Focused Templates**: Predefined folder structures for common RPG scenarios (Combat, Exploration, Social, Magic)
+- **Dynamic Collections**: Create, modify, and delete folders without affecting audio files
+- **Search Integration**: Works alongside RPG tagging system for enhanced discoverability
+
+**Advanced Virtual Folder Capabilities:**
+- **Drag-and-Drop Organization**: HTML5 drag-and-drop for intuitive file and folder management
+- **Grid/List View Toggle**: Switch between visual grid layout and detailed list view with file information
+- **Folder Navigation**: Breadcrumb navigation and tree view for easy hierarchical browsing
+- **Bulk Operations**: Move multiple files between folders or apply folder-based operations
+- **Template System**: Quick setup with predefined RPG folder structures (Combat, Environments, Characters, etc.)
+- **Search and Filtering**: Find folders by name, filter by contents, and discover files across folder structures
+
+**Professional UI Integration:**
+- **Side Panel Interface**: Dedicated virtual folders panel with resizable layout and toggle functionality
+- **HyperUI Components**: Modern modal dialogs for folder creation and management using HyperUI design system
+- **Visual Feedback**: Real-time updates, drag indicators, and status feedback for all operations
+- **Context Menus**: Right-click operations for folder and file management
+- **Responsive Design**: Adapts to different screen sizes with Tailwind CSS utility classes
+
+### 2.5. Professional Atmosphere Management System
 
 #### Comprehensive Atmosphere Features
 The atmosphere system provides professional-grade soundscape management:
@@ -166,15 +204,43 @@ The atmosphere system provides professional-grade soundscape management:
 - **Category Management**: Organized atmosphere browsing with metadata-based filtering
 - **Theme Switching**: Atmospheres can switch UI theme dynamically via `ThemeService` (e.g., default, fantasy, horror, superheroes)
 
-### 2.5. Technology Stack Summary
+### 2.6. Tailwind CSS Integration and Modern UI Architecture
+
+#### Complete Tailwind CSS Migration
+The frontend has undergone a comprehensive migration from custom CSS to **Tailwind CSS v4** with **HyperUI** component integration for professional, maintainable styling:
+
+**Migration Achievements:**
+- **Utility-First Approach**: Replaced custom CSS with Tailwind utility classes for consistent, scalable styling
+- **HyperUI Component Library**: Integrated production-ready components for modals, forms, layouts, and navigation
+- **Responsive Design**: Mobile-first approach with proper breakpoints and adaptive layouts
+- **Dark Mode Support**: Built-in theme switching capabilities with automatic preference detection
+- **Performance Optimization**: Reduced CSS bundle size and improved render performance
+- **Accessibility First**: Semantic HTML structure with ARIA attributes and keyboard navigation
+
+**Key UI Components:**
+- **Professional Modals**: HyperUI modal components for atmosphere creation, virtual folder management, and bulk operations
+- **Advanced Forms**: Enhanced input components with validation, icons, and responsive layouts
+- **Grid Systems**: Flexible grid layouts for sound pads, file browsers, and content organization  
+- **Navigation Components**: Side menus, breadcrumbs, and hierarchical navigation for complex interfaces
+- **Interactive Elements**: Buttons, toggles, sliders, and controls with consistent styling and behavior
+
+**Technical Implementation:**
+- **@apply Directives**: Custom component classes using Tailwind utilities for complex UI patterns
+- **CSS Custom Properties**: Dynamic theming and component customization
+- **Responsive Utilities**: Breakpoint-specific styling for optimal experience across devices
+- **State Management**: Visual feedback for interactions, loading states, and user actions
+- **Animation System**: Smooth transitions and micro-interactions using Tailwind's animation utilities
+
+### 2.7. Technology Stack Summary
 
 -   **Framework**: Tauri (Rust backend, webview frontend)
--   **Frontend**: HTML5, CSS3, JavaScript (ES6 Modules) with modular architecture
+-   **Frontend**: HTML5, Tailwind CSS v4, JavaScript (ES6 Modules) with modular architecture and HyperUI components
 -   **Backend**: Rust with modular architecture and comprehensive handler separation
 -   **Audio**: Web Audio API with crossfade support and comprehensive metadata processing
--   **Database**: SQLite (via `rusqlite`) with optimized schema including atmosphere support
+-   **Database**: SQLite (via `rusqlite`) with optimized schema including virtual folder and atmosphere support
 -   **Audio Processing**: Symphonia for format support, Aubio for BPM detection
--   **UI Libraries**: SortableJS for drag-and-drop functionality, native file dialogs
+-   **UI Libraries**: SortableJS for drag-and-drop functionality, HyperUI for component library, native file dialogs
+-   **Styling**: Tailwind CSS v4 utility-first framework with custom @apply directives and responsive design
 -   **Build Tools**: Node.js/npm for frontend dependencies and Tauri CLI commands
 
 Notes:
@@ -192,11 +258,14 @@ src-fe/src/
 │   ├── FileService.js              # File operations & Tauri integration
 │   ├── DatabaseService.js          # Database operations
 │   ├── TagService.js               # RPG tag management & vocabulary
-│   └── AtmosphereService.js        # Atmosphere backend communication
+│   ├── AtmosphereService.js        # Atmosphere backend communication
+│   ├── VirtualFolderService.js     # Virtual folder operations & hierarchy
+│   └── ThemeService.js             # Theme switching and management
 ├── managers/
 │   ├── LibraryManager.js           # Audio library state management
 │   ├── AtmosphereManager.js        # Atmosphere operations orchestration
 │   ├── TagEditorManager.js         # Tag editing operations
+│   ├── VirtualFolderManager.js     # Virtual folder orchestration
 │   ├── ImportExportManager.js      # Library backup/restoration
 │   └── StoreTagsManager.js         # Store database tags into audio files
 ├── engine/
@@ -209,9 +278,14 @@ src-fe/src/
 │   ├── AtmosphereMembershipEditor.js # Side panel membership editing
 │   ├── BulkTagEditorController.js  # Bulk tagging interface
 │   ├── TagSearchController.js      # Tag-based search & filtering
+│   ├── VirtualFoldersPanelManager.js # Virtual folders panel with grid/list toggle
+│   ├── VirtualFolderModals.js      # Virtual folder creation & management modals
+│   ├── VirtualFolderDragDrop.js    # Drag-and-drop operations for folder organization
+│   ├── InfiniteScrollController.js # Infinite scroll for large libraries
 │   ├── PadEventHandler.js          # Unified pad event handling
 │   ├── PadRenderer.js              # Enhanced pad rendering
-│   └── PadStateManager.js          # Pad state synchronization
+│   ├── PadStateManager.js          # Pad state synchronization
+│   └── helpers.js                  # UI utility functions
 ├── templates/
 │   └── TemplateLoader.js           # HTML template loading system
 └── utils/
@@ -443,6 +517,25 @@ cd src-tauri; cargo check
    - Creates natural, varied ambient soundscape timing
 5. **Real-time Updates**: All delay changes automatically save to atmosphere configuration
 
+### 6.7. Virtual Folder Organization Workflow
+1. **Access Virtual Folders**: Click "📁 Folders" button in the sidebar to open the virtual folders panel
+2. **Create Folder Structure**: Use the "➕ New Folder" button to create hierarchical organization:
+   - Choose from RPG-focused templates (Combat, Environments, Characters, Magic)
+   - Create custom folder hierarchies with unlimited nesting depth
+   - Organize by scenario, theme, or usage patterns
+3. **Organize Audio Files**: 
+   - **Drag-and-Drop**: Drag files from mixer area directly into virtual folders
+   - **Multi-select**: Select multiple files and add to folders via context menu
+   - **Cross-Folder Organization**: Files can exist in multiple folders simultaneously
+4. **Navigation and Discovery**:
+   - **Grid/List Toggle**: Switch between visual grid and detailed list view
+   - **Breadcrumb Navigation**: Navigate through folder hierarchy with breadcrumb trail
+   - **Search Integration**: Combine folder browsing with RPG tag filtering
+5. **Folder Management**:
+   - **Rename/Move**: Right-click folders for management options
+   - **Bulk Operations**: Move entire folder contents or reorganize structure
+   - **Template Application**: Apply predefined folder structures for quick setup
+
 ## 7. Database Schema
 
 ### 7.1. Audio Files Table
@@ -546,17 +639,19 @@ The combination of Tauri's cross-platform capabilities, Rust's performance and s
 ---
 
 Changelog highlights (recent):
+- **Complete Tailwind CSS Migration**: Migrated from custom CSS to Tailwind CSS v4 with HyperUI component integration for professional, maintainable styling including utility-first approach, responsive design, dark mode support, and accessibility-first components
+- **Virtual Folder System**: Complete implementation of hierarchical file organization with unlimited nesting, many-to-many relationships, RPG-focused templates, drag-and-drop functionality, grid/list view toggle, and search integration
+- **Enhanced UI Architecture**: Added `VirtualFoldersPanelManager.js`, `VirtualFolderModals.js`, `VirtualFolderDragDrop.js`, and `VirtualFolderService.js` for comprehensive folder management with HyperUI modal components and Tailwind styling
+- **Advanced Database Schema**: Extended database with `virtual_folders`, `virtual_folder_contents`, and `folder_templates` tables supporting hierarchical organization and RPG-specific folder structures
+- **Backend Virtual Folder Support**: Added `virtual_folder_handler.rs` with comprehensive Tauri commands for folder operations including `create_virtual_folder`, `get_virtual_folder_tree`, `move_virtual_folder`, and `search_virtual_folders`
+- **Professional Modal System**: Implemented HyperUI-based modals with proper `pointer-events-auto` classes for atmosphere creation, bulk tag editor, tag editor, and virtual folder management
+- **Resizable Panel System**: Enhanced sidebar with drag-to-resize functionality and proper Tailwind CSS layout management for flexible workspace organization
+- **Logging System Configuration**: Updated Tauri logging to write to relative `logs/` directory with proper path configuration and file management
 - **Store Tags in Files System**: Complete implementation of storing all database metadata and RPG tags into audio files using ID3v2.4 standard with TXXX custom fields, smart file comparison, batch processing, and professional UI with confirmation/progress/results dialogs
-- **Enhanced Rust Backend**: Added `store_tags_handler.rs` with comprehensive tag writing logic, file comparison, and error handling for batch processing operations
-- **Professional UI Integration**: New `StoreTagsManager.js` with modal system including detailed confirmation dialog, animated progress tracking, and comprehensive results summary with error reporting
-- **ID3v2.4 Tag Writing**: Complete implementation of standard metadata fields and RPG-specific TXXX frames with semicolon-separated multi-value support for portable audio file tagging
-- **Sidebar Resizing**: Added resize control to sidebar-container with drag functionality to adjust panel widths while maintaining responsive layout proportions
-- **Bug Fixes**: Fixed muted sounds playing in atmospheres, resolved atmosphere remove action errors, and corrected CSS issues preventing sidebar width adjustment
 - **Random Delay System**: Complete implementation of min/max seconds delay controls (0-60s range) for atmosphere pads with smart validation, visual feedback, and automatic database persistence
 - **Enhanced Database Schema**: Added min_seconds and max_seconds columns to atmosphere_sounds table with automatic migration support for existing databases
 - **Advanced UI Controls**: Dual slider interface with orange styling, real-time validation (min ≤ max), auto-adjustment animations, and CSS layout fixes to prevent overflow
-- **Backend Integration**: Updated Tauri commands, Rust handlers, and database operations to support delay fields with comprehensive error handling
-- Mixer: visual grouping by parent folder within Ambient/Others.
-- Membership editor: duration-based grouping with non-draggable headers and SortableJS reordering.
-- Unified pad event/state system across mixer and atmosphere contexts.
-- Root npm scripts updated to use Windows-friendly `npm --prefix ./src-fe exec tauri ...`.
+- **Mixer Visual Grouping**: Enhanced mixer with visual grouping by parent folder within Ambient/Others sections for better large library organization
+- **Membership Editor Improvements**: Duration-based grouping with non-draggable headers, SortableJS reordering, and enhanced drag-and-drop functionality
+- **Unified Event System**: Consolidated pad event/state management across mixer and atmosphere contexts for consistent behavior and state synchronization
+- **Development Environment**: Updated npm scripts to use Windows-friendly `npm --prefix ./src-fe exec tauri ...` syntax for cross-platform compatibility
