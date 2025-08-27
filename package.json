@@ -9,6 +9,7 @@
     "dev-no-watch": "npm --prefix ./src-fe exec tauri dev --no-watch",
     "dev-ignore": "set TAURI_DEV_WATCHER_IGNORE_FILE=.taurignore && npm --prefix ./src-fe exec tauri dev",
     "build": "npm --prefix ./src-fe exec tauri build",
+    "build-frontend": "node build-frontend.js",
     "tauri": "npm --prefix ./src-fe exec tauri",
     "serve": "python3 -m http.server 1420",
     "postinstall": "npm run move-node-modules",

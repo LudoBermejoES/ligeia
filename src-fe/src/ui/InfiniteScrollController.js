@@ -403,7 +403,7 @@ export class InfiniteScrollController {
     const isPlaying = pad?.isPlaying || false;
     const folder = this.getParentFolder(audioFile.file_path);
     const title = audioFile.title || audioFile.file_path?.split('/').pop() || 'Unknown';
-    const duration = this.formatDuration(audioFile.duration_seconds);
+    const duration = this.formatDuration(audioFile.duration);
     
     return `
       <tr class="mixer-list-row border-b border-border/50 hover:bg-hover transition-colors duration-150
@@ -507,7 +507,7 @@ export class InfiniteScrollController {
     const pad = soundPads.get(audioFile.file_path);
     const isPlaying = pad?.isPlaying || false;
     const title = audioFile.title || audioFile.file_path?.split('/').pop() || 'Unknown';
-    const duration = this.formatDuration(audioFile.duration_seconds);
+    const duration = this.formatDuration(audioFile.duration);
     
     return `
       <tr class="column-row ${isPlaying ? 'playing' : ''}"

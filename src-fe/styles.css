@@ -784,33 +784,6 @@ body {
     transform: scale(0.95);
 }
 
-.suggest-folders-btn {
-    background: rgba(59, 130, 246, 0.8);
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 0.7rem;
-    transition: all 0.2s ease;
-    opacity: 0.7;
-    flex-shrink: 0;
-    margin-left: 4px;
-}
-
-.suggest-folders-btn:hover {
-    background: rgba(59, 130, 246, 1);
-    opacity: 1;
-    transform: scale(1.1);
-}
-
-.suggest-folders-btn:active {
-    transform: scale(0.95);
-}
-
 
 .sound-pad-artist {
     font-size: 0.75rem;

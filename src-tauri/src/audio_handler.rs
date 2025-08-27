@@ -84,6 +84,17 @@ impl AudioHandler {
             // Duration from file analysis (not from tag)  
             audio_file.duration = tag.duration().map(|d| d as f64);
             
+            // Also check TLEN frame for duration (in milliseconds)
+            if audio_file.duration.is_none() {
+                if let Some(frame) = tag.get("TLEN") {
+                    if let Some(tlen_text) = frame.content().text() {
+                        if let Ok(duration_ms) = tlen_text.parse::<u32>() {
+                            audio_file.duration = Some(duration_ms as f64 / 1000.0);
+                        }
+                    }
+                }
+            }
+            
             // Extended tags
             for frame in tag.frames() {
                 match frame.id() {
@@ -621,6 +632,36 @@ impl AudioHandler {
             Ok(bpm)
         } else {
             Err("Could not detect valid BPM".to_string())
+        }
+    }
+
+    /// Check if duration and BPM already exist in ID3 tags before calculating
+    pub fn get_existing_duration_and_bpm(file_path: &str) -> Result<(Option<f64>, Option<f32>), String> {
+        if let Ok(tag) = Tag::read_from_path(file_path) {
+            let mut duration = tag.duration().map(|d| d as f64);
+            
+            // Also check TLEN frame for duration (in milliseconds) if not found
+            if duration.is_none() {
+                if let Some(frame) = tag.get("TLEN") {
+                    if let Some(tlen_text) = frame.content().text() {
+                        if let Ok(duration_ms) = tlen_text.parse::<u32>() {
+                            duration = Some(duration_ms as f64 / 1000.0);
+                        }
+                    }
+                }
+            }
+            
+            // Check TBPM frame for BPM
+            let bpm = if let Some(frame) = tag.get("TBPM") {
+                frame.content().text().and_then(|s| s.parse().ok())
+            } else {
+                None
+            };
+            
+            Ok((duration, bpm))
+        } else {
+            // If we can't read the tag, return None for both
+            Ok((None, None))
         }
     }
 
