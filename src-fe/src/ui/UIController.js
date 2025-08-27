@@ -483,7 +483,7 @@ export class UIController {
             if (!draggableElement) return;
             
             // Ignore if clicking on buttons or controls
-            if (e.target.matches('button, input[type="range"], .edit-tags-btn, .pad-btn')) {
+            if (e.target.matches('button, input[type="range"], .edit-tags-btn, .suggest-folders-btn, .pad-btn')) {
                 return;
             }
             

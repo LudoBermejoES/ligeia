@@ -1,5 +1,5 @@
 use rusqlite::{Connection, Result, Row, params};
-use crate::models::{VirtualFolder, VirtualFolderContent, VirtualFolderTree, VirtualFolderWithContents, FolderTemplate, AudioFile};
+use crate::models::{VirtualFolder, VirtualFolderTree, VirtualFolderWithContents, FolderTemplate, AudioFile, AutoOrganizationSuggestion};
 use chrono::Utc;
 
 /// Database operations for virtual folders
@@ -115,6 +115,19 @@ impl VirtualFolderOps {
                 rows.collect::<Result<Vec<_>, _>>()?
             }
         };
+        
+        Ok(folders)
+    }
+    
+    pub fn get_all_virtual_folders(conn: &Connection) -> Result<Vec<VirtualFolder>> {
+        let mut stmt = conn.prepare(
+            "SELECT id, name, description, parent_folder_id, color, icon, created_at, updated_at,
+             created_by, folder_order, is_system_folder, metadata
+             FROM virtual_folders ORDER BY name"
+        )?;
+        
+        let folders: Vec<VirtualFolder> = stmt.query_map([], |row| Self::row_to_virtual_folder(row))?
+            .collect::<Result<Vec<_>, _>>()?;
         
         Ok(folders)
     }
@@ -463,6 +476,171 @@ impl VirtualFolderOps {
             created_at: row.get("created_at")?,
             created_by: row.get("created_by")?,
         })
+    }
+
+    // Tag-based folder suggestion functions
+    
+    /// Get folder suggestions for a file based on its RPG tags
+    pub fn suggest_folders_for_file(conn: &Connection, audio_file_id: i64, limit: Option<usize>) -> Result<Vec<(VirtualFolder, f64)>> {
+        let limit = limit.unwrap_or(5);
+        
+        // Get all tags for the file
+        let file_tags = Self::get_file_tags(conn, audio_file_id)?;
+        
+        if file_tags.is_empty() {
+            return Ok(Vec::new());
+        }
+        
+        // Get all folders and their common tags with scoring
+        let mut folder_scores: Vec<(VirtualFolder, f64)> = Vec::new();
+        let folders = Self::get_all_virtual_folders(conn)?;
+        
+        for folder in folders {
+            let score = Self::calculate_folder_tag_score(conn, folder.id.unwrap(), &file_tags)?;
+            if score > 0.0 {
+                folder_scores.push((folder, score));
+            }
+        }
+        
+        // Sort by score descending and limit results
+        folder_scores.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+        folder_scores.truncate(limit);
+        
+        Ok(folder_scores)
+    }
+    
+    /// Calculate similarity score between a folder and a set of tags
+    fn calculate_folder_tag_score(conn: &Connection, folder_id: i64, file_tags: &[String]) -> Result<f64> {
+        // Get all tags from files currently in this folder
+        let mut stmt = conn.prepare(
+            "SELECT DISTINCT rt.tag_type, rt.tag_value
+             FROM rpg_tags rt
+             JOIN virtual_folder_contents vfc ON rt.audio_file_id = vfc.audio_file_id
+             WHERE vfc.folder_id = ?"
+        )?;
+        
+        let folder_tags: Vec<String> = stmt.query_map([folder_id], |row| {
+            let tag_type: String = row.get(0)?;
+            let tag_value: String = row.get(1)?;
+            Ok(format!("{}:{}", tag_type, tag_value))
+        })?.collect::<Result<Vec<_>, _>>()?;
+        
+        if folder_tags.is_empty() {
+            return Ok(0.0);
+        }
+        
+        // Calculate Jaccard similarity coefficient
+        let file_tags_set: std::collections::HashSet<&String> = file_tags.iter().collect();
+        let folder_tags_set: std::collections::HashSet<&String> = folder_tags.iter().collect();
+        
+        let intersection = file_tags_set.intersection(&folder_tags_set).count();
+        let union = file_tags_set.union(&folder_tags_set).count();
+        
+        if union == 0 {
+            Ok(0.0)
+        } else {
+            Ok(intersection as f64 / union as f64)
+        }
+    }
+    
+    /// Get all RPG tags for a file in "type:value" format
+    fn get_file_tags(conn: &Connection, audio_file_id: i64) -> Result<Vec<String>> {
+        let mut stmt = conn.prepare(
+            "SELECT tag_type, tag_value FROM rpg_tags WHERE audio_file_id = ?"
+        )?;
+        
+        let tags: Vec<String> = stmt.query_map([audio_file_id], |row| {
+            let tag_type: String = row.get(0)?;
+            let tag_value: String = row.get(1)?;
+            Ok(format!("{}:{}", tag_type, tag_value))
+        })?.collect::<Result<Vec<_>, _>>()?;
+        
+        Ok(tags)
+    }
+    
+    /// Get auto-organization suggestions based on tag patterns
+    pub fn get_auto_organization_suggestions(conn: &Connection, threshold: f64) -> Result<Vec<AutoOrganizationSuggestion>> {
+        let mut suggestions = Vec::new();
+        
+        // Find files not in any folder
+        let unorganized_files = Self::get_unorganized_files(conn)?;
+        
+        for file in unorganized_files {
+            let folder_suggestions = Self::suggest_folders_for_file(conn, file.id.unwrap(), Some(3))?;
+            
+            // Only suggest if confidence is above threshold
+            if let Some((folder, score)) = folder_suggestions.first() {
+                if *score >= threshold {
+                    suggestions.push(AutoOrganizationSuggestion {
+                        audio_file_id: file.id.unwrap(),
+                        audio_file_title: file.title.unwrap_or_else(|| "Unknown".to_string()),
+                        suggested_folder_id: folder.id.unwrap(),
+                        suggested_folder_name: folder.name.clone(),
+                        confidence_score: *score,
+                        matching_tags: Self::get_matching_tags(conn, file.id.unwrap(), folder.id.unwrap())?,
+                    });
+                }
+            }
+        }
+        
+        // Sort by confidence score descending
+        suggestions.sort_by(|a, b| b.confidence_score.partial_cmp(&a.confidence_score).unwrap_or(std::cmp::Ordering::Equal));
+        
+        Ok(suggestions)
+    }
+    
+    /// Get files that are not in any virtual folder
+    fn get_unorganized_files(conn: &Connection) -> Result<Vec<AudioFile>> {
+        let mut stmt = conn.prepare(
+            "SELECT af.* FROM audio_files af
+             LEFT JOIN virtual_folder_contents vfc ON af.id = vfc.audio_file_id
+             WHERE vfc.audio_file_id IS NULL"
+        )?;
+        
+        let files = stmt.query_map([], |row| {
+            Ok(AudioFile {
+                id: Some(row.get(0)?),
+                file_path: row.get(1)?,
+                title: row.get(2)?,
+                artist: row.get(3)?,
+                album: row.get(4)?,
+                duration: row.get(5)?,
+                genre: row.get(6)?,
+                year: row.get(7)?,
+                track_number: row.get(8)?,
+                // Add other fields as needed
+                ..Default::default()
+            })
+        })?.collect::<Result<Vec<_>, _>>()?;
+        
+        Ok(files)
+    }
+    
+    /// Get tags that match between a file and folder
+    pub fn get_matching_tags(conn: &Connection, audio_file_id: i64, folder_id: i64) -> Result<Vec<String>> {
+        let file_tags = Self::get_file_tags(conn, audio_file_id)?;
+        
+        let mut stmt = conn.prepare(
+            "SELECT DISTINCT rt.tag_type, rt.tag_value
+             FROM rpg_tags rt
+             JOIN virtual_folder_contents vfc ON rt.audio_file_id = vfc.audio_file_id
+             WHERE vfc.folder_id = ?"
+        )?;
+        
+        let folder_tags: Vec<String> = stmt.query_map([folder_id], |row| {
+            let tag_type: String = row.get(0)?;
+            let tag_value: String = row.get(1)?;
+            Ok(format!("{}:{}", tag_type, tag_value))
+        })?.collect::<Result<Vec<_>, _>>()?;
+        
+        let file_tags_set: std::collections::HashSet<&String> = file_tags.iter().collect();
+        let folder_tags_set: std::collections::HashSet<&String> = folder_tags.iter().collect();
+        
+        let matching: Vec<String> = file_tags_set.intersection(&folder_tags_set)
+            .map(|s| (*s).clone())
+            .collect();
+        
+        Ok(matching)
     }
 }
 

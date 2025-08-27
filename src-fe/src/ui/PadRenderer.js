@@ -4,7 +4,7 @@
 // Context configurations
 const CONTEXTS = {
   mixer: {
-    controls: ['toggle', 'loop', 'mute', 'volume', 'edit-tags'],
+    controls: ['toggle', 'loop', 'mute', 'volume', 'edit-tags', 'suggest-folders'],
     cssClasses: ['sound-pad'],
     showArtist: true,
     showTags: true,
@@ -70,6 +70,7 @@ export function renderSoundPad(audioFile, padState, options = {}) {
           ${config.showArtist ? `<div class="sound-pad-meta">
             <span class="sound-pad-artist">${escapeHtml(artist)}</span>
             ${config.controls.includes('edit-tags') ? `<button class="edit-tags-btn" data-action="edit-tags" title="Edit Tags" draggable="false">✏️</button>` : ''}
+            ${config.controls.includes('suggest-folders') ? `<button class="suggest-folders-btn" data-action="suggest-folders" title="Suggest Folders" draggable="false">📁</button>` : ''}
           </div>` : ''}
         </div>
         <div class="sound-pad-status">${isPlaying ? '▶️' : '⏸️'}</div>

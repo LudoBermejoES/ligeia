@@ -1,0 +1,86 @@
+<!-- Folder Suggestions Modal -->
+<div id="folderSuggestionsModal" 
+     class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 hidden pointer-events-auto" 
+     role="dialog" 
+     aria-modal="true">
+  
+  <div class="modal-container relative w-full max-w-3xl max-h-[90vh] overflow-hidden bg-card rounded-lg shadow-xl">
+    <!-- Modal Header -->
+    <div class="modal-header flex items-start justify-between p-6 border-b border-border">
+      <div class="modal-title-section flex items-start gap-4">
+        <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+          📁
+        </div>
+        <div>
+          <h2 class="text-xl font-semibold text-text m-0 mb-2">Folder Suggestions</h2>
+          <div class="track-info space-y-1">
+            <div class="track-name text-lg font-medium text-text" id="suggestionsTrackName">Unknown Track</div>
+            <div class="track-path text-sm font-mono text-muted bg-bg px-2 py-1 rounded" id="suggestionsTrackPath"></div>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close text-muted hover:text-text transition-colors duration-200 text-2xl w-8 h-8 flex items-center justify-center rounded hover:bg-hover flex-shrink-0" 
+              id="closeFolderSuggestions">
+        ×
+      </button>
+    </div>
+    
+    <!-- Modal Body -->
+    <div class="modal-body overflow-y-auto max-h-[calc(90vh-200px)] p-6">
+      <div class="suggestions-content">
+        <!-- Loading State -->
+        <div id="suggestionsLoading" class="flex items-center justify-center py-8 hidden">
+          <div class="animate-spin w-6 h-6 border-2 border-accent border-t-transparent rounded-full mr-3"></div>
+          <span class="text-muted">Finding folder suggestions...</span>
+        </div>
+        
+        <!-- No Suggestions State -->
+        <div id="noSuggestions" class="text-center py-8 hidden">
+          <div class="text-6xl mb-4">🤷</div>
+          <h3 class="text-lg font-medium text-text mb-2">No Suggestions Found</h3>
+          <p class="text-muted">This file doesn't have enough tags to generate folder suggestions, or no folders match its tags.</p>
+        </div>
+        
+        <!-- Suggestions List -->
+        <div id="suggestionsList" class="space-y-4">
+          <!-- Suggestions will be populated here -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modal Footer -->
+    <div class="modal-footer flex items-center justify-between p-6 border-t border-border bg-card">
+      <div class="confidence-legend flex items-center gap-4 text-sm text-muted">
+        <div class="flex items-center gap-1">
+          <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+          <span>High (70%+)</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+          <span>Medium (40-69%)</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+          <span>Low (&lt;40%)</span>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-3">
+        <button type="button" 
+                class="btn btn-secondary px-5 py-2.5 bg-gray-600 text-white rounded font-medium
+                       hover:bg-gray-700 transition-colors duration-200" 
+                id="cancelFolderSuggestions">
+          Cancel
+        </button>
+        
+        <button type="button" 
+                class="btn btn-primary px-5 py-2.5 bg-accent text-white rounded font-medium
+                       hover:bg-green-600 transition-colors duration-200
+                       disabled:opacity-50 disabled:cursor-not-allowed" 
+                id="applyFolderSuggestions">
+          📁 Apply Selected
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

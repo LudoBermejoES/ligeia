@@ -502,14 +502,14 @@ export class PadEventHandler {
     // Prevent event bubbling on buttons and volume controls
     document.addEventListener('mousedown', (event) => {
       // Prevent bubbling if clicking on buttons or interactive elements
-      if (event.target.matches('.pad-btn, .edit-tags-btn, .volume-slider-pad, .delay-slider-pad, input[type="range"], button')) {
+      if (event.target.matches('.pad-btn, .edit-tags-btn, .suggest-folders-btn, .volume-slider-pad, .delay-slider-pad, input[type="range"], button')) {
         event.stopPropagation();
       }
     });
 
     document.addEventListener('click', (event) => {
       // Prevent bubbling if clicking on buttons or interactive elements
-      if (event.target.matches('.pad-btn, .edit-tags-btn, .volume-slider-pad, .delay-slider-pad, input[type="range"], button')) {
+      if (event.target.matches('.pad-btn, .edit-tags-btn, .suggest-folders-btn, .volume-slider-pad, .delay-slider-pad, input[type="range"], button')) {
         event.stopPropagation();
       }
     });
@@ -546,7 +546,7 @@ export class PadEventHandler {
       }
 
       // Prevent drag if the drag started from interactive elements
-      if (event.target.matches('.pad-btn, .edit-tags-btn, .volume-slider-pad, .delay-slider-pad, input[type="range"], button')) {
+      if (event.target.matches('.pad-btn, .edit-tags-btn, .suggest-folders-btn, .volume-slider-pad, .delay-slider-pad, input[type="range"], button')) {
         event.preventDefault();
         event.stopPropagation();
         return false;

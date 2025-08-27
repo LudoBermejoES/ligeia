@@ -21,6 +21,7 @@ async function bootstrap() {
       tagEditorModal: 'templates/modals/tag-editor.html',
       bulkTagEditorModal: 'templates/modals/bulk-tag-editor.html',
       atmosphereSaveModal: 'templates/modals/atmosphere-save.html',
+      folderSuggestionsModal: 'templates/modals/folder-suggestions.html',
       membershipPanel: null // placeholder; dynamic build in code
     };
     
@@ -43,7 +44,7 @@ async function bootstrap() {
     }
     
     if (containers.modals) {
-      containers.modals.innerHTML = templates.tagEditorModal + templates.bulkTagEditorModal + templates.atmosphereSaveModal;
+      containers.modals.innerHTML = templates.tagEditorModal + templates.bulkTagEditorModal + templates.atmosphereSaveModal + templates.folderSuggestionsModal;
     }
     
     const app = new AmbientMixerApp();

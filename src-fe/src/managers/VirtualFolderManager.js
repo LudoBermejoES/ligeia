@@ -472,4 +472,212 @@ export class VirtualFolderManager {
             console.error('Error during Virtual Folders cleanup:', error);
         }
     }
+
+    // ===== TAG-BASED SUGGESTION METHODS =====
+
+    /**
+     * Get folder suggestions for a specific audio file based on its RPG tags
+     * @param {number} audioFileId - Audio file ID
+     * @param {number} limit - Maximum number of suggestions
+     * @returns {Promise<Array>} - Array of folder suggestions with confidence scores
+     */
+    async suggestFoldersForFile(audioFileId, limit = 5) {
+        if (!this.isInitialized) {
+            throw new Error('Virtual Folders system not initialized');
+        }
+        
+        try {
+            return await this.service.suggestFoldersForFile(audioFileId, limit);
+        } catch (error) {
+            console.error('Failed to get folder suggestions:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get auto-organization suggestions for all unorganized files
+     * @param {number} threshold - Confidence threshold (0.0 to 1.0)
+     * @returns {Promise<Array>} - Array of organization suggestions
+     */
+    async getAutoOrganizationSuggestions(threshold = 0.3) {
+        if (!this.isInitialized) {
+            throw new Error('Virtual Folders system not initialized');
+        }
+        
+        try {
+            return await this.service.getAutoOrganizationSuggestions(threshold);
+        } catch (error) {
+            console.error('Failed to get auto-organization suggestions:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Apply auto-organization suggestions
+     * @param {Array} suggestions - Array of AutoOrganizationSuggestion objects
+     * @returns {Promise<number>} - Number of successfully applied suggestions
+     */
+    async applyAutoOrganizationSuggestions(suggestions) {
+        if (!this.isInitialized) {
+            throw new Error('Virtual Folders system not initialized');
+        }
+        
+        try {
+            const appliedCount = await this.service.applyAutoOrganizationSuggestions(suggestions);
+            
+            // Refresh the panel if visible
+            if (this.panelManager.isVisible) {
+                await this.handleFoldersChanged();
+            }
+            
+            return appliedCount;
+        } catch (error) {
+            console.error('Failed to apply auto-organization suggestions:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Show folder suggestions modal for a specific file
+     * @param {Object} audioFile - Audio file object
+     */
+    async showFileSuggestionsModal(audioFile) {
+        if (!this.isInitialized) {
+            console.error('Virtual Folders system not initialized');
+            return;
+        }
+
+        try {
+            const suggestions = await this.suggestFoldersForFile(audioFile.id, 5);
+            
+            if (suggestions.length === 0) {
+                this.uiController.showNotification('No folder suggestions found for this file', 'warning');
+                return;
+            }
+
+            // Create and show suggestions modal
+            this.showSuggestionsModal(audioFile, suggestions);
+        } catch (error) {
+            console.error('Failed to show file suggestions modal:', error);
+            this.uiController.showNotification('Failed to get folder suggestions', 'error');
+        }
+    }
+
+    /**
+     * Show auto-organization suggestions modal
+     */
+    async showAutoOrganizationModal() {
+        if (!this.isInitialized) {
+            console.error('Virtual Folders system not initialized');
+            return;
+        }
+
+        try {
+            const suggestions = await this.getAutoOrganizationSuggestions(0.3);
+            
+            if (suggestions.length === 0) {
+                this.uiController.showNotification('No organization suggestions found', 'info');
+                return;
+            }
+
+            // Create and show auto-organization modal
+            this.showAutoOrganizationModal(suggestions);
+        } catch (error) {
+            console.error('Failed to show auto-organization modal:', error);
+            this.uiController.showNotification('Failed to get organization suggestions', 'error');
+        }
+    }
+
+    /**
+     * Create and show folder suggestions modal
+     * @private
+     */
+    showSuggestionsModal(audioFile, suggestions) {
+        const modalHTML = this.createSuggestionsModalHTML(audioFile, suggestions);
+        
+        // Use modals system to show the modal
+        if (this.modals) {
+            this.modals.showCustomModal('Folder Suggestions', modalHTML, {
+                confirmText: 'Apply Selected',
+                cancelText: 'Cancel',
+                onConfirm: (selectedSuggestions) => this.applySuggestions(selectedSuggestions),
+                maxWidth: '600px'
+            });
+        }
+    }
+
+    /**
+     * Create HTML for suggestions modal
+     * @private
+     */
+    createSuggestionsModalHTML(audioFile, suggestions) {
+        return `
+            <div class="folder-suggestions-modal p-4">
+                <div class="mb-4">
+                    <h4 class="text-lg font-medium text-text mb-2">Suggested folders for:</h4>
+                    <p class="text-sm text-muted bg-bg p-2 rounded border">
+                        ${audioFile.title || audioFile.file_path?.split('/').pop() || 'Unknown file'}
+                    </p>
+                </div>
+                
+                <div class="suggestions-list space-y-3 max-h-80 overflow-y-auto">
+                    ${suggestions.map((suggestion, index) => `
+                        <label class="suggestion-item flex items-start p-3 bg-card rounded border cursor-pointer hover:bg-hover transition-colors">
+                            <input type="checkbox" class="suggestion-checkbox mr-3 mt-1" data-index="${index}" />
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h5 class="font-medium text-text">${suggestion.folder.name}</h5>
+                                    <span class="confidence-score px-2 py-1 rounded text-xs font-medium ${
+                                        suggestion.confidence_score >= 0.7 ? 'bg-green-500/20 text-green-400' :
+                                        suggestion.confidence_score >= 0.4 ? 'bg-yellow-500/20 text-yellow-400' :
+                                        'bg-red-500/20 text-red-400'
+                                    }">
+                                        ${Math.round(suggestion.confidence_score * 100)}% confidence
+                                    </span>
+                                </div>
+                                ${suggestion.folder.description ? `
+                                    <p class="text-sm text-muted mb-2">${suggestion.folder.description}</p>
+                                ` : ''}
+                                <div class="matching-tags flex flex-wrap gap-1">
+                                    ${suggestion.matching_tags.map(tag => `
+                                        <span class="tag-chip px-2 py-1 bg-accent/20 text-accent rounded text-xs">
+                                            ${tag}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Apply selected suggestions from modal
+     * @private
+     */
+    async applySuggestions(selectedSuggestions) {
+        try {
+            for (const suggestion of selectedSuggestions) {
+                await this.service.addFilesToFolder(
+                    suggestion.folder.id, 
+                    [suggestion.audioFileId]
+                );
+            }
+
+            this.uiController.showNotification(
+                `Successfully added file to ${selectedSuggestions.length} folder(s)`, 
+                'success'
+            );
+
+            // Refresh the panel
+            if (this.panelManager.isVisible) {
+                await this.handleFoldersChanged();
+            }
+        } catch (error) {
+            console.error('Failed to apply suggestions:', error);
+            this.uiController.showNotification('Failed to apply suggestions', 'error');
+        }
+    }
 }

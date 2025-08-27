@@ -1,5 +1,4 @@
-use crate::database::Database;
-use crate::models::{VirtualFolder, VirtualFolderTree, VirtualFolderWithContents, FolderTemplate};
+use crate::models::{VirtualFolder, VirtualFolderTree, VirtualFolderWithContents, FolderTemplate, AutoOrganizationSuggestion, FolderSuggestion};
 use tauri::{AppHandle, Manager};
 
 // Folder Management Commands
@@ -213,6 +212,77 @@ pub async fn get_folder_templates(
     let category_ref = category.as_deref();
     db.get_folder_templates(category_ref)
         .map_err(|e| format!("Failed to get folder templates: {}", e))
+}
+
+// Tag-based Suggestion Commands
+
+#[tauri::command]
+pub async fn suggest_folders_for_file(
+    app_handle: AppHandle,
+    audio_file_id: i64,
+    limit: Option<usize>,
+) -> Result<Vec<FolderSuggestion>, String> {
+    let state = app_handle.state::<crate::AppState>();
+    let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
+    
+    let suggestions = db.suggest_folders_for_file(audio_file_id, limit)
+        .map_err(|e| format!("Failed to get folder suggestions: {}", e))?;
+    
+    // Convert to FolderSuggestion format with matching tags
+    let mut result = Vec::new();
+    for (folder, score) in suggestions {
+        let matching_tags = db.get_matching_tags(audio_file_id, folder.id.unwrap())
+            .map_err(|e| format!("Failed to get matching tags: {}", e))?;
+        
+        result.push(FolderSuggestion {
+            folder,
+            confidence_score: score,
+            matching_tags,
+        });
+    }
+    
+    Ok(result)
+}
+
+#[tauri::command]
+pub async fn get_auto_organization_suggestions(
+    app_handle: AppHandle,
+    threshold: Option<f64>,
+) -> Result<Vec<AutoOrganizationSuggestion>, String> {
+    let state = app_handle.state::<crate::AppState>();
+    let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
+    
+    let threshold = threshold.unwrap_or(0.3); // Default 30% confidence threshold
+    
+    db.get_auto_organization_suggestions(threshold)
+        .map_err(|e| format!("Failed to get auto-organization suggestions: {}", e))
+}
+
+#[tauri::command]
+pub async fn apply_auto_organization_suggestions(
+    app_handle: AppHandle,
+    suggestions: Vec<AutoOrganizationSuggestion>,
+) -> Result<usize, String> {
+    let state = app_handle.state::<crate::AppState>();
+    let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
+    
+    let mut applied_count = 0;
+    
+    for suggestion in suggestions {
+        match db.add_file_to_virtual_folder(
+            suggestion.suggested_folder_id, 
+            suggestion.audio_file_id
+        ) {
+            Ok(_) => applied_count += 1,
+            Err(e) => {
+                eprintln!("Failed to apply suggestion for file {}: {}", 
+                    suggestion.audio_file_id, e);
+                // Continue with other suggestions rather than failing completely
+            }
+        }
+    }
+    
+    Ok(applied_count)
 }
 
 // Statistics types

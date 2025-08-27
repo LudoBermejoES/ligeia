@@ -245,4 +245,17 @@ impl Database {
     pub fn get_folder_templates(&self, category: Option<&str>) -> Result<Vec<FolderTemplate>> {
         VirtualFolderOps::get_folder_templates(&self.conn, category)
     }
+
+    // Tag-based suggestion methods
+    pub fn suggest_folders_for_file(&self, audio_file_id: i64, limit: Option<usize>) -> Result<Vec<(VirtualFolder, f64)>> {
+        VirtualFolderOps::suggest_folders_for_file(&self.conn, audio_file_id, limit)
+    }
+
+    pub fn get_auto_organization_suggestions(&self, threshold: f64) -> Result<Vec<crate::models::AutoOrganizationSuggestion>> {
+        VirtualFolderOps::get_auto_organization_suggestions(&self.conn, threshold)
+    }
+
+    pub fn get_matching_tags(&self, audio_file_id: i64, folder_id: i64) -> Result<Vec<String>> {
+        VirtualFolderOps::get_matching_tags(&self.conn, audio_file_id, folder_id)
+    }
 }

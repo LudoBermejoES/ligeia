@@ -19,6 +19,7 @@ import { AtmosphereManager } from './managers/AtmosphereManager.js';
 import { AtmosphereUIController } from './ui/AtmosphereUIController.js';
 import { AtmosphereMembershipEditor } from './ui/AtmosphereMembershipEditor.js';
 import { VirtualFolderManager } from './managers/VirtualFolderManager.js';
+import { FolderSuggestionsManager } from './managers/FolderSuggestionsManager.js';
 
 /**
  * AmbientMixerApp - Main application controller
@@ -54,6 +55,7 @@ export class AmbientMixerApp {
     
     // Virtual Folders system
     this.virtualFolderManager = new VirtualFolderManager(this.libraryManager, this.tagService, this.uiController);
+    this.folderSuggestionsManager = new FolderSuggestionsManager(this.virtualFolderManager.service, this.uiController);
     this.currentEditingFile = null; // deprecated; kept for backward compatibility
         this.updateUIThrottled = this.throttle(this.updateUI.bind(this), 100);
         this.lastToggleTime = new Map(); // Track last toggle time per pad to prevent rapid toggling
@@ -119,6 +121,26 @@ export class AmbientMixerApp {
             // Initialize unified pad system in UI controller
             this.padEventHandler = this.uiController.initialize();
             
+            // Register mixer context handlers for the pad event system
+            this.padEventHandler.registerContextHandlers('mixer', {
+                'edit-tags': (audioId) => {
+                    const audioFile = this.libraryManager.getAudioFileById(audioId);
+                    if (audioFile) {
+                        this.handleEditTags(audioFile); // Pass the entire audio file object
+                    } else {
+                        console.error('No audio file found for ID:', audioId);
+                    }
+                },
+                'suggest-folders': (audioId) => {
+                    const audioFile = this.libraryManager.getAudioFileById(audioId);
+                    if (audioFile) {
+                        this.handleSuggestFolders(audioFile);
+                    } else {
+                        console.error('No audio file found for ID:', audioId);
+                    }
+                }
+            });
+            
             // Update atmosphere membership editor with padEventHandler
             this.atmoMembershipEditor.padEventHandler = this.padEventHandler;
             this.atmoMembershipEditor._initializeAtmosphereEventHandlers();
@@ -145,6 +167,7 @@ export class AmbientMixerApp {
             
             // Initialize tag editor modal handlers via manager
             this.tagEditorManager.initModal();
+            this.folderSuggestionsManager.initModal();
 
             // Provide tag search controller reference to tag & import/export managers for refresh after saves/import
             this.tagEditorManager.tagSearchController = this.tagSearchController;
@@ -621,7 +644,13 @@ export class AmbientMixerApp {
     
     // Tag Editor functionality now handled by TagEditorManager
     
-    async handleEditTags(filePath) { await this.tagEditorManager.open(filePath); }
+    async handleEditTags(filePathOrAudioFile) { 
+        await this.tagEditorManager.open(filePathOrAudioFile); 
+    }
+
+    async handleSuggestFolders(audioFile) {
+        await this.folderSuggestionsManager.open(audioFile);
+    }
     
     // updateEditingTrackInfo handled by TagEditorManager
     

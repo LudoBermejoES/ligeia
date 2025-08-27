@@ -91,6 +91,64 @@ pub struct AudioFile {
     pub category: Option<String>,
 }
 
+impl Default for AudioFile {
+    fn default() -> Self {
+        AudioFile {
+            id: None,
+            file_path: String::new(),
+            title: None,
+            artist: None,
+            album: None,
+            album_artist: None,
+            genre: None,
+            year: None,
+            date: None,
+            track_number: None,
+            total_tracks: None,
+            disc_number: None,
+            total_discs: None,
+            duration: None,
+            composer: None,
+            conductor: None,
+            lyricist: None,
+            original_artist: None,
+            remixer: None,
+            arranger: None,
+            engineer: None,
+            producer: None,
+            dj_mixer: None,
+            mixer: None,
+            content_group: None,
+            subtitle: None,
+            initial_key: None,
+            bpm: None,
+            language: None,
+            media_type: None,
+            original_filename: None,
+            original_lyricist: None,
+            original_release_time: None,
+            playlist_delay: None,
+            recording_time: None,
+            release_time: None,
+            tagging_time: None,
+            encoding_time: None,
+            encoding_settings: None,
+            encoded_by: None,
+            copyright: None,
+            file_owner: None,
+            internet_radio_station_name: None,
+            internet_radio_station_owner: None,
+            isrc: None,
+            publisher: None,
+            mood: None,
+            occasion: None,
+            tempo: None,
+            content_type: None,
+            category: None,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RpgTag {
     pub id: Option<i64>,
@@ -404,4 +462,23 @@ impl Default for VirtualFolder {
             metadata: None,
         }
     }
+}
+
+// Auto-organization suggestion model
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AutoOrganizationSuggestion {
+    pub audio_file_id: i64,
+    pub audio_file_title: String,
+    pub suggested_folder_id: i64,
+    pub suggested_folder_name: String,
+    pub confidence_score: f64,
+    pub matching_tags: Vec<String>,
+}
+
+// Folder suggestion with score
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FolderSuggestion {
+    pub folder: VirtualFolder,
+    pub confidence_score: f64,
+    pub matching_tags: Vec<String>,
 }

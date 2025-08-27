@@ -419,4 +419,78 @@ export class VirtualFolderService {
             return 0;
         }
     }
+
+    // === Tag-based Suggestion Methods ===
+
+    /**
+     * Get folder suggestions for a specific audio file based on its RPG tags
+     * @param {number} audioFileId - Audio file ID
+     * @param {number} limit - Maximum number of suggestions (default 5)
+     * @returns {Promise<Array>} - Array of folder suggestions with confidence scores
+     */
+    async suggestFoldersForFile(audioFileId, limit = 5) {
+        try {
+            return await invoke('suggest_folders_for_file', { 
+                audioFileId, 
+                limit 
+            });
+        } catch (error) {
+            console.error('Failed to get folder suggestions:', error);
+            throw new Error(`Failed to get folder suggestions: ${error}`);
+        }
+    }
+
+    /**
+     * Get auto-organization suggestions for all unorganized files
+     * @param {number} threshold - Confidence threshold (0.0 to 1.0, default 0.3)
+     * @returns {Promise<Array>} - Array of organization suggestions
+     */
+    async getAutoOrganizationSuggestions(threshold = 0.3) {
+        try {
+            return await invoke('get_auto_organization_suggestions', { threshold });
+        } catch (error) {
+            console.error('Failed to get auto-organization suggestions:', error);
+            throw new Error(`Failed to get auto-organization suggestions: ${error}`);
+        }
+    }
+
+    /**
+     * Apply multiple auto-organization suggestions
+     * @param {Array} suggestions - Array of AutoOrganizationSuggestion objects
+     * @returns {Promise<number>} - Number of successfully applied suggestions
+     */
+    async applyAutoOrganizationSuggestions(suggestions) {
+        try {
+            if (!Array.isArray(suggestions) || suggestions.length === 0) {
+                return 0;
+            }
+            
+            const appliedCount = await invoke('apply_auto_organization_suggestions', { 
+                suggestions 
+            });
+            
+            // Invalidate cache since folder contents have changed
+            this.invalidateCache();
+            
+            return appliedCount;
+        } catch (error) {
+            console.error('Failed to apply auto-organization suggestions:', error);
+            throw new Error(`Failed to apply auto-organization suggestions: ${error}`);
+        }
+    }
+
+    /**
+     * Get matching tags between a file and a folder
+     * @param {number} audioFileId - Audio file ID
+     * @param {number} folderId - Folder ID
+     * @returns {Promise<Array>} - Array of matching tag strings
+     */
+    async getMatchingTags(audioFileId, folderId) {
+        try {
+            return await invoke('get_matching_tags', { audioFileId, folderId });
+        } catch (error) {
+            console.error('Failed to get matching tags:', error);
+            return [];
+        }
+    }
 }

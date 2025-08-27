@@ -122,4 +122,23 @@ export class LibraryManager {
   playingCount(filteredSet) {
     return Array.from(this.soundPads.values()).filter(p => p.isPlaying && (!filteredSet || filteredSet.has(p.audioFile.file_path))).length;
   }
+
+  /**
+   * Get audio file by ID
+   * @param {number} audioId - Audio file ID
+   * @returns {Object|null} - Audio file object or null if not found
+   */
+  getAudioFileById(audioId) {
+    // Convert audioId to number if it's a string
+    const id = parseInt(audioId);
+    
+    // Search through all audio files
+    for (const audioFile of this.audioFiles.values()) {
+      if (audioFile.id === id) {
+        return audioFile;
+      }
+    }
+    
+    return null;
+  }
 }

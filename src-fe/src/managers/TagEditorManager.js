@@ -23,17 +23,37 @@ export class TagEditorManager {
     saveBtn?.addEventListener('click', () => this.saveChanges());
 
     modal?.addEventListener('click', e => { if (e.target === modal) this.close(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal?.style.display !== 'none') this.close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) this.close(); });
   }
 
-  async open(filePath) {
+  async open(filePathOrAudioFile) {
+    let audioFile;
+    let filePath;
+    
+    // Handle both file path string and audio file object
+    if (typeof filePathOrAudioFile === 'string') {
+      filePath = filePathOrAudioFile;
+      audioFile = this.library.getAudioFiles().get(filePath);
+    } else if (typeof filePathOrAudioFile === 'object' && filePathOrAudioFile.file_path) {
+      audioFile = filePathOrAudioFile;
+      filePath = audioFile.file_path;
+    }
+    
+    if (!audioFile) {
+      console.error('TagEditorManager: No audio file found', { filePathOrAudioFile });
+      return;
+    }
+    
     this.currentEditingFile = filePath;
-    const audioFile = this.library.getAudioFiles().get(filePath);
-    if (!audioFile) return;
     this.updateHeader(audioFile);
     await this.populateForm(audioFile);
+    
     const modal = document.getElementById('tagEditorModal');
-    if (modal) modal.style.display = 'flex';
+    if (modal) {
+      modal.classList.remove('hidden');
+    } else {
+      console.error('TagEditorManager: Modal element not found');
+    }
   }
 
   updateHeader(audioFile) {
@@ -148,7 +168,9 @@ export class TagEditorManager {
 
   close() {
     const modal = document.getElementById('tagEditorModal');
-    modal && (modal.style.display = 'none');
+    if (modal) {
+      modal.classList.add('hidden');
+    }
     document.getElementById('tagEditorForm')?.reset();
     this.currentEditingFile = null;
   }
