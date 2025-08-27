@@ -2230,6 +2230,66 @@ body {
     background: rgba(76, 175, 80, 0.8);
 }
 
+/* Mixer List View Styles */
+.mixer-list-view .sound-pads-grid {
+    display: block !important;
+}
+
+.mixer-list-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.mixer-list-table thead {
+    position: sticky;
+    top: 0;
+    background: var(--card, rgba(0, 0, 0, 0.3));
+    z-index: 10;
+}
+
+.mixer-list-table th {
+    padding: 0.5rem 1rem;
+    text-align: left;
+    font-weight: 500;
+    color: var(--muted, rgba(255, 255, 255, 0.6));
+    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+}
+
+.mixer-list-row {
+    cursor: move;
+    user-select: none;
+    transition: background-color 0.15s ease;
+}
+
+.mixer-list-row:hover {
+    background-color: var(--hover, rgba(255, 255, 255, 0.05));
+}
+
+.mixer-list-row.playing {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.mixer-list-row td {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mixer-list-row .play-btn {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mixer-list-row .play-btn:hover {
+    transform: scale(1.1);
+}
+
 /* Responsive adjustments for template system */
 @media (max-width: 768px) {
     .notifications-container {

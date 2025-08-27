@@ -73,10 +73,39 @@ export class UIController {
             this.filterCurrentSounds();
         });
 
-
+        // View toggle buttons
+        document.querySelectorAll('.mixer-view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const view = btn.dataset.view;
+                this.setMixerView(view);
+            });
+        });
         
         // Initialize mouse-based drag and drop system for Tauri webview
         this.initMouseBasedDragDrop();
+    }
+
+    /**
+     * Set the mixer view mode (pad or list)
+     */
+    setMixerView(view) {
+        // Update button states
+        document.querySelectorAll('.mixer-view-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === view);
+            // Update visual states
+            if (btn.dataset.view === view) {
+                btn.classList.remove('bg-card', 'border-border', 'text-text');
+                btn.classList.add('bg-accent/20', 'border-accent/30', 'text-accent');
+            } else {
+                btn.classList.remove('bg-accent/20', 'border-accent/30', 'text-accent');
+                btn.classList.add('bg-card', 'border-border', 'text-text');
+            }
+        });
+        
+        // Update infinite scroll controller
+        if (this.infiniteScrollController) {
+            this.infiniteScrollController.setViewMode(view);
+        }
     }
 
     getElementById(id) {
@@ -443,17 +472,21 @@ export class UIController {
         let dragStartPos = { x: 0, y: 0 };
         let dragThreshold = 5; // pixels
         
-        // Mouse down on sound pads
+        // Mouse down on sound pads or list rows
         document.addEventListener('mousedown', (e) => {
+            // Check for both pad and list row
             const pad = e.target.closest('.sound-pad');
-            if (!pad) return;
+            const listRow = e.target.closest('.mixer-list-row');
+            const draggableElement = pad || listRow;
+            
+            if (!draggableElement) return;
             
             // Ignore if clicking on buttons or controls
-            if (e.target.matches('button, input[type="range"], .edit-tags-btn')) {
+            if (e.target.matches('button, input[type="range"], .edit-tags-btn, .pad-btn')) {
                 return;
             }
             
-            const audioId = pad.dataset.audioId;
+            const audioId = draggableElement.dataset.audioId;
             if (!audioId) return;
             
             dragStartPos = { x: e.clientX, y: e.clientY };

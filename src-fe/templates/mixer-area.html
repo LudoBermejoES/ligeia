@@ -6,6 +6,20 @@
       
       <!-- Search and Info Row -->
       <div class="flex items-center gap-4 flex-1 justify-end">
+        <!-- View Toggle Buttons -->
+        <div class="mixer-view-controls flex gap-1">
+          <button class="mixer-view-btn active bg-accent/20 border border-accent/30 text-accent px-2 py-1.5 rounded text-xs
+                         hover:bg-accent/30 transition-colors duration-200" 
+                  data-view="pad" title="Pad view">
+            ⊞
+          </button>
+          <button class="mixer-view-btn bg-card border border-border text-text px-2 py-1.5 rounded text-xs
+                         hover:bg-hover transition-colors duration-200" 
+                  data-view="list" title="List view">
+            ☰
+          </button>
+        </div>
+        
         <!-- Search -->
         <div class="mixer-search relative">
           <input type="text" 

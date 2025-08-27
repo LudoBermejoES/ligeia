@@ -25,6 +25,32 @@ export class InfiniteScrollController {
     
     // Loading state
     this.isLoading = false;
+    
+    // View mode
+    this.viewMode = 'pad'; // 'pad' or 'list'
+  }
+
+  /**
+   * Set the view mode and re-render
+   */
+  setViewMode(mode) {
+    if (this.viewMode === mode) return;
+    
+    this.viewMode = mode;
+    this.clearContainers();
+    this.currentPage = 0;
+    
+    // Apply view class to container
+    const container = document.getElementById('allSoundsPadsGrid');
+    if (container) {
+      container.classList.toggle('mixer-list-view', mode === 'list');
+      container.classList.toggle('mixer-pad-view', mode === 'pad');
+    }
+    
+    // Re-render with new view mode
+    this.initialRender();
+    
+    logger.info('infiniteScroll', 'View mode changed', { mode });
   }
 
   /**
@@ -163,7 +189,13 @@ export class InfiniteScrollController {
   clearContainers() {
     const container = document.getElementById('allSoundsPadsGrid');
     
-    if (container) container.innerHTML = '';
+    if (container) {
+      container.innerHTML = '';
+      // Remove any view-specific classes
+      container.classList.remove('mixer-list-view', 'mixer-pad-view');
+      // Add the current view class
+      container.classList.add(this.viewMode === 'list' ? 'mixer-list-view' : 'mixer-pad-view');
+    }
     
     // Reset pagination
     this.currentPage = 0;
@@ -215,19 +247,40 @@ export class InfiniteScrollController {
 
 
   /**
-   * Render files to a specific container using folder groups
+   * Render files to a specific container using folder groups or list
    */
   renderFilesToContainer(files, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
     const soundPads = this.libraryManager.getSoundPads();
-    const html = this.renderFolderGroups(files, soundPads);
     
-    // Append to existing content
-    container.insertAdjacentHTML('beforeend', html);
+    // Render based on view mode
+    if (this.viewMode === 'list') {
+      // Special handling for list view
+      const existingTable = container.querySelector('.mixer-list-table');
+      if (existingTable) {
+        // Append to existing tbody
+        const tbody = existingTable.querySelector('.mixer-list-tbody');
+        if (tbody) {
+          let html = '';
+          files.forEach(audioFile => {
+            html += this.renderListRow(audioFile, soundPads);
+          });
+          tbody.insertAdjacentHTML('beforeend', html);
+        }
+      } else {
+        // Create new table
+        const html = this.renderListView(files, soundPads);
+        container.insertAdjacentHTML('beforeend', html);
+      }
+    } else {
+      // Pad view
+      const html = this.renderFolderGroups(files, soundPads);
+      container.insertAdjacentHTML('beforeend', html);
+    }
 
-    // Initialize pad states for new files
+    // Initialize pad states for new files (for both views)
     files.forEach(audioFile => {
       const pad = soundPads.get(audioFile.file_path);
       if (pad && this.padEventHandler) {
@@ -239,6 +292,90 @@ export class InfiniteScrollController {
         });
       }
     });
+  }
+
+  /**
+   * Render files in list view
+   */
+  renderListView(files, soundPads) {
+    if (!files || files.length === 0) return '';
+    
+    const container = document.getElementById('allSoundsPadsGrid');
+    const existingTable = container?.querySelector('.mixer-list-table');
+    
+    // If table doesn't exist, create full structure
+    if (!existingTable) {
+      let html = `
+        <table class="mixer-list-table w-full">
+          <thead class="sticky top-0 bg-card z-10">
+            <tr class="border-b border-border">
+              <th class="text-left px-4 py-2 text-sm font-medium text-muted">Folder</th>
+              <th class="text-left px-4 py-2 text-sm font-medium text-muted">Title</th>
+              <th class="text-left px-4 py-2 text-sm font-medium text-muted">Duration</th>
+              <th class="text-center px-4 py-2 text-sm font-medium text-muted">Play</th>
+            </tr>
+          </thead>
+          <tbody class="mixer-list-tbody">
+      `;
+      
+      // Add all rows
+      files.forEach(audioFile => {
+        html += this.renderListRow(audioFile, soundPads);
+      });
+      
+      html += '</tbody></table>';
+      return html;
+    } else {
+      // Table exists, just return rows to append to tbody
+      let html = '';
+      files.forEach(audioFile => {
+        html += this.renderListRow(audioFile, soundPads);
+      });
+      return html;
+    }
+  }
+  
+  /**
+   * Render a single list row
+   */
+  renderListRow(audioFile, soundPads) {
+    const pad = soundPads.get(audioFile.file_path);
+    const isPlaying = pad?.isPlaying || false;
+    const folder = this.getParentFolder(audioFile.file_path);
+    const title = audioFile.title || audioFile.file_path?.split('/').pop() || 'Unknown';
+    const duration = this.formatDuration(audioFile.duration_seconds);
+    
+    return `
+      <tr class="mixer-list-row border-b border-border/50 hover:bg-hover transition-colors duration-150
+                 ${isPlaying ? 'playing bg-accent/10' : ''}"
+          data-audio-id="${audioFile.id}"
+          data-file-path="${this.escapeHtml(audioFile.file_path)}"
+          draggable="true">
+        <td class="px-4 py-2 text-sm text-muted">${this.escapeHtml(folder)}</td>
+        <td class="px-4 py-2 text-sm text-text font-medium">${this.escapeHtml(title)}</td>
+        <td class="px-4 py-2 text-sm text-muted">${duration}</td>
+        <td class="px-4 py-2 text-center">
+          <button class="pad-btn play-btn inline-flex items-center justify-center w-8 h-8 rounded-full
+                         ${isPlaying ? 'bg-accent text-white' : 'bg-card border border-border text-text'}
+                         hover:scale-110 transition-all duration-200"
+                  data-audio-id="${audioFile.id}"
+                  data-action="play"
+                  title="${isPlaying ? 'Stop' : 'Play'}">
+            ${isPlaying ? '⏸' : '▶'}
+          </button>
+        </td>
+      </tr>
+    `;
+  }
+
+  /**
+   * Format duration from seconds to MM:SS
+   */
+  formatDuration(seconds) {
+    if (!seconds || seconds <= 0) return '--:--';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
   /**
