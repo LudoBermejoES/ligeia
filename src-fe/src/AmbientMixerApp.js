@@ -20,6 +20,7 @@ import { AtmosphereUIController } from './ui/AtmosphereUIController.js';
 import { AtmosphereMembershipEditor } from './ui/AtmosphereMembershipEditor.js';
 import { VirtualFolderManager } from './managers/VirtualFolderManager.js';
 import { FolderSuggestionsManager } from './managers/FolderSuggestionsManager.js';
+import { AutoOrganizeManager } from './managers/AutoOrganizeManager.js';
 
 /**
  * AmbientMixerApp - Main application controller
@@ -56,6 +57,7 @@ export class AmbientMixerApp {
     // Virtual Folders system
     this.virtualFolderManager = new VirtualFolderManager(this.libraryManager, this.tagService, this.uiController);
     this.folderSuggestionsManager = new FolderSuggestionsManager(this.virtualFolderManager.service, this.uiController);
+    this.autoOrganizeManager = new AutoOrganizeManager(this.uiController, this.virtualFolderManager.service);
     this.currentEditingFile = null; // deprecated; kept for backward compatibility
         this.updateUIThrottled = this.throttle(this.updateUI.bind(this), 100);
         this.lastToggleTime = new Map(); // Track last toggle time per pad to prevent rapid toggling
@@ -68,6 +70,7 @@ export class AmbientMixerApp {
             importData: () => this.importExportManager.importData(),
             storeTagsInFiles: () => this.storeTagsManager.storeAllTagsInFiles(),
             calculateDurations: () => this.handleCalculateDurations(),
+            autoOrganizeSounds: () => this.autoOrganizeManager.confirmAndAutoOrganize(0.7),
             stopAll: () => this.handleStopAll(),
             fadeAllIn: () => this.handleFadeAllIn(),
             fadeAllOut: () => this.handleFadeAllOut(),

@@ -71,6 +71,10 @@ export class UIController {
             this.closeLibraryActionsMenu();
             eventHandlers.calculateDurations(e);
         });
+        this.getElementById('autoOrganizeSounds')?.addEventListener('click', (e) => {
+            this.closeLibraryActionsMenu();
+            eventHandlers.autoOrganizeSounds(e);
+        });
         
         // Global controls
         this.getElementById('stopAll')?.addEventListener('click', eventHandlers.stopAll);

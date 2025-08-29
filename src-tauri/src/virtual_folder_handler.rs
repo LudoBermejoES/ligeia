@@ -285,6 +285,76 @@ pub async fn apply_auto_organization_suggestions(
     Ok(applied_count)
 }
 
+#[tauri::command]
+pub async fn auto_organize_sounds(
+    app_handle: AppHandle,
+    confidence_threshold: Option<f64>,
+) -> Result<AutoOrganizeResult, String> {
+    let state = app_handle.state::<crate::AppState>();
+    let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
+    
+    let threshold = confidence_threshold.unwrap_or(0.7); // Default 70% as requested
+    
+    // Find all unorganized sounds with tags
+    let unorganized_files = db.get_unorganized_tagged_files()
+        .map_err(|e| format!("Failed to get unorganized files: {}", e))?;
+    
+    let mut organized_count = 0;
+    let mut processed_count = 0;
+    let mut results = Vec::new();
+    
+    for file_id in unorganized_files {
+        processed_count += 1;
+        
+        // Get suggestions for this file
+        let suggestions = db.suggest_folders_for_file(file_id, Some(5))
+            .map_err(|e| format!("Failed to get suggestions for file {}: {}", file_id, e))?;
+        
+        // Filter by confidence threshold and apply the best match
+        for (folder, score) in suggestions {
+            if score >= threshold {
+                match db.add_file_to_virtual_folder(folder.id.unwrap(), file_id) {
+                    Ok(_) => {
+                        organized_count += 1;
+                        results.push(AutoOrganizeFileResult {
+                            file_id,
+                            folder_id: folder.id.unwrap(),
+                            folder_name: folder.name.clone(),
+                            confidence_score: score,
+                        });
+                        break; // Only add to one folder (the best match)
+                    },
+                    Err(e) => {
+                        eprintln!("Failed to add file {} to folder {}: {}", file_id, folder.name, e);
+                    }
+                }
+            }
+        }
+    }
+    
+    Ok(AutoOrganizeResult {
+        processed_files: processed_count,
+        organized_files: organized_count,
+        results,
+    })
+}
+
+// Auto-organization result types
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+pub struct AutoOrganizeResult {
+    pub processed_files: i32,
+    pub organized_files: i32,
+    pub results: Vec<AutoOrganizeFileResult>,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+pub struct AutoOrganizeFileResult {
+    pub file_id: i64,
+    pub folder_id: i64,
+    pub folder_name: String,
+    pub confidence_score: f64,
+}
+
 // Statistics types
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct FolderStatistics {

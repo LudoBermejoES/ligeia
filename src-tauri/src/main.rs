@@ -6,7 +6,7 @@
 use std::sync::Mutex;
 use tauri::AppHandle;
 
-use virtual_folder_handler::{suggest_folders_for_file, get_auto_organization_suggestions, apply_auto_organization_suggestions};
+use virtual_folder_handler::{suggest_folders_for_file, get_auto_organization_suggestions, apply_auto_organization_suggestions, auto_organize_sounds};
 
 mod models;
 mod database;
@@ -326,7 +326,8 @@ pub fn run() {
             get_folders_containing_files,
             suggest_folders_for_file,
             get_auto_organization_suggestions,
-            apply_auto_organization_suggestions
+            apply_auto_organization_suggestions,
+            auto_organize_sounds
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

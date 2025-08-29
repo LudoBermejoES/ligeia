@@ -500,6 +500,26 @@ impl VirtualFolderOps {
         Ok(())
     }
 
+    /// Get all audio files that are not in any virtual folder but have tags
+    pub fn get_unorganized_tagged_files(conn: &Connection) -> Result<Vec<i64>> {
+        let mut stmt = conn.prepare(
+            "SELECT DISTINCT af.id 
+             FROM audio_files af
+             INNER JOIN rpg_tags rt ON af.id = rt.audio_file_id
+             WHERE af.id NOT IN (
+                 SELECT DISTINCT vfc.audio_file_id 
+                 FROM virtual_folder_contents vfc
+             )
+             ORDER BY af.id"
+        )?;
+        
+        let file_ids: Vec<i64> = stmt.query_map([], |row| {
+            Ok(row.get(0)?)
+        })?.collect::<Result<Vec<_>, _>>()?;
+        
+        Ok(file_ids)
+    }
+
     fn create_rpg_folder_hierarchy(conn: &Connection) -> Result<()> {
         let now = Utc::now().to_rfc3339();
         

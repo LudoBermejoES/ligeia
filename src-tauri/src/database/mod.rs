@@ -261,4 +261,8 @@ impl Database {
     pub fn get_matching_tags(&self, audio_file_id: i64, folder_id: i64) -> Result<Vec<String>> {
         VirtualFolderOps::get_matching_tags(&self.conn, audio_file_id, folder_id)
     }
+
+    pub fn get_unorganized_tagged_files(&self) -> Result<Vec<i64>> {
+        VirtualFolderOps::get_unorganized_tagged_files(&self.conn)
+    }
 }
