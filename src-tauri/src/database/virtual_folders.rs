@@ -1065,8 +1065,22 @@ impl VirtualFolderOps {
 
     // Tag-based folder suggestion functions
     
-    /// Get folder suggestions for a file based on its RPG tags
+    /// Get folder suggestions for a file based on its RPG tags using enhanced mapping system
     pub fn suggest_folders_for_file(conn: &Connection, audio_file_id: i64, limit: Option<usize>) -> Result<Vec<(VirtualFolder, f64)>> {
+        // Load folder mappings using the same pattern as vocabulary
+        let folder_tag_mappings = include!("../data/folder_tag_mappings.rs");
+        
+        // Define tag weights for scoring algorithm
+        let tag_weights = &[
+            ("occasion", 10u8),
+            ("keyword:loc", 9),
+            ("keyword:creature", 8),
+            ("keyword:sfx", 8),
+            ("mood", 7),
+            ("genre", 6),
+            ("keyword", 5),
+        ];
+        
         let limit = limit.unwrap_or(5);
         
         // Get all tags for the file
@@ -1076,12 +1090,181 @@ impl VirtualFolderOps {
             return Ok(Vec::new());
         }
         
-        // Get all folders and their common tags with scoring
+        let mut folder_suggestions: std::collections::HashMap<String, f64> = std::collections::HashMap::new();
+        
+        // Process tag mappings
+        for (tag_pattern, folder_path, weight, _description) in folder_tag_mappings {
+            for file_tag in &file_tags {
+                if Self::tag_matches(file_tag, tag_pattern) {
+                    // Calculate confidence based on tag type and weight
+                    let tag_type_weight = Self::get_tag_type_weight(file_tag, tag_weights);
+                    let confidence = (weight as f64 * tag_type_weight as f64) / 100.0;
+                    
+                    folder_suggestions.entry(folder_path.to_string())
+                        .and_modify(|score| *score = (*score + confidence).min(1.0))
+                        .or_insert(confidence);
+                }
+            }
+        }
+        
+        // Convert folder paths to actual folder objects and scores
+        let mut folder_scores: Vec<(VirtualFolder, f64)> = Vec::new();
+        
+        for (folder_path, score) in folder_suggestions {
+            if let Some(folder) = Self::find_folder_by_path(conn, &folder_path)? {
+                folder_scores.push((folder, score));
+            }
+        }
+        
+        // Fallback to original algorithm for folders not covered by mappings
+        if folder_scores.len() < limit {
+            let additional_suggestions = Self::calculate_fallback_suggestions(conn, &file_tags, limit - folder_scores.len())?;
+            for (folder, score) in additional_suggestions {
+                // Only add if not already in suggestions and score is decent
+                if score > 0.3 && !folder_scores.iter().any(|(f, _)| f.id == folder.id) {
+                    folder_scores.push((folder, score * 0.8)); // Reduce fallback scores slightly
+                }
+            }
+        }
+        
+        // Sort by score descending and limit results
+        folder_scores.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+        folder_scores.truncate(limit);
+        
+        Ok(folder_scores)
+    }
+    
+    /// Check if a file tag matches a pattern (supports exact match or prefix match)
+    fn tag_matches(file_tag: &str, pattern: &str) -> bool {
+        if pattern.contains(':') {
+            // Exact tag match
+            file_tag == pattern
+        } else {
+            // Check if file tag starts with pattern (for category matching)
+            file_tag.starts_with(&format!("{}:", pattern))
+        }
+    }
+    
+    /// Get weight for tag type from TAG_WEIGHTS
+    fn get_tag_type_weight(tag: &str, weights: &[(&str, u8)]) -> u8 {
+        if let Some(colon_pos) = tag.find(':') {
+            let tag_type = &tag[..colon_pos];
+            
+            // Check for specific prefixes first (like keyword:loc)
+            for (weight_pattern, weight) in weights {
+                if tag.starts_with(weight_pattern) {
+                    return *weight;
+                }
+            }
+            
+            // Check for general category match
+            for (weight_pattern, weight) in weights {
+                if tag_type == *weight_pattern {
+                    return *weight;
+                }
+            }
+        }
+        3 // Default weight for unrecognized tags
+    }
+    
+    /// Find folder by hierarchical path (e.g., "Combat/Weapons/Melee/Swords")
+    fn find_folder_by_path(conn: &Connection, path: &str) -> Result<Option<VirtualFolder>> {
+        log::debug!("Looking for folder path: {}", path);
+        
+        let parts: Vec<&str> = path.split('/').collect();
+        if parts.is_empty() {
+            return Ok(None);
+        }
+        
+        let mut current_parent: Option<i64> = None;
+        
+        // Walk through each level of the hierarchy
+        for (i, part) in parts.iter().enumerate() {
+            log::debug!("Looking for folder '{}' with parent {:?}", part, current_parent);
+            let mut stmt = if current_parent.is_some() {
+                conn.prepare(
+                    "SELECT id, name, description, parent_folder_id, color, icon, 
+                            created_at, updated_at, created_by, folder_order, is_system_folder, metadata
+                     FROM virtual_folders 
+                     WHERE name = ? AND parent_folder_id = ?
+                     LIMIT 1"
+                )?
+            } else {
+                conn.prepare(
+                    "SELECT id, name, description, parent_folder_id, color, icon, 
+                            created_at, updated_at, created_by, folder_order, is_system_folder, metadata
+                     FROM virtual_folders 
+                     WHERE name = ? AND parent_folder_id IS NULL
+                     LIMIT 1"
+                )?
+            };
+            
+            let folder_result = if current_parent.is_some() {
+                stmt.query_row(params![part, current_parent], |row| {
+                    Ok(VirtualFolder {
+                        id: Some(row.get(0)?),
+                        name: row.get(1)?,
+                        description: row.get(2)?,
+                        parent_folder_id: row.get(3)?,
+                        color: row.get(4)?,
+                        icon: row.get(5)?,
+                        created_at: row.get(6)?,
+                        updated_at: row.get(7)?,
+                        created_by: row.get(8)?,
+                        folder_order: row.get(9)?,
+                        is_system_folder: row.get(10)?,
+                        metadata: row.get(11)?,
+                    })
+                })
+            } else {
+                stmt.query_row(params![part], |row| {
+                    Ok(VirtualFolder {
+                        id: Some(row.get(0)?),
+                        name: row.get(1)?,
+                        description: row.get(2)?,
+                        parent_folder_id: row.get(3)?,
+                        color: row.get(4)?,
+                        icon: row.get(5)?,
+                        created_at: row.get(6)?,
+                        updated_at: row.get(7)?,
+                        created_by: row.get(8)?,
+                        folder_order: row.get(9)?,
+                        is_system_folder: row.get(10)?,
+                        metadata: row.get(11)?,
+                    })
+                })
+            };
+            
+            match folder_result {
+                Ok(folder) => {
+                    log::debug!("Found folder '{}' with id {:?}", folder.name, folder.id);
+                    if i == parts.len() - 1 {
+                        // This is the final folder we're looking for
+                        log::debug!("Successfully found target folder: {}", folder.name);
+                        return Ok(Some(folder));
+                    } else {
+                        // Continue to next level
+                        current_parent = folder.id;
+                    }
+                }
+                Err(e) => {
+                    // Folder not found at this level
+                    log::debug!("Folder '{}' not found at this level: {:?}", part, e);
+                    return Ok(None);
+                }
+            }
+        }
+        
+        Ok(None)
+    }
+    
+    /// Fallback suggestion algorithm (original Jaccard similarity)
+    fn calculate_fallback_suggestions(conn: &Connection, file_tags: &[String], limit: usize) -> Result<Vec<(VirtualFolder, f64)>> {
         let mut folder_scores: Vec<(VirtualFolder, f64)> = Vec::new();
         let folders = Self::get_all_virtual_folders(conn)?;
         
         for folder in folders {
-            let score = Self::calculate_folder_tag_score(conn, folder.id.unwrap(), &file_tags)?;
+            let score = Self::calculate_folder_tag_score(conn, folder.id.unwrap(), file_tags)?;
             if score > 0.0 {
                 folder_scores.push((folder, score));
             }
@@ -1094,7 +1277,7 @@ impl VirtualFolderOps {
         Ok(folder_scores)
     }
     
-    /// Calculate similarity score between a folder and a set of tags
+    /// Calculate similarity score between a folder and a set of tags (original algorithm)
     fn calculate_folder_tag_score(conn: &Connection, folder_id: i64, file_tags: &[String]) -> Result<f64> {
         // Get all tags from files currently in this folder
         let mut stmt = conn.prepare(

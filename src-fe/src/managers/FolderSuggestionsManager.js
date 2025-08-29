@@ -133,10 +133,10 @@ export class FolderSuggestionsManager {
                         <div class="flex items-center gap-3 flex-1">
                             <input type="checkbox" 
                                    class="suggestion-checkbox w-4 h-4 text-accent bg-bg border-border rounded focus:ring-accent"
-                                   data-folder-id="${suggestion.suggested_folder_id}"
-                                   data-folder-name="${suggestion.suggested_folder_name}">
+                                   data-folder-id="${suggestion.folder.id}"
+                                   data-folder-name="${suggestion.folder.name}">
                             <div>
-                                <h4 class="font-medium text-text">${suggestion.suggested_folder_name}</h4>
+                                <h4 class="font-medium text-text">${suggestion.folder.name}</h4>
                                 <div class="flex items-center gap-2 mt-1">
                                     <div class="w-3 h-3 ${confidenceClass} rounded-full"></div>
                                     <span class="${confidenceColor} text-sm font-medium">${confidencePercent}% match</span>
