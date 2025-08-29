@@ -381,6 +381,18 @@ export class UIController {
         this.showNotification('success', message, true);
     }
 
+    showInfo(message, duration = 3000) {
+        console.log(message);
+        // If duration is 0, don't auto-hide; otherwise auto-hide after duration
+        const autoHide = duration > 0;
+        this.showNotification('info', message, autoHide);
+    }
+
+    showWarning(message) {
+        console.warn(message);
+        this.showNotification('warning', message);
+    }
+
     showNotification(type, message, autoHide = false) {
         const container = document.getElementById('notifications-container');
         if (!container) {

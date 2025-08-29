@@ -1,0 +1,235 @@
+[
+    // === CULTURAL STYLES TAG MAPPINGS ===
+    // Maps leaf folders under Cultural Styles category to appropriate tags from TAGS.md
+    
+    // === HISTORICAL PERIODS - ANCIENT ===
+    ("style:mesopotamian", "Cultural Styles/Historical Periods/Ancient/Mesopotamian", 10, "Ancient Mesopotamian cultural style"),
+    ("mood:ancient", "Cultural Styles/Historical Periods/Ancient/Mesopotamian", 9, "Ancient civilization atmosphere"),
+    ("style:bronze-age", "Cultural Styles/Historical Periods/Ancient/Mesopotamian", 8, "Bronze age cultural elements"),
+    ("mood:mysterious", "Cultural Styles/Historical Periods/Ancient/Mesopotamian", 7, "Mysterious ancient culture"),
+    
+    ("style:egyptian", "Cultural Styles/Historical Periods/Ancient/Egyptian", 10, "Ancient Egyptian cultural style"),
+    ("mood:ancient", "Cultural Styles/Historical Periods/Ancient/Egyptian", 9, "Ancient Egyptian atmosphere"),
+    ("style:pharaonic", "Cultural Styles/Historical Periods/Ancient/Egyptian", 8, "Pharaonic Egyptian elements"),
+    ("mood:mystical", "Cultural Styles/Historical Periods/Ancient/Egyptian", 8, "Mystical Egyptian culture"),
+    
+    ("style:greek", "Cultural Styles/Historical Periods/Ancient/Greek", 10, "Ancient Greek cultural style"),
+    ("mood:classical", "Cultural Styles/Historical Periods/Ancient/Greek", 9, "Classical Greek atmosphere"),
+    ("mood:philosophical", "Cultural Styles/Historical Periods/Ancient/Greek", 8, "Philosophical Greek culture"),
+    ("style:hellenistic", "Cultural Styles/Historical Periods/Ancient/Greek", 7, "Hellenistic period elements"),
+    
+    ("style:roman", "Cultural Styles/Historical Periods/Ancient/Roman", 10, "Ancient Roman cultural style"),
+    ("mood:imperial", "Cultural Styles/Historical Periods/Ancient/Roman", 9, "Imperial Roman atmosphere"),
+    ("mood:martial", "Cultural Styles/Historical Periods/Ancient/Roman", 8, "Martial Roman culture"),
+    ("style:classical", "Cultural Styles/Historical Periods/Ancient/Roman", 7, "Classical Roman elements"),
+    
+    // === HISTORICAL PERIODS - MEDIEVAL ===
+    ("style:medieval-european", "Cultural Styles/Historical Periods/Medieval/European", 10, "Medieval European cultural style"),
+    ("mood:feudal", "Cultural Styles/Historical Periods/Medieval/European", 9, "Feudal medieval atmosphere"),
+    ("mood:chivalric", "Cultural Styles/Historical Periods/Medieval/European", 8, "Chivalric medieval culture"),
+    ("style:gothic", "Cultural Styles/Historical Periods/Medieval/European", 8, "Gothic medieval elements"),
+    
+    ("style:byzantine", "Cultural Styles/Historical Periods/Medieval/Byzantine", 10, "Byzantine Empire cultural style"),
+    ("mood:orthodox", "Cultural Styles/Historical Periods/Medieval/Byzantine", 9, "Orthodox Byzantine atmosphere"),
+    ("style:imperial-byzantine", "Cultural Styles/Historical Periods/Medieval/Byzantine", 8, "Imperial Byzantine culture"),
+    ("mood:golden", "Cultural Styles/Historical Periods/Medieval/Byzantine", 7, "Golden Byzantine period"),
+    
+    ("style:islamic-golden", "Cultural Styles/Historical Periods/Medieval/Islamic Golden Age", 10, "Islamic Golden Age cultural style"),
+    ("mood:scholarly", "Cultural Styles/Historical Periods/Medieval/Islamic Golden Age", 9, "Scholarly Islamic atmosphere"),
+    ("style:arabesque", "Cultural Styles/Historical Periods/Medieval/Islamic Golden Age", 8, "Arabesque artistic elements"),
+    ("mood:enlightened", "Cultural Styles/Historical Periods/Medieval/Islamic Golden Age", 7, "Enlightened Islamic culture"),
+    
+    ("style:mongol", "Cultural Styles/Historical Periods/Medieval/Mongol Empire", 10, "Mongol Empire cultural style"),
+    ("mood:nomadic", "Cultural Styles/Historical Periods/Medieval/Mongol Empire", 9, "Nomadic Mongol atmosphere"),
+    ("mood:expansive", "Cultural Styles/Historical Periods/Medieval/Mongol Empire", 8, "Expansive empire culture"),
+    ("style:steppe", "Cultural Styles/Historical Periods/Medieval/Mongol Empire", 7, "Steppe nomadic elements"),
+    
+    // === HISTORICAL PERIODS - RENAISSANCE ===
+    ("style:italian-renaissance", "Cultural Styles/Historical Periods/Renaissance/Italian Renaissance", 10, "Italian Renaissance cultural style"),
+    ("mood:artistic", "Cultural Styles/Historical Periods/Renaissance/Italian Renaissance", 9, "Artistic Renaissance atmosphere"),
+    ("mood:humanistic", "Cultural Styles/Historical Periods/Renaissance/Italian Renaissance", 8, "Humanistic Renaissance culture"),
+    ("style:classical-revival", "Cultural Styles/Historical Periods/Renaissance/Italian Renaissance", 7, "Classical revival elements"),
+    
+    ("style:northern-renaissance", "Cultural Styles/Historical Periods/Renaissance/Northern Renaissance", 10, "Northern Renaissance cultural style"),
+    ("mood:reformist", "Cultural Styles/Historical Periods/Renaissance/Northern Renaissance", 8, "Protestant Reformation atmosphere"),
+    ("style:flemish", "Cultural Styles/Historical Periods/Renaissance/Northern Renaissance", 8, "Flemish cultural elements"),
+    ("mood:detailed", "Cultural Styles/Historical Periods/Renaissance/Northern Renaissance", 7, "Detailed Northern art style"),
+    
+    ("style:elizabethan", "Cultural Styles/Historical Periods/Renaissance/Elizabethan", 10, "Elizabethan England cultural style"),
+    ("mood:courtly", "Cultural Styles/Historical Periods/Renaissance/Elizabethan", 9, "Courtly Elizabethan atmosphere"),
+    ("style:theatrical", "Cultural Styles/Historical Periods/Renaissance/Elizabethan", 8, "Theatrical Elizabethan culture"),
+    ("mood:noble", "Cultural Styles/Historical Periods/Renaissance/Elizabethan", 7, "Noble court elements"),
+    
+    ("style:spanish-golden", "Cultural Styles/Historical Periods/Renaissance/Spanish Golden Age", 10, "Spanish Golden Age cultural style"),
+    ("mood:imperial-spanish", "Cultural Styles/Historical Periods/Renaissance/Spanish Golden Age", 9, "Imperial Spanish atmosphere"),
+    ("style:baroque-spanish", "Cultural Styles/Historical Periods/Renaissance/Spanish Golden Age", 8, "Spanish Baroque elements"),
+    ("mood:colonial", "Cultural Styles/Historical Periods/Renaissance/Spanish Golden Age", 7, "Colonial Spanish culture"),
+    
+    // === REGIONAL CULTURES - EUROPEAN ===
+    ("style:celtic", "Cultural Styles/Regional Cultures/European/Celtic", 10, "Celtic cultural style"),
+    ("mood:mystical", "Cultural Styles/Regional Cultures/European/Celtic", 9, "Mystical Celtic atmosphere"),
+    ("style:druidic", "Cultural Styles/Regional Cultures/European/Celtic", 8, "Druidic Celtic elements"),
+    ("mood:nature-bound", "Cultural Styles/Regional Cultures/European/Celtic", 8, "Nature-connected Celtic culture"),
+    
+    ("style:norse", "Cultural Styles/Regional Cultures/European/Nordic/Norse", 10, "Norse Viking cultural style"),
+    ("mood:heroic", "Cultural Styles/Regional Cultures/European/Nordic/Norse", 9, "Heroic Norse atmosphere"),
+    ("style:runic", "Cultural Styles/Regional Cultures/European/Nordic/Norse", 8, "Runic Norse elements"),
+    ("mood:warrior", "Cultural Styles/Regional Cultures/European/Nordic/Norse", 8, "Warrior Norse culture"),
+    
+    ("style:scandinavian", "Cultural Styles/Regional Cultures/European/Nordic/Scandinavian", 10, "Scandinavian cultural style"),
+    ("mood:natural", "Cultural Styles/Regional Cultures/European/Nordic/Scandinavian", 8, "Natural Scandinavian atmosphere"),
+    ("style:minimalist", "Cultural Styles/Regional Cultures/European/Nordic/Scandinavian", 8, "Minimalist Nordic elements"),
+    ("mood:serene", "Cultural Styles/Regional Cultures/European/Nordic/Scandinavian", 7, "Serene Nordic culture"),
+    
+    ("style:slavic", "Cultural Styles/Regional Cultures/European/Slavic", 10, "Slavic cultural style"),
+    ("mood:folk-traditional", "Cultural Styles/Regional Cultures/European/Slavic", 9, "Traditional Slavic atmosphere"),
+    ("style:orthodox-slavic", "Cultural Styles/Regional Cultures/European/Slavic", 8, "Orthodox Slavic elements"),
+    ("mood:communal", "Cultural Styles/Regional Cultures/European/Slavic", 7, "Communal Slavic culture"),
+    
+    ("style:germanic", "Cultural Styles/Regional Cultures/European/Germanic", 10, "Germanic cultural style"),
+    ("mood:tribal", "Cultural Styles/Regional Cultures/European/Germanic", 8, "Tribal Germanic atmosphere"),
+    ("style:gothic-german", "Cultural Styles/Regional Cultures/European/Germanic", 8, "Gothic Germanic elements"),
+    ("mood:forest-dwelling", "Cultural Styles/Regional Cultures/European/Germanic", 7, "Forest Germanic culture"),
+    
+    // === REGIONAL CULTURES - ASIAN ===
+    ("style:chinese", "Cultural Styles/Regional Cultures/Asian/Chinese", 10, "Chinese cultural style"),
+    ("mood:harmonious", "Cultural Styles/Regional Cultures/Asian/Chinese", 9, "Harmonious Chinese atmosphere"),
+    ("style:imperial-chinese", "Cultural Styles/Regional Cultures/Asian/Chinese", 8, "Imperial Chinese elements"),
+    ("mood:philosophical", "Cultural Styles/Regional Cultures/Asian/Chinese", 8, "Philosophical Chinese culture"),
+    
+    ("style:japanese", "Cultural Styles/Regional Cultures/Asian/Japanese", 10, "Japanese cultural style"),
+    ("mood:zen", "Cultural Styles/Regional Cultures/Asian/Japanese", 9, "Zen Japanese atmosphere"),
+    ("style:samurai", "Cultural Styles/Regional Cultures/Asian/Japanese", 8, "Samurai Japanese elements"),
+    ("mood:disciplined", "Cultural Styles/Regional Cultures/Asian/Japanese", 8, "Disciplined Japanese culture"),
+    
+    ("style:korean", "Cultural Styles/Regional Cultures/Asian/Korean", 10, "Korean cultural style"),
+    ("mood:refined", "Cultural Styles/Regional Cultures/Asian/Korean", 8, "Refined Korean atmosphere"),
+    ("style:hanbok", "Cultural Styles/Regional Cultures/Asian/Korean", 8, "Traditional Korean elements"),
+    ("mood:elegant", "Cultural Styles/Regional Cultures/Asian/Korean", 7, "Elegant Korean culture"),
+    
+    ("style:indian", "Cultural Styles/Regional Cultures/Asian/Indian", 10, "Indian cultural style"),
+    ("mood:spiritual", "Cultural Styles/Regional Cultures/Asian/Indian", 9, "Spiritual Indian atmosphere"),
+    ("style:vedic", "Cultural Styles/Regional Cultures/Asian/Indian", 8, "Vedic Indian elements"),
+    ("mood:colorful", "Cultural Styles/Regional Cultures/Asian/Indian", 8, "Colorful Indian culture"),
+    
+    ("style:persian", "Cultural Styles/Regional Cultures/Asian/Persian", 10, "Persian cultural style"),
+    ("mood:poetic", "Cultural Styles/Regional Cultures/Asian/Persian", 9, "Poetic Persian atmosphere"),
+    ("style:zoroastrian", "Cultural Styles/Regional Cultures/Asian/Persian", 8, "Zoroastrian Persian elements"),
+    ("mood:refined-persian", "Cultural Styles/Regional Cultures/Asian/Persian", 7, "Refined Persian culture"),
+    
+    // === REGIONAL CULTURES - AFRICAN ===
+    ("style:egyptian-ancient", "Cultural Styles/Regional Cultures/African/Egyptian", 10, "Ancient Egyptian cultural style"),
+    ("mood:pharaonic", "Cultural Styles/Regional Cultures/African/Egyptian", 9, "Pharaonic Egyptian atmosphere"),
+    ("style:hieroglyphic", "Cultural Styles/Regional Cultures/African/Egyptian", 8, "Hieroglyphic Egyptian elements"),
+    ("mood:monumental", "Cultural Styles/Regional Cultures/African/Egyptian", 7, "Monumental Egyptian culture"),
+    
+    ("style:nubian", "Cultural Styles/Regional Cultures/African/Nubian", 10, "Nubian cultural style"),
+    ("mood:golden-nubian", "Cultural Styles/Regional Cultures/African/Nubian", 8, "Golden Nubian atmosphere"),
+    ("style:kushite", "Cultural Styles/Regional Cultures/African/Nubian", 8, "Kushite Nubian elements"),
+    ("mood:trade-oriented", "Cultural Styles/Regional Cultures/African/Nubian", 7, "Trade-focused Nubian culture"),
+    
+    ("style:ethiopian", "Cultural Styles/Regional Cultures/African/Ethiopian", 10, "Ethiopian cultural style"),
+    ("mood:highland", "Cultural Styles/Regional Cultures/African/Ethiopian", 8, "Highland Ethiopian atmosphere"),
+    ("style:orthodox-ethiopian", "Cultural Styles/Regional Cultures/African/Ethiopian", 8, "Orthodox Ethiopian elements"),
+    ("mood:ancient-christian", "Cultural Styles/Regional Cultures/African/Ethiopian", 7, "Ancient Christian Ethiopian culture"),
+    
+    ("style:west-african", "Cultural Styles/Regional Cultures/African/West African", 10, "West African cultural style"),
+    ("mood:rhythmic-african", "Cultural Styles/Regional Cultures/African/West African", 9, "Rhythmic West African atmosphere"),
+    ("style:tribal-african", "Cultural Styles/Regional Cultures/African/West African", 8, "Tribal West African elements"),
+    ("mood:communal-african", "Cultural Styles/Regional Cultures/African/West African", 8, "Communal West African culture"),
+    
+    // === REGIONAL CULTURES - AMERICAN ===
+    ("style:aztec", "Cultural Styles/Regional Cultures/American/Aztec", 10, "Aztec cultural style"),
+    ("mood:ceremonial", "Cultural Styles/Regional Cultures/American/Aztec", 9, "Ceremonial Aztec atmosphere"),
+    ("style:mesoamerican", "Cultural Styles/Regional Cultures/American/Aztec", 8, "Mesoamerican Aztec elements"),
+    ("mood:warrior-priest", "Cultural Styles/Regional Cultures/American/Aztec", 8, "Warrior-priest Aztec culture"),
+    
+    ("style:mayan", "Cultural Styles/Regional Cultures/American/Mayan", 10, "Mayan cultural style"),
+    ("mood:astronomical", "Cultural Styles/Regional Cultures/American/Mayan", 9, "Astronomical Mayan atmosphere"),
+    ("style:hieroglyphic-mayan", "Cultural Styles/Regional Cultures/American/Mayan", 8, "Hieroglyphic Mayan elements"),
+    ("mood:cyclical", "Cultural Styles/Regional Cultures/American/Mayan", 7, "Cyclical time Mayan culture"),
+    
+    ("style:incan", "Cultural Styles/Regional Cultures/American/Incan", 10, "Incan cultural style"),
+    ("mood:mountain-empire", "Cultural Styles/Regional Cultures/American/Incan", 9, "Mountain empire Incan atmosphere"),
+    ("style:quechua", "Cultural Styles/Regional Cultures/American/Incan", 8, "Quechua Incan elements"),
+    ("mood:sun-worship", "Cultural Styles/Regional Cultures/American/Incan", 7, "Sun worship Incan culture"),
+    
+    ("style:native-american", "Cultural Styles/Regional Cultures/American/Native American", 10, "Native American cultural style"),
+    ("mood:spiritual-nature", "Cultural Styles/Regional Cultures/American/Native American", 9, "Spiritual nature Native atmosphere"),
+    ("style:shamanic", "Cultural Styles/Regional Cultures/American/Native American", 8, "Shamanic Native elements"),
+    ("mood:earth-connected", "Cultural Styles/Regional Cultures/American/Native American", 8, "Earth-connected Native culture"),
+    
+    // === FANTASY CULTURES - ELVISH ===
+    ("style:high-elf", "Cultural Styles/Fantasy Cultures/Elvish/High Elf", 10, "High Elf cultural style"),
+    ("mood:ethereal", "Cultural Styles/Fantasy Cultures/Elvish/High Elf", 9, "Ethereal High Elf atmosphere"),
+    ("style:refined-elvish", "Cultural Styles/Fantasy Cultures/Elvish/High Elf", 8, "Refined High Elf elements"),
+    ("mood:immortal", "Cultural Styles/Fantasy Cultures/Elvish/High Elf", 8, "Immortal High Elf culture"),
+    
+    ("style:wood-elf", "Cultural Styles/Fantasy Cultures/Elvish/Wood Elf", 10, "Wood Elf cultural style"),
+    ("mood:forest-dwelling", "Cultural Styles/Fantasy Cultures/Elvish/Wood Elf", 9, "Forest-dwelling Wood Elf atmosphere"),
+    ("biome:forest", "Cultural Styles/Fantasy Cultures/Elvish/Wood Elf", 8, "Forest Wood Elf environment"),
+    ("mood:nature-guardian", "Cultural Styles/Fantasy Cultures/Elvish/Wood Elf", 8, "Nature guardian Wood Elf culture"),
+    
+    ("style:dark-elf", "Cultural Styles/Fantasy Cultures/Elvish/Dark Elf", 10, "Dark Elf cultural style"),
+    ("mood:sinister", "Cultural Styles/Fantasy Cultures/Elvish/Dark Elf", 9, "Sinister Dark Elf atmosphere"),
+    ("biome:underdark", "Cultural Styles/Fantasy Cultures/Elvish/Dark Elf", 8, "Underdark Dark Elf environment"),
+    ("mood:matriarchal", "Cultural Styles/Fantasy Cultures/Elvish/Dark Elf", 7, "Matriarchal Dark Elf culture"),
+    
+    ("style:sea-elf", "Cultural Styles/Fantasy Cultures/Elvish/Sea Elf", 10, "Sea Elf cultural style"),
+    ("mood:oceanic", "Cultural Styles/Fantasy Cultures/Elvish/Sea Elf", 9, "Oceanic Sea Elf atmosphere"),
+    ("biome:ocean", "Cultural Styles/Fantasy Cultures/Elvish/Sea Elf", 8, "Ocean Sea Elf environment"),
+    ("mood:flowing", "Cultural Styles/Fantasy Cultures/Elvish/Sea Elf", 7, "Flowing Sea Elf culture"),
+    
+    // === FANTASY CULTURES - DWARVEN ===
+    ("style:mountain-dwarf", "Cultural Styles/Fantasy Cultures/Dwarven/Mountain Dwarf", 10, "Mountain Dwarf cultural style"),
+    ("mood:sturdy", "Cultural Styles/Fantasy Cultures/Dwarven/Mountain Dwarf", 9, "Sturdy Mountain Dwarf atmosphere"),
+    ("biome:mountain", "Cultural Styles/Fantasy Cultures/Dwarven/Mountain Dwarf", 8, "Mountain Dwarf environment"),
+    ("mood:clan-based", "Cultural Styles/Fantasy Cultures/Dwarven/Mountain Dwarf", 8, "Clan-based Mountain Dwarf culture"),
+    
+    ("style:forge-dwarf", "Cultural Styles/Fantasy Cultures/Dwarven/Forge Dwarf", 10, "Forge Dwarf cultural style"),
+    ("mood:industrious", "Cultural Styles/Fantasy Cultures/Dwarven/Forge Dwarf", 9, "Industrious Forge Dwarf atmosphere"),
+    ("tech:metalworking", "Cultural Styles/Fantasy Cultures/Dwarven/Forge Dwarf", 8, "Metalworking Forge Dwarf technology"),
+    ("mood:crafting", "Cultural Styles/Fantasy Cultures/Dwarven/Forge Dwarf", 8, "Crafting Forge Dwarf culture"),
+    
+    ("style:deep-dwarf", "Cultural Styles/Fantasy Cultures/Dwarven/Deep Dwarf", 10, "Deep Dwarf cultural style"),
+    ("mood:underground", "Cultural Styles/Fantasy Cultures/Dwarven/Deep Dwarf", 9, "Underground Deep Dwarf atmosphere"),
+    ("biome:underdark", "Cultural Styles/Fantasy Cultures/Dwarven/Deep Dwarf", 8, "Underdark Deep Dwarf environment"),
+    ("mood:isolationist", "Cultural Styles/Fantasy Cultures/Dwarven/Deep Dwarf", 7, "Isolationist Deep Dwarf culture"),
+    
+    ("style:hill-dwarf", "Cultural Styles/Fantasy Cultures/Dwarven/Hill Dwarf", 10, "Hill Dwarf cultural style"),
+    ("mood:pastoral-dwarf", "Cultural Styles/Fantasy Cultures/Dwarven/Hill Dwarf", 8, "Pastoral Hill Dwarf atmosphere"),
+    ("biome:hills", "Cultural Styles/Fantasy Cultures/Dwarven/Hill Dwarf", 8, "Hills Hill Dwarf environment"),
+    ("mood:trading", "Cultural Styles/Fantasy Cultures/Dwarven/Hill Dwarf", 7, "Trading Hill Dwarf culture"),
+    
+    // === FANTASY CULTURES - ORCISH ===
+    ("style:tribal-orc", "Cultural Styles/Fantasy Cultures/Orcish/Tribal Orc", 10, "Tribal Orc cultural style"),
+    ("mood:savage", "Cultural Styles/Fantasy Cultures/Orcish/Tribal Orc", 9, "Savage Tribal Orc atmosphere"),
+    ("mood:warrior-tribe", "Cultural Styles/Fantasy Cultures/Orcish/Tribal Orc", 8, "Warrior tribe Orc culture"),
+    ("style:shamanistic", "Cultural Styles/Fantasy Cultures/Orcish/Tribal Orc", 7, "Shamanistic Tribal Orc elements"),
+    
+    ("style:civilized-orc", "Cultural Styles/Fantasy Cultures/Orcish/Civilized Orc", 10, "Civilized Orc cultural style"),
+    ("mood:honor-bound", "Cultural Styles/Fantasy Cultures/Orcish/Civilized Orc", 8, "Honor-bound Civilized Orc atmosphere"),
+    ("mood:martial-honor", "Cultural Styles/Fantasy Cultures/Orcish/Civilized Orc", 8, "Martial honor Orc culture"),
+    ("style:clan-honor", "Cultural Styles/Fantasy Cultures/Orcish/Civilized Orc", 7, "Clan honor Orc elements"),
+    
+    ("style:half-orc", "Cultural Styles/Fantasy Cultures/Orcish/Half-Orc", 10, "Half-Orc cultural style"),
+    ("mood:conflicted", "Cultural Styles/Fantasy Cultures/Orcish/Half-Orc", 8, "Conflicted Half-Orc atmosphere"),
+    ("mood:dual-heritage", "Cultural Styles/Fantasy Cultures/Orcish/Half-Orc", 8, "Dual heritage Half-Orc culture"),
+    ("mood:searching", "Cultural Styles/Fantasy Cultures/Orcish/Half-Orc", 7, "Identity searching Half-Orc mood"),
+    
+    // === STEAMPUNK & VICTORIAN ===
+    ("style:steampunk", "Cultural Styles/Steampunk & Victorian/Classic Steampunk", 10, "Classic Steampunk cultural style"),
+    ("tech:steam", "Cultural Styles/Steampunk & Victorian/Classic Steampunk", 10, "Steam technology elements"),
+    ("mood:industrial", "Cultural Styles/Steampunk & Victorian/Classic Steampunk", 9, "Industrial Steampunk atmosphere"),
+    ("tech:clockwork", "Cultural Styles/Steampunk & Victorian/Classic Steampunk", 8, "Clockwork Steampunk technology"),
+    
+    ("style:victorian", "Cultural Styles/Steampunk & Victorian/Victorian England", 10, "Victorian England cultural style"),
+    ("mood:refined", "Cultural Styles/Steampunk & Victorian/Victorian England", 9, "Refined Victorian atmosphere"),
+    ("mood:proper", "Cultural Styles/Steampunk & Victorian/Victorian England", 8, "Proper Victorian culture"),
+    ("style:gaslight", "Cultural Styles/Steampunk & Victorian/Victorian England", 7, "Gaslight Victorian elements"),
+    
+    ("style:dieselpunk", "Cultural Styles/Steampunk & Victorian/Dieselpunk", 10, "Dieselpunk cultural style"),
+    ("tech:diesel", "Cultural Styles/Steampunk & Victorian/Dieselpunk", 9, "Diesel technology elements"),
+    ("mood:art-deco", "Cultural Styles/Steampunk & Victorian/Dieselpunk", 8, "Art Deco Dieselpunk atmosphere"),
+    ("style:retro-futurism", "Cultural Styles/Steampunk & Victorian/Dieselpunk", 7, "Retro-futurism Dieselpunk elements"),
+]
