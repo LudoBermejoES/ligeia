@@ -268,9 +268,11 @@ export class VirtualFoldersPanelManager {
             }
         });
 
-        // File selection and action handling in content area (delegated)
+        // File and folder selection and action handling in content area (delegated)
         this.elements.filesArea?.addEventListener('click', (e) => {
             const fileCard = e.target.closest('.vf-file-card');
+            const folderCard = e.target.closest('.vf-folder-card');
+            
             if (fileCard) {
                 // Check if clicking on action button
                 const actionBtn = e.target.closest('.vf-file-action-btn');
@@ -278,6 +280,14 @@ export class VirtualFoldersPanelManager {
                     this.handleFileAction(actionBtn, fileCard);
                 } else {
                     this.handleFileClick(e);
+                }
+            } else if (folderCard) {
+                // Check if clicking on action button
+                const actionBtn = e.target.closest('.vf-folder-action-btn');
+                if (actionBtn) {
+                    this.handleFolderAction(actionBtn, folderCard);
+                } else {
+                    this.handleFolderClick(folderCard);
                 }
             }
         });
@@ -531,11 +541,16 @@ export class VirtualFoldersPanelManager {
     }
 
     /**
-     * Load and display folder contents
+     * Load and display folder contents (both subfolders and files)
      */
     async loadFolderContents(folderId) {
         try {
-            const contents = await this.service.getFolderContents(folderId);
+            // Fetch both files and subfolders
+            const [contents, subfolders] = await Promise.all([
+                this.service.getFolderContents(folderId),
+                this.service.getFolderChildren(folderId)
+            ]);
+            
             const path = await this.service.buildBreadcrumb(folderId);
             
             // Update breadcrumb
@@ -544,13 +559,18 @@ export class VirtualFoldersPanelManager {
             // Handle both old format (contents.files) and new format (contents.audio_files)
             const files = contents.audio_files || contents.files || [];
             
-            // Update file count
+            // Update count display
             const fileCount = files.length;
-            this.elements.filesArea.parentNode.querySelector('.vf-file-count').textContent = 
-                `${fileCount} file${fileCount !== 1 ? 's' : ''}`;
+            const folderCount = subfolders.length;
+            const totalCount = fileCount + folderCount;
             
-            // Render files
-            this.renderFolderFiles(files);
+            this.elements.filesArea.parentNode.querySelector('.vf-file-count').textContent = 
+                totalCount > 0 
+                    ? `${folderCount} folder${folderCount !== 1 ? 's' : ''}, ${fileCount} file${fileCount !== 1 ? 's' : ''}`
+                    : 'Empty folder';
+            
+            // Render both subfolders and files
+            this.renderFolderContents(subfolders, files);
             
         } catch (error) {
             console.error('Failed to load folder contents:', error);
@@ -559,32 +579,91 @@ export class VirtualFoldersPanelManager {
     }
 
     /**
-     * Render folder files in the content area
+     * Render folder contents (both subfolders and files) in the content area
      */
-    renderFolderFiles(files) {
+    renderFolderContents(subfolders, files) {
         const dropZone = this.elements.filesArea.querySelector('.vf-drop-zone');
         
-        if (files.length === 0) {
+        if (subfolders.length === 0 && files.length === 0) {
             dropZone.innerHTML = `
                 <div class="vf-empty-state">
                     <div class="vf-empty-icon">📂</div>
                     <h3>Empty folder</h3>
-                    <p>This folder doesn't contain any audio files yet.</p>
-                    <button class="vf-empty-add-files-btn" style="margin-top: 15px; padding: 8px 16px; background: #4CAF50; border: none; color: white; border-radius: 4px; cursor: pointer;">
-                        Add Files to Folder
-                    </button>
+                    <p>This folder doesn't contain any subfolders or audio files yet.</p>
+                    <div class="vf-empty-actions" style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+                        <button class="vf-empty-add-files-btn" style="padding: 8px 16px; background: #4CAF50; border: none; color: white; border-radius: 4px; cursor: pointer;">
+                            Add Files
+                        </button>
+                        <button class="vf-empty-create-folder-btn" style="padding: 8px 16px; background: #2196F3; border: none; color: white; border-radius: 4px; cursor: pointer;">
+                            Create Subfolder
+                        </button>
+                    </div>
                 </div>
             `;
             
-            // Add event listener for the empty state add files button
+            // Add event listeners for empty state buttons
             const emptyAddBtn = dropZone.querySelector('.vf-empty-add-files-btn');
+            const emptyCreateBtn = dropZone.querySelector('.vf-empty-create-folder-btn');
+            
             if (emptyAddBtn) {
                 emptyAddBtn.addEventListener('click', () => this.showAddFilesModal());
             }
+            if (emptyCreateBtn) {
+                emptyCreateBtn.addEventListener('click', () => this.showCreateFolderModal());
+            }
         } else {
-            const html = files.map(file => this.renderFileCard(file)).join('');
-            dropZone.innerHTML = `<div class="vf-files-grid">${html}</div>`;
+            let html = '<div class="vf-content-grid">';
+            
+            // Render subfolders first
+            if (subfolders.length > 0) {
+                html += '<div class="vf-subfolders-section">';
+                html += '<h4 class="vf-section-header">Folders</h4>';
+                html += '<div class="vf-folders-grid">';
+                html += subfolders.map(folder => this.renderFolderCard(folder)).join('');
+                html += '</div>';
+                html += '</div>';
+            }
+            
+            // Then render files
+            if (files.length > 0) {
+                html += '<div class="vf-files-section">';
+                html += '<h4 class="vf-section-header">Files</h4>';
+                html += '<div class="vf-files-grid">';
+                html += files.map(file => this.renderFileCard(file)).join('');
+                html += '</div>';
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            dropZone.innerHTML = html;
         }
+    }
+
+    /**
+     * Render a single folder card
+     */
+    renderFolderCard(folder) {
+        const icon = folder.icon || '📁';
+        const description = folder.description || '';
+        
+        return `
+            <div class="vf-folder-card" data-folder-id="${folder.id}">
+                <div class="vf-folder-icon">${icon}</div>
+                <div class="vf-folder-info">
+                    <div class="vf-folder-name">${this.escapeHtml(folder.name)}</div>
+                    ${description ? `<div class="vf-folder-description">${this.escapeHtml(description)}</div>` : ''}
+                    <div class="vf-folder-meta">
+                        ${folder.is_system_folder ? '<span class="vf-system-badge">System</span>' : ''}
+                        <span class="vf-folder-date">${this.formatDate(folder.created_at)}</span>
+                    </div>
+                </div>
+                <div class="vf-folder-actions">
+                    <button class="vf-folder-action-btn" data-action="open" title="Open folder">📂</button>
+                    ${!folder.is_system_folder ? `<button class="vf-folder-action-btn" data-action="edit" title="Edit folder">✏️</button>` : ''}
+                    ${!folder.is_system_folder ? `<button class="vf-folder-action-btn" data-action="delete" title="Delete folder">🗑️</button>` : ''}
+                </div>
+            </div>
+        `;
     }
 
     /**
@@ -1168,6 +1247,65 @@ export class VirtualFoldersPanelManager {
         }
     }
 
+    /**
+     * Handle folder card click (navigate into folder)
+     */
+    handleFolderClick(folderCard) {
+        const folderId = parseInt(folderCard.dataset.folderId);
+        if (folderId) {
+            this.selectFolder(folderId);
+        }
+    }
+
+    /**
+     * Handle folder action button clicks
+     */
+    async handleFolderAction(actionBtn, folderCard) {
+        const action = actionBtn.dataset.action;
+        const folderId = parseInt(folderCard.dataset.folderId);
+        
+        switch (action) {
+            case 'open':
+                this.selectFolder(folderId);
+                break;
+            case 'edit':
+                this.handleEditFolder(folderId);
+                break;
+            case 'delete':
+                this.handleDeleteFolder(folderId);
+                break;
+            default:
+                console.warn('Unknown folder action:', action);
+        }
+    }
+
+    /**
+     * Handle edit folder
+     */
+    handleEditFolder(folderId) {
+        // Access the global virtual folder manager to show edit modal
+        const app = window.app || window.ambientMixerApp;
+        if (app && app.virtualFolderManager && app.virtualFolderManager.getModals()) {
+            app.virtualFolderManager.getModals().showEditFolderModal(folderId);
+        } else {
+            console.error('Virtual folder manager not accessible');
+        }
+    }
+
+    /**
+     * Handle delete folder
+     */
+    async handleDeleteFolder(folderId) {
+        // Access the global virtual folder manager to show delete confirmation
+        const app = window.app || window.ambientMixerApp;
+        if (app && app.virtualFolderManager && app.virtualFolderManager.getModals()) {
+            app.virtualFolderManager.getModals().showDeleteFolderConfirmation(folderId, () => {
+                this.loadFolderContents(this.currentFolderId);
+            });
+        } else {
+            console.error('Virtual folder manager not accessible');
+        }
+    }
 
     /**
      * Handle edit tags for file
@@ -1290,6 +1428,19 @@ export class VirtualFoldersPanelManager {
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
         return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    /**
+     * Format date for display
+     */
+    formatDate(dateString) {
+        if (!dateString) return '';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        } catch (error) {
+            return '';
+        }
     }
 
     /**
