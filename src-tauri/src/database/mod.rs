@@ -64,6 +64,9 @@ impl Database {
         db.vocabulary.initialize_tag_vocabulary(&db.conn)?;
         db.atmospheres.create_tables(&db.conn)?;
         
+        // Initialize default virtual folders
+        VirtualFolderOps::initialize_default_virtual_folders(&db.conn)?;
+        
         Ok(db)
     }
 
