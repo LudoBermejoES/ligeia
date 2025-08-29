@@ -3191,6 +3191,175 @@ body.panel-resizing * {
     gap: 16px;
 }
 
+/* === List View Styles === */
+.vf-list-view .vf-content-grid {
+    display: none !important;
+}
+
+.vf-list-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.vf-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.vf-list-table thead {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+}
+
+.vf-list-table th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.875em;
+    color: var(--text-color);
+    border-bottom: 2px solid var(--border-color);
+    background: var(--bg);
+}
+
+.vf-list-table tbody tr {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s ease;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.vf-list-table tbody tr:hover {
+    background-color: var(--hover-bg);
+}
+
+.vf-list-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.vf-folder-list-row {
+    background: rgba(33, 150, 243, 0.02);
+}
+
+.vf-folder-list-row:hover {
+    background: rgba(33, 150, 243, 0.08);
+}
+
+.vf-file-list-row {
+    background: rgba(76, 175, 80, 0.02);
+}
+
+.vf-file-list-row:hover {
+    background: rgba(76, 175, 80, 0.05);
+}
+
+.vf-list-table td {
+    padding: 0.75rem 1rem;
+    vertical-align: top;
+}
+
+.vf-list-icon {
+    text-align: center;
+    font-size: 1.2em;
+    width: 40px;
+}
+
+.vf-list-name {
+    min-width: 200px;
+}
+
+.vf-list-name .font-medium {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 2px;
+}
+
+.vf-list-name .text-sm {
+    font-size: 0.875em;
+    color: var(--muted-color);
+}
+
+.vf-list-type {
+    min-width: 120px;
+    white-space: nowrap;
+}
+
+.vf-type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: 500;
+    margin-right: 6px;
+}
+
+.vf-folder-type {
+    background: rgba(33, 150, 243, 0.2);
+    color: rgba(33, 150, 243, 1);
+}
+
+.vf-file-type {
+    background: rgba(76, 175, 80, 0.2);
+    color: rgba(76, 175, 80, 1);
+}
+
+.vf-genre-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.7em;
+    background: rgba(156, 39, 176, 0.2);
+    color: rgba(156, 39, 176, 1);
+    margin-left: 4px;
+}
+
+.vf-list-description,
+.vf-list-date,
+.vf-list-duration {
+    color: var(--muted-color);
+    font-size: 0.875em;
+}
+
+.vf-list-actions {
+    text-align: right;
+    width: 100px;
+}
+
+.vf-list-actions .vf-folder-actions,
+.vf-list-actions .vf-file-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.vf-list-table tbody tr:hover .vf-folder-actions,
+.vf-list-table tbody tr:hover .vf-file-actions {
+    opacity: 1;
+}
+
+/* List view action buttons - smaller than grid view */
+.vf-list-view .vf-folder-action-btn,
+.vf-list-view .vf-file-action-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+}
+
+/* Hide grid view when in list mode */
+.vf-list-view .vf-folders-grid,
+.vf-list-view .vf-files-grid,
+.vf-list-view .vf-subfolders-section,
+.vf-list-view .vf-files-section {
+    display: none !important;
+}
+
 .vf-file-meta {
     font-size: 0.9em;
     margin-bottom: 6px;

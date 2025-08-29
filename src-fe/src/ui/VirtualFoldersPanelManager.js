@@ -13,6 +13,7 @@ export class VirtualFoldersPanelManager {
         this.currentFolderId = null;
         this.selectedFiles = new Set();
         this.expandedFolders = new Set();
+        this.lastFolderData = null; // Cache for view switching
         
         this.initializePanel();
         this.setupEventListeners();
@@ -272,9 +273,11 @@ export class VirtualFoldersPanelManager {
         this.elements.filesArea?.addEventListener('click', (e) => {
             const fileCard = e.target.closest('.vf-file-card');
             const folderCard = e.target.closest('.vf-folder-card');
+            const fileListRow = e.target.closest('.vf-file-list-row');
+            const folderListRow = e.target.closest('.vf-folder-list-row');
             
             if (fileCard) {
-                // Check if clicking on action button
+                // Grid view file card
                 const actionBtn = e.target.closest('.vf-file-action-btn');
                 if (actionBtn) {
                     this.handleFileAction(actionBtn, fileCard);
@@ -282,12 +285,28 @@ export class VirtualFoldersPanelManager {
                     this.handleFileClick(e);
                 }
             } else if (folderCard) {
-                // Check if clicking on action button
+                // Grid view folder card
                 const actionBtn = e.target.closest('.vf-folder-action-btn');
                 if (actionBtn) {
                     this.handleFolderAction(actionBtn, folderCard);
                 } else {
                     this.handleFolderClick(folderCard);
+                }
+            } else if (fileListRow) {
+                // List view file row
+                const actionBtn = e.target.closest('.vf-file-action-btn');
+                if (actionBtn) {
+                    this.handleFileAction(actionBtn, fileListRow);
+                } else {
+                    this.handleFileClick(e);
+                }
+            } else if (folderListRow) {
+                // List view folder row
+                const actionBtn = e.target.closest('.vf-folder-action-btn');
+                if (actionBtn) {
+                    this.handleFolderAction(actionBtn, folderListRow);
+                } else {
+                    this.handleFolderClick(folderListRow);
                 }
             }
         });
@@ -519,6 +538,7 @@ export class VirtualFoldersPanelManager {
         if (this.currentFolderId === folderId) return;
         
         this.currentFolderId = folderId;
+        this.lastFolderData = null; // Clear cache when switching folders
         
         try {
             // Update tree selection
@@ -559,6 +579,12 @@ export class VirtualFoldersPanelManager {
             // Handle both old format (contents.files) and new format (contents.audio_files)
             const files = contents.audio_files || contents.files || [];
             
+            // Cache the data for view switching
+            this.lastFolderData = {
+                subfolders: subfolders,
+                files: files
+            };
+            
             // Update count display
             const fileCount = files.length;
             const folderCount = subfolders.length;
@@ -583,8 +609,26 @@ export class VirtualFoldersPanelManager {
      */
     renderFolderContents(subfolders, files) {
         const dropZone = this.elements.filesArea.querySelector('.vf-drop-zone');
+        const isListView = this.elements.filesArea && this.elements.filesArea.classList.contains('vf-list-view');
         
-        if (subfolders.length === 0 && files.length === 0) {
+        // Debug logging
+        console.log('Rendering folder contents:', {
+            subfolders: subfolders?.length || 0,
+            files: files?.length || 0,
+            isListView,
+            dropZone: !!dropZone
+        });
+        
+        // Ensure we have valid arrays
+        const validSubfolders = Array.isArray(subfolders) ? subfolders : [];
+        const validFiles = Array.isArray(files) ? files : [];
+        
+        if (!dropZone) {
+            console.error('Drop zone not found');
+            return;
+        }
+        
+        if (validSubfolders.length === 0 && validFiles.length === 0) {
             dropZone.innerHTML = `
                 <div class="vf-empty-state">
                     <div class="vf-empty-icon">📂</div>
@@ -611,32 +655,138 @@ export class VirtualFoldersPanelManager {
             if (emptyCreateBtn) {
                 emptyCreateBtn.addEventListener('click', () => this.showCreateFolderModal());
             }
+        } else if (isListView) {
+            // Render list view
+            this.renderListView(validSubfolders, validFiles, dropZone);
         } else {
-            let html = '<div class="vf-content-grid">';
-            
-            // Render subfolders first
-            if (subfolders.length > 0) {
-                html += '<div class="vf-subfolders-section">';
-                html += '<h4 class="vf-section-header">Folders</h4>';
-                html += '<div class="vf-folders-grid">';
-                html += subfolders.map(folder => this.renderFolderCard(folder)).join('');
-                html += '</div>';
-                html += '</div>';
-            }
-            
-            // Then render files
-            if (files.length > 0) {
-                html += '<div class="vf-files-section">';
-                html += '<h4 class="vf-section-header">Files</h4>';
-                html += '<div class="vf-files-grid">';
-                html += files.map(file => this.renderFileCard(file)).join('');
-                html += '</div>';
-                html += '</div>';
-            }
-            
-            html += '</div>';
-            dropZone.innerHTML = html;
+            // Render grid view (original implementation)
+            this.renderGridView(validSubfolders, validFiles, dropZone);
         }
+    }
+
+    /**
+     * Render grid view layout
+     */
+    renderGridView(subfolders, files, dropZone) {
+        let html = '<div class="vf-content-grid">';
+        
+        // Render subfolders first
+        if (subfolders.length > 0) {
+            html += '<div class="vf-subfolders-section">';
+            html += '<h4 class="vf-section-header">Folders</h4>';
+            html += '<div class="vf-folders-grid">';
+            html += subfolders.map(folder => this.renderFolderCard(folder)).join('');
+            html += '</div>';
+            html += '</div>';
+        }
+        
+        // Then render files
+        if (files.length > 0) {
+            html += '<div class="vf-files-section">';
+            html += '<h4 class="vf-section-header">Files</h4>';
+            html += '<div class="vf-files-grid">';
+            html += files.map(file => this.renderFileCard(file)).join('');
+            html += '</div>';
+            html += '</div>';
+        }
+        
+        html += '</div>';
+        dropZone.innerHTML = html;
+    }
+
+    /**
+     * Render list view layout
+     */
+    renderListView(subfolders, files, dropZone) {
+        let html = '<div class="vf-list-container">';
+        
+        // Create table structure similar to mixer list view
+        html += '<table class="vf-list-table">';
+        
+        // Table header
+        html += '<thead>';
+        html += '<tr>';
+        html += '<th class="w-8"></th>'; // Icon column
+        html += '<th>Name</th>';
+        html += '<th>Duration</th>';
+        html += '<th class="w-24">Actions</th>';
+        html += '</tr>';
+        html += '</thead>';
+        
+        html += '<tbody>';
+        
+        // Render subfolders first in list format
+        if (subfolders.length > 0) {
+            html += subfolders.map(folder => this.renderFolderListRow(folder)).join('');
+        }
+        
+        // Then render files in list format
+        if (files.length > 0) {
+            html += files.map(file => this.renderFileListRow(file)).join('');
+        }
+        
+        html += '</tbody>';
+        html += '</table>';
+        html += '</div>';
+        
+        dropZone.innerHTML = html;
+    }
+
+    /**
+     * Render a single folder as a list row
+     */
+    renderFolderListRow(folder) {
+        const icon = folder.icon || '📁';
+        
+        return `
+            <tr class="vf-folder-list-row" data-folder-id="${folder.id}">
+                <td class="vf-list-icon">${icon}</td>
+                <td class="vf-list-name">
+                    <div class="font-medium">${this.escapeHtml(folder.name)}</div>
+                    ${folder.is_system_folder ? '<div class="vf-system-badge-inline">System Folder</div>' : ''}
+                </td>
+                <td class="vf-list-duration">—</td>
+                <td class="vf-list-actions">
+                    <div class="vf-folder-actions">
+                        <button class="vf-folder-action-btn" data-action="open" title="Open folder">📂</button>
+                        ${!folder.is_system_folder ? `<button class="vf-folder-action-btn" data-action="edit" title="Edit folder">✏️</button>` : ''}
+                        ${!folder.is_system_folder ? `<button class="vf-folder-action-btn" data-action="delete" title="Delete folder">🗑️</button>` : ''}
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    /**
+     * Render a single file as a list row
+     */
+    renderFileListRow(file) {
+        const duration = file.duration ? this.formatDuration(file.duration) : 'Unknown';
+        const artist = file.artist || 'Unknown Artist';
+        const title = file.title || file.filename || 'Unknown';
+        const album = file.album || '';
+        
+        return `
+            <tr class="vf-file-list-row" data-file-id="${file.id}" data-file-path="${this.escapeHtml(file.file_path)}">
+                <td class="vf-list-icon">🎵</td>
+                <td class="vf-list-name">
+                    <div class="font-medium">${this.escapeHtml(title)}</div>
+                    <div class="vf-file-meta-inline">
+                        ${artist ? `<span class="text-sm text-muted">${this.escapeHtml(artist)}</span>` : ''}
+                        ${album && artist ? '<span class="text-sm text-muted"> • </span>' : ''}
+                        ${album ? `<span class="text-sm text-muted">${this.escapeHtml(album)}</span>` : ''}
+                    </div>
+                </td>
+                <td class="vf-list-duration">${duration}</td>
+                <td class="vf-list-actions">
+                    <div class="vf-file-actions">
+                        <button class="vf-file-action-btn" data-action="play" title="Play/Pause">▶️</button>
+                        <button class="vf-file-action-btn" data-action="remove" title="Remove from folder">🗑️</button>
+                        <button class="vf-file-action-btn" data-action="tags" title="Edit tags">🏷️</button>
+                    </div>
+                </td>
+            </tr>
+        `;
     }
 
     /**
@@ -1176,13 +1326,21 @@ export class VirtualFoldersPanelManager {
         // Apply view mode to files area
         const filesArea = this.elements.filesArea;
         if (filesArea) {
-            filesArea.classList.toggle('vf-list-view', view === 'list');
-            filesArea.classList.toggle('vf-grid-view', view === 'grid');
+            // Only use vf-list-view class - absence means grid view
+            if (view === 'list') {
+                filesArea.classList.add('vf-list-view');
+            } else {
+                filesArea.classList.remove('vf-list-view');
+            }
         }
         
-        // Re-render current folder to apply new layout
-        if (this.currentFolderId) {
-            this.selectFolder(this.currentFolderId);
+        // Re-render current folder with cached data to apply new layout
+        if (this.currentFolderId && this.lastFolderData) {
+            // Use cached data instead of re-fetching to avoid race conditions
+            this.renderFolderContents(this.lastFolderData.subfolders, this.lastFolderData.files);
+        } else if (this.currentFolderId) {
+            // Fall back to re-loading if no cached data
+            this.loadFolderContents(this.currentFolderId);
         }
     }
 
