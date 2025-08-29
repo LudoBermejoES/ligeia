@@ -7,59 +7,63 @@
   
   <!-- Controls Section -->
   <div class="controls flex items-center gap-2 flex-wrap">
-    <!-- File Operations -->
-    <div class="flex items-center gap-1">
-      <button id="loadFiles" 
+    <!-- Library Actions Menu -->
+    <div class="library-actions-dropdown relative">
+      <button id="libraryActionsBtn" 
               class="btn btn-primary px-3 py-1.5 bg-accent text-white rounded text-sm font-medium
-                     hover:bg-green-600 transition-colors duration-200 whitespace-nowrap" 
-              title="Load individual audio files">
-        📂 Load Sounds
+                     hover:bg-green-600 transition-colors duration-200 whitespace-nowrap flex items-center gap-1" 
+              title="Library Actions">
+        ⚡ Actions
+        <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
       </button>
       
-      <button id="loadDirectory" 
-              class="btn btn-secondary px-3 py-1.5 bg-gray-600 text-white rounded text-sm font-medium
-                     hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap" 
-              title="Scan directory recursively">
-        📁 Load Directory
-      </button>
-      
-      <button id="bulkTagEditor" 
-              class="btn btn-warning px-3 py-1.5 bg-yellow-600 text-white rounded text-sm font-medium
-                     hover:bg-yellow-700 transition-colors duration-200 whitespace-nowrap" 
-              title="Bulk tag editor">
-        🏷️ Bulk Tag
-      </button>
-    </div>
-    
-    <!-- Data Operations -->
-    <div class="flex items-center gap-1">
-      <button id="exportData" 
-              class="btn btn-outline px-3 py-1.5 border border-border text-text bg-card rounded text-sm font-medium
-                     hover:bg-hover transition-colors duration-200 whitespace-nowrap" 
-              title="Export library">
-        📤 Export
-      </button>
-      
-      <button id="importData" 
-              class="btn btn-outline px-3 py-1.5 border border-border text-text bg-card rounded text-sm font-medium
-                     hover:bg-hover transition-colors duration-200 whitespace-nowrap" 
-              title="Import library">
-        📥 Import
-      </button>
-      
-      <button id="storeTagsInFiles" 
-              class="btn btn-outline px-3 py-1.5 border border-border text-text bg-card rounded text-sm font-medium
-                     hover:bg-hover transition-colors duration-200 whitespace-nowrap" 
-              title="Store all database tags into audio files">
-        📝 Store Tags
-      </button>
-      
-      <button id="calculateDurations" 
-              class="btn btn-outline px-3 py-1.5 border border-border text-text bg-card rounded text-sm font-medium
-                     hover:bg-hover transition-colors duration-200 whitespace-nowrap" 
-              title="Calculate durations & BPM">
-        ⏱️ Dur/BPM
-      </button>
+      <div id="libraryActionsMenu" 
+           class="library-actions-menu absolute top-full left-0 mt-1 w-48 bg-card border border-border rounded-lg shadow-lg z-50 hidden">
+        <div class="py-1">
+          <!-- File Operations -->
+          <div class="px-3 py-1 text-xs font-medium text-muted uppercase tracking-wide">File Operations</div>
+          <button id="loadFiles" 
+                  class="menu-item w-full text-left px-3 py-2 text-sm text-text hover:bg-hover transition-colors duration-150 flex items-center gap-2">
+            📂 Load Sounds
+          </button>
+          <button id="loadDirectory" 
+                  class="menu-item w-full text-left px-3 py-2 text-sm text-text hover:bg-hover transition-colors duration-150 flex items-center gap-2">
+            📁 Load Directory
+          </button>
+          <button id="bulkTagEditor" 
+                  class="menu-item w-full text-left px-3 py-2 text-sm text-text hover:bg-hover transition-colors duration-150 flex items-center gap-2">
+            🏷️ Bulk Tag Editor
+          </button>
+          
+          <div class="border-t border-border my-1"></div>
+          
+          <!-- Data Operations -->
+          <div class="px-3 py-1 text-xs font-medium text-muted uppercase tracking-wide">Data Operations</div>
+          <button id="exportData" 
+                  class="menu-item w-full text-left px-3 py-2 text-sm text-text hover:bg-hover transition-colors duration-150 flex items-center gap-2">
+            📤 Export Library
+          </button>
+          <button id="importData" 
+                  class="menu-item w-full text-left px-3 py-2 text-sm text-text hover:bg-hover transition-colors duration-150 flex items-center gap-2">
+            📥 Import Library
+          </button>
+          <button id="storeTagsInFiles" 
+                  class="menu-item w-full text-left px-3 py-2 text-sm text-text hover:bg-hover transition-colors duration-150 flex items-center gap-2">
+            📝 Store Tags
+          </button>
+          
+          <div class="border-t border-border my-1"></div>
+          
+          <!-- Processing -->
+          <div class="px-3 py-1 text-xs font-medium text-muted uppercase tracking-wide">Processing</div>
+          <button id="calculateDurations" 
+                  class="menu-item w-full text-left px-3 py-2 text-sm text-text hover:bg-hover transition-colors duration-150 flex items-center gap-2">
+            ⏱️ Calculate Dur/BPM
+          </button>
+        </div>
+      </div>
     </div>
     
     <!-- Panel & Playback Controls -->

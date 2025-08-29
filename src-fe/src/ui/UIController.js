@@ -41,15 +41,36 @@ export class UIController {
     }
 
     initializeEventListeners(eventHandlers) {
-        // File operations
-        this.getElementById('loadFiles')?.addEventListener('click', eventHandlers.loadFiles);
-        this.getElementById('loadDirectory')?.addEventListener('click', eventHandlers.loadDirectory);
+        // Initialize library actions dropdown
+        this.initializeLibraryActionsDropdown();
         
-    // Export / Import
-    this.getElementById('exportData')?.addEventListener('click', eventHandlers.exportData);
-        this.getElementById('importData')?.addEventListener('click', eventHandlers.importData);
-        this.getElementById('storeTagsInFiles')?.addEventListener('click', eventHandlers.storeTagsInFiles);
-        this.getElementById('calculateDurations')?.addEventListener('click', eventHandlers.calculateDurations);
+        // File operations (now in dropdown)
+        this.getElementById('loadFiles')?.addEventListener('click', (e) => {
+            this.closeLibraryActionsMenu();
+            eventHandlers.loadFiles(e);
+        });
+        this.getElementById('loadDirectory')?.addEventListener('click', (e) => {
+            this.closeLibraryActionsMenu();
+            eventHandlers.loadDirectory(e);
+        });
+        
+        // Export / Import (now in dropdown)
+        this.getElementById('exportData')?.addEventListener('click', (e) => {
+            this.closeLibraryActionsMenu();
+            eventHandlers.exportData(e);
+        });
+        this.getElementById('importData')?.addEventListener('click', (e) => {
+            this.closeLibraryActionsMenu();
+            eventHandlers.importData(e);
+        });
+        this.getElementById('storeTagsInFiles')?.addEventListener('click', (e) => {
+            this.closeLibraryActionsMenu();
+            eventHandlers.storeTagsInFiles(e);
+        });
+        this.getElementById('calculateDurations')?.addEventListener('click', (e) => {
+            this.closeLibraryActionsMenu();
+            eventHandlers.calculateDurations(e);
+        });
         
         // Global controls
         this.getElementById('stopAll')?.addEventListener('click', eventHandlers.stopAll);
@@ -626,6 +647,74 @@ export class UIController {
             }
         }
         
+    }
+
+    /* ================= Library Actions Dropdown ================= */
+    
+    initializeLibraryActionsDropdown() {
+        const dropdownButton = this.getElementById('libraryActionsBtn');
+        const dropdownMenu = this.getElementById('libraryActionsMenu');
+        
+        if (!dropdownButton || !dropdownMenu) {
+            console.warn('Library actions dropdown elements not found');
+            return;
+        }
+        
+        // Toggle dropdown on button click
+        dropdownButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.toggleLibraryActionsMenu();
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                this.closeLibraryActionsMenu();
+            }
+        });
+        
+        // Close dropdown on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeLibraryActionsMenu();
+            }
+        });
+    }
+    
+    toggleLibraryActionsMenu() {
+        const dropdownMenu = this.getElementById('libraryActionsMenu');
+        const dropdownButton = this.getElementById('libraryActionsBtn');
+        
+        if (!dropdownMenu || !dropdownButton) return;
+        
+        const isOpen = !dropdownMenu.classList.contains('hidden');
+        
+        if (isOpen) {
+            this.closeLibraryActionsMenu();
+        } else {
+            this.openLibraryActionsMenu();
+        }
+    }
+    
+    openLibraryActionsMenu() {
+        const dropdownMenu = this.getElementById('libraryActionsMenu');
+        const dropdownButton = this.getElementById('libraryActionsBtn');
+        
+        if (!dropdownMenu || !dropdownButton) return;
+        
+        dropdownMenu.classList.remove('hidden');
+        dropdownButton.setAttribute('aria-expanded', 'true');
+    }
+    
+    closeLibraryActionsMenu() {
+        const dropdownMenu = this.getElementById('libraryActionsMenu');
+        const dropdownButton = this.getElementById('libraryActionsBtn');
+        
+        if (!dropdownMenu || !dropdownButton) return;
+        
+        dropdownMenu.classList.add('hidden');
+        dropdownButton.setAttribute('aria-expanded', 'false');
     }
 
     /* ================= Atmospheres (Phase 1 Scaffold) ================= */
