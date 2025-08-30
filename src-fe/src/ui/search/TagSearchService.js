@@ -44,8 +44,8 @@ export class TagSearchService {
     /**
      * Build tag groups for hierarchical organization
      */
-    buildTagGroups(existingTags) {
-        console.log('Building tag groups from existingTags:', existingTags);
+    buildTagGroups(tagsData) {
+        console.log('Building tag groups from tagsData:', tagsData);
         
         this.tagGroups = {
             genre: {},
@@ -54,10 +54,15 @@ export class TagSearchService {
             keyword: {}
         };
 
-        // Handle the case where existingTags is an object with arrays (from backend)
-        if (existingTags && typeof existingTags === 'object' && !Array.isArray(existingTags)) {
+        if (!tagsData) {
+            console.log('No tags data provided');
+            return;
+        }
+
+        // Handle the case where tagsData is an object with arrays (from getExistingTags)
+        if (typeof tagsData === 'object' && !Array.isArray(tagsData)) {
             // Convert object format to array format
-            Object.entries(existingTags).forEach(([tagType, tagValues]) => {
+            Object.entries(tagsData).forEach(([tagType, tagValues]) => {
                 console.log(`Processing ${tagType}:`, tagValues);
                 if (Array.isArray(tagValues)) {
                     tagValues.forEach(fullValue => {
@@ -65,10 +70,12 @@ export class TagSearchService {
                     });
                 }
             });
-        } else if (Array.isArray(existingTags)) {
-            // Handle array format (if it comes as array of objects)
-            existingTags.forEach(tag => {
-                this.processSingleTag(tag.tag_type, tag.tag_value);
+        } else if (Array.isArray(tagsData)) {
+            // Handle array format (from vocabulary - array of tag objects)
+            tagsData.forEach(tag => {
+                if (tag && tag.tag_type && tag.tag_value) {
+                    this.processSingleTag(tag.tag_type, tag.tag_value);
+                }
             });
         }
         
@@ -159,11 +166,13 @@ export class TagSearchService {
         try {
             let allTags, existingTags;
 
-            // Get existing tags from database
+            // Always get existing tags from database
             existingTags = await this.tagService.getExistingTags();
 
             if (showOnlyExistingTags) {
+                // Use only existing tags for building groups
                 allTags = existingTags;
+                this.buildTagGroups(existingTags || []);
             } else {
                 // Get all vocabulary tags from the service
                 await this.tagService.loadTagVocabulary();
@@ -173,14 +182,20 @@ export class TagSearchService {
                 for (const [tagType, tags] of this.tagService.tagVocabulary.entries()) {
                     allTags.push(...tags);
                 }
+                
+                // For "Show All Tags", build groups from the full vocabulary
+                this.buildTagGroups(allTags);
             }
 
             // Initialize fuzzy search
             const allVocabulary = Array.isArray(allTags) ? allTags : [];
             this.initializeFuse(allVocabulary);
 
-            // Build tag groups for hierarchical display
-            this.buildTagGroups(existingTags || []);
+            console.log(`Loaded ${showOnlyExistingTags ? 'existing' : 'all'} tags:`, {
+                allTagsCount: allVocabulary.length,
+                existingTagsCount: existingTags ? Object.values(existingTags).flat().length : 0,
+                tagGroups: this.tagGroups
+            });
 
             return {
                 allTags: allVocabulary,
