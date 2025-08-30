@@ -13,7 +13,9 @@ impl AtmosphereHandler {
         let state = app_handle.state::<AppState>();
         let db = state.db.lock().unwrap();
         
-        log::info!("Saving atmosphere: name={}, sounds_count={}", payload.atmosphere.name, 
+        log::info!("Saving atmosphere: name={}, id={}, sounds_count={}", 
+                  payload.atmosphere.name, 
+                  payload.atmosphere.id.map_or(-1, |id| id),
                   payload.sounds.as_ref().map_or(0, |s| s.len()));
         
         // Log delay configurations if any sounds have delay settings
@@ -28,10 +30,17 @@ impl AtmosphereHandler {
                 }
             }
             
-            db.save_atmosphere_with_sounds(&payload.atmosphere, sounds).map_err(|e| {
+            let result = db.save_atmosphere_with_sounds(&payload.atmosphere, sounds).map_err(|e| {
                 log::error!("Failed to save atmosphere with sounds: {}", e);
                 e.to_string()
-            })
+            });
+            
+            match &result {
+                Ok(id) => log::info!("Successfully saved atmosphere with sounds, atmosphere_id={}", id),
+                Err(e) => log::error!("Save atmosphere with sounds failed: {}", e)
+            }
+            
+            result
         } else {
             // Legacy save without sounds
             log::info!("Saving atmosphere without sounds (legacy mode)");
@@ -130,8 +139,19 @@ impl AtmosphereHandler {
         let state = app_handle.state::<AppState>();
         let db = state.db.lock().unwrap();
         
+        log::debug!("Getting atmosphere details: id={}", atmosphere_id);
+        
         match db.get_atmosphere_with_sounds(atmosphere_id) {
             Ok(res) => {
+                log::info!("Loaded atmosphere '{}' with {} sounds", res.atmosphere.name, res.sounds.len());
+                
+                // Log each sound for debugging
+                for sound in &res.sounds {
+                    log::debug!("  Sound: audio_file_id={}, volume={}, looping={}, muted={}, delay={}s-{}s", 
+                               sound.audio_file_id, sound.volume, sound.is_looping, sound.is_muted,
+                               sound.min_seconds, sound.max_seconds);
+                }
+                
                 // Log delay configurations if any sounds have delay settings
                 let delay_sounds: Vec<_> = res.sounds.iter()
                     .filter(|s| s.min_seconds > 0 || s.max_seconds > 0)

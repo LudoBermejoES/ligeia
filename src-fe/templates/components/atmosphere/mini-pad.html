@@ -1,0 +1,35 @@
+<div class="sound-pad {{playActive}} {{muteActive}}" data-audio-id="{{audioFileId}}" data-context="atmosphere" draggable="true" data-origin="membership">
+    <div class="sound-pad-header">
+        <div class="sound-pad-info">
+            <div class="sound-pad-title" title="{{titleEscaped}}">{{title}}</div>
+            <div class="sound-pad-meta"><span class="sound-pad-artist">Subset</span></div>
+        </div>
+        <div class="sound-pad-status">{{statusIcon}}</div>
+    </div>
+    <div class="sound-pad-controls">
+        <div class="sound-pad-buttons">
+            <button class="pad-btn {{playActive}}" data-action="toggle" title="{{playTitle}}" draggable="false">{{playIcon}}</button>
+            <button class="pad-btn {{loopActive}} {{loopForced}}" data-action="loop" title="Loop" draggable="false" {{loopDisabled}}>🔁</button>
+            <button class="pad-btn {{muteActive}}" data-action="mute" title="Mute" draggable="false">{{muteIcon}}</button>
+            <button class="pad-btn" data-action="remove" title="Remove from atmosphere" draggable="false">✕</button>
+        </div>
+        <div class="volume-control-pad">
+            <input type="range" class="volume-slider-pad" min="0" max="100" value="{{volumePercent}}" data-action="volume" aria-label="Pad Volume" draggable="false">
+            <span class="volume-display-pad">{{volumePercent}}%</span>
+        </div>
+        <div class="delay-control-pad">
+            <div class="delay-sliders-row">
+                <div class="delay-slider-group">
+                    <label class="delay-label">Min</label>
+                    <input type="range" class="delay-slider-pad min-delay-slider" min="0" max="60" value="{{minSeconds}}" data-action="min-delay" aria-label="Min Delay Seconds" draggable="false">
+                    <span class="delay-display">{{minSeconds}}s</span>
+                </div>
+                <div class="delay-slider-group">
+                    <label class="delay-label">Max</label>
+                    <input type="range" class="delay-slider-pad max-delay-slider" min="0" max="60" value="{{maxSeconds}}" data-action="max-delay" aria-label="Max Delay Seconds" draggable="false">
+                    <span class="delay-display">{{maxSeconds}}s</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

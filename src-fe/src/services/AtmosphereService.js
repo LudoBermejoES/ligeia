@@ -57,9 +57,29 @@ export class AtmosphereService {
 
   async saveAtmosphere(payload) {
     try {
-      return await invoke('save_atmosphere', { atmosphere: payload });
+      // Single comprehensive debug log for backend call
+      console.log('🚀 SENDING TO BACKEND:', JSON.stringify({
+        payloadType: typeof payload,
+        payloadKeys: Object.keys(payload || {}),
+        nullFields: Object.entries(payload || {}).filter(([key, value]) => value === null).map(([key]) => key),
+        payloadStructure: payload
+      }, null, 2));
+      
+      const result = await invoke('save_atmosphere', { atmosphere: payload });
+      logger.debug('atmo', 'Backend response:', result);
+      return result;
     } catch (e) {
-      logger.error('atmo', 'Failed to save atmosphere', { error: e.message, payload });
+      logger.error('atmo', 'BACKEND SAVE FAILED:', { 
+        error: e.message, 
+        errorString: String(e),
+        payloadSummary: {
+          keys: Object.keys(payload || {}),
+          soundsCount: payload?.sounds?.length || 0,
+          hasId: 'id' in (payload || {}),
+          idValue: payload?.id,
+          defaultCrossfadeMs: payload?.default_crossfade_ms
+        }
+      });
       throw e;
     }
   }
