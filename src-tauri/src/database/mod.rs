@@ -10,22 +10,20 @@ pub mod atmospheres;
 pub mod virtual_folders;
 
 pub use schema::SchemaManager;
-pub use audio_files::AudioFileRepository;
+pub use audio_files::AudioFileOps;
 pub use rpg_tags::RpgTagRepository;
 pub use vocabulary::VocabularyRepository;
 pub use search::SearchRepository;
-pub use atmospheres::AtmosphereRepository;
+pub use atmospheres::AtmosphereOps;
 pub use virtual_folders::VirtualFolderOps;
 
-/// Main database struct that coordinates all repositories
+/// Main database struct that coordinates all database operations
 pub struct Database {
     conn: Connection,
     pub schema: SchemaManager,
-    pub audio_files: AudioFileRepository,
     pub rpg_tags: RpgTagRepository,
     pub vocabulary: VocabularyRepository,
     pub search: SearchRepository,
-    pub atmospheres: AtmosphereRepository,
 }
 
 impl Database {
@@ -43,26 +41,23 @@ impl Database {
     fn from_connection(conn: Connection) -> Result<Self> {
         
         let schema = SchemaManager::new(&conn);
-        let audio_files = AudioFileRepository::new();
         let rpg_tags = RpgTagRepository::new();
         let vocabulary = VocabularyRepository::new();
         let search = SearchRepository::new();
-        let atmospheres = AtmosphereRepository::new();
         
         let db = Database {
             conn,
             schema,
-            audio_files,
             rpg_tags,
             vocabulary,
             search,
-            atmospheres,
         };
         
         // Initialize schema and vocabulary
         db.schema.create_tables(&db.conn)?;
         db.vocabulary.initialize_tag_vocabulary(&db.conn)?;
-        db.atmospheres.create_tables(&db.conn)?;
+        AudioFileOps::create_table(&db.conn)?;
+        AtmosphereOps::create_tables(&db.conn)?;
         
         // Initialize default virtual folders
         VirtualFolderOps::initialize_default_virtual_folders(&db.conn)?;
@@ -86,27 +81,33 @@ impl Database {
     // Legacy API compatibility methods that delegate to repositories
     
     pub fn save_audio_file(&self, audio_file: &AudioFile) -> Result<i64> {
-        self.audio_files.save(&self.conn, audio_file)
+        AudioFileOps::save(&self.conn, audio_file)
     }
 
     pub fn get_all_audio_files(&self) -> Result<Vec<AudioFile>> {
-        self.audio_files.get_all(&self.conn)
+        AudioFileOps::get_all(&self.conn)
     }
 
     pub fn delete_audio_file(&self, id: i64) -> Result<()> {
-        self.audio_files.delete(&self.conn, id)
+        AudioFileOps::delete(&self.conn, id)
     }
 
     pub fn update_audio_file_duration(&self, id: i64, duration: f64) -> Result<()> {
-        self.audio_files.update_duration(&self.conn, id, duration)
+        AudioFileOps::update_duration(&self.conn, id, duration)
     }
 
     pub fn update_audio_file_bpm(&self, id: i64, bpm: u32) -> Result<()> {
-        self.audio_files.update_bpm(&self.conn, id, bpm)
+        AudioFileOps::update_bpm(&self.conn, id, bpm)
     }
 
     pub fn update_audio_file_duration_and_bpm(&self, id: i64, duration: Option<f64>, bpm: Option<u32>) -> Result<()> {
-        self.audio_files.update_duration_and_bpm(&self.conn, id, duration, bpm)
+        if let Some(dur) = duration {
+            AudioFileOps::update_duration(&self.conn, id, dur)?;
+        }
+        if let Some(b) = bpm {
+            AudioFileOps::update_bpm(&self.conn, id, b)?;
+        }
+        Ok(())
     }
 
     pub fn add_rpg_tag(&self, audio_file_id: i64, tag_type: &str, tag_value: &str) -> Result<i64> {
@@ -144,43 +145,43 @@ impl Database {
     // Atmosphere methods
     
     pub fn save_atmosphere(&self, atmosphere: &Atmosphere) -> Result<i64> {
-        self.atmospheres.save(&self.conn, atmosphere)
+        AtmosphereOps::save(&self.conn, atmosphere)
     }
 
     pub fn save_atmosphere_with_sounds(&self, atmosphere: &Atmosphere, sounds: &[AtmosphereSoundMapping]) -> Result<i64> {
-        self.atmospheres.save_with_sounds(&self.conn, atmosphere, sounds)
+        AtmosphereOps::save_with_sounds(&self.conn, atmosphere, sounds)
     }
 
     pub fn get_all_atmospheres(&self) -> Result<Vec<Atmosphere>> {
-        self.atmospheres.get_all(&self.conn)
+        AtmosphereOps::get_all(&self.conn)
     }
 
     pub fn get_atmosphere_by_id(&self, id: i64) -> Result<Atmosphere> {
-        self.atmospheres.get_by_id(&self.conn, id)
+        AtmosphereOps::get_by_id(&self.conn, id)
     }
 
     pub fn delete_atmosphere(&self, id: i64) -> Result<()> {
-        self.atmospheres.delete(&self.conn, id)
+        AtmosphereOps::delete(&self.conn, id)
     }
 
     pub fn add_sound_to_atmosphere(&self, atmosphere_id: i64, audio_file_id: i64, volume: f32, is_looping: bool) -> Result<i64> {
-        self.atmospheres.add_sound(&self.conn, atmosphere_id, audio_file_id, volume, is_looping)
+        AtmosphereOps::add_sound(&self.conn, atmosphere_id, audio_file_id, volume, is_looping)
     }
 
     pub fn remove_sound_from_atmosphere(&self, atmosphere_id: i64, audio_file_id: i64) -> Result<()> {
-        self.atmospheres.remove_sound(&self.conn, atmosphere_id, audio_file_id)
+        AtmosphereOps::remove_sound(&self.conn, atmosphere_id, audio_file_id)
     }
 
     pub fn update_atmosphere_sound(&self, atmosphere_id: i64, audio_file_id: i64, volume: f32, is_looping: bool, is_muted: bool, min_seconds: i32, max_seconds: i32) -> Result<()> {
-        self.atmospheres.update_sound(&self.conn, atmosphere_id, audio_file_id, volume, is_looping, is_muted, min_seconds, max_seconds)
+        AtmosphereOps::update_sound(&self.conn, atmosphere_id, audio_file_id, volume, is_looping, is_muted, min_seconds, max_seconds)
     }
 
     pub fn get_atmosphere_with_sounds(&self, atmosphere_id: i64) -> Result<AtmosphereWithSounds> {
-        self.atmospheres.get_with_sounds(&self.conn, atmosphere_id)
+        AtmosphereOps::get_with_sounds(&self.conn, atmosphere_id)
     }
 
     pub fn get_atmosphere_categories(&self) -> Result<Vec<AtmosphereCategory>> {
-        self.atmospheres.get_categories(&self.conn)
+        AtmosphereOps::get_categories(&self.conn)
     }
 
     // Virtual Folders methods

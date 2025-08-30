@@ -166,7 +166,7 @@ impl RpgTagRepository {
 mod tests {
     use super::*;
     use crate::database::schema::SchemaManager;
-    use crate::database::audio_files::AudioFileRepository;
+    use crate::database::audio_files::AudioFileOps;
     use crate::models::AudioFile;
 
     fn setup() -> (Connection, RpgTagRepository, i64) {
@@ -175,7 +175,7 @@ mod tests {
         let schema = SchemaManager::new(&conn);
         schema.create_tables(&conn).expect("schema");
         // Insert a file to tag
-        let file_repo = AudioFileRepository::new();
+        AudioFileOps::create_table(&conn).expect("create audio_files table");
         let file = AudioFile {
             id: None,
             file_path: "/tmp/test2.mp3".into(),
@@ -194,7 +194,7 @@ mod tests {
             isrc: None, publisher: None, mood: None, occasion: None, tempo: None,
             content_type: None, category: None,
         };
-        let file_id = file_repo.save(&conn, &file).unwrap();
+        let file_id = AudioFileOps::save(&conn, &file).unwrap();
 
         (conn, RpgTagRepository::new(), file_id)
     }

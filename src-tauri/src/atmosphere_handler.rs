@@ -166,7 +166,7 @@ impl AtmosphereHandler {
         let state = app_handle.state::<AppState>();
         let db = state.db.lock().unwrap();
         log::info!("Duplicating atmosphere id={} new_name={:?}", id, new_name);
-        db.atmospheres.duplicate(db.connection(), id, new_name.as_deref()).map_err(|e| {
+        crate::database::AtmosphereOps::duplicate(db.connection(), id, new_name.as_deref()).map_err(|e| {
             log::error!("Failed to duplicate atmosphere {}: {}", id, e);
             e.to_string()
         })
@@ -176,7 +176,7 @@ impl AtmosphereHandler {
     pub fn compute_atmosphere_integrity(app_handle: AppHandle, id: i64) -> Result<AtmosphereIntegrity, String> {
         let state = app_handle.state::<AppState>();
         let db = state.db.lock().unwrap();
-        db.atmospheres.compute_integrity(db.connection(), id).map_err(|e| {
+        crate::database::AtmosphereOps::compute_integrity(db.connection(), id).map_err(|e| {
             log::error!("Failed to compute integrity for atmosphere {}: {}", id, e);
             e.to_string()
         })
@@ -186,7 +186,7 @@ impl AtmosphereHandler {
     pub fn compute_all_atmosphere_integrities(app_handle: AppHandle) -> Result<Vec<AtmosphereIntegrityBatchEntry>, String> {
         let state = app_handle.state::<AppState>();
         let db = state.db.lock().unwrap();
-        db.atmospheres.compute_all_integrities(db.connection()).map_err(|e| {
+        crate::database::AtmosphereOps::compute_all_integrities(db.connection()).map_err(|e| {
             log::error!("Failed to batch compute atmosphere integrities: {}", e);
             e.to_string()
         })
@@ -196,7 +196,7 @@ impl AtmosphereHandler {
     pub fn search_atmospheres(app_handle: AppHandle, query: Option<String>, category: Option<String>, keywords: Option<Vec<String>>) -> Result<Vec<Atmosphere>, String> {
         let state = app_handle.state::<AppState>();
         let db = state.db.lock().unwrap();
-    db.atmospheres.search(db.connection(), query.as_deref(), category.as_deref(), keywords.as_deref()).map_err(|e| {
+    crate::database::AtmosphereOps::search(db.connection(), query.as_deref(), category.as_deref(), keywords.as_deref()).map_err(|e| {
             log::error!("Failed to search atmospheres: {}", e);
             e.to_string()
         })
