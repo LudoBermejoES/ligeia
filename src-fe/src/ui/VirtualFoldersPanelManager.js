@@ -116,7 +116,9 @@ export class VirtualFoldersPanelManager {
         // View toggle buttons
         this.panel.addEventListener('click', (e) => {
             if (e.target.classList.contains('vf-view-btn')) {
-                this.toggleView(e.target.dataset.view);
+                this.toggleView(e.target.dataset.view).catch(error => {
+                    console.error('Failed to toggle view:', error);
+                });
             }
         });
 
@@ -455,249 +457,19 @@ export class VirtualFoldersPanelManager {
         await this.folderContentManager.loadFolderContents(folderId);
     }
 
-    /**
-     * Render folder contents (both subfolders and files) in the content area
-     */
-    renderFolderContents(subfolders, files) {
-        const dropZone = this.elements.filesArea.querySelector('.vf-drop-zone');
-        const isListView = this.elements.filesArea && this.elements.filesArea.classList.contains('vf-list-view');
-        
-        // Debug logging
-        console.log('Rendering folder contents:', {
-            subfolders: subfolders?.length || 0,
-            files: files?.length || 0,
-            isListView,
-            dropZone: !!dropZone
-        });
-        
-        // Ensure we have valid arrays
-        const validSubfolders = Array.isArray(subfolders) ? subfolders : [];
-        const validFiles = Array.isArray(files) ? files : [];
-        
-        if (!dropZone) {
-            console.error('Drop zone not found');
-            return;
-        }
-        
-        if (validSubfolders.length === 0 && validFiles.length === 0) {
-            dropZone.innerHTML = `
-                <div class="vf-empty-state">
-                    <div class="vf-empty-icon">📂</div>
-                    <h3>Empty folder</h3>
-                    <p>This folder doesn't contain any subfolders or audio files yet.</p>
-                    <div class="vf-empty-actions" style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
-                        <button class="vf-empty-add-files-btn" style="padding: 8px 16px; background: #4CAF50; border: none; color: white; border-radius: 4px; cursor: pointer;">
-                            Add Files
-                        </button>
-                        <button class="vf-empty-create-folder-btn" style="padding: 8px 16px; background: #2196F3; border: none; color: white; border-radius: 4px; cursor: pointer;">
-                            Create Subfolder
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            // Add event listeners for empty state buttons
-            const emptyAddBtn = dropZone.querySelector('.vf-empty-add-files-btn');
-            const emptyCreateBtn = dropZone.querySelector('.vf-empty-create-folder-btn');
-            
-            if (emptyAddBtn) {
-                emptyAddBtn.addEventListener('click', () => this.showAddFilesModal());
-            }
-            if (emptyCreateBtn) {
-                emptyCreateBtn.addEventListener('click', () => this.showCreateFolderModal());
-            }
-        } else if (isListView) {
-            // Render list view
-            this.renderListView(validSubfolders, validFiles, dropZone);
-        } else {
-            // Render grid view (original implementation)
-            this.renderGridView(validSubfolders, validFiles, dropZone);
-        }
-    }
+    // Note: renderFolderContents() method removed - now delegated to FolderContentManager
 
-    /**
-     * Render grid view layout
-     */
-    renderGridView(subfolders, files, dropZone) {
-        let html = '<div class="vf-content-grid">';
-        
-        // Render subfolders first
-        if (subfolders.length > 0) {
-            html += '<div class="vf-subfolders-section">';
-            html += '<h4 class="vf-section-header">Folders</h4>';
-            html += '<div class="vf-folders-grid">';
-            html += subfolders.map(folder => this.renderFolderCard(folder)).join('');
-            html += '</div>';
-            html += '</div>';
-        }
-        
-        // Then render files
-        if (files.length > 0) {
-            html += '<div class="vf-files-section">';
-            html += '<h4 class="vf-section-header">Files</h4>';
-            html += '<div class="vf-files-grid">';
-            html += files.map(file => this.renderFileCard(file)).join('');
-            html += '</div>';
-            html += '</div>';
-        }
-        
-        html += '</div>';
-        dropZone.innerHTML = html;
-    }
+    // Note: renderGridView() method removed - now delegated to FolderContentManager
 
-    /**
-     * Render list view layout
-     */
-    renderListView(subfolders, files, dropZone) {
-        let html = '<div class="vf-list-container">';
-        
-        // Create table structure similar to mixer list view
-        html += '<table class="vf-list-table">';
-        
-        // Table header
-        html += '<thead>';
-        html += '<tr>';
-        html += '<th class="w-8"></th>'; // Icon column
-        html += '<th>Name</th>';
-        html += '<th>Duration</th>';
-        html += '<th class="w-24">Actions</th>';
-        html += '</tr>';
-        html += '</thead>';
-        
-        html += '<tbody>';
-        
-        // Render subfolders first in list format
-        if (subfolders.length > 0) {
-            html += subfolders.map(folder => this.renderFolderListRow(folder)).join('');
-        }
-        
-        // Then render files in list format
-        if (files.length > 0) {
-            html += files.map(file => this.renderFileListRow(file)).join('');
-        }
-        
-        html += '</tbody>';
-        html += '</table>';
-        html += '</div>';
-        
-        dropZone.innerHTML = html;
-    }
+    // Note: renderListView() method removed - now delegated to FolderContentManager
 
-    /**
-     * Render a single folder as a list row
-     */
-    renderFolderListRow(folder) {
-        const icon = folder.icon || '📁';
-        
-        return `
-            <tr class="vf-folder-list-row" data-folder-id="${folder.id}">
-                <td class="vf-list-icon">${icon}</td>
-                <td class="vf-list-name">
-                    <div class="font-medium">${this.escapeHtml(folder.name)}</div>
-                    ${folder.is_system_folder ? '<div class="vf-system-badge-inline">System Folder</div>' : ''}
-                </td>
-                <td class="vf-list-duration">—</td>
-                <td class="vf-list-actions">
-                    <div class="vf-folder-actions">
-                        <button class="vf-folder-action-btn" data-action="open" title="Open folder">📂</button>
-                        ${!folder.is_system_folder ? `<button class="vf-folder-action-btn" data-action="edit" title="Edit folder">✏️</button>` : ''}
-                        ${!folder.is_system_folder ? `<button class="vf-folder-action-btn" data-action="delete" title="Delete folder">🗑️</button>` : ''}
-                    </div>
-                </td>
-            </tr>
-        `;
-    }
+    // Note: renderFolderListRow() method removed - now delegated to FolderContentManager
 
-    /**
-     * Render a single file as a list row
-     */
-    renderFileListRow(file) {
-        const duration = file.duration ? this.formatDuration(file.duration) : 'Unknown';
-        const artist = file.artist || 'Unknown Artist';
-        const title = file.title || file.filename || 'Unknown';
-        const album = file.album || '';
-        
-        return `
-            <tr class="vf-file-list-row" data-file-id="${file.id}" data-file-path="${this.escapeHtml(file.file_path)}">
-                <td class="vf-list-icon">🎵</td>
-                <td class="vf-list-name">
-                    <div class="font-medium">${this.escapeHtml(title)}</div>
-                    <div class="vf-file-meta-inline">
-                        ${artist ? `<span class="text-sm text-muted">${this.escapeHtml(artist)}</span>` : ''}
-                        ${album && artist ? '<span class="text-sm text-muted"> • </span>' : ''}
-                        ${album ? `<span class="text-sm text-muted">${this.escapeHtml(album)}</span>` : ''}
-                    </div>
-                </td>
-                <td class="vf-list-duration">${duration}</td>
-                <td class="vf-list-actions">
-                    <div class="vf-file-actions">
-                        <button class="vf-file-action-btn" data-action="play" title="Play/Pause">▶️</button>
-                        <button class="vf-file-action-btn" data-action="remove" title="Remove from folder">🗑️</button>
-                        <button class="vf-file-action-btn" data-action="tags" title="Edit tags">🏷️</button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    }
+    // Note: renderFileListRow() method removed - now delegated to FolderContentManager
 
-    /**
-     * Render a single folder card
-     */
-    renderFolderCard(folder) {
-        const icon = folder.icon || '📁';
-        const description = folder.description || '';
-        
-        return `
-            <div class="vf-folder-card" data-folder-id="${folder.id}">
-                <div class="vf-folder-icon">${icon}</div>
-                <div class="vf-folder-info">
-                    <div class="vf-folder-name">${this.escapeHtml(folder.name)}</div>
-                    ${description ? `<div class="vf-folder-description">${this.escapeHtml(description)}</div>` : ''}
-                    <div class="vf-folder-meta">
-                        ${folder.is_system_folder ? '<span class="vf-system-badge">System</span>' : ''}
-                        <span class="vf-folder-date">${this.formatDate(folder.created_at)}</span>
-                    </div>
-                </div>
-                <div class="vf-folder-actions">
-                    <button class="vf-folder-action-btn" data-action="open" title="Open folder">📂</button>
-                    ${!folder.is_system_folder ? `<button class="vf-folder-action-btn" data-action="edit" title="Edit folder">✏️</button>` : ''}
-                    ${!folder.is_system_folder ? `<button class="vf-folder-action-btn" data-action="delete" title="Delete folder">🗑️</button>` : ''}
-                </div>
-            </div>
-        `;
-    }
+    // Note: renderFolderCard() method removed - now delegated to FolderContentManager
 
-    /**
-     * Render a single file card
-     */
-    renderFileCard(file) {
-        const duration = file.duration ? this.formatDuration(file.duration) : 'Unknown';
-        const artist = file.artist || 'Unknown Artist';
-        const title = file.title || file.filename || 'Unknown';
-        const album = file.album || '';
-        const genre = file.genre || '';
-        const year = file.year || '';
-        
-        return `
-            <div class="vf-file-card" data-file-id="${file.id}" data-file-path="${this.escapeHtml(file.file_path)}">
-                <div class="vf-file-icon">🎵</div>
-                <div class="vf-file-info">
-                    <div class="vf-file-name">${this.escapeHtml(title)}</div>
-                    <div class="vf-file-meta">
-                        <span>${this.escapeHtml(artist)}</span>
-                        ${album ? `<span>• ${this.escapeHtml(album)}</span>` : ''}
-                        <span>• ${duration}</span>
-                        ${genre ? `<span>• ${this.escapeHtml(genre)}</span>` : ''}
-                    </div>
-                </div>
-                <div class="vf-file-actions">
-                    <button class="vf-file-action-btn" data-action="play" title="Play/Pause">▶️</button>
-                    <button class="vf-file-action-btn" data-action="remove" title="Remove from folder">🗑️</button>
-                    <button class="vf-file-action-btn" data-action="tags" title="Edit tags">🏷️</button>
-                </div>
-            </div>
-        `;
-    }
+    // Note: renderFileCard() method removed - now delegated to FolderContentManager
 
     /**
      * Handle search input
@@ -1170,7 +942,7 @@ export class VirtualFoldersPanelManager {
     /**
      * Toggle view mode (grid/list)
      */
-    toggleView(view) {
+    async toggleView(view) {
         this.panel.querySelectorAll('.vf-view-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.view === view);
             // Update visual states
@@ -1197,10 +969,10 @@ export class VirtualFoldersPanelManager {
         // Re-render current folder with cached data to apply new layout
         if (this.currentFolderId && this.lastFolderData) {
             // Use cached data instead of re-fetching to avoid race conditions
-            this.renderFolderContents(this.lastFolderData.subfolders, this.lastFolderData.files);
+            await this.folderContentManager.renderFolderContents(this.lastFolderData.subfolders, this.lastFolderData.files);
         } else if (this.currentFolderId) {
             // Fall back to re-loading if no cached data
-            this.loadFolderContents(this.currentFolderId);
+            await this.folderContentManager.loadFolderContents(this.currentFolderId);
         }
     }
 
