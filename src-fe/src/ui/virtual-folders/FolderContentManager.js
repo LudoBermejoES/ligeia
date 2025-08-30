@@ -237,14 +237,15 @@ export class FolderContentManager {
             return;
         }
         
-        // Build breadcrumb path
+        // Build breadcrumb path segments as HTML
         const pathParts = folder.full_path ? folder.full_path.split('/') : [folder.name];
+        const segmentsHTML = pathParts.map(part => 
+            `<span class="breadcrumb-separator">›</span><a href="#" class="breadcrumb-segment hover:text-text" data-folder-id="${folder.id}">${this.escapeHtml(part)}</a>`
+        ).join('');
+        
         const templateData = {
             homeText: 'Virtual Folders',
-            segments: pathParts.map((part, index) => ({
-                id: folder.id, // Simplified - in real app would track path segments
-                name: this.escapeHtml(part)
-            }))
+            segments: segmentsHTML
         };
         
         TemplateLoader.loadAndRender('partials/breadcrumb.html', templateData).then(html => {

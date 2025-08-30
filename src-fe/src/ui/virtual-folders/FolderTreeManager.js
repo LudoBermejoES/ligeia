@@ -60,28 +60,26 @@ export class FolderTreeManager {
     async renderTreeNode(node, depth) {
         const hasChildren = node.children && node.children.length > 0;
         const isExpanded = this.expandedFolders.has(node.id);
-        const indent = depth * 20;
+        
+        // Build children HTML if expanded
+        let childrenHTML = '';
+        if (hasChildren && isExpanded) {
+            const childPromises = node.children.map(child => this.renderTreeNode(child, depth + 1));
+            const childrenArray = await Promise.all(childPromises);
+            if (childrenArray.length > 0) {
+                childrenHTML = `<div class="tree-children ml-4">${childrenArray.join('')}</div>`;
+            }
+        }
         
         const templateData = {
             id: node.id,
-            selected: false,
-            indent: `${indent}px`,
-            hasChildren: hasChildren,
-            expanded: isExpanded,
             name: this.escapeHtml(node.name),
-            file_count: node.file_count || 0
+            file_count: node.file_count || 0,
+            expandIcon: hasChildren ? (isExpanded ? '▼' : '▶') : '',
+            children: childrenHTML
         };
         
-        let html = await TemplateLoader.loadAndRender('components/virtual-folders/tree-node.html', templateData);
-        
-        // Add children if expanded
-        if (hasChildren && isExpanded) {
-            const childPromises = node.children.map(child => this.renderTreeNode(child, depth + 1));
-            const childrenHTML = await Promise.all(childPromises);
-            html += childrenHTML.join('');
-        }
-        
-        return html;
+        return await TemplateLoader.loadAndRender('components/virtual-folders/tree-node.html', templateData);
     }
 
     /**
