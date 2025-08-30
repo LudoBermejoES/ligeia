@@ -351,44 +351,17 @@ export class VirtualFoldersPanelManager {
     }
 
     /**
-     * Render the folder tree structure
+     * Render the folder tree structure (delegated to FolderTreeManager)
      */
-    renderFolderTree(tree) {
-        const html = tree.map(node => this.renderTreeNode(node, 0)).join('');
-        this.elements.treeContent.innerHTML = html;
+    async renderFolderTree(tree) {
+        return this.treeManager.renderFolderTree(tree);
     }
 
     /**
-     * Render a single tree node
+     * Render a single tree node (delegated to FolderTreeManager)
      */
-    renderTreeNode(node, depth) {
-        // Handle both old format (node.id) and new format (node.folder.id)
-        const folder = node.folder || node;
-        const hasChildren = node.children && node.children.length > 0;
-        const isExpanded = this.expandedFolders.has(folder.id);
-        const isSelected = this.currentFolderId === folder.id;
-        
-        const indent = depth * 16; // 16px per level
-        
-        let html = `
-            <div class="vf-tree-node ${isSelected ? 'selected' : ''}" 
-                 data-folder-id="${folder.id}" 
-                 style="padding-left: ${indent + 8}px;">
-                <span class="vf-expand-icon" data-action="expand">
-                    ${hasChildren ? (isExpanded ? '▼' : '▶') : ''}
-                </span>
-                <span class="vf-folder-icon">${hasChildren ? '📁' : '📂'}</span>
-                <span class="vf-folder-name">${this.escapeHtml(folder.name)}</span>
-                <span class="vf-file-count">${node.file_count || 0}</span>
-            </div>
-        `;
-        
-        // Add children if expanded
-        if (hasChildren && isExpanded) {
-            html += node.children.map(child => this.renderTreeNode(child, depth + 1)).join('');
-        }
-        
-        return html;
+    async renderTreeNode(node, depth) {
+        return this.treeManager.renderTreeNode(node, depth);
     }
 
     /**
@@ -472,57 +445,17 @@ export class VirtualFoldersPanelManager {
     // Note: renderFileCard() method removed - now delegated to FolderContentManager
 
     /**
-     * Handle search input
+     * Handle search input (delegated to FolderSearchManager)
      */
     async handleSearch(query) {
-        this.searchState.query = query.trim();
-        
-        // Show/hide clear button
-        if (this.elements.searchClear) {
-            this.elements.searchClear.style.display = this.searchState.query ? 'block' : 'none';
-        }
-        
-        if (this.searchState.query.length === 0) {
-            await this.clearSearch();
-            return;
-        }
-        
-        if (this.searchState.query.length < 2) {
-            return; // Wait for more characters
-        }
-        
-        await this.performSearch();
+        return this.searchManager.handleSearch(query);
     }
     
     /**
-     * Perform search with current filters
+     * Perform search with current filters (delegated to FolderSearchManager)
      */
     async performSearch() {
-        try {
-            this.showSearchLoading();
-            
-            let results = {
-                folders: [],
-                files: []
-            };
-            
-            // Search folders if enabled
-            if (this.searchState.scope.includes('folders')) {
-                results.folders = await this.service.searchFolders(this.searchState.query);
-            }
-            
-            // Search files if enabled
-            if (this.searchState.scope.includes('files')) {
-                results.files = await this.searchFilesInFolders(this.searchState.query);
-            }
-            
-            this.searchState.results = results;
-            this.renderSearchResults(results);
-            
-        } catch (error) {
-            console.error('Failed to perform search:', error);
-            this.showSearchError('Search failed');
-        }
+        return this.searchManager.performSearch();
     }
     
     /**
@@ -632,21 +565,10 @@ export class VirtualFoldersPanelManager {
     }
     
     /**
-     * Clear search and return to normal view
+     * Clear search and return to normal view (delegated to FolderSearchManager)
      */
     async clearSearch() {
-        this.searchState.query = '';
-        this.searchState.results = null;
-        
-        if (this.elements.searchInput) {
-            this.elements.searchInput.value = '';
-        }
-        
-        if (this.elements.searchClear) {
-            this.elements.searchClear.style.display = 'none';
-        }
-        
-        // Return to normal folder tree view
+        return this.searchManager.clearSearch();
         await this.loadFolderTree();
         
         // Clear content area if no folder selected
@@ -658,223 +580,44 @@ export class VirtualFoldersPanelManager {
     /**
      * Show search loading state
      */
-    showSearchLoading() {
-        this.elements.treeContent.innerHTML = `
-            <div class="vf-tree-loading">
-                <div class="loading-spinner"></div>
-                <div>Searching...</div>
-            </div>
-        `;
+    async showSearchLoading() {
+        return this.searchManager.showSearchLoading();
     }
     
     /**
-     * Show search error
+     * Show search error (delegated to FolderSearchManager)
      */
-    showSearchError(message) {
-        this.elements.treeContent.innerHTML = `
-            <div class="vf-tree-loading" style="color: #ff6b6b;">
-                <div>⚠️</div>
-                <div>${message}</div>
-                <button onclick="window.virtualFoldersPanel?.clearSearch()" 
-                        style="margin-top: 10px; padding: 5px 10px; background: #333; border: 1px solid #555; color: white; border-radius: 4px; cursor: pointer;">
-                    Clear Search
-                </button>
-            </div>
-        `;
+    async showSearchError(message) {
+        return this.searchManager.showSearchError(message);
     }
     
     /**
-     * Show default content state
+     * Show default content state (delegated to FolderContentManager)
      */
-    showDefaultContentState() {
-        const dropZone = this.elements.filesArea.querySelector('.vf-drop-zone');
-        if (dropZone) {
-            dropZone.innerHTML = `
-                <div class="vf-empty-state">
-                    <div class="vf-empty-icon">🔍</div>
-                    <h3>Search Results</h3>
-                    <p>Use the search box above to find folders and files.</p>
-                </div>
-            `;
-        }
+    async showDefaultContentState() {
+        return this.folderContentManager.showDefaultContentState();
     }
 
     /**
-     * Render search results
+     * Render search results (delegated to FolderSearchManager)
      */
-    renderSearchResults(results) {
-        const { folders = [], files = [] } = results;
-        const totalResults = folders.length + files.length;
-        
-        if (totalResults === 0) {
-            this.elements.treeContent.innerHTML = `
-                <div class="vf-empty-tree">
-                    <div>🔍</div>
-                    <div>No results found</div>
-                    <div style="font-size: 0.9em; margin-top: 5px; opacity: 0.7;">
-                        Try adjusting your search terms or filters
-                    </div>
-                </div>
-            `;
-            
-            this.showDefaultContentState();
-            return;
-        }
-        
-        let html = `<div class="vf-search-results">`;
-        
-        // Add results summary
-        html += `
-            <div class="vf-search-summary">
-                Found ${totalResults} result${totalResults !== 1 ? 's' : ''} 
-                ${folders.length > 0 ? `(${folders.length} folder${folders.length !== 1 ? 's' : ''})` : ''}
-                ${files.length > 0 ? `(${files.length} file${files.length !== 1 ? 's' : ''})` : ''}
-            </div>
-        `;
-        
-        // Render folder results
-        if (folders.length > 0) {
-            html += `<div class="vf-search-section">`;
-            html += `<div class="vf-search-section-title">📁 Folders</div>`;
-            
-            folders.forEach(folder => {
-                html += `
-                    <div class="vf-tree-node vf-search-result" data-folder-id="${folder.id}">
-                        <span class="vf-expand-icon"></span>
-                        <span class="vf-folder-icon">📁</span>
-                        <span class="vf-folder-name">${this.escapeHtml(folder.name)}</span>
-                        <span class="vf-file-count">${folder.file_count || 0}</span>
-                    </div>
-                `;
-            });
-            
-            html += `</div>`;
-        }
-        
-        // Render file results
-        if (files.length > 0) {
-            html += `<div class="vf-search-section">`;
-            html += `<div class="vf-search-section-title">🎵 Files</div>`;
-            
-            files.forEach(file => {
-                const title = file.title || file.filename || 'Unknown';
-                const artist = file.artist || 'Unknown Artist';
-                const folderName = file.folderName || 'Unknown Folder';
-                
-                html += `
-                    <div class="vf-file-result" data-file-id="${file.id}" data-folder-id="${file.folderId}">
-                        <div class="vf-file-result-main">
-                            <div class="vf-file-result-title">${this.escapeHtml(title)}</div>
-                            <div class="vf-file-result-artist">${this.escapeHtml(artist)}</div>
-                        </div>
-                        <div class="vf-file-result-folder">
-                            <span class="vf-folder-label">in</span>
-                            <span class="vf-folder-link" data-folder-id="${file.folderId}">${this.escapeHtml(folderName)}</span>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += `</div>`;
-        }
-        
-        html += `</div>`;
-        
-        this.elements.treeContent.innerHTML = html;
-        
-        // Add click handlers for search results
-        this.setupSearchResultHandlers();
-        
-        // Show file results in content area if files were found
-        if (files.length > 0) {
-            this.showFileSearchResults(files);
-        }
+    async renderSearchResults(results) {
+        return this.searchManager.renderSearchResults(results);
     }
     
     /**
-     * Setup event handlers for search results
+     * Setup event handlers for search results (delegated to FolderSearchManager)
      */
     setupSearchResultHandlers() {
-        // Folder result clicks
-        this.elements.treeContent.querySelectorAll('.vf-tree-node[data-folder-id]').forEach(node => {
-            node.addEventListener('click', async () => {
-                const folderId = parseInt(node.dataset.folderId);
-                await this.selectFolder(folderId);
-            });
-        });
-        
-        // File result clicks - open containing folder
-        this.elements.treeContent.querySelectorAll('.vf-file-result').forEach(result => {
-            result.addEventListener('click', async () => {
-                const folderId = parseInt(result.dataset.folderId);
-                const fileId = parseInt(result.dataset.fileId);
-                
-                // Select the folder containing this file
-                await this.selectFolder(folderId);
-                
-                // Highlight the file in the content area
-                setTimeout(() => {
-                    this.highlightFileInContent(fileId);
-                }, 300);
-            });
-        });
-        
-        // Folder link clicks in file results
-        this.elements.treeContent.querySelectorAll('.vf-folder-link').forEach(link => {
-            link.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const folderId = parseInt(link.dataset.folderId);
-                await this.selectFolder(folderId);
-            });
-        });
+        // This is now handled internally by FolderSearchManager
+        return this.searchManager.setupSearchResultHandlers?.() || Promise.resolve();
     }
     
     /**
-     * Show file search results in content area
+     * Show file search results in content area (delegated to FolderSearchManager)
      */
     showFileSearchResults(files) {
-        const dropZone = this.elements.filesArea.querySelector('.vf-drop-zone');
-        
-        // Update breadcrumb
-        this.elements.breadcrumb.textContent = `Search Results (${files.length} files)`;
-        
-        // Update file count
-        const fileCount = files.length;
-        this.elements.filesArea.parentNode.querySelector('.vf-file-count').textContent = 
-            `${fileCount} file${fileCount !== 1 ? 's' : ''} found`;
-        
-        // Group files by folder for better organization
-        const filesByFolder = {};
-        files.forEach(file => {
-            const folderId = file.folderId || 'unknown';
-            if (!filesByFolder[folderId]) {
-                filesByFolder[folderId] = {
-                    folderName: file.folderName || 'Unknown Folder',
-                    files: []
-                };
-            }
-            filesByFolder[folderId].files.push(file);
-        });
-        
-        let html = '<div class="vf-search-files-content">';
-        
-        Object.entries(filesByFolder).forEach(([folderId, folderData]) => {
-            html += `
-                <div class="vf-search-folder-group" data-folder-id="${folderId}">
-                    <div class="vf-search-folder-header">
-                        <span class="vf-search-folder-name">📁 ${this.escapeHtml(folderData.folderName)}</span>
-                        <span class="vf-search-folder-count">${folderData.files.length} file${folderData.files.length !== 1 ? 's' : ''}</span>
-                    </div>
-                    <div class="vf-file-grid">
-                        ${folderData.files.map(file => this.renderFileCard(file)).join('')}
-                    </div>
-                </div>
-            `;
-        });
-        
-        html += '</div>';
-        
-        dropZone.innerHTML = html;
+        return this.searchManager.showFileSearchResults(files);
     }
     
     /**
@@ -1237,31 +980,18 @@ export class VirtualFoldersPanelManager {
     }
 
     /**
-     * Utility methods
+     * Utility methods (delegated to contentManager)
      */
     escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+        return this.contentManager.escapeHtml(text);
     }
 
     formatDuration(seconds) {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
+        return this.contentManager.formatDuration(seconds);
     }
 
-    /**
-     * Format date for display
-     */
     formatDate(dateString) {
-        if (!dateString) return '';
-        try {
-            const date = new Date(dateString);
-            return date.toLocaleDateString();
-        } catch (error) {
-            return '';
-        }
+        return this.contentManager.formatDate(dateString);
     }
 
     /**

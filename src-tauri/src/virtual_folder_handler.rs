@@ -168,11 +168,15 @@ pub async fn search_virtual_folders(
     app_handle: AppHandle,
     query: String,
 ) -> Result<Vec<VirtualFolder>, String> {
+    println!("🔍 [HANDLER] Received search request for query: '{}'", query);
     let state = app_handle.state::<crate::AppState>();
     let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
     
-    db.search_virtual_folders(&query)
-        .map_err(|e| format!("Failed to search virtual folders: {}", e))
+    let result = db.search_virtual_folders(&query)
+        .map_err(|e| format!("Failed to search virtual folders: {}", e))?;
+    
+    println!("🔍 [HANDLER] Returning {} folders to frontend", result.len());
+    Ok(result)
 }
 
 #[tauri::command]

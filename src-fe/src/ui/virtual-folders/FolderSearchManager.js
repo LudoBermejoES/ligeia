@@ -92,6 +92,8 @@ export class FolderSearchManager {
         if (!this.searchState.query) return;
 
         try {
+            console.log('🔍 [SEARCH_MGR] Starting search with query:', this.searchState.query);
+            console.log('🔍 [SEARCH_MGR] Search scope:', this.searchState.scope);
             this.showSearchLoading();
             
             // Note: Current VirtualFolderService.searchFolders only accepts string query
@@ -103,19 +105,28 @@ export class FolderSearchManager {
 
             // Search folders if enabled
             if (this.searchState.scope.includes('folders')) {
+                console.log('🔍 [SEARCH_MGR] Searching folders...');
                 results.folders = await this.service.searchFolders(this.searchState.query);
+                console.log('🔍 [SEARCH_MGR] Got', results.folders.length, 'folders from service');
+            } else {
+                console.log('🔍 [SEARCH_MGR] Folders search disabled in scope');
             }
 
             // Search files if enabled  
             if (this.searchState.scope.includes('files')) {
+                console.log('🔍 [SEARCH_MGR] Searching files...');
                 results.files = await this.searchFilesInFolders(this.searchState.query);
+                console.log('🔍 [SEARCH_MGR] Got', results.files.length, 'files from search');
+            } else {
+                console.log('🔍 [SEARCH_MGR] Files search disabled in scope');
             }
 
+            console.log('🔍 [SEARCH_MGR] Final results:', results);
             this.searchState.results = results;
             this.renderSearchResults(results);
             
         } catch (error) {
-            console.error('Search failed:', error);
+            console.error('🔍 [SEARCH_MGR] Search failed:', error);
             this.showSearchError('Search failed. Please try again.');
         }
     }
@@ -203,8 +214,10 @@ export class FolderSearchManager {
      * Render search results
      */
     async renderSearchResults(results) {
+        console.log('🔍 [RENDER] Rendering search results:', results);
         const { folders = [], files = [] } = results;
         const totalResults = folders.length + files.length;
+        console.log('🔍 [RENDER] Total results to render:', totalResults, `(${folders.length} folders, ${files.length} files)`);
 
         if (totalResults === 0) {
             const emptyTreeData = {
@@ -266,14 +279,18 @@ export class FolderSearchManager {
             `;
         }
 
-        // Prepare template data
-        const templateData = {
-            total_results: totalResults,
-            folders_section: foldersSection,
-            files_section: filesSection
-        };
+        // Build the complete search results HTML directly (workaround for template loading issue)
+        const html = `
+            <div class="vf-search-results show p-3" style="position: static; top: auto; left: auto; right: auto; box-shadow: none; border: none; border-radius: 0; background: transparent;">
+                <div class="vf-search-summary text-center mb-4 p-3 bg-card rounded border border-border">
+                    <div class="text-sm text-muted mb-1">Search Results</div>
+                    <div class="text-lg font-medium text-text">${totalResults} results found</div>
+                </div>
+                ${foldersSection}
+                ${filesSection}
+            </div>
+        `;
         
-        const html = await TemplateLoader.loadAndRender('components/virtual-folders/search-results.html', templateData);
         this.elements.treeContent.innerHTML = html;
         
         this.setupSearchResultHandlers();

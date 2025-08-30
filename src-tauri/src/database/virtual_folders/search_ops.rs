@@ -6,7 +6,10 @@ pub struct VirtualFolderSearch;
 
 impl VirtualFolderSearch {
     pub fn search_folders(conn: &Connection, query: &str) -> Result<Vec<VirtualFolder>> {
+        println!("🔍 [BACKEND] Searching virtual folders for query: '{}'", query);
         let search_pattern = format!("%{}%", query);
+        println!("🔍 [BACKEND] Search pattern: '{}'", search_pattern);
+        
         let mut stmt = conn.prepare(
             "SELECT id, name, description, parent_folder_id, color, icon, created_at, updated_at,
              created_by, folder_order, is_system_folder, metadata
@@ -22,9 +25,12 @@ impl VirtualFolderSearch {
         
         let mut folders = Vec::new();
         for folder in folder_iter {
-            folders.push(folder?);
+            let folder = folder?;
+            println!("🔍 [BACKEND] Found folder: {} (id: {:?})", folder.name, folder.id);
+            folders.push(folder);
         }
         
+        println!("🔍 [BACKEND] Total folders found: {}", folders.len());
         Ok(folders)
     }
     

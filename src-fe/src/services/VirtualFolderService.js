@@ -241,12 +241,18 @@ export class VirtualFolderService {
      */
     async searchFolders(query) {
         try {
+            console.log('🔍 [SERVICE] Searching folders with query:', query);
             if (!query || query.trim().length < 2) {
+                console.log('🔍 [SERVICE] Query too short, returning empty array');
                 return [];
             }
-            return await invoke('search_virtual_folders', { query: query.trim() });
+            const trimmedQuery = query.trim();
+            console.log('🔍 [SERVICE] Calling backend with trimmed query:', trimmedQuery);
+            const result = await invoke('search_virtual_folders', { query: trimmedQuery });
+            console.log('🔍 [SERVICE] Backend returned', result.length, 'folders:', result);
+            return result;
         } catch (error) {
-            console.error('Failed to search folders:', error);
+            console.error('🔍 [SERVICE] Failed to search folders:', error);
             throw new Error(`Failed to search folders: ${error}`);
         }
     }
