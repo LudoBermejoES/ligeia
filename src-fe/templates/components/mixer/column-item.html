@@ -1,0 +1,26 @@
+<div class="column-item" data-audio-id="{{id}}" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; border-bottom: 1px solid #2a2a2a; background: transparent; transition: background-color 0.2s;">
+    <div class="play-button-container" style="flex-shrink: 0;">
+        <button class="play-pause-btn {{#if is_playing}}playing{{/if}}" 
+                data-audio-id="{{id}}"
+                style="width: 32px; height: 32px; border: none; border-radius: 50%; background: {{#if is_playing}}#e11d48{{else}}#007acc{{/if}}; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+            {{#if is_playing}}⏸{{else}}▶{{/if}}
+        </button>
+    </div>
+    
+    <div class="track-info" style="min-width: 0; flex: 1;">
+        <div class="track-title" style="font-weight: 500; color: #fff; font-size: 0.85rem; margin-bottom: 0.125rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{title}}</div>
+        <div class="track-artist" style="color: #999; font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{artist}}</div>
+    </div>
+    
+    <div class="item-controls" style="display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0;">
+        <span class="duration" style="color: #888; font-size: 0.7rem; font-family: monospace; min-width: 40px; text-align: right;">{{duration}}</span>
+        <button class="mute-btn {{#if is_muted}}muted{{/if}}" 
+                data-audio-id="{{id}}"
+                style="background: none; border: none; color: {{#if is_muted}}#f87171{{else}}#666{{/if}}; cursor: pointer; font-size: 12px; padding: 0.125rem;">
+            {{#if is_muted}}🔇{{else}}🔊{{/if}}
+        </button>
+        <div class="volume-indicator" style="width: 20px; height: 4px; background: #333; border-radius: 2px; overflow: hidden;">
+            <div class="volume-fill" style="height: 100%; background: #007acc; width: {{volume}}%; transition: width 0.2s;"></div>
+        </div>
+    </div>
+</div>

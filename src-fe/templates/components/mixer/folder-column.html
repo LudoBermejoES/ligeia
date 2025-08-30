@@ -1,0 +1,14 @@
+<div class="folder-column" style="flex: 0 0 300px; background: #1e1e1e; border: 1px solid #333; border-radius: 8px; height: fit-content; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column;">
+    <div class="folder-header" style="padding: 0.75rem 1rem; border-bottom: 1px solid #333; background: #252525; border-radius: 8px 8px 0 0;">
+        <div class="folder-title" style="font-weight: 600; color: #fff; font-size: 0.95rem; margin-bottom: 0.25rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            📁 {{folder_name}}
+        </div>
+        <div class="item-count" style="color: #888; font-size: 0.8rem;">
+            {{item_count}} {{#if item_count == 1}}file{{else}}files{{/if}}
+        </div>
+    </div>
+    
+    <div class="folder-content" style="flex: 1; overflow-y: auto; padding: 0.5rem 0;">
+        {{{items_html}}}
+    </div>
+</div>
