@@ -58,8 +58,11 @@ export class FolderTreeManager {
      * Render a single tree node recursively
      */
     async renderTreeNode(node, depth) {
+        // Extract folder data from the nested structure
+        const folder = node.folder || node;
         const hasChildren = node.children && node.children.length > 0;
-        const isExpanded = this.expandedFolders.has(node.id);
+        const folderId = folder.id;
+        const isExpanded = this.expandedFolders.has(folderId);
         
         // Build children HTML if expanded
         let childrenHTML = '';
@@ -72,9 +75,9 @@ export class FolderTreeManager {
         }
         
         const templateData = {
-            id: node.id,
-            name: this.escapeHtml(node.name),
-            file_count: node.file_count || 0,
+            id: folderId,
+            name: this.escapeHtml(folder.name || folder.folder_name || 'Unnamed Folder'),
+            file_count: node.file_count || node.total_file_count || 0,
             expandIcon: hasChildren ? (isExpanded ? '▼' : '▶') : '',
             children: childrenHTML
         };
@@ -86,12 +89,12 @@ export class FolderTreeManager {
      * Handle tree node click events
      */
     handleTreeNodeClick(e) {
-        const nodeContent = e.target.closest('.vf-tree-node-content');
+        const nodeContent = e.target.closest('.tree-node-content');
         if (!nodeContent) return;
 
-        const node = nodeContent.closest('.vf-tree-node');
+        const node = nodeContent.closest('.tree-node');
         const folderId = parseInt(node.dataset.folderId);
-        const toggle = e.target.closest('.vf-tree-toggle');
+        const toggle = e.target.closest('.tree-expand-btn');
 
         if (toggle) {
             // Toggle expansion
@@ -121,7 +124,7 @@ export class FolderTreeManager {
      */
     selectFolder(folderId) {
         // Remove previous selection
-        const prevSelected = this.elements.treeContent.querySelector('.vf-tree-node.selected');
+        const prevSelected = this.elements.treeContent.querySelector('.tree-node.selected');
         if (prevSelected) {
             prevSelected.classList.remove('selected');
         }
@@ -167,7 +170,7 @@ export class FolderTreeManager {
      * Get currently selected folder ID
      */
     getSelectedFolderId() {
-        const selected = this.elements.treeContent.querySelector('.vf-tree-node.selected');
+        const selected = this.elements.treeContent.querySelector('.tree-node.selected');
         return selected ? parseInt(selected.dataset.folderId) : null;
     }
 
