@@ -1,0 +1,19 @@
+<div class="bg-card border border-border rounded-lg shadow-xl {{sizeClass}} w-full max-h-[90vh] overflow-hidden" 
+     style="background: #2a2a2a; border: 1px solid #444; border-radius: 8px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); max-width: {{maxWidth}}; width: 100%; max-height: 90vh; overflow: hidden; pointer-events: auto;">
+    <div class="flex items-center justify-between p-4 border-b border-border" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #444;">
+        <h3 class="text-lg font-semibold text-text" style="color: #fff; font-size: 1.125rem; font-weight: 600;">{{title}}</h3>
+        <button type="button" class="text-muted hover:text-text p-1 rounded hover:bg-hover transition-colors" data-dismiss="modal" aria-label="Close"
+                style="color: #888; padding: 0.25rem; border-radius: 0.25rem; transition: all 0.2s; background: none; border: none; cursor: pointer;">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
+    <div class="p-4 overflow-y-auto max-h-[60vh]" style="padding: 1rem; overflow-y: auto; max-height: 60vh;">
+        {{content}}
+    </div>
+    <div class="flex items-center justify-end gap-2 p-4 border-t border-border" style="display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; padding: 1rem; border-top: 1px solid #444;">
+        {{cancelButton}}
+        {{confirmButton}}
+    </div>
+</div>

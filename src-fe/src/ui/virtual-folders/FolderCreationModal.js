@@ -31,7 +31,7 @@ export class FolderCreationModal extends BaseModal {
         
         const modalContent = await TemplateLoader.loadAndRender('components/virtual-folders/create-folder-form.html', templateData);
 
-        const modal = this.createModal('create-folder-modal', 'Create New Folder', modalContent, {
+        const modal = await this.createModal('create-folder-modal', 'Create New Folder', modalContent, {
             confirmText: 'Create Folder'
         });
         

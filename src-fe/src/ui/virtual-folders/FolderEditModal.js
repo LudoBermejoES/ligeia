@@ -29,7 +29,7 @@ export class FolderEditModal extends BaseModal {
             
             const modalContent = await TemplateLoader.loadAndRender('components/virtual-folders/edit-folder-form.html', templateData);
 
-            const modal = this.createModal('edit-folder-modal', 'Edit Folder', modalContent, {
+            const modal = await this.createModal('edit-folder-modal', 'Edit Folder', modalContent, {
                 confirmText: 'Save Changes'
             });
             

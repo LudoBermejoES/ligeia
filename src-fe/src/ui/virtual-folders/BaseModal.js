@@ -2,6 +2,7 @@
  * BaseModal - Base class for virtual folder modals
  * Provides common modal functionality with Tailwind CSS styling
  */
+import { TemplateLoader } from '../core/TemplateLoader.js';
 export class BaseModal {
     constructor(uiController) {
         this.uiController = uiController;
@@ -32,9 +33,9 @@ export class BaseModal {
      * @param {string} title - Modal title
      * @param {string} content - Modal content HTML
      * @param {Object} options - Modal options
-     * @returns {HTMLElement} Modal element
+     * @returns {Promise<HTMLElement>} Modal element
      */
-    createModal(modalId, title, content, options = {}) {
+    async createModal(modalId, title, content, options = {}) {
         const {
             size = 'medium',
             showCancel = true,
@@ -58,29 +59,32 @@ export class BaseModal {
             large: 'max-w-2xl'
         };
 
-        modal.innerHTML = `
-            <div class="bg-card border border-border rounded-lg shadow-xl ${sizeClasses[size]} w-full max-h-[90vh] overflow-hidden" 
-                 style="background: #2a2a2a; border: 1px solid #444; border-radius: 8px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); max-width: ${size === 'small' ? '28rem' : size === 'large' ? '42rem' : '32rem'}; width: 100%; max-height: 90vh; overflow: hidden; pointer-events: auto;">
-                <div class="flex items-center justify-between p-4 border-b border-border" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #444;">
-                    <h3 class="text-lg font-semibold text-text" style="color: #fff; font-size: 1.125rem; font-weight: 600;">${this.escapeHtml(title)}</h3>
-                    <button type="button" class="text-muted hover:text-text p-1 rounded hover:bg-hover transition-colors" data-dismiss="modal" aria-label="Close"
-                            style="color: #888; padding: 0.25rem; border-radius: 0.25rem; transition: all 0.2s; background: none; border: none; cursor: pointer;">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-                <div class="p-4 overflow-y-auto max-h-[60vh]" style="padding: 1rem; overflow-y: auto; max-height: 60vh;">
-                    ${content}
-                </div>
-                <div class="flex items-center justify-end gap-2 p-4 border-t border-border" style="display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; padding: 1rem; border-top: 1px solid #444;">
-                    ${showCancel ? `<button type="button" class="px-4 py-2 rounded text-sm font-medium transition-colors ${cancelClass}" data-dismiss="modal" 
-                                           style="padding: 0.5rem 1rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; background: #333; border: 1px solid #444; color: #fff; cursor: pointer;">${cancelText}</button>` : ''}
-                    ${showConfirm ? `<button type="button" class="px-4 py-2 rounded text-sm font-medium transition-colors ${confirmClass}" data-confirm="true"
-                                            style="padding: 0.5rem 1rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; background: #007acc; border: none; color: #fff; cursor: pointer;">${confirmText}</button>` : ''}
-                </div>
-            </div>
-        `;
+        const maxWidthValues = {
+            small: '28rem',
+            medium: '32rem', 
+            large: '42rem'
+        };
+
+        // Generate button HTML
+        const cancelButton = showCancel ? 
+            `<button type="button" class="px-4 py-2 rounded text-sm font-medium transition-colors ${cancelClass}" data-dismiss="modal" 
+                     style="padding: 0.5rem 1rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; background: #333; border: 1px solid #444; color: #fff; cursor: pointer;">${cancelText}</button>` : '';
+        
+        const confirmButton = showConfirm ? 
+            `<button type="button" class="px-4 py-2 rounded text-sm font-medium transition-colors ${confirmClass}" data-confirm="true"
+                     style="padding: 0.5rem 1rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; background: #007acc; border: none; color: #fff; cursor: pointer;">${confirmText}</button>` : '';
+
+        const templateData = {
+            title: this.escapeHtml(title),
+            content: content,
+            sizeClass: sizeClasses[size],
+            maxWidth: maxWidthValues[size],
+            cancelButton: cancelButton,
+            confirmButton: confirmButton
+        };
+
+        const modalHTML = await TemplateLoader.loadAndRender('components/base-modal.html', templateData);
+        modal.innerHTML = modalHTML;
 
         return modal;
     }
@@ -282,18 +286,14 @@ export class BaseModal {
      * @returns {Promise<boolean>} True if confirmed
      */
     async showConfirmation(message, title = 'Confirm Action') {
-        return new Promise((resolve) => {
-            const modal = this.createModal('confirm-modal', title, `
-                <div class="text-center py-4">
-                    <div class="text-yellow-500 mb-4">
-                        <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                        </svg>
-                    </div>
-                    <p class="text-text text-lg mb-2">${this.escapeHtml(message)}</p>
-                    <p class="text-muted text-sm">This action cannot be undone.</p>
-                </div>
-            `, {
+        return new Promise(async (resolve) => {
+            const templateData = {
+                message: this.escapeHtml(message)
+            };
+            
+            const confirmContent = await TemplateLoader.loadAndRender('components/confirmation-dialog.html', templateData);
+            
+            const modal = await this.createModal('confirm-modal', title, confirmContent, {
                 size: 'small',
                 confirmText: 'Yes, Continue',
                 cancelText: 'Cancel',
