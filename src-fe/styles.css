@@ -136,8 +136,7 @@ body {
 /* Ensure layout containers inside main flex properly */
 #sidebar-container {
     flex: 0 0 300px; /* Default width - will be overridden by JavaScript */
-    display: flex;
-    flex-direction: column;
+    overflow-y: auto;
     min-width: 200px; /* Minimum sidebar width */
     max-width: 600px; /* Maximum sidebar width */
 }
@@ -275,7 +274,6 @@ body {
     background: rgba(0, 0, 0, 0.2);
     border-right: 2px solid rgba(255, 255, 255, 0.1);
     padding: 1rem;
-    overflow-y: auto;
 }
 
 .sidebar h3 {

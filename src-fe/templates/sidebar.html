@@ -1,68 +1,63 @@
-<div class="sidebar w-full bg-card border-r border-border flex flex-col h-full">
-  <!-- Atmospheres Section -->
-  <div id="atmospheresSection" class="atmosphere-section p-4 border-b border-border">
-    <!-- Header -->
-    <div class="atmo-header-row flex items-center justify-between mb-3">
-      <h3 class="atmo-title text-lg font-semibold text-text flex items-center gap-2 m-0">
-        🌌 Atmospheres
-      </h3>
-      <button id="createAtmosphereBtn" 
-              class="btn btn-sm px-2 py-1 bg-accent text-white rounded text-sm font-medium
-                     hover:bg-green-600 transition-colors duration-200" 
-              title="Create atmosphere">
-        ＋
-      </button>
-    </div>
-    
-    <!-- Search Row -->
-    <div class="atmo-search-row relative mb-3">
-      <input id="atmoSearch" 
-             type="text" 
-             placeholder="Search atmospheres..." 
-             class="atmo-search-input w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
-                    focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
-                    placeholder:text-muted" />
-      <span id="atmoSearchSpinner" 
-            class="atmo-search-spinner hidden absolute right-3 top-1/2 -translate-y-1/2 text-accent" 
-            aria-hidden="true">
-        ⏳
-      </span>
-    </div>
-    
-    <!-- Atmosphere List -->
-    <div id="atmosphereList" class="atmo-list max-h-60 overflow-y-auto space-y-1">
-      <div class="atmo-empty text-center py-6 text-muted text-sm">
-        No atmospheres yet
+<div class="sidebar w-full bg-card border-r border-border h-full">
+  <!-- Inner container for scrollable content -->
+  <div class="sidebar-content">
+    <!-- Atmospheres Section -->
+    <div id="atmospheresSection" class="atmosphere-section p-4 border-b border-border">
+      <!-- Header -->
+      <div class="atmo-header-row flex items-center justify-between mb-3">
+        <h3 class="atmo-title text-lg font-semibold text-text flex items-center gap-2 m-0">
+          🌌 Atmospheres
+        </h3>
+        <button id="createAtmosphereBtn" 
+                class="btn btn-sm px-2 py-1 bg-accent text-white rounded text-sm font-medium
+                       hover:bg-green-600 transition-colors duration-200" 
+                title="Create atmosphere">
+          ＋
+        </button>
+      </div>
+      
+      <!-- Search Row -->
+      <div class="atmo-search-row relative mb-3">
+        <input id="atmoSearch" 
+               type="text" 
+               placeholder="Search atmospheres..." 
+               class="atmo-search-input w-full px-3 py-2 bg-bg border border-border rounded text-text text-sm
+                      focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
+                      placeholder:text-muted" />
+        <span id="atmoSearchSpinner" 
+              class="atmo-search-spinner hidden absolute right-3 top-1/2 -translate-y-1/2 text-accent" 
+              aria-hidden="true">
+          ⏳
+        </span>
+      </div>
+      
+      <!-- Atmosphere List -->
+      <div id="atmosphereList" class="atmo-list space-y-1">
+        <div class="atmo-empty text-center py-6 text-muted text-sm">
+          No atmospheres yet
+        </div>
+      </div>
+      
+      <!-- Progress Container -->
+      <div id="atmoProgressContainer" class="atmo-progress hidden mt-3 p-3 bg-bg rounded border border-border">
+        <div class="atmo-progress-bar-wrapper bg-border rounded-full h-2 mb-2 overflow-hidden">
+          <div class="atmo-progress-bar bg-accent h-full transition-all duration-300 ease-out" 
+               id="atmoProgressBar" 
+               style="width: 0%"></div>
+        </div>
+        <div class="atmo-progress-label text-xs text-muted text-center" id="atmoProgressLabel"></div>
       </div>
     </div>
     
-    <!-- Progress Container -->
-    <div id="atmoProgressContainer" class="atmo-progress hidden mt-3 p-3 bg-bg rounded border border-border">
-      <div class="atmo-progress-bar-wrapper bg-border rounded-full h-2 mb-2 overflow-hidden">
-        <div class="atmo-progress-bar bg-accent h-full transition-all duration-300 ease-out" 
-             id="atmoProgressBar" 
-             style="width: 0%"></div>
-      </div>
-      <div class="atmo-progress-label text-xs text-muted text-center" id="atmoProgressLabel"></div>
+    <!-- Divider -->
+    <hr class="atmo-divider border-border m-0">
+    
+    <!-- Sound Library Section -->
+    <div class="p-4">
+      <h3 class="text-lg font-semibold text-text mb-3 m-0">Sound Library</h3>
+      
+      <!-- Tag Search Container (includes all tag filters and results count) -->
+      <div id="tagSearchContainer"></div>
     </div>
-  </div>
-  
-  <!-- Divider -->
-  <hr class="atmo-divider border-border m-0">
-  
-  <!-- Sound Library Section -->
-  <div class="flex-1 flex flex-col min-h-0 p-4">
-    <h3 class="text-lg font-semibold text-text mb-3 m-0">Sound Library</h3>
-    
-    <!-- Library Stats -->
-    <div class="library-stats mb-3 p-2 bg-bg rounded border border-border">
-      <span id="fileCount" class="text-sm text-muted">0 sounds loaded</span>
-    </div>
-    
-    <!-- Tag Search Container -->
-    <div id="tagSearchContainer" class="mb-3"></div>
-    
-    <!-- Library List -->
-    <div class="library-list flex-1 min-h-0" id="libraryList"></div>
   </div>
 </div>

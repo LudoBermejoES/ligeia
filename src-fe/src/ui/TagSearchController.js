@@ -27,23 +27,11 @@ export class TagSearchController {
      * Initialize the search UI
      */
     async initializeSearchUI() {
-        const sidebar = document.getElementById('sidebar-container') || document.getElementById('sidebar');
-        if (!sidebar) return;
-
-        // Find or create search container
-        let searchContainer = document.getElementById('tag-search-container');
+        // Find the existing search container in the template
+        let searchContainer = document.getElementById('tagSearchContainer');
         if (!searchContainer) {
-            searchContainer = document.createElement('div');
-            searchContainer.id = 'tag-search-container';
-            searchContainer.className = 'tag-search-container';
-            
-            // Position after library stats if available
-            const libraryStats = document.getElementById('library-stats');
-            if (libraryStats) {
-                libraryStats.insertAdjacentElement('afterend', searchContainer);
-            } else {
-                sidebar.appendChild(searchContainer);
-            }
+            console.error('Tag search container not found in template');
+            return;
         }
 
         // Render the search container using template
