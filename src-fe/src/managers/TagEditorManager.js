@@ -155,8 +155,8 @@ export class TagEditorManager {
     Object.assign(audioFile, updates);
     // Refresh UI components after save
     try {
-      // Re-render pads with updated metadata
-      this.ui.renderSoundPadsGrid(this.library.getAudioFiles(), this.library.getSoundPads());
+      // Refresh mixer with updated metadata using new architecture
+      this.ui.refreshMixer();
       // Refresh search results if controller present
       if (this.tagSearchController) await this.tagSearchController.showAllSounds();
       this.ui.showSuccess('Tags updated successfully');

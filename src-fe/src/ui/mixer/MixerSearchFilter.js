@@ -18,7 +18,8 @@ export class MixerSearchFilter {
         if (window.Fuse) {
             const options = {
                 keys: [
-                    { name: 'filename', weight: 0.7 },
+                    { name: 'filename', weight: 0.7 },  // Extracted from file_path
+                    { name: 'file_path', weight: 0.5 },  // Full path
                     { name: 'title', weight: 0.8 },
                     { name: 'artist', weight: 0.6 },
                     { name: 'genre', weight: 0.4 }
@@ -28,8 +29,15 @@ export class MixerSearchFilter {
                 shouldSort: true
             };
             
-            this.fuseInstance = new window.Fuse(files, options);
+            // Enhance files with filename extracted from file_path for search
+            const enhancedFiles = files.map(file => ({
+                ...file,
+                filename: this.extractFilename(file.file_path)
+            }));
+            
+            this.fuseInstance = new window.Fuse(enhancedFiles, options);
             const results = this.fuseInstance.search(searchFilter);
+            
             
             logger.info('mixerSearch', 'Fuse.js search applied', {
                 query: searchFilter,
@@ -51,8 +59,10 @@ export class MixerSearchFilter {
         const filter = searchFilter.toLowerCase();
         
         const filtered = files.filter(f => {
+            const filename = this.extractFilename(f.file_path);
             return (f.title && f.title.toLowerCase().includes(filter)) ||
-                   (f.filename && f.filename.toLowerCase().includes(filter)) ||
+                   (filename && filename.toLowerCase().includes(filter)) ||
+                   (f.file_path && f.file_path.toLowerCase().includes(filter)) ||
                    (f.artist && f.artist.toLowerCase().includes(filter)) ||
                    (f.genre && f.genre.toLowerCase().includes(filter));
         });
@@ -87,11 +97,19 @@ export class MixerSearchFilter {
     }
 
     /**
+     * Extract filename from file_path
+     */
+    extractFilename(filePath) {
+        if (!filePath) return '';
+        return filePath.split(/[/\\]/).pop() || '';
+    }
+
+    /**
      * Check if file is ambient sound
      */
     isAmbientSound(file) {
         const ambientKeywords = ['ambient', 'atmosphere', 'background', 'loop', 'rain', 'wind', 'fire', 'water'];
-        const filename = (file.filename || '').toLowerCase();
+        const filename = this.extractFilename(file.file_path).toLowerCase();
         const title = (file.title || '').toLowerCase();
         const genre = (file.genre || '').toLowerCase();
         
@@ -109,7 +127,7 @@ export class MixerSearchFilter {
         const musicExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.flac'];
         const musicGenres = ['music', 'classical', 'rock', 'electronic', 'orchestral'];
         
-        const filename = (file.filename || '').toLowerCase();
+        const filename = this.extractFilename(file.file_path).toLowerCase();
         const genre = (file.genre || '').toLowerCase();
         
         const hasMusic = musicGenres.some(g => genre.includes(g));
@@ -123,7 +141,7 @@ export class MixerSearchFilter {
      */
     isSfxFile(file) {
         const sfxKeywords = ['sfx', 'effect', 'sound', 'hit', 'crash', 'explosion', 'footstep', 'door', 'weapon'];
-        const filename = (file.filename || '').toLowerCase();
+        const filename = this.extractFilename(file.file_path).toLowerCase();
         const title = (file.title || '').toLowerCase();
         
         return sfxKeywords.some(keyword => 
@@ -141,8 +159,8 @@ export class MixerSearchFilter {
             
             switch (sortBy) {
                 case 'title':
-                    valueA = (a.title || a.filename || '').toLowerCase();
-                    valueB = (b.title || b.filename || '').toLowerCase();
+                    valueA = (a.title || this.extractFilename(a.file_path) || '').toLowerCase();
+                    valueB = (b.title || this.extractFilename(b.file_path) || '').toLowerCase();
                     break;
                 case 'artist':
                     valueA = (a.artist || '').toLowerCase();
@@ -161,8 +179,8 @@ export class MixerSearchFilter {
                     valueB = new Date(b.date_added || 0);
                     break;
                 default:
-                    valueA = (a.title || a.filename || '').toLowerCase();
-                    valueB = (b.title || b.filename || '').toLowerCase();
+                    valueA = (a.title || this.extractFilename(a.file_path) || '').toLowerCase();
+                    valueB = (b.title || this.extractFilename(b.file_path) || '').toLowerCase();
             }
             
             const comparison = valueA < valueB ? -1 : valueA > valueB ? 1 : 0;

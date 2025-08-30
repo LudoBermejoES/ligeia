@@ -88,6 +88,14 @@ impl Database {
         AudioFileOps::get_all(&self.conn)
     }
 
+    pub fn get_audio_file_by_path(&self, file_path: &str) -> Result<AudioFile> {
+        AudioFileOps::get_by_path(&self.conn, file_path)
+    }
+
+    pub fn update_audio_file(&self, audio_file: &AudioFile) -> Result<()> {
+        AudioFileOps::update(&self.conn, audio_file)
+    }
+
     pub fn delete_audio_file(&self, id: i64) -> Result<()> {
         AudioFileOps::delete(&self.conn, id)
     }

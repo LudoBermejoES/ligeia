@@ -63,8 +63,8 @@ async fn get_all_audio_files(app_handle: AppHandle) -> Result<Vec<AudioFile>, St
 }
 
 #[tauri::command]
-async fn update_audio_file_tags(file_path: String, updates: AudioFile) -> Result<(), String> {
-    AudioFileHandler::update_audio_file_tags(file_path, updates)
+async fn update_audio_file_tags(app_handle: AppHandle, file_path: String, updates: AudioFile) -> Result<(), String> {
+    AudioFileHandler::update_audio_file_tags(app_handle, file_path, updates)
 }
 
 #[tauri::command]

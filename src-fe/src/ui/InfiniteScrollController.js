@@ -66,8 +66,10 @@ export class InfiniteScrollController {
     this.allFiles = audioFiles || [];
     this.searchQuery = searchFilter;
     
+    
     // Apply search/filter
     this.filteredFiles = this.searchFilter.applySearchFilter(this.allFiles, searchFilter);
+    
     
     // Update pagination with filtered files
     this.pagination.setFiles(this.allFiles, this.filteredFiles);
@@ -83,12 +85,16 @@ export class InfiniteScrollController {
    * Initial render - show first page
    */
   initialRender() {
+    
     this.renderer.clearContainers();
     
     if (this.filteredFiles.length === 0) {
       this.renderer.renderEmptyState();
       return;
     }
+
+    // Initialize pad states for all filtered files
+    this.initializePadStates(this.filteredFiles);
 
     // Get first page of files
     const firstPageFiles = this.pagination.getCurrentPage();
@@ -107,6 +113,9 @@ export class InfiniteScrollController {
     const nextPageFiles = this.pagination.getNextPage();
     
     if (nextPageFiles.length > 0) {
+      // Initialize pad states for new files
+      this.initializePadStates(nextPageFiles);
+      
       // Append files using renderer
       this.renderer.appendFiles(nextPageFiles);
       
@@ -125,13 +134,36 @@ export class InfiniteScrollController {
   }
 
   /**
+   * Initialize pad states for files in the mixer context
+   */
+  initializePadStates(files) {
+    if (!this.padEventHandler) return;
+    
+    const soundPads = this.libraryManager.getSoundPads();
+    
+    files.forEach(audioFile => {
+      const pad = soundPads.get(audioFile.file_path);
+      if (pad) {
+        this.padEventHandler.addPadToContext(audioFile.id, 'mixer', {
+          isPlaying: pad.isPlaying || false,
+          isLooping: pad.isLooping || false,
+          isMuted: pad.isMuted || false,
+          volume: pad.volume ?? 0.5
+        });
+      }
+    });
+  }
+
+  /**
    * Update search filter and re-render
    */
   updateSearchFilter(searchFilter) {
     this.searchQuery = searchFilter;
     
+    
     // Apply search filter
     this.filteredFiles = this.searchFilter.applySearchFilter(this.allFiles, searchFilter);
+    
     
     // Reset pagination and update files
     this.pagination.setFiles(this.allFiles, this.filteredFiles);
@@ -250,7 +282,7 @@ export class InfiniteScrollController {
     this.searchFilter.clearSearch();
     
     // Remove event listeners
-    document.removeEventListener('loadNextPage', this.handleLoadNextPage);
+    document.removeEventListener('loadNextPage', this.loadNextPage);
     
     logger.info('infiniteScroll', 'InfiniteScrollController destroyed');
   }

@@ -193,7 +193,15 @@ export class UIController {
         this.infiniteScrollController.initialize();
         
         // Use infinite scroll controller for rendering
-        this.infiniteScrollController.setAudioFiles(audioFiles, this.soundSearchFilter);
+        // Convert Map to Array since InfiniteScrollController expects an array
+        const audioFilesArray = Array.from(audioFiles.values());
+        console.log('🎵 UIController: About to set audio files', {
+            originalMapSize: audioFiles.size,
+            arrayLength: audioFilesArray.length,
+            searchFilter: this.soundSearchFilter,
+            firstFile: audioFilesArray[0] ? { id: audioFilesArray[0].id, title: audioFilesArray[0].title } : 'none'
+        });
+        this.infiniteScrollController.setAudioFiles(audioFilesArray, this.soundSearchFilter);
         this.infiniteScrollController.initialRender();
     }
 
@@ -260,6 +268,18 @@ export class UIController {
                 });
             }
         });
+    }
+
+    /**
+     * Refresh the mixer with current audio files (for use after tag updates)
+     */
+    refreshMixer() {
+        if (this.infiniteScrollController) {
+            const audioFiles = this.libraryManager.getAudioFiles();
+            const audioFilesArray = Array.from(audioFiles.values());
+            this.infiniteScrollController.setAudioFiles(audioFilesArray, this.soundSearchFilter);
+            this.infiniteScrollController.initialRender();
+        }
     }
 
     // Clear the sound search filter
