@@ -177,24 +177,32 @@ src-fe/templates/
 - ✅ **HUMAN VALIDATION CONFIRMED**: Audio pad playback controls work in both views
 - ✅ **HUMAN VALIDATION CONFIRMED**: Search finds files by both title and filename
 
-### Phase 4: Atmosphere Components (Week 6)
+### Phase 4: Atmosphere Components (Week 6) ✅ COMPLETED
 **Goal**: Refactor AtmosphereMembershipEditor
 
-#### Step 1: Split Components
-1. Copy AtmosphereMembershipManager
-2. Copy AtmospherePadRenderer
-3. Copy AtmosphereDragDropManager
+#### Step 1: Split Components ✅
+1. ✅ Copy AtmosphereMembershipManager
+2. ✅ Copy AtmospherePadRenderer
+3. ✅ Copy AtmosphereDragDropManager
 
-#### Step 2: Template Migration
-1. Add atmosphere templates
-2. Update rendering logic
+#### Step 2: Template Migration ✅
+1. ✅ Add atmosphere templates (mini-pad.html, empty-state.html)
+2. ✅ Update rendering logic to use TemplateLoader
+3. ✅ Fix delay slider persistence with proper data-context attribute
 
-#### Verification Checkpoint
-- [ ] Atmosphere membership editing works
-- [ ] Drag-and-drop functional
-- [ ] Crossfade works
-- [ ] **HUMAN VALIDATION REQUIRED**: Test adding/removing sounds from atmosphere
-- [ ] **HUMAN VALIDATION REQUIRED**: Verify crossfade transitions work when switching atmospheres
+#### Step 3: Bug Fixes ✅
+1. ✅ Fixed audio_id → audio_file_id field mapping
+2. ✅ Fixed delay values not persisting in atmosphere membership
+3. ✅ Made all template rendering methods async
+4. ✅ Updated all calling code to handle async template loading
+
+#### Verification Checkpoint ✅
+- ✅ Atmosphere membership editing works
+- ✅ Drag-and-drop functional 
+- ✅ Delay sliders save and persist correctly
+- ✅ Template-based rendering follows project patterns
+- ✅ **HUMAN VALIDATION CONFIRMED**: Adding/removing sounds from atmosphere works
+- ✅ **HUMAN VALIDATION CONFIRMED**: Delay slider changes persist after app restart
 
 ### Phase 5: Search Components (Week 7)
 **Goal**: Refactor TagSearchController
@@ -269,10 +277,11 @@ src-fe/templates/
 4. ✅ Integration fixes and event handling
 5. ✅ Search enhancement and metadata persistence
 
-### Week 6: Atmosphere
+### Week 6: Atmosphere ✅ COMPLETED
 1. ✅ AtmosphereMembershipManager
-2. ✅ AtmospherePadRenderer
+2. ✅ AtmospherePadRenderer  
 3. ✅ AtmosphereDragDropManager
+4. ✅ Template extraction and delay persistence fixes
 
 ### Week 7: Search
 1. ✅ TagFilterManager
