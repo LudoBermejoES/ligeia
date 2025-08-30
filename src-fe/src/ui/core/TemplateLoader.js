@@ -12,18 +12,14 @@ export class TemplateLoader {
      * @returns {Promise<string>} Template content
      */
     static async load(templatePath) {
-        console.log(`🔄 TemplateLoader.load: Loading template "${templatePath}"`);
-        
         // Check cache first
         if (this.cache.has(templatePath)) {
-            console.log(`📋 TemplateLoader.load: Using cached template "${templatePath}"`);
             return this.cache.get(templatePath);
         }
         
         try {
             // Use fetch to load from webview assets - templates are served from src-fe/templates/
             const fullPath = `templates/${templatePath}`;
-            console.log(`🌐 TemplateLoader.load: Fetching from "${fullPath}"`);
             
             const response = await fetch(fullPath, {
                 headers: {
@@ -31,14 +27,11 @@ export class TemplateLoader {
                 }
             });
             
-            console.log(`📡 TemplateLoader.load: Response status: ${response.status}, ok: ${response.ok}`);
-            
             if (!response.ok) {
                 throw new Error(`Failed to load template: ${templatePath} (HTTP ${response.status})`);
             }
             
             const template = await response.text();
-            console.log(`✅ TemplateLoader.load: Successfully loaded template "${templatePath}" (${template.length} chars)`);
             
             // Validate that we got actual template content
             if (!template || template.trim().length === 0) {
@@ -49,7 +42,6 @@ export class TemplateLoader {
             return template;
         } catch (error) {
             console.error(`❌ TemplateLoader: Failed to load ${templatePath}:`, error);
-            console.error(`❌ TemplateLoader: Error details:`, error.message);
             
             // Return a more helpful error template
             return `<!-- Template load error: ${templatePath} - ${error.message} -->`;
@@ -98,23 +90,17 @@ export class TemplateLoader {
      * @returns {Promise<Object>} Object with loaded template content
      */
     static async loadAll(templateMap) {
-        console.log(`🔄 TemplateLoader.loadAll: Loading ${Object.keys(templateMap).length} templates`);
-        
         const result = {};
         const loadPromises = [];
         
         for (const [key, templatePath] of Object.entries(templateMap)) {
-            console.log(`📋 TemplateLoader.loadAll: Processing template "${key}" -> "${templatePath}"`);
-            
             if (templatePath === null || templatePath === undefined) {
-                console.log(`⏭️ TemplateLoader.loadAll: Skipping null template "${key}"`);
                 result[key] = null;
                 continue;
             }
             
             loadPromises.push(
                 this.load(templatePath).then(content => {
-                    console.log(`✅ TemplateLoader.loadAll: Loaded template "${key}"`);
                     result[key] = content;
                 }).catch(error => {
                     console.error(`❌ TemplateLoader.loadAll: Failed to load template "${key}":`, error);
@@ -123,10 +109,7 @@ export class TemplateLoader {
             );
         }
         
-        console.log(`⏳ TemplateLoader.loadAll: Waiting for ${loadPromises.length} template loads...`);
         await Promise.all(loadPromises);
-        
-        console.log(`✅ TemplateLoader.loadAll: All templates loaded successfully`);
         return result;
     }
     

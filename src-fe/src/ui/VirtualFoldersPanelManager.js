@@ -288,9 +288,14 @@ export class VirtualFoldersPanelManager {
 
         // Tree node interactions (delegated)
         this.elements.treeContent?.addEventListener('click', (e) => {
-            if (e.target.closest('.vf-tree-node')) {
+            if (e.target.closest('.tree-node')) {
                 this.handleTreeNodeClick(e);
             }
+        });
+
+        // Listen for folder selection events from FolderTreeManager
+        this.elements.treeContent?.addEventListener('folderSelected', (e) => {
+            this.selectFolder(e.detail.folderId);
         });
 
         // File and folder selection and action handling in content area (delegated)
@@ -494,17 +499,8 @@ export class VirtualFoldersPanelManager {
      * Handle tree node clicks
      */
     handleTreeNodeClick(e) {
-        const node = e.target.closest('.vf-tree-node');
-        if (!node) return;
-
-        const folderId = parseInt(node.dataset.folderId);
-        
-        if (e.target.classList.contains('vf-expand-icon')) {
-            // Toggle expand/collapse
-            this.toggleFolderExpand(folderId);
-        } else {
-            // Select folder
-            this.selectFolder(folderId);
+        if (this.folderTreeManager) {
+            this.folderTreeManager.handleTreeNodeClick(e);
         }
     }
 
@@ -533,7 +529,7 @@ export class VirtualFoldersPanelManager {
         
         try {
             // Update tree selection
-            this.panel.querySelectorAll('.vf-tree-node').forEach(node => {
+            this.panel.querySelectorAll('.tree-node').forEach(node => {
                 node.classList.toggle('selected', 
                     parseInt(node.dataset.folderId) === folderId);
             });
