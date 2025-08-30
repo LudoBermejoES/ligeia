@@ -1,6 +1,8 @@
 import { FolderTreeManager } from './virtual-folders/FolderTreeManager.js';
 import { FolderContentManager } from './virtual-folders/FolderContentManager.js';
 import { FolderSearchManager } from './virtual-folders/FolderSearchManager.js';
+import { FolderCreationModal } from './virtual-folders/FolderCreationModal.js';
+import { FolderEditModal } from './virtual-folders/FolderEditModal.js';
 
 /**
  * VirtualFoldersPanelManager - Manages the virtual folders main panel
@@ -21,6 +23,8 @@ export class VirtualFoldersPanelManager {
         this.folderTreeManager = null;
         this.folderContentManager = null;
         this.folderSearchManager = null;
+        this.folderCreationModal = null;
+        this.folderEditModal = null;
         
         this.initializePanel();
         this.initializeComponents();
@@ -74,6 +78,10 @@ export class VirtualFoldersPanelManager {
         
         // Initialize FolderSearchManager
         this.folderSearchManager = new FolderSearchManager(this.service, this.elements);
+        
+        // Initialize Modals
+        this.folderCreationModal = new FolderCreationModal(this.service, this.uiController);
+        this.folderEditModal = new FolderEditModal(this.service, this.uiController);
         
         console.log('✅ VirtualFolders: Component managers initialized');
     }
@@ -282,6 +290,15 @@ export class VirtualFoldersPanelManager {
 
         this.elements.treeContent?.addEventListener('fileSelected', (e) => {
             this.handleFileSelected(e.detail.fileId, e.detail.folderId);
+        });
+
+        // Listen for modal events
+        document.addEventListener('vf-folderCreated', (e) => {
+            this.handleFolderCreated(e.detail);
+        });
+
+        document.addEventListener('vf-folderUpdated', (e) => {
+            this.handleFolderUpdated(e.detail);
         });
 
         // File and folder selection and action handling in content area (delegated)
@@ -1222,12 +1239,22 @@ export class VirtualFoldersPanelManager {
      * Show create folder modal
      */
     showCreateFolderModal() {
-        // Access the global virtual folder manager to show modal
-        const app = window.app || window.ambientMixerApp;
-        if (app && app.virtualFolderManager) {
-            app.virtualFolderManager.showCreateFolderModal(this.currentFolderId);
+        if (this.folderCreationModal) {
+            this.folderCreationModal.show(this.currentFolderId);
         } else {
-            console.error('Virtual folder manager not accessible');
+            console.error('Folder creation modal not initialized');
+        }
+    }
+
+    /**
+     * Show edit folder modal
+     * @param {number} folderId - Folder ID to edit
+     */
+    showEditFolderModal(folderId) {
+        if (this.folderEditModal) {
+            this.folderEditModal.show(folderId);
+        } else {
+            console.error('Folder edit modal not initialized');
         }
     }
 
@@ -1236,17 +1263,16 @@ export class VirtualFoldersPanelManager {
      */
     showAddFilesModal() {
         if (!this.currentFolderId) {
-            this.showError('Please select a folder first');
+            console.warn('No folder selected');
             return;
         }
         
-        // Access the global virtual folder manager to show modal
-        const app = window.app || window.ambientMixerApp;
-        if (app && app.virtualFolderManager && app.virtualFolderManager.getModals()) {
-            app.virtualFolderManager.getModals().showAddFilesToFolderModal(this.currentFolderId);
-        } else {
-            console.error('Virtual folder manager not accessible');
-        }
+        // For now, dispatch an event that the main app can handle
+        // This would be implemented in a future AddFilesModal component
+        const event = new CustomEvent('showAddFilesToFolderModal', {
+            detail: { folderId: this.currentFolderId }
+        });
+        document.dispatchEvent(event);
     }
 
     /**
@@ -1383,27 +1409,53 @@ export class VirtualFoldersPanelManager {
      * Handle edit folder
      */
     handleEditFolder(folderId) {
-        // Access the global virtual folder manager to show edit modal
-        const app = window.app || window.ambientMixerApp;
-        if (app && app.virtualFolderManager && app.virtualFolderManager.getModals()) {
-            app.virtualFolderManager.getModals().showEditFolderModal(folderId);
-        } else {
-            console.error('Virtual folder manager not accessible');
-        }
+        this.showEditFolderModal(folderId);
     }
 
     /**
      * Handle delete folder
      */
     async handleDeleteFolder(folderId) {
-        // Access the global virtual folder manager to show delete confirmation
-        const app = window.app || window.ambientMixerApp;
-        if (app && app.virtualFolderManager && app.virtualFolderManager.getModals()) {
-            app.virtualFolderManager.getModals().showDeleteFolderConfirmation(folderId, () => {
-                this.loadFolderContents(this.currentFolderId);
-            });
-        } else {
-            console.error('Virtual folder manager not accessible');
+        try {
+            // Get folder info for confirmation
+            const folder = await this.service.getFolderById(folderId);
+            
+            // Use BaseModal confirmation dialog
+            const confirmed = await this.folderCreationModal.showConfirmation(
+                `Are you sure you want to delete the folder "${folder.name}"? This will also remove all files from this folder.`,
+                'Delete Folder'
+            );
+            
+            if (confirmed) {
+                await this.service.deleteFolder(folderId);
+                
+                // Show success notification
+                if (this.uiController?.showNotification) {
+                    this.uiController.showNotification('success', `Folder "${folder.name}" deleted successfully`);
+                }
+                
+                // Refresh tree and content
+                if (this.folderTreeManager) {
+                    await this.folderTreeManager.loadFolderTree();
+                }
+                
+                // If we deleted the current folder, clear the content
+                if (this.currentFolderId === folderId) {
+                    this.currentFolderId = null;
+                    if (this.folderContentManager) {
+                        await this.folderContentManager.showDefaultContentState();
+                    }
+                } else if (this.currentFolderId) {
+                    // Refresh current folder content
+                    await this.loadFolderContents(this.currentFolderId);
+                }
+            }
+            
+        } catch (error) {
+            console.error('Failed to delete folder:', error);
+            if (this.uiController?.showNotification) {
+                this.uiController.showNotification('error', 'Failed to delete folder: ' + (error.message || 'Unknown error'));
+            }
         }
     }
 
@@ -1775,6 +1827,45 @@ export class VirtualFoldersPanelManager {
             setTimeout(() => {
                 fileElement.classList.remove('highlighted');
             }, 2000);
+        }
+    }
+
+    /**
+     * Handle folder created event from modal
+     */
+    async handleFolderCreated(detail) {
+        const { folder, parentId } = detail;
+        
+        // Refresh the folder tree to show the new folder
+        if (this.folderTreeManager) {
+            await this.folderTreeManager.loadFolderTree();
+        }
+        
+        // If the new folder was created in the current folder, refresh content
+        if (parentId === this.currentFolderId) {
+            await this.loadFolderContents(this.currentFolderId);
+        }
+        
+        // Expand to show the new folder
+        if (this.folderTreeManager) {
+            await this.folderTreeManager.expandToFolder(folder.id);
+        }
+    }
+
+    /**
+     * Handle folder updated event from modal
+     */
+    async handleFolderUpdated(detail) {
+        const { folder, originalFolder } = detail;
+        
+        // Refresh the folder tree to show the updated folder
+        if (this.folderTreeManager) {
+            await this.folderTreeManager.loadFolderTree();
+        }
+        
+        // If the updated folder is currently selected, refresh its content
+        if (this.currentFolderId === folder.id) {
+            await this.loadFolderContents(folder.id);
         }
     }
 }
