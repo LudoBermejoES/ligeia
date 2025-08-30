@@ -53,7 +53,7 @@ export class VirtualFolderDragDrop {
         // Add CSS classes for drop zone states
         const style = document.createElement('style');
         style.textContent = `
-            .vf-tree-node.drop-target {
+            .tree-node.drop-target {
                 background: rgba(76, 175, 80, 0.2) !important;
                 border: 2px dashed var(--accent-color) !important;
                 transform: scale(1.02);
@@ -86,7 +86,7 @@ export class VirtualFolderDragDrop {
      */
     isVirtualFoldersVisible() {
         const panel = document.getElementById('virtual-folders-panel');
-        return panel && panel.style.display !== 'none';
+        return panel && !panel.classList.contains('hidden') && panel.style.display !== 'none';
     }
 
     /**
@@ -104,7 +104,7 @@ export class VirtualFolderDragDrop {
         if (!vfPanel) return;
 
         // Check if over a folder tree node
-        const treeNode = element.closest('.vf-tree-node');
+        const treeNode = element.closest('.tree-node');
         if (treeNode) {
             const folderId = parseInt(treeNode.dataset.folderId);
             if (folderId) {
@@ -120,7 +120,6 @@ export class VirtualFolderDragDrop {
         // Check if over the content drop zone of the current folder
         const dropZone = element.closest('.vf-drop-zone');
         if (dropZone) {
-            const panel = document.getElementById('virtual-folders-panel');
             const panelManager = window.ambientMixerApp?.virtualFolderManager?.getPanelManager();
             
             if (panelManager && panelManager.currentFolderId) {
@@ -159,7 +158,7 @@ export class VirtualFolderDragDrop {
             await this.service.addFilesToFolder(targetFolderId, [audioId]);
             
             // Show success feedback
-            this.showSuccessFeedback(this.currentDropTarget.element, audioId);
+            this.showSuccessFeedback(this.currentDropTarget.element);
             
             // Refresh virtual folders panel if visible
             this.refreshVirtualFoldersPanel();
@@ -178,7 +177,7 @@ export class VirtualFolderDragDrop {
      * Clear all drop target highlights
      */
     clearDropTargetHighlights() {
-        document.querySelectorAll('.vf-tree-node.drop-target').forEach(node => {
+        document.querySelectorAll('.tree-node.drop-target').forEach(node => {
             node.classList.remove('drop-target');
         });
         
@@ -231,7 +230,7 @@ export class VirtualFolderDragDrop {
     /**
      * Show success feedback animation
      */
-    showSuccessFeedback(element, audioId) {
+    showSuccessFeedback(element) {
         const feedback = document.createElement('div');
         feedback.style.cssText = `
             position: absolute;
