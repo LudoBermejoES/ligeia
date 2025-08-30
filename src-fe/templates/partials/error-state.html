@@ -1,0 +1,10 @@
+<div class="error-state text-center py-8">
+    <div class="text-4xl mb-2">❌</div>
+    <div class="text-text font-medium mb-1">Error</div>
+    <div class="text-muted text-sm mb-3">{{message}}</div>
+    {{#showRetry}}
+    <button class="btn btn-secondary px-3 py-1 text-sm" onclick="location.reload()">
+        🔄 Retry
+    </button>
+    {{/showRetry}}
+</div>

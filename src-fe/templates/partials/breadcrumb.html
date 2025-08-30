@@ -1,0 +1,7 @@
+<nav class="breadcrumb flex items-center gap-1 text-sm text-muted mb-3">
+    <a href="#" class="breadcrumb-home hover:text-text">{{homeText}}</a>
+    {{#segments}}
+    <span class="breadcrumb-separator">›</span>
+    <a href="#" class="breadcrumb-segment hover:text-text" data-folder-id="{{id}}">{{name}}</a>
+    {{/segments}}
+</nav>

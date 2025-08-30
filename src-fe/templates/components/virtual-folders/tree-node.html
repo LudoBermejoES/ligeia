@@ -1,0 +1,15 @@
+<div class="tree-node" data-folder-id="{{id}}">
+    <div class="tree-node-content flex items-center gap-2 py-1 px-2 rounded hover:bg-hover cursor-pointer">
+        <button class="tree-expand-btn text-xs w-4 h-4 flex items-center justify-center">
+            {{#hasChildren}}{{#expanded}}▼{{/expanded}}{{^expanded}}▶{{/expanded}}{{/hasChildren}}
+        </button>
+        <div class="tree-folder-icon">{{icon}}</div>
+        <div class="tree-folder-name text-sm">{{name}}</div>
+        <div class="tree-folder-count text-xs text-muted">({{count}})</div>
+    </div>
+    {{#expanded}}
+    <div class="tree-children ml-4">
+        {{children}}
+    </div>
+    {{/expanded}}
+</div>

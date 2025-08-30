@@ -1,6 +1,9 @@
+import { FolderTreeManager } from './virtual-folders/FolderTreeManager.js';
+import { FolderContentManager } from './virtual-folders/FolderContentManager.js';
+
 /**
  * VirtualFoldersPanelManager - Manages the virtual folders main panel
- * Following the membership editor pattern for consistent CSS-based panel management
+ * Refactored to use modular components: FolderTreeManager, FolderContentManager
  */
 export class VirtualFoldersPanelManager {
     constructor(virtualFolderService, libraryManager, uiController) {
@@ -10,12 +13,15 @@ export class VirtualFoldersPanelManager {
         
         this.panel = null;
         this.isVisible = false;
+        this.elements = null;
         this.currentFolderId = null;
-        this.selectedFiles = new Set();
-        this.expandedFolders = new Set();
-        this.lastFolderData = null; // Cache for view switching
+        
+        // Component managers (will be initialized after panel)
+        this.folderTreeManager = null;
+        this.folderContentManager = null;
         
         this.initializePanel();
+        this.initializeComponents();
         this.setupEventListeners();
     }
 
@@ -56,6 +62,24 @@ export class VirtualFoldersPanelManager {
             isAdvancedVisible: false,
             results: null
         };
+    }
+
+    /**
+     * Initialize component managers
+     */
+    initializeComponents() {
+        if (!this.elements) {
+            console.error('Cannot initialize components: elements not found');
+            return;
+        }
+
+        // Initialize FolderTreeManager
+        this.folderTreeManager = new FolderTreeManager(this.service, this.elements);
+        
+        // Initialize FolderContentManager 
+        this.folderContentManager = new FolderContentManager(this.service, this.elements);
+        
+        console.log('✅ VirtualFolders: Component managers initialized');
     }
 
     /**
@@ -414,48 +438,15 @@ export class VirtualFoldersPanelManager {
     }
 
     /**
-     * Load and render the folder tree
+     * Load and render the folder tree - delegated to FolderTreeManager
      */
     async loadFolderTree() {
-        if (!this.elements.treeContent) return;
-
-        try {
-            // Show loading state
-            this.elements.treeContent.innerHTML = `
-                <div class="vf-tree-loading">
-                    <div class="loading-spinner"></div>
-                    <div>Loading folders...</div>
-                </div>
-            `;
-
-            const tree = await this.service.getFolderTree();
-            
-            if (tree.length === 0) {
-                this.elements.treeContent.innerHTML = `
-                    <div class="vf-empty-tree">
-                        <div style="font-size: 2em; margin-bottom: 10px;">📁</div>
-                        <div>No folders yet</div>
-                        <div style="font-size: 0.9em; margin-top: 5px; opacity: 0.7;">
-                            Create your first folder to get started
-                        </div>
-                    </div>
-                `;
-            } else {
-                this.renderFolderTree(tree);
-            }
-        } catch (error) {
-            console.error('Failed to load folder tree:', error);
-            this.elements.treeContent.innerHTML = `
-                <div class="vf-tree-loading" style="color: #ff6b6b;">
-                    <div>⚠️</div>
-                    <div>Failed to load folders</div>
-                    <button onclick="window.virtualFoldersPanel?.loadFolderTree()" 
-                            style="margin-top: 10px; padding: 5px 10px; background: #333; border: 1px solid #555; color: white; border-radius: 4px; cursor: pointer;">
-                        Retry
-                    </button>
-                </div>
-            `;
+        if (!this.folderTreeManager) {
+            console.error('FolderTreeManager not initialized');
+            return;
         }
+        
+        await this.folderTreeManager.loadFolderTree();
     }
 
     /**
@@ -564,44 +555,13 @@ export class VirtualFoldersPanelManager {
      * Load and display folder contents (both subfolders and files)
      */
     async loadFolderContents(folderId) {
-        try {
-            // Fetch both files and subfolders
-            const [contents, subfolders] = await Promise.all([
-                this.service.getFolderContents(folderId),
-                this.service.getFolderChildren(folderId)
-            ]);
-            
-            const path = await this.service.buildBreadcrumb(folderId);
-            
-            // Update breadcrumb
-            this.elements.breadcrumb.textContent = path.join(' > ') || 'Root';
-            
-            // Handle both old format (contents.files) and new format (contents.audio_files)
-            const files = contents.audio_files || contents.files || [];
-            
-            // Cache the data for view switching
-            this.lastFolderData = {
-                subfolders: subfolders,
-                files: files
-            };
-            
-            // Update count display
-            const fileCount = files.length;
-            const folderCount = subfolders.length;
-            const totalCount = fileCount + folderCount;
-            
-            this.elements.filesArea.parentNode.querySelector('.vf-file-count').textContent = 
-                totalCount > 0 
-                    ? `${folderCount} folder${folderCount !== 1 ? 's' : ''}, ${fileCount} file${fileCount !== 1 ? 's' : ''}`
-                    : 'Empty folder';
-            
-            // Render both subfolders and files
-            this.renderFolderContents(subfolders, files);
-            
-        } catch (error) {
-            console.error('Failed to load folder contents:', error);
-            this.showError('Failed to load folder contents');
+        if (!this.folderContentManager) {
+            console.error('FolderContentManager not initialized');
+            return;
         }
+        
+        this.currentFolderId = folderId;
+        await this.folderContentManager.loadFolderContents(folderId);
     }
 
     /**
