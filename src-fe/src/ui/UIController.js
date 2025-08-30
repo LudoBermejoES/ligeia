@@ -2,7 +2,7 @@ import { renderSoundPad } from './PadRenderer.js';
 import { padStateManager } from './PadStateManager.js';
 import { PadEventHandler } from './PadEventHandler.js';
 import { InfiniteScrollController } from './InfiniteScrollController.js';
-import { TemplateLoader } from './core/TemplateLoader.js';
+import { NotificationManager } from './core/NotificationManager.js';
 
 /**
  * UIController - Handles all UI updates and DOM manipulation
@@ -16,6 +16,9 @@ export class UIController {
         this.soundSearchFuse = null; // Fuse.js instance for sound search
         this.currentAudioFiles = new Map(); // Store current audio files for search
         this.infiniteScrollController = null; // Will be initialized in initialize()
+        
+        // Initialize NotificationManager
+        this.notificationManager = new NotificationManager();
     }
     
     initialize() {
@@ -374,88 +377,22 @@ export class UIController {
     }
 
     showError(message) {
-        console.error(message);
-        this.showNotification('error', message);
+        return this.notificationManager.showError(message);
     }
 
     showSuccess(message) {
-        console.log(message);
-        this.showNotification('success', message, true);
+        return this.notificationManager.showSuccess(message);
     }
 
     showInfo(message, duration = 3000) {
-        console.log(message);
-        // If duration is 0, don't auto-hide; otherwise auto-hide after duration
-        const autoHide = duration > 0;
-        this.showNotification('info', message, autoHide);
+        return this.notificationManager.showInfo(message, duration);
     }
 
     showWarning(message) {
-        console.warn(message);
-        this.showNotification('warning', message);
+        return this.notificationManager.showWarning(message);
     }
 
-    showNotification(type, message, autoHide = false) {
-        const container = document.getElementById('notifications-container');
-        if (!container) {
-            console.warn('Notifications container not found, falling back to console');
-            console.log(`${type.toUpperCase()}: ${message}`);
-            return;
-        }
 
-        const notificationData = {
-            type,
-            message,
-            autoHide,
-            closable: true,
-            icon: this.getNotificationIcon(type)
-        };
-
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <span class="notification-icon">${notificationData.icon}</span>
-                <span class="notification-message">${this.escapeHtml(message)}</span>
-            </div>
-            <button class="notification-close">×</button>
-        `;
-
-        container.appendChild(notification);
-
-        // Add close functionality
-        const closeBtn = notification.querySelector('.notification-close');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                notification.remove();
-            });
-        }
-
-        // Auto-hide after 3 seconds if specified
-        if (autoHide) {
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, 3000);
-        }
-    }
-
-    getNotificationIcon(type) {
-        const icons = {
-            'success': '✅',
-            'error': '❌',
-            'warning': '⚠️',
-            'info': 'ℹ️'
-        };
-        return icons[type] || 'ℹ️';
-    }
-
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text || '';
-        return div.innerHTML;
-    }
 
     getFilenameFromPath(filePath) {
         return filePath.split(/[/\\]/).pop()?.replace(/\.[^/.]+$/, '') || 'Unknown';
