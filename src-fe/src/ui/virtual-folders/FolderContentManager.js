@@ -288,6 +288,76 @@ export class FolderContentManager {
     }
 
     /**
+     * Show search results in content area
+     */
+    async showSearchResults(files) {
+        const dropZone = this.elements.filesArea.querySelector('.vf-drop-zone');
+        if (!dropZone) return;
+
+        // Update breadcrumb to show search results
+        this.updateBreadcrumb({ name: `Search Results (${files.length} files)` });
+        
+        if (files.length === 0) {
+            const templateData = {
+                icon: '🔍',
+                title: 'No files found',
+                message: 'No files match your search criteria.'
+            };
+            const emptyHTML = await TemplateLoader.loadAndRender('partials/empty-state.html', templateData);
+            dropZone.innerHTML = emptyHTML;
+            return;
+        }
+
+        // Group files by folder
+        const filesByFolder = new Map();
+        files.forEach(file => {
+            const folderId = file.folder_id;
+            if (!filesByFolder.has(folderId)) {
+                filesByFolder.set(folderId, {
+                    folderName: file.folder_name || 'Unknown Folder',
+                    files: []
+                });
+            }
+            filesByFolder.get(folderId).files.push(file);
+        });
+
+        // Render grouped search results
+        const isListView = this.elements.filesArea?.classList.contains('vf-list-view');
+        let html = '<div class="vf-search-files-content">';
+        
+        for (const [folderId, folderData] of filesByFolder) {
+            html += `
+                <div class="vf-search-folder-group mb-4" data-folder-id="${folderId}">
+                    <div class="vf-search-folder-header p-2 bg-card border border-border rounded-t">
+                        <span class="vf-search-folder-name font-medium text-text">📁 ${this.escapeHtml(folderData.folderName)}</span>
+                        <span class="vf-search-folder-count text-xs text-muted ml-2">${folderData.files.length} file${folderData.files.length !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div class="vf-search-folder-files border-l border-r border-b border-border rounded-b p-2">
+            `;
+            
+            if (isListView) {
+                for (const file of folderData.files) {
+                    html += await this.renderFileListRow(file);
+                }
+            } else {
+                html += '<div class="vf-files-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">';
+                for (const file of folderData.files) {
+                    html += await this.renderFileCard(file);
+                }
+                html += '</div>';
+            }
+            
+            html += '</div></div>';
+        }
+        
+        html += '</div>';
+        dropZone.innerHTML = html;
+        
+        // Update file count
+        this.updateFileCount(files.length);
+    }
+
+    /**
      * Event dispatchers
      */
     dispatchShowAddFilesModal() {

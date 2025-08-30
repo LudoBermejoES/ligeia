@@ -1,5 +1,6 @@
 import { FolderTreeManager } from './virtual-folders/FolderTreeManager.js';
 import { FolderContentManager } from './virtual-folders/FolderContentManager.js';
+import { FolderSearchManager } from './virtual-folders/FolderSearchManager.js';
 
 /**
  * VirtualFoldersPanelManager - Manages the virtual folders main panel
@@ -19,6 +20,7 @@ export class VirtualFoldersPanelManager {
         // Component managers (will be initialized after panel)
         this.folderTreeManager = null;
         this.folderContentManager = null;
+        this.folderSearchManager = null;
         
         this.initializePanel();
         this.initializeComponents();
@@ -53,15 +55,6 @@ export class VirtualFoldersPanelManager {
             newFolderBtn: this.panel.querySelector('.vf-new-folder-btn'),
             addFilesBtn: this.panel.querySelector('.vf-add-files-btn')
         };
-        
-        // Search state
-        this.searchState = {
-            query: '',
-            scope: ['folders', 'files'],
-            fileType: '',
-            isAdvancedVisible: false,
-            results: null
-        };
     }
 
     /**
@@ -78,6 +71,9 @@ export class VirtualFoldersPanelManager {
         
         // Initialize FolderContentManager 
         this.folderContentManager = new FolderContentManager(this.service, this.elements);
+        
+        // Initialize FolderSearchManager
+        this.folderSearchManager = new FolderSearchManager(this.service, this.elements);
         
         console.log('✅ VirtualFolders: Component managers initialized');
     }
@@ -246,29 +242,6 @@ export class VirtualFoldersPanelManager {
     setupEventListeners() {
         if (!this.elements) return;
 
-        // Search functionality
-        this.elements.searchInput?.addEventListener('input', (e) => {
-            this.handleSearch(e.target.value);
-        });
-        
-        // Advanced search toggle
-        this.elements.searchToggle?.addEventListener('click', () => {
-            this.toggleAdvancedSearch();
-        });
-        
-        // Search clear
-        this.elements.searchClear?.addEventListener('click', () => {
-            this.clearSearch();
-        });
-        
-        // Search filter changes
-        this.elements.searchFilters?.addEventListener('change', () => {
-            this.updateSearchFilters();
-            if (this.searchState.query) {
-                this.performSearch();
-            }
-        });
-
         // New folder button
         this.elements.newFolderBtn?.addEventListener('click', () => {
             this.showCreateFolderModal();
@@ -296,6 +269,19 @@ export class VirtualFoldersPanelManager {
         // Listen for folder selection events from FolderTreeManager
         this.elements.treeContent?.addEventListener('folderSelected', (e) => {
             this.selectFolder(e.detail.folderId);
+        });
+
+        // Listen for search events from FolderSearchManager
+        this.elements.searchInput?.addEventListener('searchCleared', () => {
+            this.handleSearchCleared();
+        });
+
+        this.elements.treeContent?.addEventListener('fileSearchResults', (e) => {
+            this.handleFileSearchResults(e.detail.files);
+        });
+
+        this.elements.treeContent?.addEventListener('fileSelected', (e) => {
+            this.handleFileSelected(e.detail.fileId, e.detail.folderId);
         });
 
         // File and folder selection and action handling in content area (delegated)
@@ -1741,5 +1727,54 @@ export class VirtualFoldersPanelManager {
         
         // Handle cursor
         resizeHandle.style.cursor = 'col-resize';
+    }
+
+    /**
+     * Handle search cleared event - restore normal folder tree view
+     */
+    async handleSearchCleared() {
+        if (this.folderTreeManager) {
+            await this.folderTreeManager.loadFolderTree();
+        }
+        if (this.currentFolderId) {
+            await this.loadFolderContents(this.currentFolderId);
+        }
+    }
+
+    /**
+     * Handle file search results event 
+     */
+    handleFileSearchResults(files) {
+        // Show search results in content area
+        if (this.folderContentManager) {
+            this.folderContentManager.showSearchResults(files);
+        }
+    }
+
+    /**
+     * Handle file selected from search results
+     */
+    async handleFileSelected(fileId, folderId) {
+        // Navigate to the folder containing the selected file
+        await this.selectFolder(folderId);
+        
+        // Highlight the file after a brief delay
+        setTimeout(() => {
+            this.highlightFileInContent(fileId);
+        }, 300);
+    }
+
+    /**
+     * Highlight a specific file in the content area
+     */
+    highlightFileInContent(fileId) {
+        const fileElement = this.elements.filesArea.querySelector(`[data-file-id="${fileId}"]`);
+        if (fileElement) {
+            fileElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            fileElement.classList.add('highlighted');
+            setTimeout(() => {
+                fileElement.classList.remove('highlighted');
+            }, 2000);
+        }
     }
 }
