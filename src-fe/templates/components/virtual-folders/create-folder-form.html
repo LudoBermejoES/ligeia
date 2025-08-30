@@ -1,0 +1,55 @@
+<form id="create-folder-form" class="space-y-6">
+    <div class="form-group">
+        <label for="folder-name" class="block text-sm font-medium text-text mb-2" style="display: block; font-size: 0.875rem; font-weight: 500; color: #fff; margin-bottom: 0.5rem;">Folder Name *</label>
+        <input type="text" 
+               id="folder-name" 
+               name="name" 
+               required 
+               class="w-full px-3 py-2 bg-bg border border-border rounded text-text placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" 
+               style="width: 100%; padding: 0.5rem 0.75rem; background: #333; border: 1px solid #555; border-radius: 0.25rem; color: #fff; font-size: 0.875rem;"
+               placeholder="Enter folder name" 
+               maxlength="255" />
+        <p class="text-xs text-muted mt-1" style="font-size: 0.75rem; color: #888; margin-top: 0.25rem;">Choose a descriptive name for your folder</p>
+    </div>
+    
+    <div class="form-group">
+        <label for="folder-description" class="block text-sm font-medium text-text mb-2" style="display: block; font-size: 0.875rem; font-weight: 500; color: #fff; margin-bottom: 0.5rem;">Description</label>
+        <textarea id="folder-description" 
+                  name="description" 
+                  class="w-full px-3 py-2 bg-bg border border-border rounded text-text placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 resize-none" 
+                  style="width: 100%; padding: 0.5rem 0.75rem; background: #333; border: 1px solid #555; border-radius: 0.25rem; color: #fff; font-size: 0.875rem; resize: none;"
+                  placeholder="Optional description for this folder" 
+                  maxlength="500" 
+                  rows="3"></textarea>
+        <p class="text-xs text-muted mt-1" style="font-size: 0.75rem; color: #888; margin-top: 0.25rem;">Describe the purpose or contents of this folder</p>
+    </div>
+    
+    <div class="form-group">
+        <label for="folder-icon" class="block text-sm font-medium text-text mb-2" style="display: block; font-size: 0.875rem; font-weight: 500; color: #fff; margin-bottom: 0.5rem;">Icon</label>
+        <select id="folder-icon" 
+                name="icon"
+                class="w-full px-3 py-2 bg-bg border border-border rounded text-text focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20"
+                style="width: 100%; padding: 0.5rem 0.75rem; background: #333; border: 1px solid #555; border-radius: 0.25rem; color: #fff; font-size: 0.875rem;">
+            <option value="📁">📁 Default Folder</option>
+            <option value="🎵">🎵 Music</option>
+            <option value="🎭">🎭 Theater</option>
+            <option value="🏰">🏰 Fantasy</option>
+            <option value="🌟">🌟 Favorites</option>
+            <option value="⚔️">⚔️ Combat</option>
+            <option value="🌲">🌲 Nature</option>
+            <option value="🎨">🎨 Creative</option>
+            <option value="📚">📚 Library</option>
+            <option value="🔧">🔧 Tools</option>
+        </select>
+        <p class="text-xs text-muted mt-1" style="font-size: 0.75rem; color: #888; margin-top: 0.25rem;">Choose an icon to represent this folder</p>
+    </div>
+    
+    <div class="form-group">
+        <label class="block text-sm font-medium text-text mb-2" style="display: block; font-size: 0.875rem; font-weight: 500; color: #fff; margin-bottom: 0.5rem;">Parent Folder</label>
+        <div class="flex items-center gap-2 p-3 bg-hover border border-border rounded" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: #333; border: 1px solid #555; border-radius: 0.25rem;">
+            <span class="text-lg">📁</span>
+            <span class="text-text font-medium" style="color: #fff; font-weight: 500;">{{parentName}}</span>
+        </div>
+        <p class="text-xs text-muted mt-1" style="font-size: 0.75rem; color: #888; margin-top: 0.25rem;">This folder will be created inside "{{parentName}}"</p>
+    </div>
+</form>

@@ -2,6 +2,7 @@
  * FolderCreationModal - Handles folder creation modal functionality
  */
 import { BaseModal } from './BaseModal.js';
+import { TemplateLoader } from '../core/TemplateLoader.js';
 
 export class FolderCreationModal extends BaseModal {
     constructor(virtualFolderService, uiController) {
@@ -24,60 +25,11 @@ export class FolderCreationModal extends BaseModal {
             }
         }
 
-        const modalContent = `
-            <form id="create-folder-form" class="space-y-6">
-                <div class="form-group">
-                    <label for="folder-name" class="block text-sm font-medium text-text mb-2">Folder Name *</label>
-                    <input type="text" 
-                           id="folder-name" 
-                           name="name" 
-                           required 
-                           class="w-full px-3 py-2 bg-bg border border-border rounded text-text placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" 
-                           placeholder="Enter folder name" 
-                           maxlength="255" />
-                    <p class="text-xs text-muted mt-1">Choose a descriptive name for your folder</p>
-                </div>
-                
-                <div class="form-group">
-                    <label for="folder-description" class="block text-sm font-medium text-text mb-2">Description</label>
-                    <textarea id="folder-description" 
-                              name="description" 
-                              class="w-full px-3 py-2 bg-bg border border-border rounded text-text placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 resize-none" 
-                              placeholder="Optional description for this folder" 
-                              maxlength="500" 
-                              rows="3"></textarea>
-                    <p class="text-xs text-muted mt-1">Describe the purpose or contents of this folder</p>
-                </div>
-                
-                <div class="form-group">
-                    <label for="folder-icon" class="block text-sm font-medium text-text mb-2">Icon</label>
-                    <select id="folder-icon" 
-                            name="icon"
-                            class="w-full px-3 py-2 bg-bg border border-border rounded text-text focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20">
-                        <option value="📁">📁 Default Folder</option>
-                        <option value="🎵">🎵 Music</option>
-                        <option value="🎭">🎭 Theater</option>
-                        <option value="🏰">🏰 Fantasy</option>
-                        <option value="🌟">🌟 Favorites</option>
-                        <option value="⚔️">⚔️ Combat</option>
-                        <option value="🌲">🌲 Nature</option>
-                        <option value="🎨">🎨 Creative</option>
-                        <option value="📚">📚 Library</option>
-                        <option value="🔧">🔧 Tools</option>
-                    </select>
-                    <p class="text-xs text-muted mt-1">Choose an icon to represent this folder</p>
-                </div>
-                
-                <div class="form-group">
-                    <label class="block text-sm font-medium text-text mb-2">Parent Folder</label>
-                    <div class="flex items-center gap-2 p-3 bg-hover border border-border rounded">
-                        <span class="text-lg">📁</span>
-                        <span class="text-text font-medium">${this.escapeHtml(parentName)}</span>
-                    </div>
-                    <p class="text-xs text-muted mt-1">This folder will be created inside "${this.escapeHtml(parentName)}"</p>
-                </div>
-            </form>
-        `;
+        const templateData = {
+            parentName: this.escapeHtml(parentName)
+        };
+        
+        const modalContent = await TemplateLoader.loadAndRender('components/virtual-folders/create-folder-form.html', templateData);
 
         const modal = this.createModal('create-folder-modal', 'Create New Folder', modalContent, {
             confirmText: 'Create Folder'
@@ -120,12 +72,12 @@ export class FolderCreationModal extends BaseModal {
 
             // Validate required fields
             if (!folderData.name) {
-                this.showFormError(form, 'Folder name is required');
+                await this.showFormError(form, 'Folder name is required');
                 return;
             }
 
             if (folderData.name.length > 255) {
-                this.showFormError(form, 'Folder name is too long (max 255 characters)');
+                await this.showFormError(form, 'Folder name is too long (max 255 characters)');
                 return;
             }
 
@@ -146,7 +98,7 @@ export class FolderCreationModal extends BaseModal {
                 
             } catch (error) {
                 console.error('Failed to create folder:', error);
-                this.showFormError(form, error.message || 'Failed to create folder');
+                await this.showFormError(form, error.message || 'Failed to create folder');
                 this.setFormSubmitting(form, false);
             }
         });
@@ -166,24 +118,25 @@ export class FolderCreationModal extends BaseModal {
      * @param {HTMLElement} form - Form element
      * @param {string} message - Error message
      */
-    showFormError(form, message) {
+    async showFormError(form, message) {
         // Remove existing error
         const existingError = form.querySelector('.form-error');
         if (existingError) {
             existingError.remove();
         }
 
-        // Add new error
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'form-error bg-red-500/20 border border-red-500/30 text-red-400 p-3 rounded mb-4';
-        errorDiv.innerHTML = `
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <span>${this.escapeHtml(message)}</span>
-            </div>
-        `;
+        // Load error template
+        const templateData = {
+            errorMessage: this.escapeHtml(message)
+        };
+        
+        const errorHTML = await TemplateLoader.loadAndRender('components/form-error.html', templateData);
+        
+        // Create temporary container to parse the HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = errorHTML;
+        const errorDiv = tempDiv.firstElementChild;
+        
         form.insertBefore(errorDiv, form.firstChild);
 
         // Auto-remove error after a few seconds

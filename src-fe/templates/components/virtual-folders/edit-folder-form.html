@@ -1,0 +1,56 @@
+<form id="edit-folder-form" class="space-y-6">
+    <div class="form-group">
+        <label for="edit-folder-name" class="block text-sm font-medium text-text mb-2" style="display: block; font-size: 0.875rem; font-weight: 500; color: #fff; margin-bottom: 0.5rem;">Folder Name *</label>
+        <input type="text" 
+               id="edit-folder-name" 
+               name="name" 
+               required 
+               value="{{folderName}}" 
+               class="w-full px-3 py-2 bg-bg border border-border rounded text-text placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" 
+               style="width: 100%; padding: 0.5rem 0.75rem; background: #333; border: 1px solid #555; border-radius: 0.25rem; color: #fff; font-size: 0.875rem;"
+               placeholder="Enter folder name" 
+               maxlength="255" />
+        <p class="text-xs text-muted mt-1" style="font-size: 0.75rem; color: #888; margin-top: 0.25rem;">Choose a descriptive name for your folder</p>
+    </div>
+    
+    <div class="form-group">
+        <label for="edit-folder-description" class="block text-sm font-medium text-text mb-2" style="display: block; font-size: 0.875rem; font-weight: 500; color: #fff; margin-bottom: 0.5rem;">Description</label>
+        <textarea id="edit-folder-description" 
+                  name="description" 
+                  class="w-full px-3 py-2 bg-bg border border-border rounded text-text placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 resize-none" 
+                  style="width: 100%; padding: 0.5rem 0.75rem; background: #333; border: 1px solid #555; border-radius: 0.25rem; color: #fff; font-size: 0.875rem; resize: none;"
+                  placeholder="Optional description for this folder" 
+                  maxlength="500" 
+                  rows="3">{{folderDescription}}</textarea>
+        <p class="text-xs text-muted mt-1" style="font-size: 0.75rem; color: #888; margin-top: 0.25rem;">Describe the purpose or contents of this folder</p>
+    </div>
+    
+    <div class="form-group">
+        <label for="edit-folder-icon" class="block text-sm font-medium text-text mb-2" style="display: block; font-size: 0.875rem; font-weight: 500; color: #fff; margin-bottom: 0.5rem;">Icon</label>
+        <select id="edit-folder-icon" 
+                name="icon"
+                class="w-full px-3 py-2 bg-bg border border-border rounded text-text focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20"
+                style="width: 100%; padding: 0.5rem 0.75rem; background: #333; border: 1px solid #555; border-radius: 0.25rem; color: #fff; font-size: 0.875rem;">
+            {{iconOptions}}
+        </select>
+        <p class="text-xs text-muted mt-1" style="font-size: 0.75rem; color: #888; margin-top: 0.25rem;">Choose an icon to represent this folder</p>
+    </div>
+    
+    <div class="form-group">
+        <label class="block text-sm font-medium text-text mb-2" style="display: block; font-size: 0.875rem; font-weight: 500; color: #fff; margin-bottom: 0.5rem;">Folder Statistics</label>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-3 bg-hover border border-border rounded" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 0.75rem; background: #333; border: 1px solid #555; border-radius: 0.25rem;">
+            <div class="text-center">
+                <div class="text-lg font-bold text-accent" style="font-size: 1.125rem; font-weight: 700; color: #007acc;">{{fileCount}}</div>
+                <div class="text-xs text-muted" style="font-size: 0.75rem; color: #888;">Files</div>
+            </div>
+            <div class="text-center">
+                <div class="text-sm text-text" style="font-size: 0.875rem; color: #fff;">{{createdDate}}</div>
+                <div class="text-xs text-muted" style="font-size: 0.75rem; color: #888;">Created</div>
+            </div>
+            <div class="text-center">
+                <div class="text-sm text-text" style="font-size: 0.875rem; color: #fff;">{{updatedDate}}</div>
+                <div class="text-xs text-muted" style="font-size: 0.75rem; color: #888;">Modified</div>
+            </div>
+        </div>
+    </div>
+</form>

@@ -89,18 +89,26 @@ export class FolderTreeManager {
      * Handle tree node click events
      */
     handleTreeNodeClick(e) {
+        console.log('🌳 FolderTreeManager click:', e.target);
         const nodeContent = e.target.closest('.tree-node-content');
-        if (!nodeContent) return;
+        if (!nodeContent) {
+            console.log('❌ No tree-node-content found');
+            return;
+        }
 
         const node = nodeContent.closest('.tree-node');
         const folderId = parseInt(node.dataset.folderId);
         const toggle = e.target.closest('.tree-expand-btn');
 
+        console.log('📁 Node clicked - Folder ID:', folderId, 'Is toggle?', !!toggle);
+
         if (toggle) {
             // Toggle expansion
+            console.log('🔄 Toggling expansion for folder:', folderId);
             this.toggleFolderExpansion(folderId);
         } else {
             // Select folder
+            console.log('✅ Selecting folder:', folderId);
             this.selectFolder(folderId);
         }
     }

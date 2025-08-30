@@ -303,10 +303,40 @@ export class VirtualFoldersPanelManager {
 
         // File and folder selection and action handling in content area (delegated)
         this.elements.filesArea?.addEventListener('click', (e) => {
+            console.log('🖱️ Content area click:', e.target);
+            
             const fileCard = e.target.closest('.vf-file-card');
             const folderCard = e.target.closest('.vf-folder-card');
             const fileListRow = e.target.closest('.vf-file-list-row');
             const folderListRow = e.target.closest('.vf-folder-list-row');
+            
+            // Check for folder items (new templates)
+            const folderItem = e.target.closest('.folder-item');
+            const folderListRowNew = e.target.closest('.folder-list-row');
+            const actionBtn = e.target.closest('.vf-folder-action-btn');
+            
+            console.log('🔍 Found elements:', {
+                fileCard: !!fileCard,
+                folderCard: !!folderCard, 
+                folderItem: !!folderItem,
+                folderListRowNew: !!folderListRowNew,
+                actionBtn: !!actionBtn
+            });
+            
+            if (actionBtn) {
+                console.log('🎯 Action button clicked:', actionBtn.dataset.action);
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const folder = folderItem || folderListRowNew || folderCard || folderListRow;
+                if (folder) {
+                    console.log('📁 Handling folder action for folder:', folder.dataset.folderId);
+                    this.handleFolderAction(actionBtn, folder);
+                } else {
+                    console.error('❌ No folder element found for action button');
+                }
+                return;
+            }
             
             if (fileCard) {
                 // Grid view file card
@@ -317,13 +347,21 @@ export class VirtualFoldersPanelManager {
                     this.handleFileClick(e);
                 }
             } else if (folderCard) {
-                // Grid view folder card
+                // Grid view folder card (old)
                 const actionBtn = e.target.closest('.vf-folder-action-btn');
                 if (actionBtn) {
                     this.handleFolderAction(actionBtn, folderCard);
                 } else {
                     this.handleFolderClick(folderCard);
                 }
+            } else if (folderItem) {
+                // New grid view folder item
+                console.log('📂 Folder item clicked (no action button)');
+                this.handleFolderClick(folderItem);
+            } else if (folderListRowNew) {
+                // New list view folder row
+                console.log('📋 Folder list row clicked (no action button)');
+                this.handleFolderClick(folderListRowNew);
             } else if (fileListRow) {
                 // List view file row
                 const actionBtn = e.target.closest('.vf-file-action-btn');
@@ -333,7 +371,7 @@ export class VirtualFoldersPanelManager {
                     this.handleFileClick(e);
                 }
             } else if (folderListRow) {
-                // List view folder row
+                // List view folder row (old)
                 const actionBtn = e.target.closest('.vf-folder-action-btn');
                 if (actionBtn) {
                     this.handleFolderAction(actionBtn, folderListRow);
@@ -502,6 +540,7 @@ export class VirtualFoldersPanelManager {
      * Handle tree node clicks
      */
     handleTreeNodeClick(e) {
+        console.log('🔍 Tree node click detected:', e.target);
         if (this.folderTreeManager) {
             this.folderTreeManager.handleTreeNodeClick(e);
         }
@@ -1390,18 +1429,23 @@ export class VirtualFoldersPanelManager {
         const action = actionBtn.dataset.action;
         const folderId = parseInt(folderCard.dataset.folderId);
         
+        console.log('🎬 handleFolderAction called:', { action, folderId, actionBtn, folderCard });
+        
         switch (action) {
             case 'open':
+                console.log('📂 Opening folder:', folderId);
                 this.selectFolder(folderId);
                 break;
             case 'edit':
+                console.log('✏️ Editing folder:', folderId);
                 this.handleEditFolder(folderId);
                 break;
             case 'delete':
+                console.log('🗑️ Deleting folder:', folderId);
                 this.handleDeleteFolder(folderId);
                 break;
             default:
-                console.warn('Unknown folder action:', action);
+                console.warn('❓ Unknown folder action:', action);
         }
     }
 
@@ -1835,19 +1879,23 @@ export class VirtualFoldersPanelManager {
      */
     async handleFolderCreated(detail) {
         const { folder, parentId } = detail;
+        console.log('📁 Folder created:', folder, 'Parent:', parentId);
         
         // Refresh the folder tree to show the new folder
         if (this.folderTreeManager) {
+            console.log('🔄 Refreshing folder tree...');
             await this.folderTreeManager.loadFolderTree();
         }
         
         // If the new folder was created in the current folder, refresh content
         if (parentId === this.currentFolderId) {
+            console.log('📂 Refreshing current folder content...');
             await this.loadFolderContents(this.currentFolderId);
         }
         
         // Expand to show the new folder
         if (this.folderTreeManager) {
+            console.log('🎯 Expanding to show new folder:', folder.id);
             await this.folderTreeManager.expandToFolder(folder.id);
         }
     }

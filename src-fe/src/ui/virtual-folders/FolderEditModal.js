@@ -2,6 +2,7 @@
  * FolderEditModal - Handles folder editing modal functionality
  */
 import { BaseModal } from './BaseModal.js';
+import { TemplateLoader } from '../core/TemplateLoader.js';
 
 export class FolderEditModal extends BaseModal {
     constructor(virtualFolderService, uiController) {
@@ -17,70 +18,16 @@ export class FolderEditModal extends BaseModal {
         try {
             const folder = await this.service.getFolderById(folderId);
             
-            const modalContent = `
-                <form id="edit-folder-form" class="space-y-6">
-                    <div class="form-group">
-                        <label for="edit-folder-name" class="block text-sm font-medium text-text mb-2">Folder Name *</label>
-                        <input type="text" 
-                               id="edit-folder-name" 
-                               name="name" 
-                               required 
-                               value="${this.escapeHtml(folder.name)}" 
-                               class="w-full px-3 py-2 bg-bg border border-border rounded text-text placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20" 
-                               placeholder="Enter folder name" 
-                               maxlength="255" />
-                        <p class="text-xs text-muted mt-1">Choose a descriptive name for your folder</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit-folder-description" class="block text-sm font-medium text-text mb-2">Description</label>
-                        <textarea id="edit-folder-description" 
-                                  name="description" 
-                                  class="w-full px-3 py-2 bg-bg border border-border rounded text-text placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 resize-none" 
-                                  placeholder="Optional description for this folder" 
-                                  maxlength="500" 
-                                  rows="3">${this.escapeHtml(folder.description || '')}</textarea>
-                        <p class="text-xs text-muted mt-1">Describe the purpose or contents of this folder</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit-folder-icon" class="block text-sm font-medium text-text mb-2">Icon</label>
-                        <select id="edit-folder-icon" 
-                                name="icon"
-                                class="w-full px-3 py-2 bg-bg border border-border rounded text-text focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20">
-                            <option value="📁" ${folder.icon === '📁' ? 'selected' : ''}>📁 Default Folder</option>
-                            <option value="🎵" ${folder.icon === '🎵' ? 'selected' : ''}>🎵 Music</option>
-                            <option value="🎭" ${folder.icon === '🎭' ? 'selected' : ''}>🎭 Theater</option>
-                            <option value="🏰" ${folder.icon === '🏰' ? 'selected' : ''}>🏰 Fantasy</option>
-                            <option value="🌟" ${folder.icon === '🌟' ? 'selected' : ''}>🌟 Favorites</option>
-                            <option value="⚔️" ${folder.icon === '⚔️' ? 'selected' : ''}>⚔️ Combat</option>
-                            <option value="🌲" ${folder.icon === '🌲' ? 'selected' : ''}>🌲 Nature</option>
-                            <option value="🎨" ${folder.icon === '🎨' ? 'selected' : ''}>🎨 Creative</option>
-                            <option value="📚" ${folder.icon === '📚' ? 'selected' : ''}>📚 Library</option>
-                            <option value="🔧" ${folder.icon === '🔧' ? 'selected' : ''}>🔧 Tools</option>
-                        </select>
-                        <p class="text-xs text-muted mt-1">Choose an icon to represent this folder</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="block text-sm font-medium text-text mb-2">Folder Statistics</label>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-3 bg-hover border border-border rounded">
-                            <div class="text-center">
-                                <div class="text-lg font-bold text-accent">${folder.file_count || 0}</div>
-                                <div class="text-xs text-muted">Files</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-sm text-text">${this.formatDate(folder.created_at)}</div>
-                                <div class="text-xs text-muted">Created</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-sm text-text">${this.formatDate(folder.updated_at)}</div>
-                                <div class="text-xs text-muted">Modified</div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            `;
+            const templateData = {
+                folderName: this.escapeHtml(folder.name),
+                folderDescription: this.escapeHtml(folder.description || ''),
+                iconOptions: this.generateIconOptions(folder.icon),
+                fileCount: folder.file_count || 0,
+                createdDate: this.formatDate(folder.created_at),
+                updatedDate: this.formatDate(folder.updated_at)
+            };
+            
+            const modalContent = await TemplateLoader.loadAndRender('components/virtual-folders/edit-folder-form.html', templateData);
 
             const modal = this.createModal('edit-folder-modal', 'Edit Folder', modalContent, {
                 confirmText: 'Save Changes'
@@ -129,14 +76,31 @@ export class FolderEditModal extends BaseModal {
                 icon: formData.get('icon') || '📁'
             };
 
+            console.log('📝 Form data collected:', {
+                rawName: formData.get('name'),
+                rawDescription: formData.get('description'),
+                rawIcon: formData.get('icon'),
+                processedData: updatedData
+            });
+            
+            console.log('📋 Form elements:', {
+                nameInput: form.querySelector('[name="name"]'),
+                nameValue: form.querySelector('[name="name"]')?.value,
+                descriptionInput: form.querySelector('[name="description"]'),
+                descriptionValue: form.querySelector('[name="description"]')?.value,
+                iconInput: form.querySelector('[name="icon"]'),
+                iconValue: form.querySelector('[name="icon"]')?.value
+            });
+
             // Validate required fields
             if (!updatedData.name) {
-                this.showFormError(form, 'Folder name is required');
+                console.error('❌ Name field is empty or invalid');
+                await this.showFormError(form, 'Folder name is required');
                 return;
             }
 
             if (updatedData.name.length > 255) {
-                this.showFormError(form, 'Folder name is too long (max 255 characters)');
+                await this.showFormError(form, 'Folder name is too long (max 255 characters)');
                 return;
             }
 
@@ -154,7 +118,16 @@ export class FolderEditModal extends BaseModal {
             try {
                 this.setFormSubmitting(form, true);
                 
-                const updatedFolder = await this.service.updateFolder(folder.id, updatedData);
+                // Merge the updated data with the original folder
+                const folderToUpdate = {
+                    ...folder,
+                    ...updatedData
+                };
+                
+                console.log('🔄 Updating folder with data:', folderToUpdate);
+                
+                await this.service.updateFolder(folderToUpdate);
+                const updatedFolder = folderToUpdate;
                 
                 this.hideModal();
                 
@@ -168,7 +141,7 @@ export class FolderEditModal extends BaseModal {
                 
             } catch (error) {
                 console.error('Failed to update folder:', error);
-                this.showFormError(form, error.message || 'Failed to update folder');
+                await this.showFormError(form, error.message || 'Failed to update folder');
                 this.setFormSubmitting(form, false);
             }
         };
@@ -197,7 +170,7 @@ export class FolderEditModal extends BaseModal {
         const nameInput = form.querySelector('#edit-folder-name');
         
         if (nameInput) {
-            nameInput.addEventListener('input', () => {
+            nameInput.addEventListener('input', async () => {
                 const value = nameInput.value.trim();
                 
                 // Clear existing errors
@@ -213,7 +186,7 @@ export class FolderEditModal extends BaseModal {
                 } else if (value.length > 255) {
                     nameInput.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20');
                     nameInput.classList.remove('border-border', 'focus:border-accent', 'focus:ring-accent/20');
-                    this.showFormError(form, 'Folder name is too long (max 255 characters)');
+                    await this.showFormError(form, 'Folder name is too long (max 255 characters)');
                 } else {
                     nameInput.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20');
                     nameInput.classList.add('border-border', 'focus:border-accent', 'focus:ring-accent/20');
@@ -227,24 +200,25 @@ export class FolderEditModal extends BaseModal {
      * @param {HTMLElement} form - Form element
      * @param {string} message - Error message
      */
-    showFormError(form, message) {
+    async showFormError(form, message) {
         // Remove existing error
         const existingError = form.querySelector('.form-error');
         if (existingError) {
             existingError.remove();
         }
 
-        // Add new error
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'form-error bg-red-500/20 border border-red-500/30 text-red-400 p-3 rounded mb-4';
-        errorDiv.innerHTML = `
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <span>${this.escapeHtml(message)}</span>
-            </div>
-        `;
+        // Load error template
+        const templateData = {
+            errorMessage: this.escapeHtml(message)
+        };
+        
+        const errorHTML = await TemplateLoader.loadAndRender('components/form-error.html', templateData);
+        
+        // Create temporary container to parse the HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = errorHTML;
+        const errorDiv = tempDiv.firstElementChild;
+        
         form.insertBefore(errorDiv, form.firstChild);
 
         // Auto-remove error after a few seconds
@@ -291,5 +265,27 @@ export class FolderEditModal extends BaseModal {
                 input.classList.remove('opacity-50', 'cursor-not-allowed');
             });
         }
+    }
+
+    /**
+     * Generate icon options HTML with the current icon selected
+     */
+    generateIconOptions(currentIcon) {
+        const icons = [
+            { value: '📁', label: '📁 Default Folder' },
+            { value: '🎵', label: '🎵 Music' },
+            { value: '🎭', label: '🎭 Theater' },
+            { value: '🏰', label: '🏰 Fantasy' },
+            { value: '🌟', label: '🌟 Favorites' },
+            { value: '⚔️', label: '⚔️ Combat' },
+            { value: '🌲', label: '🌲 Nature' },
+            { value: '🎨', label: '🎨 Creative' },
+            { value: '📚', label: '📚 Library' },
+            { value: '🔧', label: '🔧 Tools' }
+        ];
+
+        return icons.map(icon => 
+            `<option value="${icon.value}" ${icon.value === currentIcon ? 'selected' : ''}>${this.escapeHtml(icon.label)}</option>`
+        ).join('');
     }
 }

@@ -47,6 +47,7 @@ export class BaseModal {
 
         const modal = document.createElement('div');
         modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem; pointer-events: auto;';
         modal.id = modalId;
         modal.setAttribute('role', 'dialog');
         modal.setAttribute('aria-modal', 'true');
@@ -58,21 +59,25 @@ export class BaseModal {
         };
 
         modal.innerHTML = `
-            <div class="bg-card border border-border rounded-lg shadow-xl ${sizeClasses[size]} w-full max-h-[90vh] overflow-hidden">
-                <div class="flex items-center justify-between p-4 border-b border-border">
-                    <h3 class="text-lg font-semibold text-text">${this.escapeHtml(title)}</h3>
-                    <button type="button" class="text-muted hover:text-text p-1 rounded hover:bg-hover transition-colors" data-dismiss="modal" aria-label="Close">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-card border border-border rounded-lg shadow-xl ${sizeClasses[size]} w-full max-h-[90vh] overflow-hidden" 
+                 style="background: #2a2a2a; border: 1px solid #444; border-radius: 8px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); max-width: ${size === 'small' ? '28rem' : size === 'large' ? '42rem' : '32rem'}; width: 100%; max-height: 90vh; overflow: hidden; pointer-events: auto;">
+                <div class="flex items-center justify-between p-4 border-b border-border" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #444;">
+                    <h3 class="text-lg font-semibold text-text" style="color: #fff; font-size: 1.125rem; font-weight: 600;">${this.escapeHtml(title)}</h3>
+                    <button type="button" class="text-muted hover:text-text p-1 rounded hover:bg-hover transition-colors" data-dismiss="modal" aria-label="Close"
+                            style="color: #888; padding: 0.25rem; border-radius: 0.25rem; transition: all 0.2s; background: none; border: none; cursor: pointer;">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
-                <div class="p-4 overflow-y-auto max-h-[60vh]">
+                <div class="p-4 overflow-y-auto max-h-[60vh]" style="padding: 1rem; overflow-y: auto; max-height: 60vh;">
                     ${content}
                 </div>
-                <div class="flex items-center justify-end gap-2 p-4 border-t border-border">
-                    ${showCancel ? `<button type="button" class="px-4 py-2 rounded text-sm font-medium transition-colors ${cancelClass}" data-dismiss="modal">${cancelText}</button>` : ''}
-                    ${showConfirm ? `<button type="button" class="px-4 py-2 rounded text-sm font-medium transition-colors ${confirmClass}" data-confirm="true">${confirmText}</button>` : ''}
+                <div class="flex items-center justify-end gap-2 p-4 border-t border-border" style="display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; padding: 1rem; border-top: 1px solid #444;">
+                    ${showCancel ? `<button type="button" class="px-4 py-2 rounded text-sm font-medium transition-colors ${cancelClass}" data-dismiss="modal" 
+                                           style="padding: 0.5rem 1rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; background: #333; border: 1px solid #444; color: #fff; cursor: pointer;">${cancelText}</button>` : ''}
+                    ${showConfirm ? `<button type="button" class="px-4 py-2 rounded text-sm font-medium transition-colors ${confirmClass}" data-confirm="true"
+                                            style="padding: 0.5rem 1rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; background: #007acc; border: none; color: #fff; cursor: pointer;">${confirmText}</button>` : ''}
                 </div>
             </div>
         `;
@@ -111,10 +116,21 @@ export class BaseModal {
 
         // Set up backdrop click handler
         modal.addEventListener('click', (e) => {
+            console.log('🖱️ Modal click:', e.target, 'Is backdrop?', e.target === modal);
             if (e.target === modal) {
+                console.log('🎭 Closing modal due to backdrop click');
                 this.hideModal();
             }
         });
+
+        // Prevent clicks inside modal content from closing modal
+        const modalContent = modal.querySelector('.bg-card');
+        if (modalContent) {
+            modalContent.addEventListener('click', (e) => {
+                e.stopPropagation();
+                console.log('📄 Click inside modal content - preventing close');
+            });
+        }
 
         // Set up close button handlers
         const closeButtons = modal.querySelectorAll('[data-dismiss="modal"]');
