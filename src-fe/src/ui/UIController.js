@@ -2,6 +2,7 @@ import { renderSoundPad } from './PadRenderer.js';
 import { padStateManager } from './PadStateManager.js';
 import { PadEventHandler } from './PadEventHandler.js';
 import { InfiniteScrollController } from './InfiniteScrollController.js';
+import { TemplateLoader } from './core/TemplateLoader.js';
 
 /**
  * UIController - Handles all UI updates and DOM manipulation
@@ -39,6 +40,7 @@ export class UIController {
         });
         document.dispatchEvent(event);
     }
+
 
     initializeEventListeners(eventHandlers) {
         // Initialize library actions dropdown
