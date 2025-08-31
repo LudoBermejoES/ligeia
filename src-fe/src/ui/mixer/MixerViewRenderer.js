@@ -4,12 +4,18 @@ import logger from '../../utils/logger.js';
 
 /**
  * MixerViewRenderer - Handles rendering of different mixer view modes
+ * Clean implementation with proper separation of concerns
  */
 export class MixerViewRenderer {
     constructor(libraryManager, padEventHandler) {
         this.libraryManager = libraryManager;
         this.padEventHandler = padEventHandler;
         this.viewMode = 'pad'; // 'pad', 'list', or 'columns'
+        this.allFilteredFiles = [];
+        
+        // Column view properties
+        this.columnObserver = null;
+        this.loadedColumns = new Set();
     }
 
     /**
@@ -20,12 +26,22 @@ export class MixerViewRenderer {
         
         this.viewMode = mode;
         
-        // Apply view class to container
+        // Apply view classes
         const container = document.getElementById('allSoundsPadsGrid');
         if (container) {
             container.classList.toggle('mixer-list-view', mode === 'list');
             container.classList.toggle('mixer-pad-view', mode === 'pad');
             container.classList.toggle('mixer-columns-view', mode === 'columns');
+        }
+        
+        const parentContainer = document.querySelector('.sound-groups');
+        if (parentContainer) {
+            parentContainer.classList.toggle('mixer-columns-container', mode === 'columns');
+        }
+        
+        // Clean up observers when switching away from columns
+        if (mode !== 'columns') {
+            this.cleanupColumnObservers();
         }
         
         logger.info('mixerViewRenderer', 'View mode changed', { mode });
@@ -35,43 +51,45 @@ export class MixerViewRenderer {
      * Clear all containers
      */
     clearContainers() {
-        const containers = [
-            'allSoundsPadsGrid',
-            'ambientSoundsGrid', 
-            'soundsGrid'
-        ];
-        
+        const containers = ['allSoundsPadsGrid', 'ambientSoundsGrid', 'soundsGrid'];
         containers.forEach(id => {
             const container = document.getElementById(id);
-            if (container) {
-                container.innerHTML = '';
-            }
+            if (container) container.innerHTML = '';
         });
-        
+        this.cleanupColumnObservers();
         logger.debug('mixerViewRenderer', 'Containers cleared');
+    }
+
+    /**
+     * Clean up column observers
+     */
+    cleanupColumnObservers() {
+        if (this.columnObserver) {
+            this.columnObserver.disconnect();
+            this.columnObserver = null;
+        }
+        this.loadedColumns.clear();
+    }
+
+    /**
+     * Set all filtered files (needed for column view)
+     */
+    setAllFilteredFiles(files) {
+        this.allFilteredFiles = files || [];
     }
 
     /**
      * Render files in current view mode
      */
     async renderFiles(files) {
-        console.log('🎨 MixerViewRenderer: renderFiles called', {
-            filesCount: files ? files.length : 0,
-            viewMode: this.viewMode,
-            firstFile: files && files[0] ? { id: files[0].id, title: files[0].title } : 'none'
-        });
-        
         if (!files || files.length === 0) {
-            console.log('📭 MixerViewRenderer: No files to render, showing empty state');
-            this.renderEmptyState();
+            await this.renderEmptyState();
             return;
         }
 
-        console.log('🎭 MixerViewRenderer: Rendering in', this.viewMode, 'mode with', files.length, 'files');
-
         switch (this.viewMode) {
             case 'columns':
-                await this.renderColumnsView(files);
+                await this.renderColumnsView(this.allFilteredFiles.length > 0 ? this.allFilteredFiles : files);
                 break;
             case 'list':
                 await this.renderListView(files);
@@ -82,10 +100,7 @@ export class MixerViewRenderer {
                 break;
         }
         
-        logger.info('mixerViewRenderer', 'Files rendered', {
-            mode: this.viewMode,
-            fileCount: files.length
-        });
+        logger.info('mixerViewRenderer', 'Files rendered', { mode: this.viewMode, fileCount: files.length });
     }
 
     /**
@@ -93,55 +108,23 @@ export class MixerViewRenderer {
      */
     async renderPadView(files) {
         const container = document.getElementById('allSoundsPadsGrid');
-        if (!container) {
-            return;
-        }
+        if (!container) return;
 
         const padElements = await Promise.all(
-            files.map(async (audioFile, index) => {
+            files.map(async (audioFile) => {
                 const pad = this.libraryManager.soundPads?.get(audioFile.file_path);
-                if (!pad) {
-                    return null;
-                }
+                if (!pad) return null;
 
-                const padElement = renderSoundPad(audioFile, pad, {
+                return renderSoundPad(audioFile, pad, {
                     escapeHtml: this.escapeHtml.bind(this),
                     context: 'mixer'
                 });
-
-                // Event listeners are handled by PadEventHandler's global delegation
-
-                return padElement;
             })
         );
 
-        // Filter out null elements and append to container
         const validElements = padElements.filter(el => el !== null);
-        
-        validElements.forEach((element, index) => {
-            if (element instanceof HTMLElement) {
-                container.appendChild(element);
-            } else {
-                // Handle string HTML
-                const wrapper = document.createElement('div');
-                wrapper.innerHTML = element;
-                
-                if (wrapper.firstElementChild) {
-                    container.appendChild(wrapper.firstElementChild);
-                } else if (wrapper.firstChild) {
-                    // Find first actual element child
-                    let elementChild = null;
-                    for (let child of wrapper.childNodes) {
-                        if (child.nodeType === 1) { // Element node
-                            elementChild = child;
-                            break;
-                        }
-                    }
-                    if (elementChild) {
-                        container.appendChild(elementChild);
-                    }
-                }
-            }
+        validElements.forEach(element => {
+            this.appendElementToContainer(container, element);
         });
     }
 
@@ -157,28 +140,13 @@ export class MixerViewRenderer {
                 const pad = this.libraryManager.soundPads?.get(audioFile.file_path);
                 if (!pad) return null;
 
-                const templateData = {
-                    id: audioFile.id,
-                    title: this.escapeHtml(audioFile.title || audioFile.filename || 'Unknown'),
-                    artist: this.escapeHtml(audioFile.artist || 'Unknown Artist'),
-                    genre: this.escapeHtml(audioFile.genre || 'Unknown Genre'),
-                    duration: this.formatDuration(audioFile.duration),
-                    file_path: this.escapeHtml(audioFile.file_path || ''),
-                    is_playing: pad.isPlaying || false,
-                    is_muted: pad.isMuted || false,
-                    is_looped: pad.isLooped || false,
-                    volume: Math.round((pad.volume || 1) * 100)
-                };
-
+                const templateData = this.createListItemData(audioFile, pad);
                 return await TemplateLoader.loadAndRender('components/mixer/list-item.html', templateData);
             })
         );
 
-        // Filter out null items and join
         const validItems = listItems.filter(item => item !== null);
         container.innerHTML = validItems.join('');
-
-        // Event listeners are handled by PadEventHandler's global delegation
     }
 
     /**
@@ -188,13 +156,48 @@ export class MixerViewRenderer {
         const container = document.getElementById('allSoundsPadsGrid');
         if (!container) return;
 
+        // Clean up previous observers
+        this.cleanupColumnObservers();
+
         // Group files by folder
         const groups = this.groupFilesByFolder(files);
-        const columns = await this.renderFolderColumns(groups);
         
-        container.innerHTML = columns;
+        // Render all columns with their files (simplified approach)
+        const columns = await this.renderAllColumns(groups);
+        container.innerHTML = columns.join('');
 
-        // Event listeners are handled by PadEventHandler's global delegation
+        // No lazy loading - render all files immediately but efficiently
+        // This prevents resource exhaustion by not using HTTP requests for each file
+    }
+
+    /**
+     * Render all columns with their files
+     */
+    async renderAllColumns(groups) {
+        const columnPromises = Array.from(groups.entries()).map(async ([folder, files]) => {
+            const sortedFiles = this.sortByTitle(files);
+            
+            const fileItems = await Promise.all(
+                sortedFiles.map(async (audioFile) => {
+                    const pad = this.libraryManager.soundPads?.get(audioFile.file_path);
+                    if (!pad) return '';
+
+                    const templateData = this.createColumnItemData(audioFile, pad);
+                    return await TemplateLoader.loadAndRender('components/mixer/column-item.html', templateData);
+                })
+            );
+
+            const templateData = {
+                folder_name: this.escapeHtml(folder),
+                item_count: files.length,
+                files_label: files.length === 1 ? 'file' : 'files',
+                items_html: fileItems.join('')
+            };
+
+            return await TemplateLoader.loadAndRender('components/mixer/folder-column.html', templateData);
+        });
+
+        return await Promise.all(columnPromises);
     }
 
     /**
@@ -227,42 +230,52 @@ export class MixerViewRenderer {
     }
 
     /**
-     * Render folder columns
+     * Create template data for list items
      */
-    async renderFolderColumns(groups) {
-        const columnPromises = Array.from(groups.entries()).map(async ([folder, files]) => {
-            const sortedFiles = this.sortByTitle(files);
-            
-            const fileItems = await Promise.all(
-                sortedFiles.map(async (audioFile) => {
-                    const pad = this.libraryManager.soundPads?.get(audioFile.file_path);
-                    if (!pad) return '';
+    createListItemData(audioFile, pad) {
+        const isPlaying = pad.isPlaying || false;
+        const isMuted = pad.isMuted || false;
+        const isLooped = pad.isLooped || false;
+        
+        return {
+            id: audioFile.id,
+            title: this.escapeHtml(audioFile.title || audioFile.filename || 'Unknown'),
+            artist: this.escapeHtml(audioFile.artist || 'Unknown Artist'),
+            genre: this.escapeHtml(audioFile.genre || 'Unknown Genre'),
+            duration: this.formatDuration(audioFile.duration),
+            file_path: this.escapeHtml(audioFile.file_path || ''),
+            playing_class: isPlaying ? 'playing' : '',
+            play_button_color: isPlaying ? '#e11d48' : '#007acc',
+            play_button_icon: isPlaying ? '⏸' : '▶',
+            muted_class: isMuted ? 'muted' : '',
+            mute_button_color: isMuted ? '#f87171' : '#888',
+            mute_button_icon: isMuted ? '🔇' : '🔊',
+            looped_class: isLooped ? 'looped' : '',
+            loop_button_color: isLooped ? '#10b981' : '#666',
+            volume: Math.round((pad.volume || 1) * 100)
+        };
+    }
 
-                    const templateData = {
-                        id: audioFile.id,
-                        title: this.escapeHtml(audioFile.title || audioFile.filename || 'Unknown'),
-                        artist: this.escapeHtml(audioFile.artist || 'Unknown Artist'),
-                        duration: this.formatDuration(audioFile.duration),
-                        is_playing: pad.isPlaying || false,
-                        is_muted: pad.isMuted || false,
-                        volume: Math.round((pad.volume || 1) * 100)
-                    };
-
-                    return await TemplateLoader.loadAndRender('components/mixer/column-item.html', templateData);
-                })
-            );
-
-            const templateData = {
-                folder_name: this.escapeHtml(folder),
-                item_count: files.length,
-                items_html: fileItems.join('')
-            };
-
-            return await TemplateLoader.loadAndRender('components/mixer/folder-column.html', templateData);
-        });
-
-        const columns = await Promise.all(columnPromises);
-        return columns.join('');
+    /**
+     * Create template data for column items
+     */
+    createColumnItemData(audioFile, pad) {
+        const isPlaying = pad.isPlaying || false;
+        const isMuted = pad.isMuted || false;
+        
+        return {
+            id: audioFile.id,
+            title: this.escapeHtml(audioFile.title || audioFile.filename || 'Unknown'),
+            artist: this.escapeHtml(audioFile.artist || 'Unknown Artist'),
+            duration: this.formatDuration(audioFile.duration),
+            playing_class: isPlaying ? 'playing' : '',
+            play_button_color: isPlaying ? '#e11d48' : '#007acc',
+            play_button_icon: isPlaying ? '⏸' : '▶',
+            muted_class: isMuted ? 'muted' : '',
+            mute_button_color: isMuted ? '#f87171' : '#666',
+            mute_button_icon: isMuted ? '🔇' : '🔊',
+            volume: Math.round((pad.volume || 1) * 100)
+        };
     }
 
     /**
@@ -293,8 +306,8 @@ export class MixerViewRenderer {
 
         switch (this.viewMode) {
             case 'columns':
-                // For columns, we need to re-render to maintain grouping
-                await this.renderColumnsView([...this.getCurrentFiles(), ...files]);
+                // For columns, re-render everything since files affect folder grouping
+                await this.renderColumnsView(this.allFilteredFiles);
                 break;
             case 'list':
                 await this.appendToListView(files);
@@ -318,22 +331,16 @@ export class MixerViewRenderer {
                 const pad = this.libraryManager.soundPads?.get(audioFile.file_path);
                 if (!pad) return null;
 
-                const padElement = renderSoundPad(audioFile, pad, {
+                return renderSoundPad(audioFile, pad, {
                     escapeHtml: this.escapeHtml.bind(this),
                     context: 'mixer'
                 });
-
-                // Event listeners are handled by PadEventHandler's global delegation
-
-                return padElement;
             })
         );
 
         const validElements = padElements.filter(el => el !== null);
         validElements.forEach(element => {
-            if (element instanceof HTMLElement) {
-                container.appendChild(element);
-            }
+            this.appendElementToContainer(container, element);
         });
     }
 
@@ -349,17 +356,7 @@ export class MixerViewRenderer {
                 const pad = this.libraryManager.soundPads?.get(audioFile.file_path);
                 if (!pad) return null;
 
-                const templateData = {
-                    id: audioFile.id,
-                    title: this.escapeHtml(audioFile.title || audioFile.filename || 'Unknown'),
-                    artist: this.escapeHtml(audioFile.artist || 'Unknown Artist'),
-                    genre: this.escapeHtml(audioFile.genre || 'Unknown Genre'),
-                    duration: this.formatDuration(audioFile.duration),
-                    is_playing: pad.isPlaying || false,
-                    is_muted: pad.isMuted || false,
-                    volume: Math.round((pad.volume || 1) * 100)
-                };
-
+                const templateData = this.createListItemData(audioFile, pad);
                 return await TemplateLoader.loadAndRender('components/mixer/list-item.html', templateData);
             })
         );
@@ -371,12 +368,10 @@ export class MixerViewRenderer {
         while (wrapper.firstChild) {
             container.appendChild(wrapper.firstChild);
         }
-
-        // Event listeners are handled by PadEventHandler's global delegation
     }
 
     /**
-     * Get currently rendered files (helper method)
+     * Get currently rendered files
      */
     getCurrentFiles() {
         const container = document.getElementById('allSoundsPadsGrid');
@@ -392,6 +387,19 @@ export class MixerViewRenderer {
     /**
      * Utility methods
      */
+    appendElementToContainer(container, element) {
+        if (element instanceof HTMLElement) {
+            container.appendChild(element);
+        } else {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = element;
+            const firstChild = wrapper.firstElementChild;
+            if (firstChild) {
+                container.appendChild(firstChild);
+            }
+        }
+    }
+
     escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text || '';

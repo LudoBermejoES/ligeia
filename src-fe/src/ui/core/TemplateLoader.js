@@ -5,18 +5,46 @@
  */
 export class TemplateLoader {
     static cache = new Map();
+    static pendingRequests = new Map(); // Track ongoing requests to prevent duplicates
     
     /**
      * Load a template from the templates directory
+     * Templates are cached permanently in memory after first load
      * @param {string} templatePath - Path to template file (e.g., 'components/mixer/pad-grid.html')
      * @returns {Promise<string>} Template content
      */
     static async load(templatePath) {
-        // Check cache first
+        // Always check cache first - once loaded, templates stay in memory
         if (this.cache.has(templatePath)) {
             return this.cache.get(templatePath);
         }
         
+        // Check if there's already a pending request for this template
+        if (this.pendingRequests.has(templatePath)) {
+            return await this.pendingRequests.get(templatePath);
+        }
+        
+        // Create and track the fetch promise
+        const fetchPromise = this._fetchTemplate(templatePath);
+        this.pendingRequests.set(templatePath, fetchPromise);
+        
+        try {
+            const template = await fetchPromise;
+            // Template is now permanently cached in memory
+            this.cache.set(templatePath, template);
+            return template;
+        } finally {
+            // Clean up the pending request
+            this.pendingRequests.delete(templatePath);
+        }
+    }
+    
+    /**
+     * Internal method to fetch template content from file system (one-time only)
+     * @param {string} templatePath - Path to template file
+     * @returns {Promise<string>} Template content
+     */
+    static async _fetchTemplate(templatePath) {
         try {
             // Use fetch to load from webview assets - templates are served from src-fe/templates/
             const fullPath = `templates/${templatePath}`;
@@ -38,7 +66,8 @@ export class TemplateLoader {
                 throw new Error(`Template is empty: ${templatePath}`);
             }
             
-            this.cache.set(templatePath, template);
+            // Template will be cached by the caller - no caching here
+            console.log(`✅ TemplateLoader: Loaded and cached template: ${templatePath}`);
             return template;
         } catch (error) {
             console.error(`❌ TemplateLoader: Failed to load ${templatePath}:`, error);
@@ -59,8 +88,8 @@ export class TemplateLoader {
             return '';
         }
         
-        // Simple mustache-style substitution: {{variable}}
-        return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+        // Simple mustache-style substitution: {{variable}} (including underscores)
+        return template.replace(/\{\{([a-zA-Z_][a-zA-Z0-9_]*)\}\}/g, (match, key) => {
             const value = data[key];
             return value !== undefined ? String(value) : '';
         });
@@ -77,12 +106,6 @@ export class TemplateLoader {
         return this.render(template, data);
     }
     
-    /**
-     * Clear template cache (useful for development)
-     */
-    static clearCache() {
-        this.cache.clear();
-    }
     
     /**
      * Load multiple templates from a map
