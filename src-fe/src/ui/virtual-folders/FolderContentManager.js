@@ -35,8 +35,9 @@ export class FolderContentManager {
             // Update breadcrumb
             this.updateBreadcrumb(folderData.folder);
             
-            // Update file count
-            this.updateFileCount(folderData.files ? folderData.files.length : 0);
+            // Update file count (backend returns 'audio_files' not 'files')
+            const files = folderData.audio_files || folderData.files || [];
+            this.updateFileCount(files.length);
             
             // Enable add files button
             if (this.elements.addFilesBtn) {
@@ -45,7 +46,7 @@ export class FolderContentManager {
             }
             
             // Render both subfolders and files
-            await this.renderFolderContents(folderData.subfolders, folderData.files);
+            await this.renderFolderContents(folderData.subfolders, files);
             
         } catch (error) {
             console.error('Failed to load folder contents:', error);

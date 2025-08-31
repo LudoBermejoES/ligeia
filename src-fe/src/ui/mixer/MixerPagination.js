@@ -6,7 +6,7 @@ import logger from '../../utils/logger.js';
 export class MixerPagination {
     constructor() {
         // Pagination settings
-        this.pageSize = 50; // Number of files per page
+        this.pageSize = 200; // Increased from 50 to 200 for better performance with large libraries
         this.currentPage = 0;
         
         // Loading state
@@ -65,6 +65,11 @@ export class MixerPagination {
             scrollHeight: scrollContainer.scrollHeight,
             clientHeight: scrollContainer.clientHeight
         });
+        
+        // Check if we need to load more content after initial render
+        setTimeout(() => {
+            this.checkAndFillScreen();
+        }, 500);
     }
 
     /**
@@ -81,6 +86,34 @@ export class MixerPagination {
                 setTimeout(() => inThrottle = false, limit);
             }
         };
+    }
+
+    /**
+     * Check if screen needs to be filled with more content and load more if needed
+     */
+    checkAndFillScreen() {
+        if (!this.scrollContainer || this.isLoading) {
+            return;
+        }
+        
+        const { scrollHeight, clientHeight } = this.scrollContainer;
+        
+        // If content doesn't exceed viewport height and we have more data, load more
+        if (scrollHeight <= clientHeight && this.hasNextPage()) {
+            logger.debug('mixerPagination', 'Auto-loading more content to fill screen', {
+                scrollHeight,
+                clientHeight,
+                currentPage: this.currentPage,
+                hasNextPage: this.hasNextPage()
+            });
+            
+            this.dispatchLoadNextPage();
+            
+            // Schedule another check after a delay to allow rendering
+            setTimeout(() => {
+                this.checkAndFillScreen();
+            }, 300);
+        }
     }
 
     /**

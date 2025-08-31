@@ -74,6 +74,9 @@ export class InfiniteScrollController {
     // Update pagination with filtered files
     this.pagination.setFiles(this.allFiles, this.filteredFiles);
     
+    // Provide all filtered files to renderer (needed for column view)
+    this.renderer.setAllFilteredFiles(this.filteredFiles);
+    
     logger.info('infiniteScroll', 'Audio files set', {
       totalFiles: this.allFiles.length,
       filteredFiles: this.filteredFiles.length,
@@ -167,6 +170,9 @@ export class InfiniteScrollController {
     
     // Reset pagination and update files
     this.pagination.setFiles(this.allFiles, this.filteredFiles);
+    
+    // Update renderer with all filtered files (needed for column view)
+    this.renderer.setAllFilteredFiles(this.filteredFiles);
     
     // Re-render from beginning
     this.initialRender();

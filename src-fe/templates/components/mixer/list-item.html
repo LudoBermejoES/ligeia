@@ -1,10 +1,10 @@
 <div class="mixer-list-item" data-audio-id="{{id}}" style="display: grid; grid-template-columns: 3fr 2fr 1fr 1fr 1fr 100px; gap: 1rem; padding: 0.75rem 1rem; border-bottom: 1px solid #333; align-items: center; min-height: 60px;">
     <div class="item-info" style="display: flex; align-items: center; gap: 1rem; min-width: 0;">
         <div class="play-button-container" style="flex-shrink: 0;">
-            <button class="play-pause-btn {{#if is_playing}}playing{{/if}}" 
+            <button class="play-pause-btn {{playing_class}}" 
                     data-audio-id="{{id}}"
-                    style="width: 40px; height: 40px; border: none; border-radius: 50%; background: {{#if is_playing}}#e11d48{{else}}#007acc{{/if}}; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px;">
-                {{#if is_playing}}⏸{{else}}▶{{/if}}
+                    style="width: 40px; height: 40px; border: none; border-radius: 50%; background: {{play_button_color}}; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                {{play_button_icon}}
             </button>
         </div>
         <div class="track-info" style="min-width: 0; flex: 1;">
@@ -26,10 +26,10 @@
     </div>
     
     <div class="volume-control" style="display: flex; align-items: center; gap: 0.5rem;">
-        <button class="mute-btn {{#if is_muted}}muted{{/if}}" 
+        <button class="mute-btn {{muted_class}}" 
                 data-audio-id="{{id}}"
-                style="background: none; border: none; color: {{#if is_muted}}#f87171{{else}}#888{{/if}}; cursor: pointer; font-size: 16px; padding: 0.25rem;">
-            {{#if is_muted}}🔇{{else}}🔊{{/if}}
+                style="background: none; border: none; color: {{mute_button_color}}; cursor: pointer; font-size: 16px; padding: 0.25rem;">
+            {{mute_button_icon}}
         </button>
         <input type="range" 
                class="volume-slider"
@@ -41,9 +41,9 @@
     </div>
     
     <div class="controls" style="display: flex; gap: 0.25rem; align-items: center;">
-        <button class="loop-btn {{#if is_looped}}looped{{/if}}" 
+        <button class="loop-btn {{looped_class}}" 
                 data-audio-id="{{id}}"
-                style="background: none; border: none; color: {{#if is_looped}}#10b981{{else}}#666{{/if}}; cursor: pointer; font-size: 14px; padding: 0.25rem;">
+                style="background: none; border: none; color: {{loop_button_color}}; cursor: pointer; font-size: 14px; padding: 0.25rem;">
             🔁
         </button>
         <button class="stop-btn" 
