@@ -744,6 +744,9 @@ export class VirtualFoldersPanelManager {
         }
         
         try {
+            // Get current playing state before action
+            const wasPlaying = this.getAudioPlayingState(audioId);
+            
             // Create a synthetic event object
             const syntheticEvent = {
                 target: playPauseBtn,
@@ -754,9 +757,47 @@ export class VirtualFoldersPanelManager {
             // Delegate to the pad event handler system with 'toggle' action
             await app.padEventHandler.handlePadAction(syntheticEvent, 'toggle', audioId, 'virtual-folder');
             
+            // Update button appearance immediately
+            this.updatePlayPauseButton(playPauseBtn, !wasPlaying);
+            
             console.log('✅ Play-pause action handled successfully');
         } catch (error) {
             console.error('❌ Error handling play-pause action:', error);
+        }
+    }
+
+    /**
+     * Get current playing state of an audio file
+     */
+    getAudioPlayingState(audioId) {
+        const app = window.ambientMixerApp;
+        if (!app || !app.libraryManager) return false;
+
+        const audioFile = app.libraryManager.getAudioFileById(audioId);
+        if (!audioFile) return false;
+
+        const soundPads = app.libraryManager.getSoundPads();
+        const pad = soundPads.get(audioFile.file_path);
+        
+        return pad ? (pad.isPlaying || false) : false;
+    }
+
+    /**
+     * Update play-pause button appearance
+     */
+    updatePlayPauseButton(button, isPlaying) {
+        if (!button) return;
+
+        // Update button content and styling
+        button.innerHTML = isPlaying ? '⏸' : '▶';
+        button.style.background = isPlaying ? '#e11d48' : '#007acc';
+        button.title = isPlaying ? 'Stop' : 'Play';
+        
+        // Update CSS classes
+        if (isPlaying) {
+            button.classList.add('playing');
+        } else {
+            button.classList.remove('playing');
         }
     }
 
