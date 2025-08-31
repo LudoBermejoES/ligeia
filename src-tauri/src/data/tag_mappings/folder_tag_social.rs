@@ -140,4 +140,19 @@
     ("mood:dramatic", "Social Encounters/Entertainment/Theaters", 8, "Dramatic theater mood"),
     ("diegetic:theater-music", "Social Encounters/Entertainment/Theaters", 7, "Theater performance music"),
     ("mood:cultured", "Social Encounters/Entertainment/Theaters", 7, "Cultured entertainment setting"),
+    
+    // === JAZZ, BLUES, AND LOUNGE GENRES FOR SOCIAL CONTEXTS ===
+    ("jazz", "Social Encounters/Entertainment/Jazz Clubs", 10, "Jazz music for club entertainment"),
+    ("jazz:noir", "Social Encounters/Entertainment/Speakeasies", 10, "Jazz noir for speakeasy atmospheres"),
+    ("jazz:swing", "Social Encounters/Entertainment/Dance Halls", 9, "Swing jazz for dance hall entertainment"),
+    ("jazz:cool", "Social Encounters/Entertainment/Lounges", 9, "Cool jazz for sophisticated lounges"),
+    ("jazz:latin", "Social Encounters/Markets & Trade/International Markets", 8, "Latin jazz for exotic market atmospheres"),
+    ("blues", "Social Encounters/Taverns & Inns/Seedy", 9, "Blues music for seedy tavern atmospheres"),
+    ("lounge", "Social Encounters/Entertainment/Lounges", 10, "Lounge music for upscale entertainment"),
+    
+    // === DIEGETIC MUSIC GENRES ===
+    ("diegetic", "Social Encounters/Entertainment/Theaters", 9, "Diegetic music for theater performances"),
+    ("diegetic:radio", "Social Encounters/Entertainment/Diners", 8, "Radio music for diner atmospheres"),
+    ("npc:police", "Social Encounters/Government & Authority/Law Enforcement", 9, "Police NPC encounters"),
+    ("language:dutch", "Social Encounters/Markets & Trade/International Markets", 7, "Dutch language encounters"),
 ]

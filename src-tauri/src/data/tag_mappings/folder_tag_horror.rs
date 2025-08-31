@@ -157,4 +157,10 @@
     ("mood:ancient-curse", "Horror & Terror/Monster Horror/Classic Monsters/Mummies", 9, "Ancient curse atmosphere"),
     ("mood:preserved-malice", "Horror & Terror/Monster Horror/Classic Monsters/Mummies", 8, "Preserved malice mood"),
     ("sfx:bandage-unwrapping", "Horror & Terror/Monster Horror/Classic Monsters/Mummies", 7, "Bandage unwrapping sounds"),
+    
+    // === HORROR GENRES FOR TERROR CONTEXTS ===
+    ("horror", "Horror & Terror/Classic Horror Locations/Haunted Houses/Victorian Mansions", 10, "Horror music for classic haunted locations"),
+    ("horror:atonal", "Horror & Terror/Cosmic Horror/Sanity & Madness/Mental Deterioration", 10, "Atonal horror for madness themes"),
+    ("horror:dissonant-strings", "Horror & Terror/Cosmic Horror/Eldritch Entities/Incomprehensible Beings", 10, "Dissonant strings for eldritch horror"),
+    ("horror:sound-design", "Horror & Terror/Body Horror/Physical Transformation/Mutations", 9, "Horror sound design for body horror"),
 ]

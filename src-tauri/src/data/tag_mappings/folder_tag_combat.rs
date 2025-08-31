@@ -121,4 +121,18 @@
     ("mood:heroic", "Combat/Victory & Defeat/Last Stand", 9, "Heroic final stand atmosphere"),
     ("mood:tragic", "Combat/Victory & Defeat/Last Stand", 8, "Tragic desperation mood"),
     ("mood:determined", "Combat/Victory & Defeat/Last Stand", 8, "Determined final resistance"),
+    
+    // === METAL AND ROCK GENRES FOR COMBAT CONTEXTS ===
+    ("metal", "Combat/Combat Phases/Final Battle", 10, "Metal music for intense final battles"),
+    ("metal:power", "Combat/Victory & Defeat/Triumph", 10, "Power metal for triumphant victory"),
+    ("metal:symphonic", "Combat/Combat Phases/Siege", 9, "Symphonic metal for epic siege battles"),
+    ("metal:black", "Combat/Combat Phases/Ambush", 9, "Black metal for dark ambush scenarios"),
+    ("metal:doom", "Combat/Victory & Defeat/Last Stand", 9, "Doom metal for desperate last stands"),
+    ("metal:folk-metal", "Combat/Combat Phases/Skirmish", 8, "Folk metal for tribal skirmishes"),
+    ("metal:industrial-metal", "Combat/Weapons/Ranged/Firearms/Machine Guns", 8, "Industrial metal for modern warfare"),
+    ("rock", "Combat/Combat Phases/Skirmish", 9, "Rock music for combat skirmishes"),
+    ("rock:post-rock", "Combat/Victory & Defeat/Retreat", 8, "Post-rock for atmospheric combat retreat"),
+    ("rock:gothic-rock", "Combat/Combat Phases/Ambush", 8, "Gothic rock for dark combat ambushes"),
+    ("rock:progressive", "Combat/Combat Phases/Siege", 8, "Progressive rock for complex siege scenarios"),
+    ("post-metal", "Combat/Victory & Defeat/Last Stand", 8, "Post-metal for epic final confrontations"),
 ]

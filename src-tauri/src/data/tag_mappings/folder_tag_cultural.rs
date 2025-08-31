@@ -232,4 +232,70 @@
     ("tech:diesel", "Cultural Styles/Steampunk & Victorian/Dieselpunk", 9, "Diesel technology elements"),
     ("mood:art-deco", "Cultural Styles/Steampunk & Victorian/Dieselpunk", 8, "Art Deco Dieselpunk atmosphere"),
     ("style:retro-futurism", "Cultural Styles/Steampunk & Victorian/Dieselpunk", 7, "Retro-futurism Dieselpunk elements"),
+    
+    // === FOLK GENRES FOR CULTURAL CONTEXTS ===
+    ("folk", "Cultural Styles/Medieval & Renaissance/Medieval Courts", 10, "Folk music for medieval cultural contexts"),
+    ("folk:celtic", "Cultural Styles/Medieval & Renaissance/Celtic Influences", 10, "Celtic folk for cultural themes"),
+    ("folk:nordic", "Cultural Styles/Ancient Civilizations/Norse Culture", 10, "Nordic folk for Norse cultural themes"),
+    ("folk:middle-eastern", "Cultural Styles/Ancient Civilizations/Arabian Nights", 10, "Middle Eastern folk for Arabian themes"),
+    ("folk:mediterranean", "Cultural Styles/Ancient Civilizations/Greek & Roman", 9, "Mediterranean folk for classical themes"),
+    ("folk:asian-east", "Cultural Styles/Ancient Civilizations/Asian Dynasties", 9, "East Asian folk for dynasty themes"),
+    ("folk:african", "Cultural Styles/Ancient Civilizations/Egyptian Pharaohs", 8, "African folk elements for ancient themes"),
+    ("folk:sea-shanty", "Cultural Styles/Age of Exploration/Pirate Era", 9, "Sea shanty folk for pirate themes"),
+    ("folk:andino", "Cultural Styles/Ancient Civilizations/South American", 8, "Andean folk for South American themes"),
+    ("folk:asian-south", "Cultural Styles/Ancient Civilizations/Indian Subcontinent", 8, "South Asian folk for Indian themes"),  
+    ("folk:balkan", "Cultural Styles/Medieval & Renaissance/Eastern Europe", 8, "Balkan folk for Eastern European themes"),
+    ("folk:wild-west-folk", "Cultural Styles/Wild West/Frontier Towns", 9, "Wild west folk for frontier themes"),
+    
+    // === HISTORICAL GENRES FOR CULTURAL CONTEXTS ===
+    ("historical", "Cultural Styles/Medieval & Renaissance/Medieval Courts", 9, "Historical music for period accuracy"),
+    ("historical:medieval", "Cultural Styles/Medieval & Renaissance/Medieval Courts", 10, "Medieval historical music"),
+    ("historical:renaissance", "Cultural Styles/Medieval & Renaissance/Renaissance Italy", 10, "Renaissance historical music"),
+    ("historical:baroque", "Cultural Styles/Medieval & Renaissance/Renaissance Italy", 8, "Baroque historical elements"),
+    
+    // === PUNK VARIANT GENRES ===
+    ("steampunk", "Cultural Styles/Steampunk & Victorian/Steampunk", 10, "Steampunk genre for Victorian tech"),
+    ("dieselpunk", "Cultural Styles/Steampunk & Victorian/Dieselpunk", 10, "Dieselpunk genre for retro-futurism"),
+    ("atompunk", "Cultural Styles/Wild West/Weird West", 8, "Atompunk elements for weird west"),
+    
+    // === WESTERN AND MODERN GENRES ===
+    ("western", "Cultural Styles/Wild West/Frontier Towns", 10, "Western music for frontier themes"),
+    ("modern-urban", "Cultural Styles/Modern Era/Urban Culture", 9, "Modern urban music for city themes"),
+    ("mystery-noir", "Cultural Styles/Modern Era/Film Noir", 10, "Mystery noir for detective themes"),
+    
+    // === MYTHIC CULTURAL VARIANTS ===
+    ("mythic", "Cultural Styles/Ancient Civilizations/Greek & Roman", 10, "Mythic music for ancient civilizations"),
+    ("mythic:norse", "Cultural Styles/Ancient Civilizations/Norse Culture", 10, "Norse mythic themes"),
+    ("mythic:greco-roman", "Cultural Styles/Ancient Civilizations/Greek & Roman", 10, "Greco-Roman mythic themes"),
+    ("mythic:egyptian", "Cultural Styles/Ancient Civilizations/Egyptian Pharaohs", 10, "Egyptian mythic themes"),
+    ("mythic:celtic", "Cultural Styles/Medieval & Renaissance/Celtic Influences", 10, "Celtic mythic themes"),
+    ("mythic:japanese", "Cultural Styles/Ancient Civilizations/Asian Dynasties", 9, "Japanese mythic themes"),
+    ("mythic:mesoamerican", "Cultural Styles/Ancient Civilizations/Aztec & Mayan", 9, "Mesoamerican mythic themes"),
+    
+    // === SUPERHERO GENRE ===
+    ("superhero", "Superhero & Comic Book/Heroes/Classic Heroes", 10, "Superhero music for heroic themes"),
+    
+    // === REMAINING ORCHESTRAL VARIANTS ===
+    ("orchestral:baroque", "Cultural Styles/Medieval & Renaissance/Renaissance Italy", 9, "Baroque orchestral for renaissance culture"),
+    ("orchestral:renaissance", "Cultural Styles/Medieval & Renaissance/Renaissance Italy", 10, "Renaissance orchestral music"),
+    ("orchestral:romantic", "Cultural Styles/Modern Era/Romantic Period", 9, "Romantic era orchestral music"),
+
+    // === STYLE KEYWORDS ===
+    ("style:medieval", "Cultural Styles/Medieval & Renaissance/Medieval Europe", 10, "Medieval style music"),
+    ("style:cinematic", "Cultural Styles/Modern Era/Cinema", 10, "Cinematic style music"),
+    ("style:epic", "Cultural Styles/Modern Era/Cinema", 9, "Epic style music"),
+    ("style:romantic-era", "Cultural Styles/Modern Era/Romantic Period", 10, "Romantic era style music"),
+    ("style:1920s", "Cultural Styles/Modern Era/Jazz Age", 9, "1920s style music"),
+    ("style:noir-1940s", "Cultural Styles/Modern Era/Jazz Age", 9, "1940s noir style music"),
+    ("style:western-frontier", "Cultural Styles/Wild West/Frontier Towns", 10, "Western frontier style music"),
+    ("style:japanese-traditional", "Cultural Styles/Ancient Civilizations/Asian Dynasties", 10, "Traditional Japanese style music"),
+    ("style:chinese-traditional", "Cultural Styles/Ancient Civilizations/Asian Dynasties", 9, "Traditional Chinese style music"),
+    ("style:eastern", "Cultural Styles/Ancient Civilizations/Asian Dynasties", 9, "Eastern style music"),
+    ("style:industrial", "Cultural Styles/Modern Era/Industrial Age", 9, "Industrial style music"),
+    ("style:futuristic", "Cultural Styles/Modern Era/Cinema", 8, "Futuristic style music"),
+    ("style:retro", "Cultural Styles/Modern Era/Jazz Age", 8, "Retro style music"),
+    ("style:modern", "Cultural Styles/Modern Era/Contemporary", 8, "Modern style music"),
+    ("style:intimate", "Cultural Styles/Modern Era/Contemporary", 8, "Intimate style music"),
+    ("style:post-apocalyptic", "Cultural Styles/Modern Era/Cinema", 8, "Post-apocalyptic style music"),
+    ("style:sci-fi", "Cultural Styles/Modern Era/Cinema", 8, "Sci-fi style music"),
 ]
