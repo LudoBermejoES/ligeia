@@ -131,11 +131,15 @@ export class FolderContentManager {
      * Render individual components using templates
      */
     async renderFolderCard(folder) {
+        // folder is now a VirtualFolderTree with file counts
+        const fileCount = folder.total_file_count || folder.file_count || 0;
+        const folderData = folder.folder || folder; // Handle both old and new structure
+
         const templateData = {
-            id: folder.id,
-            icon: folder.icon || '📁',
-            name: this.escapeHtml(folder.name),
-            count: folder.file_count || 0
+            id: folderData.id,
+            icon: folderData.icon || '📁',
+            name: this.escapeHtml(folderData.name),
+            count: fileCount
         };
         
         return await TemplateLoader.loadAndRender('components/virtual-folders/folder-item.html', templateData);
@@ -157,11 +161,15 @@ export class FolderContentManager {
     }
 
     async renderFolderListRow(folder) {
+        // folder is now a VirtualFolderTree with file counts
+        const fileCount = folder.total_file_count || folder.file_count || 0;
+        const folderData = folder.folder || folder; // Handle both old and new structure
+
         const templateData = {
-            id: folder.id,
-            icon: folder.icon || '📁',
-            name: this.escapeHtml(folder.name),
-            count: folder.file_count || 0
+            id: folderData.id,
+            icon: folderData.icon || '📁',
+            name: this.escapeHtml(folderData.name),
+            count: fileCount
         };
         
         return await TemplateLoader.loadAndRender('components/virtual-folders/folder-list-row.html', templateData);

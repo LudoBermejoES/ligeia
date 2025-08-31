@@ -428,7 +428,7 @@ pub struct VirtualFolderTree {
 pub struct VirtualFolderWithContents {
     pub folder: VirtualFolder,
     pub audio_files: Vec<AudioFile>,
-    pub subfolders: Vec<VirtualFolder>,
+    pub subfolders: Vec<VirtualFolderTree>,  // Changed to include file counts
     pub breadcrumb: Vec<VirtualFolder>, // Path from root
 }
 

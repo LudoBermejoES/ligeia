@@ -1,5 +1,5 @@
 use rusqlite::{Connection, Result, params};
-use crate::models::{VirtualFolder, VirtualFolderWithContents, AudioFile};
+use crate::models::{VirtualFolder, VirtualFolderWithContents, VirtualFolderTree, AudioFile};
 use chrono::Utc;
 
 /// Content management operations for virtual folders
@@ -34,8 +34,22 @@ impl VirtualFolderContent {
         use crate::database::virtual_folders::hierarchy_ops::VirtualFolderHierarchy;
         let breadcrumb = VirtualFolderHierarchy::get_folder_path(conn, folder_id)?;
         
-        // Get subfolders
-        let subfolders = VirtualFolderHierarchy::get_folder_children(conn, Some(folder_id))?;
+        // Get subfolders with file counts
+        let subfolder_list = VirtualFolderHierarchy::get_folder_children(conn, Some(folder_id))?;
+        let mut subfolders = Vec::new();
+        
+        for subfolder in subfolder_list {
+            if let Some(subfolder_id) = subfolder.id {
+                let file_count = Self::count_folder_files_recursive(conn, subfolder_id)?;
+                let folder_tree = VirtualFolderTree {
+                    folder: subfolder,
+                    children: Vec::new(), // Not needed for contents view
+                    file_count,
+                    total_file_count: file_count, // Same as file_count for this context
+                };
+                subfolders.push(folder_tree);
+            }
+        }
         
         // Get audio files in this folder
         let mut stmt = conn.prepare(
@@ -132,5 +146,27 @@ impl VirtualFolderContent {
         }
         
         Ok(folders)
+    }
+    
+    /// Recursively count all files in a folder and its subfolders
+    pub fn count_folder_files_recursive(conn: &Connection, folder_id: i64) -> Result<i64> {
+        // Count direct files in this folder
+        let mut stmt = conn.prepare(
+            "SELECT COUNT(*) FROM virtual_folder_contents WHERE folder_id = ?"
+        )?;
+        let direct_files: i64 = stmt.query_row([folder_id], |row| row.get(0))?;
+        
+        // Count files in subfolders recursively
+        use crate::database::virtual_folders::hierarchy_ops::VirtualFolderHierarchy;
+        let subfolders = VirtualFolderHierarchy::get_folder_children(conn, Some(folder_id))?;
+        
+        let mut total_files = direct_files;
+        for subfolder in subfolders {
+            if let Some(subfolder_id) = subfolder.id {
+                total_files += Self::count_folder_files_recursive(conn, subfolder_id)?;
+            }
+        }
+        
+        Ok(total_files)
     }
 }
