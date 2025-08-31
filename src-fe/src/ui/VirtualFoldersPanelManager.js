@@ -160,6 +160,16 @@ export class VirtualFoldersPanelManager {
         this.elements.filesArea?.addEventListener('click', (e) => {
             console.log('🖱️ Content area click:', e.target);
             
+            // Check for play-pause button first (highest priority)
+            const playPauseBtn = e.target.closest('.play-pause-btn');
+            if (playPauseBtn) {
+                console.log('🎵 Play-pause button clicked:', playPauseBtn.dataset.audioId);
+                e.preventDefault();
+                e.stopPropagation();
+                this.handlePlayPauseClick(playPauseBtn);
+                return;
+            }
+            
             const fileCard = e.target.closest('.vf-file-card');
             const folderCard = e.target.closest('.vf-folder-card');
             const fileListRow = e.target.closest('.vf-file-list-row');
@@ -716,6 +726,37 @@ export class VirtualFoldersPanelManager {
         } else if (this.currentFolderId) {
             // Fall back to re-loading if no cached data
             await this.folderContentManager.loadFolderContents(this.currentFolderId);
+        }
+    }
+
+    /**
+     * Handle play-pause button clicks in virtual folder
+     */
+    async handlePlayPauseClick(playPauseBtn) {
+        const audioId = parseInt(playPauseBtn.dataset.audioId);
+        console.log('🎵 Handling play-pause for audio ID:', audioId);
+        
+        // Access the global app instance to use the pad event handler
+        const app = window.ambientMixerApp;
+        if (!app || !app.padEventHandler) {
+            console.error('❌ App or pad event handler not available');
+            return;
+        }
+        
+        try {
+            // Create a synthetic event object
+            const syntheticEvent = {
+                target: playPauseBtn,
+                preventDefault: () => {},
+                stopPropagation: () => {}
+            };
+            
+            // Delegate to the pad event handler system with 'toggle' action
+            await app.padEventHandler.handlePadAction(syntheticEvent, 'toggle', audioId, 'virtual-folder');
+            
+            console.log('✅ Play-pause action handled successfully');
+        } catch (error) {
+            console.error('❌ Error handling play-pause action:', error);
         }
     }
 

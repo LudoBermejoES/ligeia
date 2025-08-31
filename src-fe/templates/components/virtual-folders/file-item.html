@@ -1,6 +1,14 @@
 <div class="file-item grid-item p-3 border border-border rounded bg-card hover:bg-hover cursor-pointer" 
-     data-file-id="{{id}}" data-type="file">
-    <div class="file-icon text-2xl mb-2 text-center">🎵</div>
+     data-file-id="{{id}}" data-audio-id="{{id}}" data-type="file">
+    <div class="file-icon text-2xl mb-2 text-center">
+        <button class="play-pause-btn {{playing_class}}" 
+                data-audio-id="{{id}}"
+                style="width: 40px; height: 40px; border: none; border-radius: 50%; background: {{play_button_color}}; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.2s ease;"
+                onmouseover="this.style.transform='scale(1.1)'" 
+                onmouseout="this.style.transform='scale(1)'">
+            {{play_button_icon}}
+        </button>
+    </div>
     <div class="file-name text-sm font-medium text-center truncate">{{name}}</div>
     <div class="file-duration text-xs text-muted text-center">{{duration}}</div>
 </div>

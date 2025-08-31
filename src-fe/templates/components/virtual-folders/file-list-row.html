@@ -1,6 +1,14 @@
 <div class="file-list-row flex items-center py-2 px-3 rounded hover:bg-hover cursor-pointer border-b border-border/50" 
-     data-file-id="{{id}}" data-type="file">
-    <div class="file-icon w-8 text-center">🎵</div>
+     data-file-id="{{id}}" data-audio-id="{{id}}" data-type="file">
+    <div class="file-icon w-8 text-center">
+        <button class="play-pause-btn {{playing_class}}" 
+                data-audio-id="{{id}}"
+                style="width: 32px; height: 32px; border: none; border-radius: 50%; background: {{play_button_color}}; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.2s ease;"
+                onmouseover="this.style.transform='scale(1.1)'" 
+                onmouseout="this.style.transform='scale(1)'">
+            {{play_button_icon}}
+        </button>
+    </div>
     <div class="file-name flex-1 text-sm ml-3">{{name}}</div>
     <div class="file-duration text-xs text-muted">{{duration}}</div>
 </div>

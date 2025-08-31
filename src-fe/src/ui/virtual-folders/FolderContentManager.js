@@ -11,6 +11,9 @@ export class FolderContentManager {
         this.currentFolderId = null;
         this.lastFolderData = null; // Cache for view switching
         this.selectedFiles = new Set();
+        
+        // Initialize pad event handling for play/stop buttons
+        this.initializePadEventHandling();
     }
 
     /**
@@ -98,6 +101,9 @@ export class FolderContentManager {
         
         const html = await TemplateLoader.loadAndRender('layouts/grid-content.html', templateData);
         dropZone.innerHTML = html;
+        
+        // Add files to pad event handler context
+        this.addFilesToPadContext(files);
     }
 
     /**
@@ -116,6 +122,9 @@ export class FolderContentManager {
         
         const html = await TemplateLoader.loadAndRender('layouts/list-content.html', templateData);
         dropZone.innerHTML = html;
+        
+        // Add files to pad event handler context
+        this.addFilesToPadContext(files);
     }
 
     /**
@@ -133,10 +142,15 @@ export class FolderContentManager {
     }
 
     async renderFileCard(file) {
+        const playState = this.getFilePlayState(file);
+        
         const templateData = {
             id: file.id,
             name: this.escapeHtml(file.title || file.filename || 'Unknown'),
-            duration: file.duration ? this.formatDuration(file.duration) : 'Unknown'
+            duration: file.duration ? this.formatDuration(file.duration) : 'Unknown',
+            playing_class: playState.isPlaying ? 'playing' : '',
+            play_button_color: playState.isPlaying ? '#e11d48' : '#007acc',
+            play_button_icon: playState.isPlaying ? '⏸' : '▶'
         };
         
         return await TemplateLoader.loadAndRender('components/virtual-folders/file-item.html', templateData);
@@ -154,10 +168,15 @@ export class FolderContentManager {
     }
 
     async renderFileListRow(file) {
+        const playState = this.getFilePlayState(file);
+        
         const templateData = {
             id: file.id,
             name: this.escapeHtml(file.title || file.filename || 'Unknown'),
-            duration: file.duration ? this.formatDuration(file.duration) : 'Unknown'
+            duration: file.duration ? this.formatDuration(file.duration) : 'Unknown',
+            playing_class: playState.isPlaying ? 'playing' : '',
+            play_button_color: playState.isPlaying ? '#e11d48' : '#007acc',
+            play_button_icon: playState.isPlaying ? '⏸' : '▶'
         };
         
         return await TemplateLoader.loadAndRender('components/virtual-folders/file-list-row.html', templateData);
@@ -356,6 +375,9 @@ export class FolderContentManager {
         
         // Update file count
         this.updateFileCount(files.length);
+        
+        // Add files to pad event handler context
+        this.addFilesToPadContext(files);
     }
 
     /**
@@ -364,6 +386,83 @@ export class FolderContentManager {
     dispatchShowAddFilesModal() {
         const event = new CustomEvent('showAddFilesModal');
         this.elements.filesArea.dispatchEvent(event);
+    }
+
+    /**
+     * Get play state for a file by checking if it's currently playing in any sound pad
+     */
+    getFilePlayState(file) {
+        // Access the global app instance to get library manager and pad states
+        const app = window.ambientMixerApp;
+        if (!app || !app.libraryManager) {
+            return { isPlaying: false };
+        }
+
+        // Find the audio file in the library manager
+        const audioFile = app.libraryManager.getAudioFileById(file.id);
+        if (!audioFile) {
+            return { isPlaying: false };
+        }
+
+        // Check if there's a sound pad for this file and if it's playing
+        const soundPads = app.libraryManager.getSoundPads();
+        const pad = soundPads.get(audioFile.file_path);
+        
+        return {
+            isPlaying: pad ? (pad.isPlaying || false) : false
+        };
+    }
+
+    /**
+     * Initialize pad event handling for virtual folder files
+     */
+    initializePadEventHandling() {
+        const app = window.ambientMixerApp;
+        if (!app || !app.padEventHandler) {
+            console.warn('App or padEventHandler not available for virtual folder integration');
+            return;
+        }
+
+        // Register virtual folder context handlers
+        app.padEventHandler.registerContextHandlers('virtual-folder', {
+            'edit-tags': (audioId) => {
+                const audioFile = app.libraryManager.getAudioFileById(audioId);
+                if (audioFile) {
+                    app.tagEditorManager.openTagEditor(audioFile);
+                }
+            }
+        });
+
+        console.log('Virtual folder pad event handling initialized');
+    }
+
+    /**
+     * Add files to the pad event handler context for virtual folder
+     */
+    addFilesToPadContext(files) {
+        const app = window.ambientMixerApp;
+        if (!app || !app.padEventHandler || !app.libraryManager) {
+            return;
+        }
+
+        files.forEach(file => {
+            const audioFile = app.libraryManager.getAudioFileById(file.id);
+            if (audioFile) {
+                const soundPads = app.libraryManager.getSoundPads();
+                const pad = soundPads.get(audioFile.file_path);
+                
+                if (pad) {
+                    app.padEventHandler.addPadToContext(file.id, 'virtual-folder', {
+                        isPlaying: pad.isPlaying || false,
+                        isLooping: pad.isLooping || false,
+                        isMuted: pad.isMuted || false,
+                        volume: pad.volume ?? 0.5
+                    });
+                }
+            }
+        });
+
+        console.log('Added', files.length, 'files to virtual-folder pad context');
     }
 
     /**
