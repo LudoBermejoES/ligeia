@@ -1,0 +1,40 @@
+<div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="modal-content bg-card border border-border rounded-lg p-6 max-w-md w-full mx-4 shadow-lg">
+        <h3 class="text-lg font-semibold mb-4 text-text">🤖 AI Auto-Tagging in Progress</h3>
+        
+        <div class="progress-stats mb-4 text-sm text-muted">
+            <div class="flex justify-between mb-1">
+                <span>Total Files:</span>
+                <span class="total-files">{{totalFiles}}</span>
+            </div>
+            <div class="flex justify-between mb-1">
+                <span>Processed:</span>
+                <span class="processed-files">0</span>
+            </div>
+            <div class="flex justify-between mb-1">
+                <span>Failed:</span>
+                <span class="failed-files">0</span>
+            </div>
+            <div class="flex justify-between mb-3">
+                <span>Batch:</span>
+                <span><span class="current-batch">0</span> / <span class="total-batches">{{totalBatches}}</span></span>
+            </div>
+        </div>
+        
+        <div class="progress-bar mb-4">
+            <div class="w-full bg-border rounded-full h-2">
+                <div class="progress-fill bg-accent h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <div class="current-status text-sm text-muted mb-4 min-h-[1.25rem]">
+            Starting...
+        </div>
+        
+        <div class="flex justify-end">
+            <button class="cancel-btn btn btn-secondary px-4 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>

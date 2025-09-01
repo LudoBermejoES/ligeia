@@ -1,0 +1,774 @@
+```json
+{
+  "version": 1,
+  "files": [
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_21.wav",
+      "title": "WACHS&FX Impact 21",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_22.wav",
+      "title": "WACHS&FX Impact 22",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_23.wav",
+      "title": "WACHS&FX Impact 23",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_24.wav",
+      "title": "WACHS&FX Impact 24",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_25.wav",
+      "title": "WACHS&FX Impact 25",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_26.wav",
+      "title": "WACHS&FX Impact 26",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_27.wav",
+      "title": "WACHS&FX Impact 27",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_28.wav",
+      "title": "WACHS&FX Impact 28",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_29.wav",
+      "title": "WACHS&FX Impact 29",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_30.wav",
+      "title": "WACHS&FX Impact 30",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_31.wav",
+      "title": "WACHS&FX Impact 31",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_32.wav",
+      "title": "WACHS&FX Impact 32",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_33.wav",
+      "title": "WACHS&FX Impact 33",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_34.wav",
+      "title": "WACHS&FX Impact 34",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_35.wav",
+      "title": "WACHS&FX Impact 35",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_36.wav",
+      "title": "WACHS&FX Impact 36",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_37.wav",
+      "title": "WACHS&FX Impact 37",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_38.wav",
+      "title": "WACHS&FX Impact 38",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_39.wav",
+      "title": "WACHS&FX Impact 39",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Impacts/WACHS&FX_Impact_40.wav",
+      "title": "WACHS&FX Impact 40",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "sound-design:impacts",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": null,
+      "initial_key": null,
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "jump-scare",
+        "mystery-sting",
+        "boss-loop"
+      ],
+      "rpg_keywords": [
+        "sfx:explosion"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Electronic Melody Loops/WACHS&FX_100_Dmin_Entrance_To_Unknown.wav",
+      "title": "WACHS&FX 100 Dmin Entrance To Unknown",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "electronic",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "Dmin",
+      "mood": "mysterious; eerie; tense",
+      "language": null,
+      "rpg_occasion": [
+        "dungeon-crawl",
+        "ruin-delving",
+        "haunting"
+      ],
+      "rpg_keywords": [
+        "timbre:synthetic-pad"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Electronic Melody Loops/WACHS&FX_100_Fmin_Circuit_Malfunction.wav",
+      "title": "WACHS&FX 100 Fmin Circuit Malfunction",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "electronic:industrial",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "Fmin",
+      "mood": "ominous; tense; eerie",
+      "language": null,
+      "rpg_occasion": [
+        "derelict-ship-exploration",
+        "lab-experiment",
+        "reactor-meltdown"
+      ],
+      "rpg_keywords": [
+        "tech:cybernetics",
+        "sfx:hacking-glitches"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Electronic Melody Loops/WACHS&FX_100_Fmin_Homecoming.wav",
+      "title": "WACHS&FX 100 Fmin Homecoming",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "electronic",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "Fmin",
+      "mood": "nostalgic; melancholic; eerie",
+      "language": null,
+      "rpg_occasion": [
+        "flashback",
+        "epilogue",
+        "haunting"
+      ],
+      "rpg_keywords": [
+        "timbre:synthetic-pad"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Electronic Melody Loops/WACHS&FX_100_Fmin_Running.wav",
+      "title": "WACHS&FX 100 Fmin Running",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "electronic",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "Fmin",
+      "mood": "tense; driving; high-stakes",
+      "language": null,
+      "rpg_occasion": [
+        "chase",
+        "escape",
+        "infiltration"
+      ],
+      "rpg_keywords": [
+        "sfx:footsteps",
+        "timbre:synthetic-pad"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Electronic Melody Loops/WACHS&FX_100_Fmin_Unholy_Voices.wav",
+      "title": "WACHS&FX 100 Fmin Unholy Voices",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "Fmin",
+      "mood": "ominous; eerie; ritualistic",
+      "language": null,
+      "rpg_occasion": [
+        "cult-gathering",
+        "ritual",
+        "sacrificial-altar"
+      ],
+      "rpg_keywords": [
+        "timbre:male-chant",
+        "sfx:chant"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Electronic Melody Loops/WACHS&FX_100_Fmin_Unstable.wav",
+      "title": "WACHS&FX 100 Fmin Unstable",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "electronic",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "Fmin",
+      "mood": "tense; uneasy; unsettling",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "sanity-slip",
+        "possession"
+      ],
+      "rpg_keywords": [
+        "timbre:synthetic-pad"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Electronic Melody Loops/WACHS&FX_110_A#min_Clusters.wav",
+      "title": "WACHS&FX 110 A#min Clusters",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "electronic",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 110,
+      "initial_key": "A#min",
+      "mood": "tense; eerie; unsettling",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "sanity-slip",
+        "lab-experiment"
+      ],
+      "rpg_keywords": [
+        "timbre:synthetic-pad"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Electronic Melody Loops/WACHS&FX_110_Amin_Passion_Voices.wav",
+      "title": "WACHS&FX 110 Amin Passion Voices",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "electronic",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 110,
+      "initial_key": "Amin",
+      "mood": "romantic; tense; eerie",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "noir-club",
+        "ritual"
+      ],
+      "rpg_keywords": [
+        "timbre:female-vocalise",
+        "sfx:chant"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Electronic Melody Loops/WACHS&FX_110_G#min_Serial_Killer.wav",
+      "title": "WACHS&FX 110 G#min Serial Killer",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "electronic",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 110,
+      "initial_key": "G#min",
+      "mood": "ominous; tense; eerie",
+      "language": null,
+      "rpg_occasion": [
+        "crime-scene",
+        "stakeout",
+        "haunting"
+      ],
+      "rpg_keywords": [
+        "npc:assassin",
+        "timbre:synthetic-pad"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Electronic Melody Loops/WACHS&FX_110_Gmin_Piano_Illusions.wav",
+      "title": "WACHS&FX 110 Gmin Piano Illusions",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 110,
+      "initial_key": "Gmin",
+      "mood": "ominous; eerie; unsettling",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "sanity-slip",
+        "dream-walk"
+      ],
+      "rpg_keywords": [
+        "timbre:solo-violin",
+        "timbre:synthetic-pad"
+      ],
+      "rpg_quality": "clean"
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Electronic Melody Loops/WACHS&FX_120_Dmin_Sub_Sonic.wav",
+      "title": "WACHS&FX 120 Dmin Sub Sonic",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "electronic",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 120,
+      "initial_key": "Dmin",
+      "

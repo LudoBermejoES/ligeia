@@ -15,6 +15,7 @@ impl SchemaManager {
         self.create_vocabulary_table(conn)?;
         self.create_atmospheres_tables(conn)?;
         self.create_virtual_folders_tables(conn)?;
+        self.create_auto_tagging_tables(conn)?;
         self.create_indexes(conn)?;
         Ok(())
     }
@@ -85,6 +86,9 @@ impl SchemaManager {
             ("category", "TEXT"),
             ("created_at", "DATETIME DEFAULT CURRENT_TIMESTAMP"),
             ("updated_at", "DATETIME DEFAULT CURRENT_TIMESTAMP"),
+            ("auto_tagged", "BOOLEAN DEFAULT FALSE"),
+            ("auto_tag_date", "TEXT"),
+            ("auto_tag_version", "TEXT"),
         ];
 
         // Add each column if it doesn't exist
@@ -227,6 +231,23 @@ impl SchemaManager {
             [],
         )?;
 
+        Ok(())
+    }
+
+    fn create_auto_tagging_tables(&self, conn: &Connection) -> Result<()> {
+        // Auto tag history table for tracking AI tagging
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS auto_tag_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                file_id INTEGER NOT NULL,
+                tagged_at TEXT NOT NULL,
+                tags_applied TEXT NOT NULL,
+                api_version TEXT,
+                FOREIGN KEY (file_id) REFERENCES audio_files(id) ON DELETE CASCADE
+            )",
+            [],
+        )?;
+        
         Ok(())
     }
 

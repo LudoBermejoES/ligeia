@@ -9,6 +9,7 @@ import { ThemeService } from './services/ThemeService.js';
 // Managers (refactored responsibilities)
 import { LibraryManager } from './managers/LibraryManager.js';
 import { TagEditorManager } from './managers/TagEditorManager.js';
+import { AutoTagManager } from './managers/AutoTagManager.js';
 import { UIController } from './ui/UIController.js';
 import { BulkTagEditorController } from './ui/BulkTagEditorController.js';
 import { TagSearchController } from './ui/TagSearchController.js';
@@ -58,6 +59,7 @@ export class AmbientMixerApp {
     this.virtualFolderManager = new VirtualFolderManager(this.libraryManager, this.tagService, this.uiController);
     this.folderSuggestionsManager = new FolderSuggestionsManager(this.virtualFolderManager.service, this.uiController);
     this.autoOrganizeManager = new AutoOrganizeManager(this.uiController, this.virtualFolderManager.service);
+    this.autoTagManager = new AutoTagManager(this.uiController, this.libraryManager);
     this.currentEditingFile = null; // deprecated; kept for backward compatibility
         this.updateUIThrottled = this.throttle(this.updateUI.bind(this), 100);
         this.lastToggleTime = new Map(); // Track last toggle time per pad to prevent rapid toggling
@@ -71,6 +73,7 @@ export class AmbientMixerApp {
             storeTagsInFiles: () => this.storeTagsManager.storeAllTagsInFiles(),
             calculateDurations: () => this.handleCalculateDurations(),
             autoOrganizeSounds: () => this.autoOrganizeManager.confirmAndAutoOrganize(0.7),
+            autoTagWithAI: () => this.autoTagManager.startAutoTagging(),
             stopAll: () => this.handleStopAll(),
             fadeAllIn: () => this.handleFadeAllIn(),
             fadeAllOut: () => this.handleFadeAllOut(),
@@ -553,6 +556,7 @@ export class AmbientMixerApp {
             this.uiController.showError(`Failed to calculate durations and BPM: ${error.message}`);
         }
     }
+
 
     handleStopAll() {
         // Use LibraryManager's stopAll method which handles all sound pads

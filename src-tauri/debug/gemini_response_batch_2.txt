@@ -1,0 +1,717 @@
+```json
+{
+  "version": 1,
+  "files": [
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_100_AHarmonicMinor_Piano_TinyCreature.wav",
+      "title": "WACHS&FX 100 AHarmonicMinor Piano TinyCreature",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "A",
+      "mood": "ominous; eerie; tense",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "ruin-delving",
+        "dungeon-crawl"
+      ],
+      "rpg_keywords": [
+        "timbre:piano",
+        "creature:tiny-creature"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_100_AHarmonicMinor_StringHarmonic_LateAtNight.wav",
+      "title": "WACHS&FX 100 AHarmonicMinor StringHarmonic LateAtNight",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "A",
+      "mood": "ominous; eerie; tense",
+      "language": null,
+      "rpg_occasion": [
+        "night-watch",
+        "haunting",
+        "dungeon-crawl"
+      ],
+      "rpg_keywords": [
+        "timbre:strings-warm"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_100_AHarmonicMinor_StringsSforzando_NightFight.wav",
+      "title": "WACHS&FX 100 AHarmonicMinor StringsSforzando NightFight",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "A",
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "night-watch",
+        "combat-skirmish",
+        "combat-duel"
+      ],
+      "rpg_keywords": [
+        "timbre:strings-dissonant"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_100_AHarmonicMinor_StringsStaccato_InPair.wav",
+      "title": "WACHS&FX 100 AHarmonicMinor StringsStaccato InPair",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "A",
+      "mood": "ominous; tense",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "dungeon-crawl",
+        "investigation"
+      ],
+      "rpg_keywords": [
+        "timbre:strings-dissonant"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_100_AMinor_CelliPizz_BrokenSteps.wav",
+      "title": "WACHS&FX 100 AMinor CelliPizz BrokenSteps",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "A",
+      "mood": "ominous; tense; eerie",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "dungeon-crawl",
+        "ruin-delving"
+      ],
+      "rpg_keywords": [
+        "timbre:solo-cello"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_100_AMinor_Piano_EmotionalDeath.wav",
+      "title": "WACHS&FX 100 AMinor Piano EmotionalDeath",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "A",
+      "mood": "tragic; ominous; tense",
+      "language": null,
+      "rpg_occasion": [
+        "character-death",
+        "funeral",
+        "haunting"
+      ],
+      "rpg_keywords": [
+        "timbre:piano"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_100_AMinor_StringHarmonic_Whistle.wav",
+      "title": "WACHS&FX 100 AMinor StringHarmonic Whistle",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "A",
+      "mood": "ominous; eerie; tense",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "dungeon-crawl",
+        "ruin-delving"
+      ],
+      "rpg_keywords": [
+        "timbre:strings-warm",
+        "timbre:whistle"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_100_AMinor_StringsSfrz_EpicHorror.wav",
+      "title": "WACHS&FX 100 AMinor StringsSfrz EpicHorror",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "A",
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "boss-intro",
+        "combat-horde",
+        "haunting"
+      ],
+      "rpg_keywords": [
+        "timbre:strings-dissonant"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_100_AMinor_StringsStaccato_BrokenSteps.wav",
+      "title": "WACHS&FX 100 AMinor StringsStaccato BrokenSteps",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "A",
+      "mood": "ominous; tense",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "dungeon-crawl",
+        "ruin-delving"
+      ],
+      "rpg_keywords": [
+        "timbre:strings-dissonant"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_100_DMelodicMinor_Celli_DramedyHorror.wav",
+      "title": "WACHS&FX 100 DMelodicMinor Celli DramedyHorror",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "D",
+      "mood": "ominous; eerie; tense",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "dungeon-crawl",
+        "ruin-delving"
+      ],
+      "rpg_keywords": [
+        "timbre:solo-cello"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_100_DMelodicMinor_StringHarmonic_NotAbsurd.wav",
+      "title": "WACHS&FX 100 DMelodicMinor StringHarmonic NotAbsurd",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "D",
+      "mood": "ominous; eerie",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "occult-research",
+        "ritual"
+      ],
+      "rpg_keywords": [
+        "timbre:strings-warm"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_100_DMelodicMinor_StringsStaccato_KillItNow.wav",
+      "title": "WACHS&FX 100 DMelodicMinor StringsStaccato KillItNow",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": "D",
+      "mood": "ominous; tense; aggressive",
+      "language": null,
+      "rpg_occasion": [
+        "combat-skirmish",
+        "combat-horde",
+        "chase"
+      ],
+      "rpg_keywords": [
+        "timbre:strings-dissonant"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_100_Percussion_InYourFace.wav",
+      "title": "WACHS&FX 100 Percussion InYourFace",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": null,
+      "mood": "aggressive; percussive; tense",
+      "language": null,
+      "rpg_occasion": [
+        "combat-skirmish",
+        "combat-horde",
+        "chase"
+      ],
+      "rpg_keywords": [
+        "timbre:taiko",
+        "sfx:explosion"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_100_Percussion_Mocking.wav",
+      "title": "WACHS&FX 100 Percussion Mocking",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 100,
+      "initial_key": null,
+      "mood": "ominous; tense; eerie",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "dungeon-crawl",
+        "ruin-delving"
+      ],
+      "rpg_keywords": [
+        "timbre:frame-drum"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_60_Vocals_DMixolydian_Dreamy.wav",
+      "title": "WACHS&FX 60 Vocals DMixolydian Dreamy",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 60,
+      "initial_key": "D",
+      "mood": "dreamlike; ethereal; mysterious",
+      "language": null,
+      "rpg_occasion": [
+        "dream-walk",
+        "astral-travel",
+        "ritual"
+      ],
+      "rpg_keywords": [
+        "timbre:female-vocalise"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_60_Vocals_DMixolydian_Floating.wav",
+      "title": "WACHS&FX 60 Vocals DMixolydian Floating",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 60,
+      "initial_key": "D",
+      "mood": "dreamlike; ethereal; mysterious",
+      "language": null,
+      "rpg_occasion": [
+        "dream-walk",
+        "astral-travel",
+        "sea-voyage"
+      ],
+      "rpg_keywords": [
+        "timbre:female-vocalise"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_65_AHarmonicMinor_Choir_NightWatcher.wav",
+      "title": "WACHS&FX 65 AHarmonicMinor Choir NightWatcher",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 65,
+      "initial_key": "A",
+      "mood": "ominous; tense; eerie",
+      "language": null,
+      "rpg_occasion": [
+        "night-watch",
+        "haunting",
+        "dungeon-crawl"
+      ],
+      "rpg_keywords": [
+        "timbre:church-choir"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_75_AHarmonicMinor_MusicBox_NostalgicLullaby.wav",
+      "title": "WACHS&FX 75 AHarmonicMinor MusicBox NostalgicLullaby",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 75,
+      "initial_key": "A",
+      "mood": "ominous; eerie; nostalgic",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "flashback",
+        "dream-walk"
+      ],
+      "rpg_keywords": [
+        "tech:clockwork"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_75_C#mMinor_Harpsichord_VampireIntro.wav",
+      "title": "WACHS&FX 75 C#mMinor Harpsichord VampireIntro",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 75,
+      "initial_key": "C#",
+      "mood": "ominous; tense; eerie",
+      "language": null,
+      "rpg_occasion": [
+        "vampire-lair",
+        "boss-intro",
+        "haunting"
+      ],
+      "rpg_keywords": [
+        "timbre:harpsichord",
+        "creature:vampire"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_75_DMinor_Harpsichord_Wrong.wav",
+      "title": "WACHS&FX 75 DMinor Harpsichord Wrong",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 75,
+      "initial_key": "D",
+      "mood": "ominous; tense; eerie",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "trap-triggered",
+        "crime-scene"
+      ],
+      "rpg_keywords": [
+        "timbre:harpsichord"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_75_Percussion_LameMarch.wav",
+      "title": "WACHS&FX 75 Percussion LameMarch",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 75,
+      "initial_key": null,
+      "mood": "ominous; tense",
+      "language": null,
+      "rpg_occasion": [
+        "zombie-siege",
+        "cult-gathering",
+        "sacrificial-altar"
+      ],
+      "rpg_keywords": [
+        "timbre:frame-drum",
+        "sfx:footsteps"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_80-AHarmonicMinor_Harpsichord_FunnyYetDeadly.wav",
+      "title": "WACHS&FX 80 AHarmonicMinor Harpsichord FunnyYetDeadly",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 80,
+      "initial_key": "A",
+      "mood": "ominous; eerie; tense",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "trap-triggered",
+        "cult-gathering"
+      ],
+      "rpg_keywords": [
+        "timbre:harpsichord"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_80_A_Cimbalom_NoOneLeft.wav",
+      "title": "WACHS&FX 80 A Cimbalom NoOneLeft",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 80,
+      "initial_key": "A",
+      "mood": "ominous; tense; desolate",
+      "language": null,
+      "rpg_occasion": [
+        "character-death",
+        "ruin-delving",
+        "haunting"
+      ],
+      "rpg_keywords": [
+        "style:balkan"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_80_DMinor_Piano_FloorCreek.wav",
+      "title": "WACHS&FX 80 DMinor Piano FloorCreek",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 80,
+      "initial_key": "D",
+      "mood": "ominous; tense; eerie",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "dungeon-crawl",
+        "crime-scene"
+      ],
+      "rpg_keywords": [
+        "timbre:piano",
+        "sfx:door-creak"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_85_Cm_Bells_MelodicAnthem.wav",
+      "title": "WACHS&FX 85 Cm Bells MelodicAnthem",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 85,
+      "initial_key": "C",
+      "mood": "ominous; tense; solemn",
+      "language": null,
+      "rpg_occasion": [
+        "ceremony",
+        "religious-service",
+        "boss-intro"
+      ],
+      "rpg_keywords": [
+        "timbre:bells"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_85_Cm_Choir_ColdAndDark.wav",
+      "title": "WACHS&FX 85 Cm Choir ColdAndDark",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 85,
+      "initial_key": "C",
+      "mood": "ominous; tense; eerie",
+      "language": null,
+      "rpg_occasion": [
+        "dungeon-crawl",
+        "haunting",
+        "ritual"
+      ],
+      "rpg_keywords": [
+        "timbre:church-choir"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_85_Cm_Choir_WelcomeToTheMansion.wav",
+      "title": "WACHS&FX 85 Cm Choir WelcomeToTheMansion",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 85,
+      "initial_key": "C",
+      "mood": "ominous; tense; eerie",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "audience-with-ruler",
+        "tavern"
+      ],
+      "rpg_keywords": [
+        "timbre:church-choir",
+        "loc:mansion"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_85_Cm_Organ_ColdWelcome.wav",
+      "title": "WACHS&FX 85 Cm Organ ColdWelcome",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror Sounds & FX",
+      "genre": "horror:sound-design",
+      "year": null,
+      "duration": null,
+      "album_artist": null,
+      "track_number": null,
+      "bpm": 85,
+      "initial_key": "C",
+      "mood": "ominous; tense; eerie",
+      "language": null,
+      "rpg_occasion": [
+        "haunting",
+        "dungeon-crawl",
+        "ceremony"
+      ],
+      "rpg_keywords": [
+        "timbre:organ"
+      ],
+      "rpg_quality": null
+    },
+    {
+      "id": null,
+      "file_path": "/Users/ludo/Downloads/W_A_Production_Cinematic_Horror_Sounds_&_FX_WAV_MIDI_RYZEN/WAV MIDI/Melody Loops/Orchestral Melody Loops/WACHS&FX_85_Cm_Organ_Mystic.wav",
+      "title": "WACHS&FX 85 Cm Organ Mystic",
+      "artist": "W. A. Production",
+      "album": "Cinematic Horror

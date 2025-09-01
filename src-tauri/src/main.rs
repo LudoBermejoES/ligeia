@@ -7,6 +7,7 @@ use std::sync::Mutex;
 use tauri::AppHandle;
 
 use virtual_folder_handler::{suggest_folders_for_file, get_auto_organization_suggestions, apply_auto_organization_suggestions, auto_organize_sounds};
+use gemini_handler::{check_gemini_api_key, get_untagged_files, auto_tag_files, get_tagging_history};
 
 mod models;
 mod database;
@@ -20,6 +21,8 @@ mod audio_file_handler;
 mod tag_handler;
 mod store_tags_handler;
 mod virtual_folder_handler;
+mod gemini_tagger;
+mod gemini_handler;
 
 use models::*;
 use database::Database;
@@ -327,7 +330,11 @@ pub fn run() {
             suggest_folders_for_file,
             get_auto_organization_suggestions,
             apply_auto_organization_suggestions,
-            auto_organize_sounds
+            auto_organize_sounds,
+            check_gemini_api_key,
+            get_untagged_files,
+            auto_tag_files,
+            get_tagging_history
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

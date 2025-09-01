@@ -81,6 +81,11 @@ export class UIController {
             eventHandlers.autoOrganizeSounds(e);
         });
         
+        this.getElementById('autoTagWithAI')?.addEventListener('click', (e) => {
+            this.closeLibraryActionsMenu();
+            eventHandlers.autoTagWithAI(e);
+        });
+        
         // Global controls
         this.getElementById('stopAll')?.addEventListener('click', eventHandlers.stopAll);
         this.getElementById('fadeAllIn')?.addEventListener('click', eventHandlers.fadeAllIn);
