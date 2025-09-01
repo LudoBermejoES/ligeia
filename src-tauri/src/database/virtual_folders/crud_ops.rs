@@ -87,6 +87,22 @@ impl VirtualFolderCrud {
         
         Ok(())
     }
+    
+    /// Delete all virtual folders and their contents (for fresh start during auto-tagging)
+    pub fn delete_all_virtual_folders(conn: &Connection) -> Result<()> {
+        log::info!("Deleting all virtual folders for fresh start");
+        
+        // First delete all folder contents (file associations)
+        let mut stmt = conn.prepare("DELETE FROM virtual_folder_contents")?;
+        stmt.execute([])?;
+        
+        // Then delete all virtual folders
+        let mut stmt = conn.prepare("DELETE FROM virtual_folders")?;
+        stmt.execute([])?;
+        
+        log::info!("All virtual folders deleted successfully");
+        Ok(())
+    }
 
     // Template operations
     pub fn create_folder_template(conn: &Connection, template: &FolderTemplate) -> Result<i64> {

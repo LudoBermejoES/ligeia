@@ -209,6 +209,14 @@ impl Database {
     pub fn delete_virtual_folder(&self, id: i64) -> Result<()> {
         VirtualFolderOps::delete_virtual_folder(&self.conn, id)
     }
+    
+    pub fn delete_all_virtual_folders(&self) -> Result<()> {
+        VirtualFolderOps::delete_all_virtual_folders(&self.conn)
+    }
+    
+    pub fn reinitialize_virtual_folders(&self) -> Result<()> {
+        VirtualFolderOps::initialize_default_virtual_folders(&self.conn)
+    }
 
     pub fn get_folder_children(&self, parent_id: Option<i64>) -> Result<Vec<VirtualFolder>> {
         VirtualFolderOps::get_folder_children(&self.conn, parent_id)

@@ -43,6 +43,10 @@ impl VirtualFolderOps {
     pub fn delete_virtual_folder(conn: &Connection, id: i64) -> Result<()> {
         VirtualFolderCrud::delete_virtual_folder(conn, id)
     }
+    
+    pub fn delete_all_virtual_folders(conn: &Connection) -> Result<()> {
+        VirtualFolderCrud::delete_all_virtual_folders(conn)
+    }
 
     // Hierarchy Operations
     pub fn get_folder_children(conn: &Connection, parent_id: Option<i64>) -> Result<Vec<VirtualFolder>> {
