@@ -9,7 +9,7 @@ use std::env;
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 use futures::stream::{self, StreamExt};
-use log::{info, warn, error};
+use log::{info, warn, error, debug};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AudioFile {
@@ -238,11 +238,20 @@ Use only the tags I'm sharing with you, don't invent new ones.
 Example format:
 [
   {{
+    "file_path": "I:\\Musica\\FX\\Blastwave FX - Bullets Casings and Impacts\\BulletImpactFlesh_BW.54425.wav",
+    "genre": "sound-design:impacts",
+    "mood": "aggressive; violent; visceral",
+    "rpg_occasion": ["combat-encounter", "gunfight", "injury"],
+    "rpg_keywords": ["sfx:impact", "sfx:flesh-impact", "weapon:firearm", "creature:humanoid", "sfx:gore"],
+    "rpg_quality": "clean"
+  }},
+  {{
     "file_path": "path/to/file.wav",
     "genre": "ambient:dark-ambient", 
     "mood": "ominous; eerie",
     "rpg_occasion": ["dungeon-crawl", "night-watch"],
-    "rpg_keywords": ["loc:cave", "timbre:drone"]
+    "rpg_keywords": ["loc:cave", "timbre:drone"],
+    "rpg_quality": "clean"
   }}
 ]"#,
             self.autotag_prompt,
@@ -255,12 +264,15 @@ Example format:
         // Create a mutable session clone for this request
         let mut session = Session::new(1); // Single-use session for this request
         
+        
         let response = self.client
             .ask(session.ask_string(prompt))
             .await
             .map_err(|e| anyhow!("Gemini API error: {}", e))?;
         
-        Ok(response.get_text(""))
+        let response_text = response.get_text("");
+        
+        Ok(response_text)
     }
     
     fn parse_response(&self, response: String) -> Result<Vec<GeminiTagResponse>> {
