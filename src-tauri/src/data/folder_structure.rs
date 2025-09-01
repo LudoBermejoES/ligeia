@@ -1449,6 +1449,7 @@
     ("Moods & Atmosphere/Heroic & Triumphant/Victory", Some("Moods & Atmosphere/Heroic & Triumphant"), None, "Victory heroic sounds"),
     
     // === MOODS & ATMOSPHERE - LIGHT & SERENE ===
+    ("Moods & Atmosphere/Light & Serene", Some("Moods & Atmosphere"), Some("☀️"), "Light and serene mood sounds"),
     ("Moods & Atmosphere/Light & Serene/Airy", Some("Moods & Atmosphere/Light & Serene"), None, "Airy light sounds"),
     ("Moods & Atmosphere/Light & Serene/Calm", Some("Moods & Atmosphere/Light & Serene"), None, "Calm light sounds"),
     
