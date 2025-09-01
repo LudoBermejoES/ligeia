@@ -89,18 +89,19 @@ impl VirtualFolderCrud {
     }
     
     /// Delete all virtual folders and their contents (for fresh start during auto-tagging)
+    /// Preserves the special "Unassigned" folder
     pub fn delete_all_virtual_folders(conn: &Connection) -> Result<()> {
-        log::info!("Deleting all virtual folders for fresh start");
+        log::info!("Deleting all virtual folders for fresh start (preserving Unassigned folder)");
         
-        // First delete all folder contents (file associations)
+        // First delete all folder contents (file associations), but keep Unassigned folder empty
         let mut stmt = conn.prepare("DELETE FROM virtual_folder_contents")?;
         stmt.execute([])?;
         
-        // Then delete all virtual folders
-        let mut stmt = conn.prepare("DELETE FROM virtual_folders")?;
+        // Then delete all virtual folders EXCEPT the "Unassigned" folder
+        let mut stmt = conn.prepare("DELETE FROM virtual_folders WHERE name != 'Unassigned'")?;
         stmt.execute([])?;
         
-        log::info!("All virtual folders deleted successfully");
+        log::info!("All virtual folders deleted successfully (Unassigned folder preserved)");
         Ok(())
     }
 

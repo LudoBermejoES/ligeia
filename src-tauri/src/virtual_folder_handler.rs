@@ -47,6 +47,14 @@ pub async fn delete_virtual_folder(
     let state = app_handle.state::<crate::AppState>();
     let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
     
+    // Check if this is the "Unassigned" folder - prevent deletion
+    let folder = db.get_virtual_folder_by_id(id)
+        .map_err(|e| format!("Failed to get folder: {}", e))?;
+    
+    if folder.name == "Unassigned" {
+        return Err("Cannot delete the Unassigned folder. This is a special system folder.".to_string());
+    }
+    
     db.delete_virtual_folder(id)
         .map_err(|e| format!("Failed to delete virtual folder: {}", e))
 }
@@ -112,6 +120,14 @@ pub async fn add_files_to_virtual_folder(
     let state = app_handle.state::<crate::AppState>();
     let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
     
+    // Check if this is the "Unassigned" folder - prevent manual additions
+    let folder = db.get_virtual_folder_by_id(folder_id)
+        .map_err(|e| format!("Failed to get folder: {}", e))?;
+    
+    if folder.name == "Unassigned" {
+        return Err("Cannot manually add files to the Unassigned folder. This folder automatically shows all unorganized files.".to_string());
+    }
+    
     for file_id in file_ids {
         // Ignore duplicates - the database constraint will handle this
         let _ = db.add_file_to_virtual_folder(folder_id, file_id);
@@ -129,6 +145,14 @@ pub async fn remove_files_from_virtual_folder(
     let state = app_handle.state::<crate::AppState>();
     let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
     
+    // Check if this is the "Unassigned" folder - prevent manual removals
+    let folder = db.get_virtual_folder_by_id(folder_id)
+        .map_err(|e| format!("Failed to get folder: {}", e))?;
+    
+    if folder.name == "Unassigned" {
+        return Err("Cannot manually remove files from the Unassigned folder. Files will automatically disappear when added to other folders.".to_string());
+    }
+    
     for file_id in file_ids {
         db.remove_file_from_virtual_folder(folder_id, file_id)
             .map_err(|e| format!("Failed to remove file {} from folder: {}", file_id, e))?;
@@ -145,8 +169,19 @@ pub async fn get_virtual_folder_contents(
     let state = app_handle.state::<crate::AppState>();
     let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
     
-    db.get_virtual_folder_contents(folder_id)
-        .map_err(|e| format!("Failed to get virtual folder contents: {}", e))
+    // First get the folder to check if it's the "Unassigned" folder
+    let folder = db.get_virtual_folder_by_id(folder_id)
+        .map_err(|e| format!("Failed to get folder: {}", e))?;
+    
+    if folder.name == "Unassigned" {
+        // Special handling for "Unassigned" folder - show all unorganized files
+        get_unassigned_folder_contents(&db, folder)
+            .map_err(|e| format!("Failed to get unassigned folder contents: {}", e))
+    } else {
+        // Regular folder contents
+        db.get_virtual_folder_contents(folder_id)
+            .map_err(|e| format!("Failed to get virtual folder contents: {}", e))
+    }
 }
 
 #[tauri::command]
@@ -279,7 +314,7 @@ pub async fn apply_auto_organization_suggestions(
         ) {
             Ok(_) => applied_count += 1,
             Err(e) => {
-                eprintln!("Failed to apply suggestion for file {}: {}", 
+                log::error!("Failed to apply suggestion for file {}: {}", 
                     suggestion.audio_file_id, e);
                 // Continue with other suggestions rather than failing completely
             }
@@ -294,21 +329,46 @@ pub async fn auto_organize_sounds(
     app_handle: AppHandle,
     confidence_threshold: Option<f64>,
 ) -> Result<AutoOrganizeResult, String> {
-    let state = app_handle.state::<crate::AppState>();
-    let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
+    log::info!("Starting auto-organize process with virtual folder reset");
     
+    let state = app_handle.state::<crate::AppState>();
+    
+    // First, reset virtual folders - delete all and recreate from scratch
+    {
+        let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
+        
+        log::info!("Deleting all existing virtual folders");
+        db.delete_all_virtual_folders()
+            .map_err(|e| format!("Failed to delete virtual folders: {}", e))?;
+        
+        log::info!("Reinitializing virtual folders from clean structure");
+        db.reinitialize_virtual_folders()
+            .map_err(|e| format!("Failed to reinitialize virtual folders: {}", e))?;
+    }
+    
+    let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
     let threshold = confidence_threshold.unwrap_or(0.7); // Default 70% as requested
     
     // Find all unorganized sounds with tags
     let unorganized_files = db.get_unorganized_tagged_files()
         .map_err(|e| format!("Failed to get unorganized files: {}", e))?;
     
-    let mut organized_count = 0;
-    let mut processed_count = 0;
+    let total_files = unorganized_files.len();
+    log::info!("Starting to organize {} unorganized audio files", total_files);
+    
+    let mut organized_count = 0i32;
+    let mut processed_count = 0i32;
     let mut results = Vec::new();
     
     for file_id in unorganized_files {
         processed_count += 1;
+        
+        // Log progress every 500 files
+        if processed_count % 500 == 0 {
+            let remaining = total_files as i32 - processed_count;
+            log::info!("Progress: Processed {} files, {} remaining to process ({} organized so far)", 
+                      processed_count, remaining, organized_count);
+        }
         
         // Get suggestions for this file
         let suggestions = db.suggest_folders_for_file(file_id, Some(5))
@@ -329,18 +389,145 @@ pub async fn auto_organize_sounds(
                         break; // Only add to one folder (the best match)
                     },
                     Err(e) => {
-                        eprintln!("Failed to add file {} to folder {}: {}", file_id, folder.name, e);
+                        log::error!("Failed to add file {} to folder {}: {}", file_id, folder.name, e);
                     }
                 }
             }
         }
     }
     
+    log::info!("Auto-organize completed: {} files processed, {} successfully organized", 
+              processed_count, organized_count);
+    
     Ok(AutoOrganizeResult {
         processed_files: processed_count,
         organized_files: organized_count,
         results,
     })
+}
+
+/// Helper function to get contents for the special "Unassigned" folder
+fn get_unassigned_folder_contents(
+    db: &crate::database::Database, 
+    folder: crate::models::VirtualFolder
+) -> Result<crate::models::VirtualFolderWithContents, rusqlite::Error> {
+    use crate::models::{VirtualFolderWithContents, AudioFile};
+    use rusqlite::params;
+    
+    // Get all files that are not in any virtual folder (not just tagged ones)
+    let conn = db.connection();
+    let mut stmt = conn.prepare(
+        "SELECT DISTINCT af.id 
+         FROM audio_files af
+         WHERE af.id NOT IN (
+             SELECT DISTINCT vfc.audio_file_id 
+             FROM virtual_folder_contents vfc
+         )
+         ORDER BY af.id"
+    )?;
+    
+    let unorganized_files: Vec<i64> = stmt.query_map([], |row| {
+        Ok(row.get(0)?)
+    })?.collect::<Result<Vec<_>, _>>()?;
+    
+    log::info!("Found {} unassigned files, logging their tags for analysis", unorganized_files.len());
+    
+    // Convert file IDs to full AudioFile objects and log their tags
+    let mut audio_files = Vec::new();
+    for file_id in unorganized_files {
+        if let Ok(audio_file) = get_audio_file_by_id(db, file_id) {
+            // Get and log tags for this file to help with debugging organization
+            log_file_tags_for_analysis(db, file_id, &audio_file.file_path)?;
+            audio_files.push(audio_file);
+        }
+    }
+    
+    Ok(VirtualFolderWithContents {
+        folder: folder.clone(),
+        audio_files,
+        subfolders: Vec::new(), // Unassigned folder has no subfolders
+        breadcrumb: vec![folder], // Root level folder
+    })
+}
+
+/// Helper function to get full AudioFile by ID
+fn get_audio_file_by_id(db: &crate::database::Database, file_id: i64) -> Result<crate::models::AudioFile, rusqlite::Error> {
+    use crate::models::AudioFile;
+    use rusqlite::params;
+    
+    let conn = db.connection();
+    let mut stmt = conn.prepare(
+        "SELECT id, file_path, title, artist, album, duration, genre, year, track_number, bpm
+         FROM audio_files WHERE id = ?"
+    )?;
+    
+    stmt.query_row(params![file_id], |row| {
+        Ok(AudioFile {
+            id: Some(row.get(0)?),
+            file_path: row.get(1)?,
+            title: row.get(2)?,
+            artist: row.get(3)?,
+            album: row.get(4)?,
+            duration: row.get(5)?,
+            genre: row.get(6)?,
+            year: row.get(7)?,
+            track_number: row.get(8)?,
+            bpm: row.get(9)?,
+            ..Default::default()
+        })
+    })
+}
+
+/// Helper function to log tags of unassigned files for analysis
+fn log_file_tags_for_analysis(db: &crate::database::Database, file_id: i64, file_path: &str) -> Result<(), rusqlite::Error> {
+    use rusqlite::params;
+    
+    let conn = db.connection();
+    let mut stmt = conn.prepare(
+        "SELECT tag_type, tag_value FROM rpg_tags WHERE audio_file_id = ? ORDER BY tag_type, tag_value"
+    )?;
+    
+    let mut genre_tags = Vec::new();
+    let mut mood_tags = Vec::new(); 
+    let mut occasion_tags = Vec::new();
+    let mut keyword_tags = Vec::new();
+    let mut other_tags = Vec::new();
+    
+    let tags: Result<Vec<(String, String)>, _> = stmt.query_map(params![file_id], |row| {
+        Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+    })?.collect();
+    
+    if let Ok(tag_list) = tags {
+        for (tag_type, tag_value) in tag_list {
+            let tag_full = format!("{}:{}", tag_type, tag_value);
+            match tag_type.as_str() {
+                "genre" => genre_tags.push(tag_full),
+                "mood" => mood_tags.push(tag_full),
+                "occasion" => occasion_tags.push(tag_full),
+                "keyword" => keyword_tags.push(tag_full),
+                _ => other_tags.push(tag_full),
+            }
+        }
+        
+        // Only log files that have tags (to avoid spam from untagged files)
+        if !genre_tags.is_empty() || !mood_tags.is_empty() || !occasion_tags.is_empty() || !keyword_tags.is_empty() {
+            let filename = std::path::Path::new(file_path)
+                .file_name()
+                .and_then(|f| f.to_str())
+                .unwrap_or("unknown");
+                
+            log::info!("UNASSIGNED: {} | Genre: [{}] | Mood: [{}] | Occasion: [{}] | Keywords: [{}] | Other: [{}]", 
+                filename,
+                genre_tags.join(", "),
+                mood_tags.join(", "),
+                occasion_tags.join(", "),
+                keyword_tags.join(", "),
+                other_tags.join(", ")
+            );
+        }
+    }
+    
+    Ok(())
 }
 
 // Auto-organization result types

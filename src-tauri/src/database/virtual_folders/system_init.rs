@@ -8,9 +8,12 @@ pub struct VirtualFolderSystemInit;
 impl VirtualFolderSystemInit {
     /// Initialize default RPG folder structure on first run
     pub fn initialize_default_virtual_folders(conn: &Connection) -> Result<()> {
+        // Always ensure the "Unassigned" folder exists first
+        Self::ensure_unassigned_folder_exists(conn)?;
+
         // Check if default folders are already created
         let count: i64 = conn.query_row(
-            "SELECT COUNT(*) FROM virtual_folders WHERE is_system_folder = 1",
+            "SELECT COUNT(*) FROM virtual_folders WHERE is_system_folder = 1 AND name != 'Unassigned'",
             [],
             |row| row.get(0)
         )?;
@@ -25,6 +28,43 @@ impl VirtualFolderSystemInit {
         Self::create_rpg_folder_hierarchy(conn)?;
         
         log::info!("Default virtual folders initialized successfully");
+        Ok(())
+    }
+
+    /// Ensure the special "Unassigned" folder always exists
+    fn ensure_unassigned_folder_exists(conn: &Connection) -> Result<()> {
+        // Check if "Unassigned" folder already exists
+        let exists: bool = conn.query_row(
+            "SELECT EXISTS(SELECT 1 FROM virtual_folders WHERE name = 'Unassigned' AND parent_folder_id IS NULL)",
+            [],
+            |row| row.get(0)
+        )?;
+
+        if !exists {
+            log::info!("Creating special 'Unassigned' virtual folder");
+            let now = Utc::now().to_rfc3339();
+            
+            let mut stmt = conn.prepare(
+                "INSERT INTO virtual_folders 
+                 (name, description, parent_folder_id, color, icon, created_by, folder_order, is_system_folder, metadata, created_at, updated_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            )?;
+            
+            stmt.execute(params![
+                "Unassigned",
+                "Unassigned sounds not in any folder",
+                None::<i64>, // root level
+                None::<String>, // color
+                Some("📥"), // icon
+                "system",
+                -1, // Put it at the top with negative order
+                true, // is_system_folder
+                Some("{\"special\": \"unassigned\"}"), // metadata to mark it as special
+                &now,
+                &now
+            ])?;
+        }
+
         Ok(())
     }
 

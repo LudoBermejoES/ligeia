@@ -30,6 +30,9 @@ impl VirtualFolderTagSuggestions {
         folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_audio_structure.rs"));
         folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_organizations.rs"));
         folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_temporal_events.rs"));
+        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_vehicles.rs"));
+        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_ui.rs"));
+        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_domestic.rs"));
         
         // Define tag weights for scoring algorithm
         let tag_weights = &[
@@ -149,8 +152,6 @@ impl VirtualFolderTagSuggestions {
     
     /// Find folder by hierarchical path (e.g., "Combat/Weapons/Melee/Swords")
     fn find_folder_by_path(conn: &Connection, path: &str) -> Result<Option<VirtualFolder>> {
-        log::debug!("Looking for folder path: {}", path);
-        
         let parts: Vec<&str> = path.split('/').collect();
         if parts.is_empty() {
             return Ok(None);
@@ -160,7 +161,6 @@ impl VirtualFolderTagSuggestions {
         
         // Walk through each level of the hierarchy
         for (i, part) in parts.iter().enumerate() {
-            log::debug!("Looking for folder '{}' with parent {:?}", part, current_parent);
             let mut stmt = if current_parent.is_some() {
                 conn.prepare(
                     "SELECT id, name, description, parent_folder_id, color, icon, 
@@ -217,19 +217,16 @@ impl VirtualFolderTagSuggestions {
             
             match folder_result {
                 Ok(folder) => {
-                    log::debug!("Found folder '{}' with id {:?}", folder.name, folder.id);
                     if i == parts.len() - 1 {
                         // This is the final folder we're looking for
-                        log::debug!("Successfully found target folder: {}", folder.name);
                         return Ok(Some(folder));
                     } else {
                         // Continue to next level
                         current_parent = folder.id;
                     }
                 }
-                Err(e) => {
-                    // Folder not found at this level
-                    log::debug!("Folder '{}' not found at this level: {:?}", part, e);
+                Err(_e) => {
+                    // Folder not found at this level - this is normal, not an error
                     return Ok(None);
                 }
             }

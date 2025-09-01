@@ -66,21 +66,7 @@ pub async fn auto_tag_files(
     batch_size: Option<usize>,
     max_parallel: Option<usize>,
 ) -> Result<String, String> {
-    info!("Starting auto-tag process with virtual folder reset");
-    
-    // First, reset virtual folders - delete all and recreate from scratch
-    let state = app_handle.state::<crate::AppState>();
-    {
-        let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
-        
-        info!("Deleting all existing virtual folders");
-        db.delete_all_virtual_folders()
-            .map_err(|e| format!("Failed to delete virtual folders: {}", e))?;
-        
-        info!("Reinitializing virtual folders from clean structure");
-        db.reinitialize_virtual_folders()
-            .map_err(|e| format!("Failed to reinitialize virtual folders: {}", e))?;
-    }
+    info!("Starting auto-tag process");
     
     // Get untagged files
     let untagged_files = get_untagged_files(app_handle.clone()).await?;

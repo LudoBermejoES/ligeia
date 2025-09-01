@@ -25,7 +25,7 @@ export class AutoOrganizeManager {
         
         try {
             // Show progress indicator
-            this.ui.showInfo('🧠 Analyzing unorganized sounds with tags...', 0);
+            this.ui.showInfo('🔄 Resetting virtual folders and analyzing sounds with tags...', 0);
             
             // Call backend to auto-organize sounds
             const result = await invoke('auto_organize_sounds', {
@@ -44,11 +44,11 @@ export class AutoOrganizeManager {
             } else {
                 // Show success with details
                 const folderSummary = this.createFolderSummary(results);
-                this.ui.showSuccess(`🎯 Auto-organized ${organized_files} out of ${processed_files} sounds!\n\n${folderSummary}`);
+                this.ui.showSuccess(`🎯 Virtual folders reset & auto-organized ${organized_files} out of ${processed_files} sounds!\n\n${folderSummary}`);
                 
                 // Refresh the virtual folders panel if it's open
                 if (this.virtualFolderService) {
-                    this.virtualFolderService.refreshCurrentFolder();
+                    this.virtualFolderService.invalidateCache();
                 }
                 
                 // Show detailed results in console for debugging
@@ -105,10 +105,14 @@ export class AutoOrganizeManager {
     async confirmAndAutoOrganize(confidenceThreshold = 0.7) {
         const confidencePercent = Math.round(confidenceThreshold * 100);
         const message = `Auto-organize sounds into virtual folders?\n\n` +
-                       `• Only sounds NOT in any folder will be processed\n` +
-                       `• Only sounds WITH tags will be considered\n` +
+                       `🔄 RESETS ALL VIRTUAL FOLDERS:\n` +
+                       `• All existing virtual folders will be DELETED\n` +
+                       `• Fresh folder structure will be recreated\n` +
+                       `• All existing folder assignments will be lost\n\n` +
+                       `📂 ORGANIZATION:\n` +
+                       `• Only sounds WITH tags will be processed\n` +
                        `• Minimum confidence: ${confidencePercent}%\n\n` +
-                       `This action cannot be undone. Continue?`;
+                       `⚠️  This action cannot be undone. Continue?`;
 
         if (confirm(message)) {
             await this.autoOrganizeSounds(confidenceThreshold);

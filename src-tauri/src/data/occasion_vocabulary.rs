@@ -250,5 +250,74 @@
     ("occasion", "occasion:world-building", Some("world building scenario"), None::<&str>),
     ("occasion", "occasion:world-manipulation", Some("world manipulation scenario"), None::<&str>),
     ("occasion", "occasion:world-saving", Some("world saving scenario"), None::<&str>),
-    ("occasion", "occasion:zombie-siege", Some("zombie siege scenario"), None::<&str>)
+    ("occasion", "occasion:zombie-siege", Some("zombie siege scenario"), None::<&str>),
+
+    // === CRITICAL MISSING TAGS FOR AUTO-ORGANIZATION ===
+    // Horror & Jump Scares
+    ("occasion", "jump-scare", Some("Jump scare horror moments"), None::<&str>),
+    ("occasion", "mystery-sting", Some("Mystery reveal stinger"), None::<&str>),
+    ("occasion", "horror", Some("General horror scenarios"), None::<&str>),
+
+    // Combat Essentials  
+    ("occasion", "combat", Some("General combat scenarios"), None::<&str>),
+    ("occasion", "combat-encounter", Some("Combat encounters"), None::<&str>),
+    ("occasion", "gunfight", Some("Firearm combat"), None::<&str>),
+    ("occasion", "headshot", Some("Precision kills"), None::<&str>),
+
+    // Common RPG Scenarios
+    ("occasion", "boss-loop", Some("Boss battle loops"), None::<&str>),
+    ("occasion", "creature-kill", Some("Monster elimination"), None::<&str>),
+    ("occasion", "action-sequence", Some("High-action sequences"), None::<&str>),
+    ("occasion", "chase", Some("Chase sequences"), None::<&str>),
+
+    // === ADDITIONAL HIGH-PRIORITY OCCASION TAGS ===
+    // Vehicle & Transportation
+    ("occasion", "vehicle-chase", Some("Vehicle chase sequences"), None::<&str>),
+    ("occasion", "vehicle-driving", Some("Vehicle driving"), None::<&str>),
+    ("occasion", "vehicle-interior", Some("Inside vehicle ambience"), None::<&str>),
+    ("occasion", "car-chase", Some("Car chase sequences"), None::<&str>),
+    ("occasion", "car-interior", Some("Car interior ambience"), None::<&str>),
+    
+    // Combat Variants
+    ("occasion", "combat-mecha", Some("Mecha combat"), None::<&str>),
+    ("occasion", "combat-space-battle", Some("Space combat"), None::<&str>),
+    ("occasion", "combat-vehicular", Some("Vehicle combat"), None::<&str>),
+    ("occasion", "combat-training", Some("Combat training"), None::<&str>),
+    ("occasion", "combat-intro", Some("Combat introduction"), None::<&str>),
+    ("occasion", "combat-march", Some("Combat march"), None::<&str>),
+    
+    // Exploration & Travel
+    ("occasion", "abandoned-factory", Some("Abandoned factory exploration"), None::<&str>),
+    ("occasion", "derelict-ship-exploration", Some("Derelict ship exploration"), None::<&str>),
+    ("occasion", "space-station-walk", Some("Space station exploration"), None::<&str>),
+    ("occasion", "jungle-trek", Some("Jungle travel"), None::<&str>),
+    ("occasion", "arctic-trek", Some("Arctic travel"), None::<&str>),
+    ("occasion", "desert-crossing", Some("Desert travel"), None::<&str>),
+    ("occasion", "underdark-journey", Some("Underdark travel"), None::<&str>),
+    
+    // Common RPG Activities
+    ("occasion", "downtime", Some("Downtime activities"), None::<&str>),
+    ("occasion", "long-rest", Some("Long rest periods"), None::<&str>),
+    ("occasion", "short-rest", Some("Short rest periods"), None::<&str>),
+    ("occasion", "training", Some("Training activities"), None::<&str>),
+    ("occasion", "cooking", Some("Cooking activities"), None::<&str>),
+    ("occasion", "eating", Some("Eating meals"), None::<&str>),
+    ("occasion", "drinking", Some("Drinking activities"), None::<&str>),
+    ("occasion", "campfire", Some("Campfire scenes"), None::<&str>),
+    
+    // UI & System
+    ("occasion", "ui:error", Some("UI error sounds"), None::<&str>),
+    ("occasion", "ui:notify", Some("UI notification sounds"), None::<&str>),
+    ("occasion", "success-cue", Some("Success notification"), None::<&str>),
+    ("occasion", "failure-cue", Some("Failure notification"), None::<&str>),
+    
+    // Horror & Atmosphere
+    ("occasion", "monster-encounter", Some("Monster encounters"), None::<&str>),
+    ("occasion", "injury", Some("Injury scenarios"), None::<&str>),
+    ("occasion", "death", Some("Death scenarios"), None::<&str>),
+    
+    // Weather & Environment
+    ("occasion", "rain", Some("Rain weather"), None::<&str>),
+    ("occasion", "storm", Some("Storm weather"), None::<&str>),
+    ("occasion", "night-watch", Some("Night watch duty"), None::<&str>)
 ]

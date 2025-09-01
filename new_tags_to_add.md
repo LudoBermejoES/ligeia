@@ -1,0 +1,869 @@
+# Unmapped Tags Analysis Report
+
+Generated from vocabulary files analysis
+
+## Summary
+
+- **Total vocabulary tags**: 2351
+- **Currently mapped tags**: 3735
+- **Unmapped tags**: 0
+- **Coverage**: 158.9%
+
+- **Total folder paths**: 1914
+- **Used folder paths**: 1391
+- **Unused folder paths**: 831
+
+## Unmapped Tags by Category
+
+## Unmapped Tags by Source File
+
+## Unused Folder Paths
+
+These folder paths exist in folder_structure.rs but are not used in any mappings:
+
+- `Activities & Crafts/Artisan Crafts`
+- `Activities & Crafts/Artisan Crafts/Alchemy`
+- `Activities & Crafts/Artisan Crafts/Alchemy/Brewing`
+- `Activities & Crafts/Artisan Crafts/Alchemy/Experiments`
+- `Activities & Crafts/Artisan Crafts/Alchemy/Laboratories`
+- `Activities & Crafts/Artisan Crafts/Blacksmithing`
+- `Activities & Crafts/Artisan Crafts/Blacksmithing/Anvil Work`
+- `Activities & Crafts/Artisan Crafts/Blacksmithing/Forges`
+- `Activities & Crafts/Artisan Crafts/Blacksmithing/Weapon Making`
+- `Activities & Crafts/Artisan Crafts/Enchanting`
+- `Activities & Crafts/Artisan Crafts/Enchanting/Magical Infusion`
+- `Activities & Crafts/Artisan Crafts/Enchanting/Rituals`
+- `Activities & Crafts/Artisan Crafts/Enchanting/Rune Carving`
+- `Activities & Crafts/Artistic Crafts`
+- `Activities & Crafts/Artistic Crafts/Fine Arts`
+- `Activities & Crafts/Artistic Crafts/Performance Arts`
+- `Activities & Crafts/Daily Life`
+- `Activities & Crafts/Daily Life/Cooking`
+- `Activities & Crafts/Daily Life/Cooking/Feasts`
+- `Activities & Crafts/Daily Life/Cooking/Hearths`
+- `Activities & Crafts/Daily Life/Cooking/Kitchens`
+- `Activities & Crafts/Daily Life/Sleep & Rest`
+- `Activities & Crafts/Daily Life/Sleep & Rest/Bedrooms`
+- `Activities & Crafts/Daily Life/Sleep & Rest/Campfires`
+- `Activities & Crafts/Daily Life/Sleep & Rest/Night Watches`
+- `Activities & Crafts/Mundane Activities`
+- `Activities & Crafts/Mundane Activities/Daily Tasks`
+- `Activities & Crafts/Mundane Activities/Hobbies`
+- `Activities & Crafts/Professional Crafts`
+- `Activities & Crafts/Professional Crafts/Alchemy`
+- `Activities & Crafts/Professional Crafts/Construction`
+- `Activities & Crafts/Professional Crafts/Enchanting`
+- `Activities & Crafts/Professional Crafts/Smithing`
+- `Audio Structure/Audio Quality`
+- `Audio Structure/Audio Quality/Bed Tracks`
+- `Audio Structure/Audio Quality/Drone Layers`
+- `Audio Structure/Audio Quality/Motifs`
+- `Audio Structure/Audio Quality/Sub-Boom`
+- `Audio Structure/Audio Quality/Themes`
+- `Audio Structure/Diegetic vs Non-Diegetic`
+- `Audio Structure/Diegetic vs Non-Diegetic/Diegetic`
+- `Audio Structure/Diegetic vs Non-Diegetic/Diegetic/In-World Music`
+- `Audio Structure/Diegetic vs Non-Diegetic/Diegetic/Live Performance`
+- `Audio Structure/Diegetic vs Non-Diegetic/Diegetic/Radio`
+- `Audio Structure/Diegetic vs Non-Diegetic/Non-Diegetic`
+- `Audio Structure/Diegetic vs Non-Diegetic/Non-Diegetic/Atmospheric`
+- `Audio Structure/Diegetic vs Non-Diegetic/Non-Diegetic/Background Score`
+- `Audio Structure/Diegetic vs Non-Diegetic/Non-Diegetic/Emotional Underscore`
+- `Audio Structure/Ending Segments`
+- `Audio Structure/Ending Segments/Conclusions`
+- `Audio Structure/Intro Segments`
+- `Audio Structure/Intro Segments/Opening`
+- `Audio Structure/Main Body`
+- `Audio Structure/Main Body/Loops`
+- `Audio Structure/Main Body/Variations`
+- `Audio Structure/Mix Types`
+- `Audio Structure/Mix Types/Alternative Mix`
+- `Audio Structure/Mix Types/Extended Mix`
+- `Audio Structure/Mix Types/Full Mix`
+- `Audio Structure/Mix Types/Instrumental`
+- `Audio Structure/Mix Types/With Vocals`
+- `Audio Structure/Song Structure`
+- `Audio Structure/Song Structure/Intros`
+- `Audio Structure/Song Structure/Loops`
+- `Audio Structure/Song Structure/Outros`
+- `Audio Structure/Song Structure/Stingers`
+- `Audio Structure/Song Structure/Transitions`
+- `Audio Structure/Stems & Layers`
+- `Audio Structure/Stems & Layers/Ambient Stems`
+- `Audio Structure/Stems & Layers/Bass Stems`
+- `Audio Structure/Stems & Layers/Harmony Stems`
+- `Audio Structure/Stems & Layers/Melody Stems`
+- `Audio Structure/Stems & Layers/Percussion Stems`
+- `Audio Structure/Structural Elements`
+- `Audio Structure/Structural Elements/Phrases`
+- `Audio Structure/Transition Segments`
+- `Audio Structure/Transition Segments/Bridges`
+- `Audio Structure/Transition Segments/Crossfades`
+- `Bigfoot/Sasquatch sounds`
+- `Combat/Armor & Defense`
+- `Combat/Combat Phases`
+- `Combat/Victory & Defeat`
+- `Combat/Weapons`
+- `Combat/Weapons/Magical`
+- `Combat/Weapons/Melee`
+- `Combat/Weapons/Ranged`
+- `Combat/Weapons/Ranged/Firearms`
+- `Creatures/Beasts`
+- `Creatures/Beasts/Aquatic`
+- `Creatures/Beasts/Companions`
+- `Creatures/Beasts/Flying`
+- `Creatures/Beasts/Hostile`
+- `Creatures/Beasts/Magical`
+- `Creatures/Beasts/Mounts`
+- `Creatures/Beasts/Predators`
+- `Creatures/Beasts/Vermin`
+- `Creatures/Humanoids`
+- `Creatures/Humanoids/Civilized`
+- `Creatures/Humanoids/Hostile`
+- `Creatures/Humanoids/Neutral`
+- `Creatures/Supernatural`
+- `Creatures/Undead`
+- `Creatures/Undead/Greater`
+- `Creatures/Undead/Lesser`
+- `Cultural Styles/Age of Exploration`
+- `Cultural Styles/Ancient Civilizations`
+- `Cultural Styles/Ancient Civilizations/Ancient Greek`
+- `Cultural Styles/Ancient Civilizations/Ancient Greek/Amphitheaters`
+- `Cultural Styles/Ancient Civilizations/Ancient Greek/Marketplaces`
+- `Cultural Styles/Ancient Civilizations/Ancient Greek/Temples`
+- `Cultural Styles/Ancient Civilizations/Ancient Roman`
+- `Cultural Styles/Ancient Civilizations/Ancient Roman/Bath Houses`
+- `Cultural Styles/Ancient Civilizations/Ancient Roman/Colosseum`
+- `Cultural Styles/Ancient Civilizations/Ancient Roman/Forums`
+- `Cultural Styles/Ancient Civilizations/Egyptian`
+- `Cultural Styles/Ancient Civilizations/Egyptian/Pyramids`
+- `Cultural Styles/Ancient Civilizations/Egyptian/Temples`
+- `Cultural Styles/Ancient Civilizations/Egyptian/Tombs`
+- `Cultural Styles/Ancient Civilizations/Norse`
+- `Cultural Styles/Ancient Civilizations/Norse/Battlefields`
+- `Cultural Styles/Ancient Civilizations/Norse/Longships`
+- `Cultural Styles/Ancient Civilizations/Norse/Mead Halls`
+- `Cultural Styles/Eastern Traditions`
+- `Cultural Styles/Eastern Traditions/Chinese Traditional`
+- `Cultural Styles/Eastern Traditions/Chinese Traditional/Martial Schools`
+- `Cultural Styles/Eastern Traditions/Chinese Traditional/Palaces`
+- `Cultural Styles/Eastern Traditions/Chinese Traditional/Tea Houses`
+- `Cultural Styles/Eastern Traditions/Japanese Traditional`
+- `Cultural Styles/Eastern Traditions/Japanese Traditional/Dojos`
+- `Cultural Styles/Eastern Traditions/Japanese Traditional/Gardens`
+- `Cultural Styles/Eastern Traditions/Japanese Traditional/Temples`
+- `Cultural Styles/Fantasy Cultures`
+- `Cultural Styles/Fantasy Cultures/Dwarven`
+- `Cultural Styles/Fantasy Cultures/Elvish`
+- `Cultural Styles/Fantasy Cultures/Orcish`
+- `Cultural Styles/Historical Periods`
+- `Cultural Styles/Historical Periods/Ancient`
+- `Cultural Styles/Historical Periods/Medieval`
+- `Cultural Styles/Historical Periods/Renaissance`
+- `Cultural Styles/Medieval & Renaissance`
+- `Cultural Styles/Medieval & Renaissance/Medieval European`
+- `Cultural Styles/Medieval & Renaissance/Medieval European/Castles`
+- `Cultural Styles/Medieval & Renaissance/Medieval European/Monasteries`
+- `Cultural Styles/Medieval & Renaissance/Medieval European/Tournament Grounds`
+- `Cultural Styles/Modern Era`
+- `Cultural Styles/Regional Cultures`
+- `Cultural Styles/Regional Cultures/African`
+- `Cultural Styles/Regional Cultures/American`
+- `Cultural Styles/Regional Cultures/Asian`
+- `Cultural Styles/Regional Cultures/European`
+- `Cultural Styles/Regional Cultures/European/Nordic`
+- `Cultural Styles/Steampunk & Victorian`
+- `Cultural Styles/Wild West`
+- `Environments/Caves`
+- `Environments/Dungeons`
+- `Environments/Dungeons/Mines`
+- `Environments/Mountains`
+- `Environments/Mystical`
+- `Environments/Natural`
+- `Environments/Natural/Arctic`
+- `Environments/Natural/Desert`
+- `Environments/Natural/Farmland`
+- `Environments/Natural/Forest`
+- `Environments/Natural/Gardens`
+- `Environments/Natural/Grasslands`
+- `Environments/Natural/Mountains`
+- `Environments/Natural/Water`
+- `Environments/Natural/Weather`
+- `Environments/Sci-Fi`
+- `Environments/Urban`
+- `Environments/Urban/Buildings`
+- `Environments/Urban/Cities`
+- `Environments/Urban/Fortifications`
+- `Environments/Urban/Villages`
+- `Environments/Vehicles`
+- `Fantasy Genres/Dark Fantasy`
+- `Fantasy Genres/Dark Fantasy/Corruption & Evil`
+- `Fantasy Genres/Dark Fantasy/Cosmic Horror`
+- `Fantasy Genres/Dark Fantasy/Gothic Horror`
+- `Fantasy Genres/Dark Fantasy/Moral Ambiguity`
+- `Fantasy Genres/Fairy Tale Fantasy`
+- `Fantasy Genres/Fairy Tale Fantasy/Classic Tales`
+- `Fantasy Genres/Fairy Tale Fantasy/Dark Tales`
+- `Fantasy Genres/High Fantasy`
+- `Fantasy Genres/High Fantasy/Ancient Prophecies`
+- `Fantasy Genres/High Fantasy/Chosen Ones`
+- `Fantasy Genres/High Fantasy/Epic Fantasy`
+- `Fantasy Genres/High Fantasy/Epic Quests`
+- `Fantasy Genres/High Fantasy/Sword & Sorcery`
+- `Fantasy Genres/Medieval Fantasy`
+- `Fantasy Genres/Medieval Fantasy/Chivalric Romance`
+- `Fantasy Genres/Medieval Fantasy/Historic Villages`
+- `Fantasy Genres/Swashbuckling Fantasy`
+- `Fantasy Genres/Swashbuckling Fantasy/High Seas Adventure`
+- `Fantasy Genres/Sword & Sorcery`
+- `Fantasy Genres/Sword & Sorcery/Barbarian Heroes`
+- `Fantasy Genres/Sword & Sorcery/Lost Civilizations`
+- `Fantasy Genres/Sword & Sorcery/Pulp Adventure`
+- `Fantasy Genres/Urban Fantasy`
+- `Fantasy Genres/Urban Fantasy/Hidden Worlds`
+- `Fantasy Genres/Urban Fantasy/Modern Magic`
+- `Fantasy Genres/Urban Fantasy/Paranormal Investigation`
+- `Fantasy Genres/Urban Fantasy/Steampunk`
+- `Fantasy Genres/Urban Fantasy/Supernatural Detective`
+- `Horror & Terror/Apocalyptic Horror`
+- `Horror & Terror/Apocalyptic Horror/Environmental Collapse`
+- `Horror & Terror/Apocalyptic Horror/Environmental Collapse/Climate Disasters`
+- `Horror & Terror/Apocalyptic Horror/Environmental Collapse/Ecosystem Collapse`
+- `Horror & Terror/Apocalyptic Horror/Environmental Collapse/Extinction Events`
+- `Horror & Terror/Apocalyptic Horror/Environmental Collapse/Resource Wars`
+- `Horror & Terror/Apocalyptic Horror/Nuclear Horror`
+- `Horror & Terror/Apocalyptic Horror/Nuclear Horror/Fallout Zones`
+- `Horror & Terror/Apocalyptic Horror/Nuclear Horror/Mutant Creatures`
+- `Horror & Terror/Apocalyptic Horror/Nuclear Horror/Nuclear Winter`
+- `Horror & Terror/Apocalyptic Horror/Nuclear Horror/Radiation Sickness`
+- `Horror & Terror/Apocalyptic Horror/Pandemic Horror`
+- `Horror & Terror/Apocalyptic Horror/Pandemic Horror/Medical Collapse`
+- `Horror & Terror/Apocalyptic Horror/Pandemic Horror/Quarantine Zones`
+- `Horror & Terror/Apocalyptic Horror/Pandemic Horror/Social Breakdown`
+- `Horror & Terror/Apocalyptic Horror/Pandemic Horror/Viral Outbreaks`
+- `Horror & Terror/Apocalyptic Horror/Zombie Apocalypse`
+- `Horror & Terror/Apocalyptic Horror/Zombie Apocalypse/Outbreak Origins`
+- `Horror & Terror/Apocalyptic Horror/Zombie Apocalypse/Safe Houses`
+- `Horror & Terror/Apocalyptic Horror/Zombie Apocalypse/Survivor Communities`
+- `Horror & Terror/Apocalyptic Horror/Zombie Apocalypse/Zombie Hordes`
+- `Horror & Terror/Body Horror`
+- `Horror & Terror/Body Horror/Biological Anomalies`
+- `Horror & Terror/Body Horror/Biological Anomalies/Cancerous Growths`
+- `Horror & Terror/Body Horror/Biological Anomalies/Cellular Breakdown`
+- `Horror & Terror/Body Horror/Biological Anomalies/Genetic Aberrations`
+- `Horror & Terror/Body Horror/Biological Anomalies/Organ Malfunction`
+- `Horror & Terror/Body Horror/Biomechanical`
+- `Horror & Terror/Body Horror/Biomechanical/Cybernetic Rejection`
+- `Horror & Terror/Body Horror/Biomechanical/Machine Integration`
+- `Horror & Terror/Body Horror/Biomechanical/Synthetic Biology`
+- `Horror & Terror/Body Horror/Biomechanical/Technological Parasites`
+- `Horror & Terror/Body Horror/Medical Horror`
+- `Horror & Terror/Body Horror/Medical Horror/Disease Outbreaks`
+- `Horror & Terror/Body Horror/Medical Horror/Experimental Procedures`
+- `Horror & Terror/Body Horror/Medical Horror/Surgical Nightmares`
+- `Horror & Terror/Body Horror/Medical Horror/Viral Infections`
+- `Horror & Terror/Body Horror/Physical Transformation`
+- `Horror & Terror/Classic Horror Locations`
+- `Horror & Terror/Classic Horror Locations/Abandoned Institutions`
+- `Horror & Terror/Classic Horror Locations/Cemeteries & Graveyards`
+- `Horror & Terror/Classic Horror Locations/Haunted Houses`
+- `Horror & Terror/Classic Horror Locations/Isolated Places`
+- `Horror & Terror/Classic Horror Locations/Isolated Places/Abandoned Mines`
+- `Horror & Terror/Classic Horror Locations/Isolated Places/Cabins in Woods`
+- `Horror & Terror/Classic Horror Locations/Isolated Places/Ghost Towns`
+- `Horror & Terror/Classic Horror Locations/Isolated Places/Lighthouses`
+- `Horror & Terror/Classic Horror Locations/Religious Horror`
+- `Horror & Terror/Classic Horror Locations/Religious Horror/Desecrated Churches`
+- `Horror & Terror/Classic Horror Locations/Religious Horror/Monasteries`
+- `Horror & Terror/Classic Horror Locations/Religious Horror/Occult Temples`
+- `Horror & Terror/Classic Horror Locations/Religious Horror/Ritual Sites`
+- `Horror & Terror/Cosmic Horror`
+- `Horror & Terror/Cosmic Horror/Ancient Knowledge`
+- `Horror & Terror/Cosmic Horror/Ancient Knowledge/Cosmic Truths`
+- `Horror & Terror/Cosmic Horror/Ancient Knowledge/Dangerous Research`
+- `Horror & Terror/Cosmic Horror/Ancient Knowledge/Eldritch Discoveries`
+- `Horror & Terror/Cosmic Horror/Ancient Knowledge/Forbidden Texts`
+- `Horror & Terror/Cosmic Horror/Cult Activities`
+- `Horror & Terror/Cosmic Horror/Cult Activities/Occult Gatherings`
+- `Horror & Terror/Cosmic Horror/Cult Activities/Sacrificial Ceremonies`
+- `Horror & Terror/Cosmic Horror/Cult Activities/Secret Societies`
+- `Horror & Terror/Cosmic Horror/Cult Activities/Summoning Rituals`
+- `Horror & Terror/Cosmic Horror/Eldritch Entities`
+- `Horror & Terror/Cosmic Horror/Otherworldly Locations`
+- `Horror & Terror/Cosmic Horror/Otherworldly Locations/Arkham`
+- `Horror & Terror/Cosmic Horror/Otherworldly Locations/Dunwich`
+- `Horror & Terror/Cosmic Horror/Otherworldly Locations/Miskatonic University`
+- `Horror & Terror/Cosmic Horror/Otherworldly Locations/R'lyeh`
+- `Horror & Terror/Cosmic Horror/Sanity & Madness`
+- `Horror & Terror/Horror Atmospherics`
+- `Horror & Terror/Horror Atmospherics/Sound Design`
+- `Horror & Terror/Horror Atmospherics/Sound Design/Chains Rattling`
+- `Horror & Terror/Horror Atmospherics/Sound Design/Children Laughing`
+- `Horror & Terror/Horror Atmospherics/Sound Design/Screaming Winds`
+- `Horror & Terror/Horror Atmospherics/Sound Design/Whispers in Walls`
+- `Horror & Terror/Horror Atmospherics/Temporal Anomalies`
+- `Horror & Terror/Horror Atmospherics/Temporal Anomalies/Chronological Bleeding`
+- `Horror & Terror/Horror Atmospherics/Temporal Anomalies/Past Intrusions`
+- `Horror & Terror/Horror Atmospherics/Temporal Anomalies/Temporal Decay`
+- `Horror & Terror/Horror Atmospherics/Temporal Anomalies/Time Loops`
+- `Horror & Terror/Horror Atmospherics/Visual Disturbances`
+- `Horror & Terror/Horror Atmospherics/Visual Disturbances/Flickering Lights`
+- `Horror & Terror/Horror Atmospherics/Visual Disturbances/Mirror Anomalies`
+- `Horror & Terror/Horror Atmospherics/Visual Disturbances/Peripheral Horrors`
+- `Horror & Terror/Horror Atmospherics/Visual Disturbances/Shadow Movement`
+- `Horror & Terror/Horror Atmospherics/Weather & Environment`
+- `Horror & Terror/Horror Atmospherics/Weather & Environment/Blood Rain`
+- `Horror & Terror/Horror Atmospherics/Weather & Environment/Darkness Entities`
+- `Horror & Terror/Horror Atmospherics/Weather & Environment/Perpetual Storms`
+- `Horror & Terror/Horror Atmospherics/Weather & Environment/Unnatural Fog`
+- `Horror & Terror/Monster Horror`
+- `Horror & Terror/Monster Horror/Aberrant Creatures`
+- `Horror & Terror/Monster Horror/Aberrant Creatures/Chimeras`
+- `Horror & Terror/Monster Horror/Aberrant Creatures/Doppelgangers`
+- `Horror & Terror/Monster Horror/Aberrant Creatures/Mimics`
+- `Horror & Terror/Monster Horror/Aberrant Creatures/Shapeshifters`
+- `Horror & Terror/Monster Horror/Aquatic Horrors`
+- `Horror & Terror/Monster Horror/Aquatic Horrors/Deep Sea Creatures`
+- `Horror & Terror/Monster Horror/Aquatic Horrors/Krakens`
+- `Horror & Terror/Monster Horror/Aquatic Horrors/Lake Monsters`
+- `Horror & Terror/Monster Horror/Aquatic Horrors/Sirens`
+- `Horror & Terror/Monster Horror/Classic Monsters`
+- `Horror & Terror/Monster Horror/Cryptid Encounters`
+- `Horror & Terror/Monster Horror/Cryptid Encounters/Bigfoot/Sasquatch`
+- `Horror & Terror/Monster Horror/Cryptid Encounters/Chupacabra`
+- `Horror & Terror/Monster Horror/Cryptid Encounters/Jersey Devil`
+- `Horror & Terror/Monster Horror/Cryptid Encounters/Mothman`
+- `Horror & Terror/Monster Horror/Insectoid Nightmares`
+- `Horror & Terror/Monster Horror/Insectoid Nightmares/Giant Spiders`
+- `Horror & Terror/Monster Horror/Insectoid Nightmares/Hive Minds`
+- `Horror & Terror/Monster Horror/Insectoid Nightmares/Parasitic Wasps`
+- `Horror & Terror/Monster Horror/Insectoid Nightmares/Swarm Attacks`
+- `Horror & Terror/Psychological Horror`
+- `Horror & Terror/Psychological Horror/Gaslighting & Manipulation`
+- `Horror & Terror/Psychological Horror/Gaslighting & Manipulation/Mind Games`
+- `Horror & Terror/Psychological Horror/Gaslighting & Manipulation/Psychological Abuse`
+- `Horror & Terror/Psychological Horror/Gaslighting & Manipulation/Reality Questioning`
+- `Horror & Terror/Psychological Horror/Gaslighting & Manipulation/Trust Erosion`
+- `Horror & Terror/Psychological Horror/Isolation & Loneliness`
+- `Horror & Terror/Psychological Horror/Isolation & Loneliness/Abandonment`
+- `Horror & Terror/Psychological Horror/Isolation & Loneliness/Cabin Fever`
+- `Horror & Terror/Psychological Horror/Isolation & Loneliness/Sensory Deprivation`
+- `Horror & Terror/Psychological Horror/Isolation & Loneliness/Social Isolation`
+- `Horror & Terror/Psychological Horror/Mental Deterioration`
+- `Horror & Terror/Psychological Horror/Mental Deterioration/Memory Loss`
+- `Horror & Terror/Psychological Horror/Mental Deterioration/Multiple Personalities`
+- `Horror & Terror/Psychological Horror/Mental Deterioration/Reality Distortion`
+- `Horror & Terror/Psychological Horror/Mental Deterioration/Schizophrenia`
+- `Horror & Terror/Psychological Horror/Phobias & Fears`
+- `Horror & Terror/Psychological Horror/Phobias & Fears/Agoraphobia`
+- `Horror & Terror/Psychological Horror/Phobias & Fears/Claustrophobia`
+- `Horror & Terror/Psychological Horror/Phobias & Fears/Existential Dread`
+- `Horror & Terror/Psychological Horror/Phobias & Fears/Paranoia`
+- `Horror & Terror/Psychological Horror/Trauma & PTSD`
+- `Horror & Terror/Psychological Horror/Trauma & PTSD/Abuse Recovery`
+- `Horror & Terror/Psychological Horror/Trauma & PTSD/Childhood Trauma`
+- `Horror & Terror/Psychological Horror/Trauma & PTSD/Survivor Guilt`
+- `Horror & Terror/Psychological Horror/Trauma & PTSD/War Trauma`
+- `Horror & Terror/Supernatural Horror`
+- `Horror & Terror/Supernatural Horror/Curses & Hexes`
+- `Horror & Terror/Supernatural Horror/Curses & Hexes/Ancient Curses`
+- `Horror & Terror/Supernatural Horror/Curses & Hexes/Family Curses`
+- `Horror & Terror/Supernatural Horror/Curses & Hexes/Object Curses`
+- `Horror & Terror/Supernatural Horror/Curses & Hexes/Witch Hexes`
+- `Horror & Terror/Supernatural Horror/Dark Magic`
+- `Horror & Terror/Supernatural Horror/Dark Magic/Blood Magic`
+- `Horror & Terror/Supernatural Horror/Dark Magic/Necromancy`
+- `Horror & Terror/Supernatural Horror/Dark Magic/Shadow Manipulation`
+- `Horror & Terror/Supernatural Horror/Dark Magic/Soul Binding`
+- `Horror & Terror/Supernatural Horror/Demonic Entities`
+- `Horror & Terror/Supernatural Horror/Demonic Entities/Demon Possession`
+- `Horror & Terror/Supernatural Horror/Demonic Entities/Demonic Pacts`
+- `Horror & Terror/Supernatural Horror/Demonic Entities/Exorcisms`
+- `Horror & Terror/Supernatural Horror/Demonic Entities/Hell Portals`
+- `Horror & Terror/Supernatural Horror/Ghosts & Spirits`
+- `Horror & Terror/Supernatural Horror/Undead`
+- `Horror & Terror/Supernatural Horror/Undead/Ghouls`
+- `Horror & Terror/Supernatural Horror/Undead/Revenants`
+- `Horror & Terror/Supernatural Horror/Undead/Vampires`
+- `Horror & Terror/Supernatural Horror/Undead/Zombies`
+- `Magic & Powers/Elemental Magic`
+- `Magic & Powers/Elemental Magic/Air`
+- `Magic & Powers/Magical Events`
+- `Magic & Powers/Magical Events/Time Manipulation`
+- `Magic & Powers/Schools of Magic`
+- `Magic & Powers/Schools of Magic/Abjuration`
+- `Magic & Powers/Schools of Magic/Conjuration`
+- `Magic & Powers/Schools of Magic/Divination`
+- `Magic & Powers/Schools of Magic/Divination/Truth Seeking`
+- `Magic & Powers/Schools of Magic/Divine`
+- `Magic & Powers/Schools of Magic/Enchantment`
+- `Magic & Powers/Schools of Magic/Evocation`
+- `Magic & Powers/Schools of Magic/Illusion`
+- `Magic & Powers/Schools of Magic/Illusion/Mind Control`
+- `Magic & Powers/Schools of Magic/Necromancy`
+- `Magic & Powers/Schools of Magic/Necromancy/Undead Control`
+- `Magic & Powers/Schools of Magic/Transmutation`
+- `Magic & Powers/Technology`
+- `Magic & Powers/Technology/Ancient`
+- `Magic & Powers/Technology/Medieval`
+- `Magic & Powers/Technology/Medieval/Alchemical`
+- `Magic & Powers/Technology/Modern`
+- `Magic & Powers/Technology/Sci-Fi`
+- `Magic & Powers/Technology/Steampunk`
+- `Mental States/Altered States`
+- `Mental States/Altered States/Dreams`
+- `Mental States/Altered States/Trance`
+- `Mental States/Cognitive States`
+- `Mental States/Cognitive States/Confused`
+- `Mental States/Cognitive States/Focused`
+- `Mental States/Consciousness`
+- `Mental States/Consciousness Levels`
+- `Mental States/Consciousness Levels/Awakening`
+- `Mental States/Consciousness Levels/Diminished`
+- `Mental States/Consciousness/Mind Control`
+- `Mental States/Consciousness/Possession`
+- `Mental States/Consciousness/Soul Transfer`
+- `Mental States/Consciousness/Telepathy`
+- `Mental States/Dreams & Visions`
+- `Mental States/Dreams & Visions/Lucid Dreams`
+- `Mental States/Dreams & Visions/Nightmares`
+- `Mental States/Dreams & Visions/Prophetic Dreams`
+- `Mental States/Dreams & Visions/Shared Visions`
+- `Mental States/Emotional States`
+- `Mental States/Emotional States/Negative`
+- `Mental States/Emotional States/Positive`
+- `Mental States/Madness & Insanity`
+- `Mental States/Madness & Insanity/Delusions`
+- `Mental States/Madness & Insanity/Paranoia`
+- `Mental States/Madness & Insanity/Slow Descent`
+- `Mental States/Madness & Insanity/Sudden Break`
+- `Mental States/Memory & Past`
+- `Mental States/Memory & Past/False Memories`
+- `Mental States/Memory & Past/Lost Memories`
+- `Mental States/Memory & Past/Nostalgia`
+- `Mental States/Memory & Past/Repressed Trauma`
+- `Moods & Atmosphere/Action`
+- `Moods & Atmosphere/Action & Energy`
+- `Moods & Atmosphere/Action/Building`
+- `Moods & Atmosphere/Adventure & Excitement`
+- `Moods & Atmosphere/Ambient & Atmospheric`
+- `Moods & Atmosphere/Calm & Peaceful`
+- `Moods & Atmosphere/Contemplative`
+- `Moods & Atmosphere/Dark`
+- `Moods & Atmosphere/Dark & Foreboding`
+- `Moods & Atmosphere/Dark/Gothic`
+- `Moods & Atmosphere/Dark/Tense`
+- `Moods & Atmosphere/Gentle & Romantic`
+- `Moods & Atmosphere/Heroic & Triumphant`
+- `Moods & Atmosphere/Light & Serene`
+- `Moods & Atmosphere/Melancholy & Loss`
+- `Moods & Atmosphere/Melancholy & Reflection`
+- `Moods & Atmosphere/Modern`
+- `Moods & Atmosphere/Mystery & Wonder`
+- `Moods & Atmosphere/Mystical`
+- `Moods & Atmosphere/Natural`
+- `Moods & Atmosphere/Neutral`
+- `Moods & Atmosphere/Neutral/Ceremonial`
+- `Moods & Atmosphere/Neutral/Contemplative`
+- `Moods & Atmosphere/Neutral/Ethereal`
+- `Moods & Atmosphere/Neutral/Mysterious`
+- `Moods & Atmosphere/Playful & Light`
+- `Moods & Atmosphere/Positive`
+- `Moods & Atmosphere/Positive/Adventurous`
+- `Moods & Atmosphere/Positive/Celebratory`
+- `Moods & Atmosphere/Sad & Melancholy`
+- `Moods & Atmosphere/Suspense & Uncertainty`
+- `Musical Instruments/Brass`
+- `Musical Instruments/Electronic`
+- `Musical Instruments/Electronic/Analog Synth`
+- `Musical Instruments/Electronic/FM Synth`
+- `Musical Instruments/Electronic/Granular`
+- `Musical Instruments/Electronic/Noise Texture`
+- `Musical Instruments/Keyboard`
+- `Musical Instruments/Keyboard & Organ`
+- `Musical Instruments/Keyboard & Organ/Church Organ`
+- `Musical Instruments/Keyboard & Organ/Harpsichord`
+- `Musical Instruments/Keyboard & Organ/Piano`
+- `Musical Instruments/Keyboard/Organ`
+- `Musical Instruments/Keyboard/Piano`
+- `Musical Instruments/Orchestral`
+- `Musical Instruments/Percussion`
+- `Musical Instruments/Percussion/Bells & Chimes`
+- `Musical Instruments/Percussion/Drums`
+- `Musical Instruments/Percussion/Folk`
+- `Musical Instruments/Percussion/Folk/Bodhran`
+- `Musical Instruments/Percussion/Folk/Frame Drums`
+- `Musical Instruments/Percussion/Mallet`
+- `Musical Instruments/Percussion/Metallic`
+- `Musical Instruments/Percussion/Orchestral`
+- `Musical Instruments/Percussion/Orchestral/Metallic Hits`
+- `Musical Instruments/Percussion/Orchestral/Timpani`
+- `Musical Instruments/Percussion/Wood`
+- `Musical Instruments/Percussion/World`
+- `Musical Instruments/Percussion/World/Djembe`
+- `Musical Instruments/Percussion/World/Gamelan`
+- `Musical Instruments/Percussion/World/Taiko`
+- `Musical Instruments/String Instruments`
+- `Musical Instruments/String Instruments/Bowed`
+- `Musical Instruments/String Instruments/Folk Strings`
+- `Musical Instruments/String Instruments/Folk Strings/Harp`
+- `Musical Instruments/String Instruments/Folk Strings/Hurdy-Gurdy`
+- `Musical Instruments/String Instruments/Folk Strings/Lute`
+- `Musical Instruments/String Instruments/Folk Strings/Nyckelharpa`
+- `Musical Instruments/String Instruments/Orchestral`
+- `Musical Instruments/String Instruments/Orchestral/Dissonant Strings`
+- `Musical Instruments/String Instruments/Orchestral/Solo Cello`
+- `Musical Instruments/String Instruments/Orchestral/Solo Violin`
+- `Musical Instruments/String Instruments/Orchestral/Warm Strings`
+- `Musical Instruments/String Instruments/Plucked`
+- `Musical Instruments/String Instruments/World Strings`
+- `Musical Instruments/String Instruments/World Strings/Erhu`
+- `Musical Instruments/String Instruments/World Strings/Guzheng`
+- `Musical Instruments/String Instruments/World Strings/Koto`
+- `Musical Instruments/String Instruments/World Strings/Oud`
+- `Musical Instruments/String Instruments/World Strings/Sitar`
+- `Musical Instruments/Strings`
+- `Musical Instruments/Strings/Bowed`
+- `Musical Instruments/Strings/Orchestral`
+- `Musical Instruments/Strings/Plucked`
+- `Musical Instruments/Vocal`
+- `Musical Instruments/Vocal/Child Choir`
+- `Musical Instruments/Vocal/Church Choir`
+- `Musical Instruments/Vocal/Female Vocalise`
+- `Musical Instruments/Vocal/Male Chant`
+- `Musical Instruments/Vocal/Throat Singing`
+- `Musical Instruments/Vocals`
+- `Musical Instruments/Wind Instruments`
+- `Musical Instruments/Wind Instruments/Brass`
+- `Musical Instruments/Wind Instruments/Folk Winds`
+- `Musical Instruments/Wind Instruments/Folk Winds/Bagpipes`
+- `Musical Instruments/Wind Instruments/Folk Winds/Recorder`
+- `Musical Instruments/Wind Instruments/Orchestral Winds`
+- `Musical Instruments/Wind Instruments/Orchestral Winds/Flute`
+- `Musical Instruments/Wind Instruments/Orchestral Winds/Low Brass`
+- `Musical Instruments/Wind Instruments/Orchestral Winds/Whistle`
+- `Musical Instruments/Wind Instruments/Woodwinds`
+- `Musical Instruments/Wind Instruments/World Winds`
+- `Musical Instruments/Wind Instruments/World Winds/Shakuhachi`
+- `Musical Instruments/Winds`
+- `Musical Instruments/Woodwinds`
+- `Organizations/Academic`
+- `Organizations/Academic/Mages Guilds`
+- `Organizations/Academic/Research Institutes`
+- `Organizations/Academic/Scholarly Orders`
+- `Organizations/Academic/Universities`
+- `Organizations/Criminal`
+- `Organizations/Criminal/Cartels`
+- `Organizations/Criminal/Pirate Crews`
+- `Organizations/Criminal/Smuggler Networks`
+- `Organizations/Criminal/Thieves Guilds`
+- `Organizations/Economic`
+- `Organizations/Economic/Banking Houses`
+- `Organizations/Economic/Crafting Guilds`
+- `Organizations/Economic/Merchant Guilds`
+- `Organizations/Economic/Trade Consortiums`
+- `Organizations/Government`
+- `Organizations/Government/Empire`
+- `Organizations/Government/Monarchy`
+- `Organizations/Government/Republic`
+- `Organizations/Guilds`
+- `Organizations/Guilds/Professional Guilds`
+- `Organizations/Guilds/Trade Guilds`
+- `Organizations/Military`
+- `Organizations/Military/Armies`
+- `Organizations/Military/Elite Units`
+- `Organizations/Military/Knightly Orders`
+- `Organizations/Military/Mercenary Companies`
+- `Organizations/Military/Navy`
+- `Organizations/Military/Royal Guards`
+- `Organizations/Political`
+- `Organizations/Political/City States`
+- `Organizations/Political/Empires`
+- `Organizations/Political/Noble Houses`
+- `Organizations/Political/Rebel Groups`
+- `Organizations/Religious`
+- `Organizations/Religious/Churches`
+- `Organizations/Religious/Cults`
+- `Organizations/Religious/Divine Orders`
+- `Organizations/Religious/Monasteries`
+- `Organizations/Religious/Monastic Orders`
+- `Organizations/Religious/Temples`
+- `Organizations/Secret Societies`
+- `Organizations/Secret Societies/Conspiracies`
+- `Organizations/Secret Societies/Mystery Schools`
+- `SFX & Foley/Combat Sounds`
+- `SFX & Foley/Combat Sounds/Armor & Movement/Armor Clanking`
+- `SFX & Foley/Combat Sounds/Armor & Movement/Combat Grunts`
+- `SFX & Foley/Combat Sounds/Armor & Movement/Footsteps`
+- `SFX & Foley/Combat Sounds/Magic Effects/Energy Shields`
+- `SFX & Foley/Combat Sounds/Magic Effects/Explosions`
+- `SFX & Foley/Combat Sounds/Magic Effects/Spell Casting`
+- `SFX & Foley/Combat Sounds/Weapon Impacts`
+- `SFX & Foley/Combat Sounds/Weapon Impacts/Arrow Hits`
+- `SFX & Foley/Combat Sounds/Weapon Impacts/Blunt Impacts`
+- `SFX & Foley/Creature Sounds`
+- `SFX & Foley/Creature Sounds/Beast Growls`
+- `SFX & Foley/Creature Sounds/Creature Movement`
+- `SFX & Foley/Environment Foley`
+- `SFX & Foley/Environment Foley/Nature Sounds`
+- `SFX & Foley/Environment Foley/Urban Sounds`
+- `SFX & Foley/Environment Foley/Urban Sounds/Street Noise`
+- `SFX & Foley/Environmental Sounds`
+- `SFX & Foley/Magical Sounds`
+- `SFX & Foley/Material Sounds`
+- `SFX & Foley/Mechanical Sounds`
+- `SFX & Foley/Movement Sounds`
+- `SFX & Foley/Orchestral Accents`
+- `SFX & Foley/Technology Sounds`
+- `Sci-Fi Genres/Cyberpunk`
+- `Sci-Fi Genres/Cyberpunk/Corporate Control`
+- `Sci-Fi Genres/Cyberpunk/Digital Rebellion`
+- `Sci-Fi Genres/Cyberpunk/Dystopian Cities`
+- `Sci-Fi Genres/Cyberpunk/Neon Cities`
+- `Sci-Fi Genres/Cyberpunk/Tech Noir`
+- `Sci-Fi Genres/Hard Sci-Fi`
+- `Sci-Fi Genres/Hard Sci-Fi/Military Tech`
+- `Sci-Fi Genres/Hard Sci-Fi/Scientific Discovery`
+- `Sci-Fi Genres/Hard Sci-Fi/Space Exploration`
+- `Sci-Fi Genres/Hard Sci-Fi/Transhumanism`
+- `Sci-Fi Genres/Horror Sci-Fi`
+- `Sci-Fi Genres/Horror Sci-Fi/Alien Threats`
+- `Sci-Fi Genres/Horror Sci-Fi/Body Horror`
+- `Sci-Fi Genres/Horror Sci-Fi/Cosmic Dread`
+- `Sci-Fi Genres/Post-Apocalyptic`
+- `Sci-Fi Genres/Post-Apocalyptic/Rebuilding`
+- `Sci-Fi Genres/Post-Apocalyptic/Survival`
+- `Sci-Fi Genres/Post-Apocalyptic/Survivors`
+- `Sci-Fi Genres/Post-Apocalyptic/Wasteland`
+- `Sci-Fi Genres/Space Opera`
+- `Sci-Fi Genres/Space Opera/Alien Worlds`
+- `Sci-Fi Genres/Space Opera/Epic Battles`
+- `Sci-Fi Genres/Space Opera/Galactic Empire`
+- `Sci-Fi Genres/Space Opera/Galactic Politics`
+- `Sci-Fi Genres/Space Opera/Rebel Alliance`
+- `Session Structure/Action Sequences`
+- `Session Structure/Adventure Sequences`
+- `Session Structure/Ambient Background`
+- `Session Structure/Challenges`
+- `Session Structure/Challenges/Physical`
+- `Session Structure/Challenges/Puzzles`
+- `Session Structure/Challenges/Social`
+- `Session Structure/Challenges/Traps`
+- `Session Structure/Climax`
+- `Session Structure/Climax & Resolution`
+- `Session Structure/Climax & Resolution/Final Encounters`
+- `Session Structure/Climax & Resolution/Revelations`
+- `Session Structure/Climax/Boss Encounters`
+- `Session Structure/Climax/Key Decisions`
+- `Session Structure/Climax/Major Revelations`
+- `Session Structure/Downtime`
+- `Session Structure/Endings & Conclusions`
+- `Session Structure/Endings & Conclusions/Session End`
+- `Session Structure/Exploration`
+- `Session Structure/Exploration/Mapping`
+- `Session Structure/Exploration/Travel`
+- `Session Structure/Horror Elements`
+- `Session Structure/Main Content`
+- `Session Structure/Main Content/Exploration`
+- `Session Structure/Main Content/Problem Solving`
+- `Session Structure/Main Content/Role-Playing`
+- `Session Structure/Opening`
+- `Session Structure/Opening & Introductions`
+- `Session Structure/Opening & Introductions/Session Start`
+- `Session Structure/Opening & Introductions/Story Hooks`
+- `Session Structure/Opening/Call to Adventure`
+- `Session Structure/Opening/Recap`
+- `Session Structure/Opening/Setting Scene`
+- `Session Structure/Resolution`
+- `Session Structure/Resolution/Character Development`
+- `Session Structure/Resolution/Next Steps`
+- `Session Structure/Resolution/Victory Celebration`
+- `Session Structure/Results`
+- `Session Structure/Reveals`
+- `Session Structure/Social Encounters`
+- `Session Structure/Story Elements`
+- `Session Structure/System`
+- `Session Structure/Transitions`
+- `Session Structure/Transitions/Scene Changes`
+- `Social Encounters/Courts & Politics`
+- `Social Encounters/Courts & Politics/Intrigue`
+- `Social Encounters/Courts & Politics/Negotiations`
+- `Social Encounters/Courts & Politics/Royal Court`
+- `Social Encounters/Entertainment`
+- `Social Encounters/Government & Authority`
+- `Social Encounters/Guilds & Organizations`
+- `Social Encounters/Investigation`
+- `Social Encounters/Markets & Trade`
+- `Social Encounters/Markets & Trade/Merchant Caravans`
+- `Social Encounters/Nobility & Courts`
+- `Social Encounters/Religious`
+- `Social Encounters/Taverns & Inns/Haunted`
+- `Superhero & Comic Book/Civilian Life`
+- `Superhero & Comic Book/Civilian Life/Government Relations`
+- `Superhero & Comic Book/Civilian Life/Government Relations/Legal Issues`
+- `Superhero & Comic Book/Civilian Life/Government Relations/Military Cooperation`
+- `Superhero & Comic Book/Civilian Life/Government Relations/Oversight Committees`
+- `Superhero & Comic Book/Civilian Life/Government Relations/Registration Acts`
+- `Superhero & Comic Book/Civilian Life/Media & Press`
+- `Superhero & Comic Book/Civilian Life/Media & Press/Interviews`
+- `Superhero & Comic Book/Civilian Life/Media & Press/News Reports`
+- `Superhero & Comic Book/Civilian Life/Media & Press/Paparazzi`
+- `Superhero & Comic Book/Civilian Life/Media & Press/Public Opinion`
+- `Superhero & Comic Book/Civilian Life/Public Events`
+- `Superhero & Comic Book/Civilian Life/Public Events/Award Ceremonies`
+- `Superhero & Comic Book/Civilian Life/Public Events/Charity Functions`
+- `Superhero & Comic Book/Civilian Life/Public Events/Parades`
+- `Superhero & Comic Book/Civilian Life/Public Events/Protests`
+- `Superhero & Comic Book/Civilian Life/Secret Identity`
+- `Superhero & Comic Book/Comic Book SFX`
+- `Superhero & Comic Book/Comic Book SFX/Character Specific`
+- `Superhero & Comic Book/Comic Book SFX/Classic Onomatopoeia`
+- `Superhero & Comic Book/Comic Book SFX/Energy & Tech`
+- `Superhero & Comic Book/Comic Book SFX/Energy & Tech/BEEP!`
+- `Superhero & Comic Book/Comic Book SFX/Energy & Tech/BZZT!`
+- `Superhero & Comic Book/Comic Book SFX/Energy & Tech/CLANK!`
+- `Superhero & Comic Book/Comic Book SFX/Energy & Tech/HISSSS!`
+- `Superhero & Comic Book/Comic Book SFX/Energy & Tech/WHIRRRR!`
+- `Superhero & Comic Book/Comic Book SFX/Movement & Action`
+- `Superhero & Comic Book/Comic Book SFX/Movement & Action/CRASH!`
+- `Superhero & Comic Book/Comic Book SFX/Movement & Action/SLAM!`
+- `Superhero & Comic Book/Comic Book SFX/Movement & Action/SWOOSH!`
+- `Superhero & Comic Book/Comic Book SFX/Movement & Action/THUD!`
+- `Superhero & Comic Book/Comic Book SFX/Movement & Action/WHOOSH!`
+- `Superhero & Comic Book/Hero Headquarters`
+- `Superhero & Comic Book/Hero Headquarters/Mobile Bases`
+- `Superhero & Comic Book/Hero Headquarters/Mobile Bases/Batjet`
+- `Superhero & Comic Book/Hero Headquarters/Mobile Bases/Blackbird`
+- `Superhero & Comic Book/Hero Headquarters/Mobile Bases/Helicarrier`
+- `Superhero & Comic Book/Hero Headquarters/Mobile Bases/Invisible Jet`
+- `Superhero & Comic Book/Hero Headquarters/Orbital Stations`
+- `Superhero & Comic Book/Hero Headquarters/Orbital Stations/Peak Station`
+- `Superhero & Comic Book/Hero Headquarters/Orbital Stations/Space Bases`
+- `Superhero & Comic Book/Hero Headquarters/Orbital Stations/Watchtower`
+- `Superhero & Comic Book/Hero Headquarters/Public Headquarters`
+- `Superhero & Comic Book/Hero Headquarters/Public Headquarters/Avengers Tower`
+- `Superhero & Comic Book/Hero Headquarters/Public Headquarters/Baxter Building`
+- `Superhero & Comic Book/Hero Headquarters/Public Headquarters/Hall of Justice`
+- `Superhero & Comic Book/Hero Headquarters/Public Headquarters/Xavier's School`
+- `Superhero & Comic Book/Hero Headquarters/Secret Lairs`
+- `Superhero & Comic Book/Heroes`
+- `Superhero & Comic Book/Powers & Abilities`
+- `Superhero & Comic Book/Powers & Abilities/Elemental Powers`
+- `Superhero & Comic Book/Powers & Abilities/Flight`
+- `Superhero & Comic Book/Powers & Abilities/Mental Powers`
+- `Superhero & Comic Book/Powers & Abilities/Mental Powers/Mind Control`
+- `Superhero & Comic Book/Powers & Abilities/Mental Powers/Precognition`
+- `Superhero & Comic Book/Powers & Abilities/Mental Powers/Telekinesis`
+- `Superhero & Comic Book/Powers & Abilities/Mental Powers/Telepathy`
+- `Superhero & Comic Book/Powers & Abilities/Special Abilities`
+- `Superhero & Comic Book/Powers & Abilities/Special Abilities/Invisibility`
+- `Superhero & Comic Book/Powers & Abilities/Special Abilities/Shape Shifting`
+- `Superhero & Comic Book/Powers & Abilities/Special Abilities/Teleportation`
+- `Superhero & Comic Book/Powers & Abilities/Special Abilities/Time Manipulation`
+- `Superhero & Comic Book/Powers & Abilities/Strength & Combat`
+- `Superhero & Comic Book/Powers & Abilities/Strength & Combat/Energy Blasts`
+- `Superhero & Comic Book/Powers & Abilities/Strength & Combat/Martial Arts`
+- `Superhero & Comic Book/Powers & Abilities/Strength & Combat/Super Strength`
+- `Superhero & Comic Book/Powers & Abilities/Strength & Combat/Weapon Mastery`
+- `Superhero & Comic Book/Scenarios & Encounters`
+- `Superhero & Comic Book/Scenarios & Encounters/Crisis Events`
+- `Superhero & Comic Book/Scenarios & Encounters/Crisis Events/City-Wide Threats`
+- `Superhero & Comic Book/Scenarios & Encounters/Crisis Events/Cosmic Events`
+- `Superhero & Comic Book/Scenarios & Encounters/Crisis Events/Dimensional Invasions`
+- `Superhero & Comic Book/Scenarios & Encounters/Crisis Events/Time Paradoxes`
+- `Superhero & Comic Book/Scenarios & Encounters/Origin Stories`
+- `Superhero & Comic Book/Scenarios & Encounters/Team Dynamics`
+- `Superhero & Comic Book/Scenarios & Encounters/Team Dynamics/Internal Conflicts`
+- `Superhero & Comic Book/Scenarios & Encounters/Team Dynamics/Team Bonding`
+- `Superhero & Comic Book/Scenarios & Encounters/Team Dynamics/Team Formations`
+- `Superhero & Comic Book/Scenarios & Encounters/Team Dynamics/Training Sessions`
+- `Superhero & Comic Book/Scenarios & Encounters/Villain Confrontations`
+- `Superhero & Comic Book/Scenarios & Encounters/Villain Confrontations/Bank Heists`
+- `Superhero & Comic Book/Scenarios & Encounters/Villain Confrontations/Hostage Situations`
+- `Superhero & Comic Book/Scenarios & Encounters/Villain Confrontations/Personal Vendettas`
+- `Superhero & Comic Book/Scenarios & Encounters/Villain Confrontations/World Domination`
+- `Superhero & Comic Book/Urban Settings`
+- `Superhero & Comic Book/Urban Settings/Generic Urban`
+- `Superhero & Comic Book/Urban Settings/Generic Urban/Rooftops`
+- `Superhero & Comic Book/Urban Settings/Generic Urban/Skyscrapers`
+- `Superhero & Comic Book/Urban Settings/Generic Urban/Street Level`
+- `Superhero & Comic Book/Urban Settings/Generic Urban/Underground`
+- `Superhero & Comic Book/Urban Settings/Gotham City`
+- `Superhero & Comic Book/Urban Settings/Metropolis`
+- `Superhero & Comic Book/Urban Settings/New York City`
+- `Superhero & Comic Book/Urban Settings/New York City/Avengers Mansion`
+- `Superhero & Comic Book/Urban Settings/New York City/Daily Bugle`
+- `Superhero & Comic Book/Urban Settings/New York City/Hell's Kitchen`
+- `Superhero & Comic Book/Urban Settings/New York City/Times Square`
+- `Superhero & Comic Book/Villain Lairs`
+- `Superhero & Comic Book/Villain Lairs/High Tech`
+- `Superhero & Comic Book/Villain Lairs/High Tech/Castle Doom`
+- `Superhero & Comic Book/Villain Lairs/High Tech/Corporate Towers`
+- `Superhero & Comic Book/Villain Lairs/High Tech/Space Stations`
+- `Superhero & Comic Book/Villain Lairs/High Tech/Undersea Bases`
+- `Superhero & Comic Book/Villain Lairs/Industrial`
+- `Superhero & Comic Book/Villain Lairs/Industrial/Factories`
+- `Superhero & Comic Book/Villain Lairs/Industrial/Laboratories`
+- `Superhero & Comic Book/Villain Lairs/Industrial/Refineries`
+- `Superhero & Comic Book/Villain Lairs/Industrial/Warehouses`
+- `Superhero & Comic Book/Villain Lairs/Mystical`
+- `Superhero & Comic Book/Villain Lairs/Mystical/Dark Dimensions`
+- `Superhero & Comic Book/Villain Lairs/Mystical/Hell Realms`
+- `Superhero & Comic Book/Villain Lairs/Mystical/Pocket Dimensions`
+- `Superhero & Comic Book/Villain Lairs/Mystical/Shadow Realms`
+- `Superhero & Comic Book/Villain Lairs/Underground`
+- `Superhero & Comic Book/Villain Lairs/Underground/Cave Networks`
+- `Superhero & Comic Book/Villain Lairs/Underground/Secret Tunnels`
+- `Superhero & Comic Book/Villain Lairs/Underground/Sewer Systems`
+- `Superhero & Comic Book/Villain Lairs/Underground/Subterranea`
+- `Temporal Events/Celestial Events`
+- `Temporal Events/Celestial Events/Lunar Phases`
+- `Temporal Events/Celestial Events/Solar Events`
+- `Temporal Events/Daily Cycles`
+- `Temporal Events/Daily Cycles/Dawn`
+- `Temporal Events/Daily Cycles/Dusk`
+- `Temporal Events/Daily Cycles/Midday`
+- `Temporal Events/Daily Cycles/Midnight`
+- `Temporal Events/Festivals & Holidays`
+- `Temporal Events/Festivals & Holidays/Cultural Events`
+- `Temporal Events/Festivals & Holidays/Harvest Festivals`
+- `Temporal Events/Festivals & Holidays/Religious Holidays`
+- `Temporal Events/Festivals & Holidays/Royal Celebrations`
+- `Temporal Events/Historical Events`
+- `Temporal Events/Historical Events/Battles`
+- `Temporal Events/Historical Events/Disasters`
+- `Temporal Events/Magical Time`
+- `Temporal Events/Magical Time/Chrono Distortions`
+- `Temporal Events/Magical Time/Temporal Rifts`
+- `Temporal Events/Magical Time/Time Loops`
+- `Temporal Events/Magical Time/Time Warps`
+- `Temporal Events/Seasonal`
+- `Temporal Events/Seasonal/Autumn`
+- `Temporal Events/Seasonal/Spring`
+- `Temporal Events/Seasonal/Summer`
+- `Temporal Events/Seasonal/Winter`
+- `Temporal Events/Seasons`
+- `Temporal Events/Seasons/Autumn`
+- `Temporal Events/Seasons/Spring`
+- `Temporal Events/Seasons/Summer`
+- `Temporal Events/Seasons/Winter`
+- `Temporal Events/Time of Day`
+- `Temporal Events/Time of Day/Afternoon`
+- `Temporal Events/Time of Day/Evening`
+- `Temporal Events/Time of Day/Morning`
+- `Temporal Events/Time of Day/Night`
+
+## Recommendations
+
+### High Priority Tags to Map
+
+Most high-priority tags appear to be mapped already. Great job!
+
+### Mapping Strategy
+
+1. **Occasion tags** - Map to Session Structure folders
+2. **SFX keywords** - Map to SFX & Foley folders
+3. **Location keywords** - Map to Environment folders
+4. **Creature keywords** - Map to SFX & Foley/Creature Sounds
+5. **Mood tags** - Map to Moods & Atmosphere folders
+6. **Genre tags** - Map to appropriate Cultural Styles folders
