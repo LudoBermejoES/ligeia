@@ -163,5 +163,5 @@
     ("horror:atonal", "Horror & Terror/Cosmic Horror/Sanity & Madness/Mental Deterioration", 10, "Atonal horror for madness themes"),
     ("horror:dissonant-strings", "Horror & Terror/Cosmic Horror/Eldritch Entities/Incomprehensible Beings", 10, "Dissonant strings for eldritch horror"),
     ("horror:sound-design", "Horror & Terror/Body Horror/Physical Transformation/Mutations", 9, "Horror sound design for body horror"),
-    ("genre:sound-design:horror", "Horror & Terror/Sound Design/Horror SFX", 10, "Horror sound design effects"),
+    ("genre:sound-design:horror", "Horror & Terror/Horror Atmospherics/Sound Design", 10, "Horror sound design effects"),
 ]
