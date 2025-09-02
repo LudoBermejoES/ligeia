@@ -1,303 +1,605 @@
-# Ligeia Virtual Folder Structure (Simplified & Optimized)
+# Virtual Folder Structure
 
-This document describes the optimized virtual folder hierarchy used in Ligeia for organizing audio files. The structure follows cognitive load principles and audio library best practices.
+This file contains the complete hierarchical structure of virtual folders in the Ligeia audio organization system. The structure is defined as an array of tuples with the following format:
 
-## Design Philosophy
+**Format:** `(path, parent_path, icon, description)`
+- `path`: The full hierarchical path of the folder
+- `parent_path`: The parent folder path (None for root folders)
+- `icon`: Optional emoji icon for the folder (None if no icon)
+- `description`: Brief description of the folder's purpose
 
-Based on research into cognitive load theory and audio library organization:
-- **Maximum 3 levels deep** for fast navigation (3-click rule)
-- **6 main categories** within human memory limits (7±2 rule)
-- **~250 total folders** to minimize decision paralysis
-- **Function-based organization** for intuitive discovery
-- **Tag-centric approach** - folders for broad organization, tags for detailed classification
+**Maximum depth:** 3 levels
 
-## Statistics
+## Complete Folder Structure
 
-- **Total Folders**: 247
-- **Root Folders**: 6
-- **Folders by Level**:
-  - Level 1: 6 folders (main categories)
-  - Level 2: 47 folders (subcategories)
-  - Level 3: 194 folders (specific types)
+```
+// Virtual Folder Structure Definition
+// Format: (path, parent_path, icon, description)
+// None for parent_path means it's a root folder
+// None for icon means no custom icon
+// Maximum depth: 3 levels
 
-## Folder Structure
+[
+    ("Music", None, Some("🎵"), "music sounds"),
+    ("Music/Orchestral", Some("Music"), Some("🎼"), "orchestral sounds"),
+    ("Music/Orchestral/Epic Orchestral", Some("Music/Orchestral"), Some("🏆"), "epic orchestral sounds"),
+    ("Music/Orchestral/Dark Orchestral", Some("Music/Orchestral"), Some("🌑"), "dark orchestral sounds"),
+    ("Music/Orchestral/Hybrid Orchestral", Some("Music/Orchestral"), Some("⚡"), "hybrid orchestral sounds"),
+    ("Music/Orchestral/Minimalist Orchestral", Some("Music/Orchestral"), Some("🕯️"), "minimalist orchestral sounds"),
+    ("Music/Orchestral/Choir & Vocals", Some("Music/Orchestral"), Some("👼"), "choir & vocals sounds"),
+    ("Music/Orchestral/Solo Instruments", Some("Music/Orchestral"), Some("🎻"), "solo instruments sounds"),
+    ("Music/Electronic", Some("Music"), Some("🤖"), "electronic sounds"),
+    ("Music/Electronic/Ambient Electronic", Some("Music/Electronic"), Some("🌌"), "ambient electronic sounds"),
+    ("Music/Electronic/Synthwave", Some("Music/Electronic"), Some("🌆"), "synthwave sounds"),
+    ("Music/Electronic/Industrial", Some("Music/Electronic"), Some("⚙️"), "industrial sounds"),
+    ("Music/Electronic/Glitch", Some("Music/Electronic"), Some("📺"), "glitch sounds"),
+    ("Music/Electronic/Drone", Some("Music/Electronic"), Some("📡"), "drone sounds"),
+    ("Music/Electronic/IDM", Some("Music/Electronic"), Some("🧠"), "idm sounds"),
+    ("Music/Folk & World", Some("Music"), Some("🏛️"), "folk & world sounds"),
+    ("Music/Folk & World/Celtic", Some("Music/Folk & World"), Some("☘️"), "celtic sounds"),
+    ("Music/Folk & World/Medieval", Some("Music/Folk & World"), Some("🏰"), "medieval sounds"),
+    ("Music/Folk & World/Eastern", Some("Music/Folk & World"), Some("🏮"), "eastern sounds"),
+    ("Music/Folk & World/Nordic", Some("Music/Folk & World"), Some("🛡️"), "nordic sounds"),
+    ("Music/Folk & World/Tribal", Some("Music/Folk & World"), Some("🪶"), "tribal sounds"),
+    ("Music/Folk & World/Sea Shanties", Some("Music/Folk & World"), Some("⚓"), "sea shanties sounds"),
+    ("Music/Horror & Tension", Some("Music"), Some("😱"), "horror & tension sounds"),
+    ("Music/Horror & Tension/Atonal Horror", Some("Music/Horror & Tension"), Some("🔪"), "atonal horror sounds"),
+    ("Music/Horror & Tension/Psychological", Some("Music/Horror & Tension"), Some("🧠"), "psychological sounds"),
+    ("Music/Horror & Tension/Jump Scare", Some("Music/Horror & Tension"), Some("⚡"), "jump scare sounds"),
+    ("Music/Horror & Tension/Ritual", Some("Music/Horror & Tension"), Some("🕯️"), "ritual sounds"),
+    ("Music/Horror & Tension/Cosmic Horror", Some("Music/Horror & Tension"), Some("👁️"), "cosmic horror sounds"),
+    ("Music/Horror & Tension/Gothic", Some("Music/Horror & Tension"), Some("🦇"), "gothic sounds"),
+    ("Music/Jazz & Blues", Some("Music"), Some("🎺"), "jazz & blues sounds"),
+    ("Music/Jazz & Blues/Noir Jazz", Some("Music/Jazz & Blues"), Some("🕵️"), "noir jazz sounds"),
+    ("Music/Jazz & Blues/Swing", Some("Music/Jazz & Blues"), Some("💃"), "swing sounds"),
+    ("Music/Jazz & Blues/Blues", Some("Music/Jazz & Blues"), Some("😢"), "blues sounds"),
+    ("Music/Jazz & Blues/Lounge", Some("Music/Jazz & Blues"), Some("🍸"), "lounge sounds"),
+    ("Music/Jazz & Blues/Bebop", Some("Music/Jazz & Blues"), Some("🎷"), "bebop sounds"),
+    ("Music/Rock & Metal", Some("Music"), Some("🎸"), "rock & metal sounds"),
+    ("Music/Rock & Metal/Post Rock", Some("Music/Rock & Metal"), Some("🌊"), "post rock sounds"),
+    ("Music/Rock & Metal/Metal", Some("Music/Rock & Metal"), Some("🔥"), "metal sounds"),
+    ("Music/Rock & Metal/Gothic Rock", Some("Music/Rock & Metal"), Some("🖤"), "gothic rock sounds"),
+    ("Music/Rock & Metal/Folk Metal", Some("Music/Rock & Metal"), Some("⚔️"), "folk metal sounds"),
+    ("SFX", None, Some("🎬"), "sfx sounds"),
+    ("SFX/Weapons", Some("SFX"), Some("⚔️"), "weapons sounds"),
+    ("SFX/Weapons/Melee Weapons", Some("SFX/Weapons"), Some("🗡️"), "melee weapons sounds"),
+    ("SFX/Weapons/Ranged Weapons", Some("SFX/Weapons"), Some("🏹"), "ranged weapons sounds"),
+    ("SFX/Weapons/Magical Weapons", Some("SFX/Weapons"), Some("✨"), "magical weapons sounds"),
+    ("SFX/Weapons/Weapon Handling", Some("SFX/Weapons"), Some("🤲"), "weapon handling sounds"),
+    ("SFX/Weapons/Impacts", Some("SFX/Weapons"), Some("💥"), "impacts sounds"),
+    ("SFX/Weapons/Clashing", Some("SFX/Weapons"), Some("⚡"), "clashing sounds"),
+    ("SFX/Impacts & Crashes", Some("SFX"), Some("💥"), "impacts & crashes sounds"),
+    ("SFX/Impacts & Crashes/Metal Impacts", Some("SFX/Impacts & Crashes"), Some("🔧"), "metal impacts sounds"),
+    ("SFX/Impacts & Crashes/Wood Impacts", Some("SFX/Impacts & Crashes"), Some("🪵"), "wood impacts sounds"),
+    ("SFX/Impacts & Crashes/Stone Impacts", Some("SFX/Impacts & Crashes"), Some("🪨"), "stone impacts sounds"),
+    ("SFX/Impacts & Crashes/Glass Impacts", Some("SFX/Impacts & Crashes"), Some("🪟"), "glass impacts sounds"),
+    ("SFX/Impacts & Crashes/Body Impacts", Some("SFX/Impacts & Crashes"), Some("👊"), "body impacts sounds"),
+    ("SFX/Impacts & Crashes/Explosion Impacts", Some("SFX/Impacts & Crashes"), Some("💣"), "explosion impacts sounds"),
+    ("SFX/Movement", Some("SFX"), Some("🚶"), "movement sounds"),
+    ("SFX/Movement/Footsteps", Some("SFX/Movement"), Some("👢"), "footsteps sounds"),
+    ("SFX/Movement/Armor Movement", Some("SFX/Movement"), Some("⚙️"), "armor movement sounds"),
+    ("SFX/Movement/Cloth Movement", Some("SFX/Movement"), Some("👕"), "cloth movement sounds"),
+    ("SFX/Movement/Creature Movement", Some("SFX/Movement"), Some("🐾"), "creature movement sounds"),
+    ("SFX/Movement/Vehicle Movement", Some("SFX/Movement"), Some("🛞"), "vehicle movement sounds"),
+    ("SFX/Movement/Magic Movement", Some("SFX/Movement"), Some("✨"), "magic movement sounds"),
+    ("SFX/Objects", Some("SFX"), Some("🏺"), "objects sounds"),
+    ("SFX/Objects/Doors", Some("SFX/Objects"), Some("🚪"), "doors sounds"),
+    ("SFX/Objects/Containers", Some("SFX/Objects"), Some("📦"), "containers sounds"),
+    ("SFX/Objects/Tools", Some("SFX/Objects"), Some("🔨"), "tools sounds"),
+    ("SFX/Objects/Books", Some("SFX/Objects"), Some("📖"), "books sounds"),
+    ("SFX/Objects/Coins", Some("SFX/Objects"), Some("🪙"), "coins sounds"),
+    ("SFX/Objects/Machinery", Some("SFX/Objects"), Some("⚙️"), "machinery sounds"),
+    ("SFX/Voice & Vocal", Some("SFX"), Some("🗣️"), "voice & vocal sounds"),
+    ("SFX/Voice & Vocal/Chanting", Some("SFX/Voice & Vocal"), Some("🎭"), "chanting sounds"),
+    ("SFX/Voice & Vocal/Crowd Voices", Some("SFX/Voice & Vocal"), Some("👥"), "crowd voices sounds"),
+    ("SFX/Voice & Vocal/Emotional Vocals", Some("SFX/Voice & Vocal"), Some("😱"), "emotional vocals sounds"),
+    ("SFX/Voice & Vocal/Spell Casting", Some("SFX/Voice & Vocal"), Some("🔮"), "spell casting sounds"),
+    ("SFX/Voice & Vocal/Breathing", Some("SFX/Voice & Vocal"), Some("🫁"), "breathing sounds"),
+    ("SFX/Voice & Vocal/Whispers", Some("SFX/Voice & Vocal"), Some("🤫"), "whispers sounds"),
+    ("SFX/Magical Effects", Some("SFX"), Some("🪄"), "magical effects sounds"),
+    ("SFX/Magical Effects/Spell Casting", Some("SFX/Magical Effects"), Some("✨"), "spell casting sounds"),
+    ("SFX/Magical Effects/Teleportation", Some("SFX/Magical Effects"), Some("🌀"), "teleportation sounds"),
+    ("SFX/Magical Effects/Transformation", Some("SFX/Magical Effects"), Some("🔄"), "transformation sounds"),
+    ("SFX/Magical Effects/Energy Blasts", Some("SFX/Magical Effects"), Some("⚡"), "energy blasts sounds"),
+    ("SFX/Magical Effects/Healing Magic", Some("SFX/Magical Effects"), Some("💚"), "healing magic sounds"),
+    ("SFX/Magical Effects/Curses", Some("SFX/Magical Effects"), Some("💀"), "curses sounds"),
+    ("Environments", None, Some("🌍"), "environments sounds"),
+    ("Environments/Natural Landscapes", Some("Environments"), Some("🏞️"), "natural landscapes sounds"),
+    ("Environments/Natural Landscapes/Forests", Some("Environments/Natural Landscapes"), Some("🌲"), "forests sounds"),
+    ("Environments/Natural Landscapes/Mountains", Some("Environments/Natural Landscapes"), Some("⛰️"), "mountains sounds"),
+    ("Environments/Natural Landscapes/Deserts", Some("Environments/Natural Landscapes"), Some("🏜️"), "deserts sounds"),
+    ("Environments/Natural Landscapes/Oceans", Some("Environments/Natural Landscapes"), Some("🌊"), "oceans sounds"),
+    ("Environments/Natural Landscapes/Rivers", Some("Environments/Natural Landscapes"), Some("🏞️"), "rivers sounds"),
+    ("Environments/Natural Landscapes/Caves", Some("Environments/Natural Landscapes"), Some("🕳️"), "caves sounds"),
+    ("Environments/Natural Landscapes/Wetlands", Some("Environments/Natural Landscapes"), Some("🐸"), "wetlands sounds"),
+    ("Environments/Natural Landscapes/Jungles", Some("Environments/Natural Landscapes"), Some("🌴"), "jungle sounds"),
+    ("Environments/Natural Landscapes/Grasslands", Some("Environments/Natural Landscapes"), Some("🌾"), "grasslands sounds"),
+    ("Environments/Natural Landscapes/Coasts", Some("Environments/Natural Landscapes"), Some("🏖️"), "coastal sounds"),
+    ("Environments/Natural Landscapes/Canyons", Some("Environments/Natural Landscapes"), Some("🏔️"), "canyon sounds"),
+    ("Environments/Natural Landscapes/Volcanic", Some("Environments/Natural Landscapes"), Some("🌋"), "volcanic sounds"),
+    ("Environments/Natural Landscapes/Tundra", Some("Environments/Natural Landscapes"), Some("🧊"), "tundra sounds"),
+    ("Environments/Weather", Some("Environments"), Some("🌦️"), "weather sounds"),
+    ("Environments/Weather/Rain", Some("Environments/Weather"), Some("🌧️"), "rain sounds"),
+    ("Environments/Weather/Storms", Some("Environments/Weather"), Some("⛈️"), "storms sounds"),
+    ("Environments/Weather/Snow", Some("Environments/Weather"), Some("❄️"), "snow sounds"),
+    ("Environments/Weather/Wind", Some("Environments/Weather"), Some("💨"), "wind sounds"),
+    ("Environments/Weather/Fog", Some("Environments/Weather"), Some("🌫️"), "fog sounds"),
+    ("Environments/Weather/Heat", Some("Environments/Weather"), Some("🔥"), "heat sounds"),
+    ("Environments/Settlements", Some("Environments"), Some("🏘️"), "settlements sounds"),
+    ("Environments/Settlements/Taverns", Some("Environments/Settlements"), Some("🍺"), "taverns sounds"),
+    ("Environments/Settlements/Markets", Some("Environments/Settlements"), Some("🏪"), "markets sounds"),
+    ("Environments/Settlements/Cities", Some("Environments/Settlements"), Some("🏙️"), "cities sounds"),
+    ("Environments/Settlements/Villages", Some("Environments/Settlements"), Some("🏡"), "villages sounds"),
+    ("Environments/Settlements/Temples", Some("Environments/Settlements"), Some("⛪"), "temples sounds"),
+    ("Environments/Settlements/Castles", Some("Environments/Settlements"), Some("🏰"), "castles sounds"),
+    ("Environments/Settlements/Slums", Some("Environments/Settlements"), Some("🏚️"), "slums sounds"),
+    ("Environments/Settlements/Prisons", Some("Environments/Settlements"), Some("🔒"), "prison sounds"),
+    ("Environments/Settlements/Arenas", Some("Environments/Settlements"), Some("🏟️"), "arena sounds"),
+    ("Environments/Settlements/Harbors", Some("Environments/Settlements"), Some("⚓"), "harbor sounds"),
+    ("Environments/Dungeons & Ruins", Some("Environments"), Some("🏛️"), "dungeons & ruins sounds"),
+    ("Environments/Dungeons & Ruins/Ancient Ruins", Some("Environments/Dungeons & Ruins"), Some("🗿"), "ancient ruins sounds"),
+    ("Environments/Dungeons & Ruins/Tombs", Some("Environments/Dungeons & Ruins"), Some("⚱️"), "tombs sounds"),
+    ("Environments/Dungeons & Ruins/Sewers", Some("Environments/Dungeons & Ruins"), Some("🕳️"), "sewers sounds"),
+    ("Environments/Dungeons & Ruins/Mines", Some("Environments/Dungeons & Ruins"), Some("⛏️"), "mines sounds"),
+    ("Environments/Dungeons & Ruins/Crypts", Some("Environments/Dungeons & Ruins"), Some("💀"), "crypts sounds"),
+    ("Environments/Dungeons & Ruins/Forgotten Places", Some("Environments/Dungeons & Ruins"), Some("🏛️"), "forgotten places sounds"),
+    ("Environments/Dungeons & Ruins/Underdark", Some("Environments/Dungeons & Ruins"), Some("🕳️"), "underdark sounds"),
+    ("Environments/Futuristic", Some("Environments"), Some("🚀"), "futuristic environments"),
+    ("Environments/Futuristic/Space Stations", Some("Environments/Futuristic"), Some("🛰️"), "space station sounds"),
+    ("Environments/Futuristic/Laboratories", Some("Environments/Futuristic"), Some("🧪"), "laboratory sounds"),
+    ("Environments/Futuristic/Spaceports", Some("Environments/Futuristic"), Some("🚀"), "spaceport sounds"),
+    ("Environments/Futuristic/Cryogenic", Some("Environments/Futuristic"), Some("🧊"), "cryogenic sounds"),
+    ("Environments/Magical Realms", Some("Environments"), Some("✨"), "magical realms sounds"),
+    ("Environments/Magical Realms/Fairy Realms", Some("Environments/Magical Realms"), Some("🧚"), "fairy realms sounds"),
+    ("Environments/Magical Realms/Elemental Planes", Some("Environments/Magical Realms"), Some("🔥"), "elemental planes sounds"),
+    ("Environments/Magical Realms/Astral Plane", Some("Environments/Magical Realms"), Some("🌌"), "astral plane sounds"),
+    ("Environments/Magical Realms/Shadow Realm", Some("Environments/Magical Realms"), Some("🌑"), "shadow realm sounds"),
+    ("Environments/Magical Realms/Divine Realms", Some("Environments/Magical Realms"), Some("😇"), "divine realms sounds"),
+    ("Environments/Magical Realms/Void", Some("Environments/Magical Realms"), Some("🕳️"), "void sounds"),
+    ("Environments/Time & Seasons", Some("Environments"), Some("⏰"), "time & seasons sounds"),
+    ("Environments/Time & Seasons/Dawn", Some("Environments/Time & Seasons"), Some("🌅"), "dawn sounds"),
+    ("Environments/Time & Seasons/Day", Some("Environments/Time & Seasons"), Some("☀️"), "day sounds"),
+    ("Environments/Time & Seasons/Dusk", Some("Environments/Time & Seasons"), Some("🌇"), "dusk sounds"),
+    ("Environments/Time & Seasons/Night", Some("Environments/Time & Seasons"), Some("🌙"), "night sounds"),
+    ("Environments/Time & Seasons/Spring", Some("Environments/Time & Seasons"), Some("🌱"), "spring sounds"),
+    ("Environments/Time & Seasons/Summer", Some("Environments/Time & Seasons"), Some("☀️"), "summer sounds"),
+    ("Environments/Time & Seasons/Autumn", Some("Environments/Time & Seasons"), Some("🍂"), "autumn sounds"),
+    ("Environments/Time & Seasons/Winter", Some("Environments/Time & Seasons"), Some("❄️"), "winter sounds"),
+    ("Combat", None, Some("⚔️"), "combat sounds"),
+    ("Combat/Battle Ambience", Some("Combat"), Some("🏟️"), "battle ambience sounds"),
+    ("Combat/Battle Ambience/Battlefield", Some("Combat/Battle Ambience"), Some("⚔️"), "battlefield sounds"),
+    ("Combat/Battle Ambience/Siege", Some("Combat/Battle Ambience"), Some("🏰"), "siege sounds"),
+    ("Combat/Battle Ambience/Naval Combat", Some("Combat/Battle Ambience"), Some("⛵"), "naval combat sounds"),
+    ("Combat/Battle Ambience/Aerial Combat", Some("Combat/Battle Ambience"), Some("🦅"), "aerial combat sounds"),
+    ("Combat/Battle Ambience/Magic Battles", Some("Combat/Battle Ambience"), Some("✨"), "magic battles sounds"),
+    ("Combat/Battle Ambience/Arena", Some("Combat/Battle Ambience"), Some("🏛️"), "arena sounds"),
+    ("Combat/Combat Phases", Some("Combat"), Some("⏳"), "combat phases sounds"),
+    ("Combat/Combat Phases/Pre-Battle", Some("Combat/Combat Phases"), Some("⚡"), "pre-battle sounds"),
+    ("Combat/Combat Phases/Skirmish", Some("Combat/Combat Phases"), Some("⚔️"), "skirmish sounds"),
+    ("Combat/Combat Phases/Climax", Some("Combat/Combat Phases"), Some("🔥"), "climax sounds"),
+    ("Combat/Combat Phases/Victory", Some("Combat/Combat Phases"), Some("🏆"), "victory sounds"),
+    ("Combat/Combat Phases/Defeat", Some("Combat/Combat Phases"), Some("💔"), "defeat sounds"),
+    ("Combat/Combat Phases/Aftermath", Some("Combat/Combat Phases"), Some("🕊️"), "aftermath sounds"),
+    ("Combat/Armor & Defense", Some("Combat"), Some("🛡️"), "armor & defense sounds"),
+    ("Combat/Armor & Defense/Plate Armor", Some("Combat/Armor & Defense"), Some("🦾"), "plate armor sounds"),
+    ("Combat/Armor & Defense/Chain Mail", Some("Combat/Armor & Defense"), Some("🔗"), "chain mail sounds"),
+    ("Combat/Armor & Defense/Leather Armor", Some("Combat/Armor & Defense"), Some("🧥"), "leather armor sounds"),
+    ("Combat/Armor & Defense/Shields", Some("Combat/Armor & Defense"), Some("🛡️"), "shields sounds"),
+    ("Combat/Armor & Defense/Magical Protection", Some("Combat/Armor & Defense"), Some("✨"), "magical protection sounds"),
+    ("Combat/Armor & Defense/Breaking Armor", Some("Combat/Armor & Defense"), Some("💥"), "breaking armor sounds"),
+    ("Combat/Monster Combat", Some("Combat"), Some("👹"), "monster combat sounds"),
+    ("Combat/Monster Combat/Dragon Fights", Some("Combat/Monster Combat"), Some("🐉"), "dragon fights sounds"),
+    ("Combat/Monster Combat/Undead Combat", Some("Combat/Monster Combat"), Some("💀"), "undead combat sounds"),
+    ("Combat/Monster Combat/Beast Battles", Some("Combat/Monster Combat"), Some("🦁"), "beast battles sounds"),
+    ("Combat/Monster Combat/Demon Fights", Some("Combat/Monster Combat"), Some("😈"), "demon fights sounds"),
+    ("Combat/Monster Combat/Giant Combat", Some("Combat/Monster Combat"), Some("👹"), "giant combat sounds"),
+    ("Combat/Monster Combat/Swarm Attacks", Some("Combat/Monster Combat"), Some("🐝"), "swarm attacks sounds"),
+    ("Social", None, Some("🗣️"), "social sounds"),
+    ("Social/Conversations", Some("Social"), Some("💬"), "conversations sounds"),
+    ("Social/Conversations/Tavern Chatter", Some("Social/Conversations"), Some("🍺"), "tavern chatter sounds"),
+    ("Social/Conversations/Noble Court", Some("Social/Conversations"), Some("👑"), "noble court sounds"),
+    ("Social/Conversations/Merchant Haggling", Some("Social/Conversations"), Some("🤝"), "merchant haggling sounds"),
+    ("Social/Conversations/Interrogation", Some("Social/Conversations"), Some("🔍"), "interrogation sounds"),
+    ("Social/Conversations/Intimate Conversations", Some("Social/Conversations"), Some("💕"), "intimate conversations sounds"),
+    ("Social/Conversations/Arguments", Some("Social/Conversations"), Some("😠"), "arguments sounds"),
+    ("Social/Crowds", Some("Social"), Some("👥"), "crowds sounds"),
+    ("Social/Crowds/Celebration Crowds", Some("Social/Crowds"), Some("🎉"), "celebration crowds sounds"),
+    ("Social/Crowds/Angry Mobs", Some("Social/Crowds"), Some("😡"), "angry mobs sounds"),
+    ("Social/Crowds/Market Crowds", Some("Social/Crowds"), Some("🏪"), "market crowds sounds"),
+    ("Social/Crowds/Religious Gatherings", Some("Social/Crowds"), Some("🙏"), "religious gatherings sounds"),
+    ("Social/Crowds/Funeral Crowds", Some("Social/Crowds"), Some("😢"), "funeral crowds sounds"),
+    ("Social/Crowds/Panic Crowds", Some("Social/Crowds"), Some("😱"), "panic crowds sounds"),
+    ("Social/Ceremonies", Some("Social"), Some("🎭"), "ceremonies sounds"),
+    ("Social/Ceremonies/Weddings", Some("Social/Ceremonies"), Some("💒"), "weddings sounds"),
+    ("Social/Ceremonies/Coronations", Some("Social/Ceremonies"), Some("👑"), "coronations sounds"),
+    ("Social/Ceremonies/Funerals", Some("Social/Ceremonies"), Some("⚱️"), "funerals sounds"),
+    ("Social/Ceremonies/Religious Rites", Some("Social/Ceremonies"), Some("⛪"), "religious rites sounds"),
+    ("Social/Ceremonies/Coming of Age", Some("Social/Ceremonies"), Some("🎯"), "coming of age sounds"),
+    ("Social/Ceremonies/Secret Society", Some("Social/Ceremonies"), Some("🔮"), "secret society sounds"),
+    ("Social/Entertainment", Some("Social"), Some("🎪"), "entertainment sounds"),
+    ("Social/Entertainment/Bard Performances", Some("Social/Entertainment"), Some("🎵"), "bard performances sounds"),
+    ("Social/Entertainment/Theater", Some("Social/Entertainment"), Some("🎭"), "theater sounds"),
+    ("Social/Entertainment/Gambling", Some("Social/Entertainment"), Some("🎲"), "gambling sounds"),
+    ("Social/Entertainment/Festivals", Some("Social/Entertainment"), Some("🎪"), "festivals sounds"),
+    ("Social/Entertainment/Sports", Some("Social/Entertainment"), Some("⚽"), "sports sounds"),
+    ("Social/Entertainment/Street Performers", Some("Social/Entertainment"), Some("🎪"), "street performers sounds"),
+    ("Social/Professional Interactions", Some("Social"), Some("🏛️"), "professional interactions sounds"),
+    ("Social/Professional Interactions/Guild Meetings", Some("Social/Professional Interactions"), Some("⚒️"), "guild meetings sounds"),
+    ("Social/Professional Interactions/Council Sessions", Some("Social/Professional Interactions"), Some("🏛️"), "council sessions sounds"),
+    ("Social/Professional Interactions/Court Proceedings", Some("Social/Professional Interactions"), Some("⚖️"), "court proceedings sounds"),
+    ("Social/Professional Interactions/Academic Discourse", Some("Social/Professional Interactions"), Some("🎓"), "academic discourse sounds"),
+    ("Social/Professional Interactions/Military Orders", Some("Social/Professional Interactions"), Some("🪖"), "military orders sounds"),
+    ("Social/Professional Interactions/Trade Negotiations", Some("Social/Professional Interactions"), Some("💼"), "trade negotiations sounds"),
+    ("Magic", None, Some("✨"), "magic sounds"),
+    ("Magic/Elemental Magic", Some("Magic"), Some("🔥"), "elemental magic sounds"),
+    ("Magic/Elemental Magic/Fire Magic", Some("Magic/Elemental Magic"), Some("🔥"), "fire magic sounds"),
+    ("Magic/Elemental Magic/Ice Magic", Some("Magic/Elemental Magic"), Some("🧊"), "ice magic sounds"),
+    ("Magic/Elemental Magic/Lightning Magic", Some("Magic/Elemental Magic"), Some("⚡"), "lightning magic sounds"),
+    ("Magic/Elemental Magic/Earth Magic", Some("Magic/Elemental Magic"), Some("🌍"), "earth magic sounds"),
+    ("Magic/Elemental Magic/Water Magic", Some("Magic/Elemental Magic"), Some("💧"), "water magic sounds"),
+    ("Magic/Elemental Magic/Air Magic", Some("Magic/Elemental Magic"), Some("💨"), "air magic sounds"),
+    ("Magic/Spell Schools", Some("Magic"), Some("📚"), "spell schools sounds"),
+    ("Magic/Spell Schools/Healing Magic", Some("Magic/Spell Schools"), Some("💚"), "healing magic sounds"),
+    ("Magic/Spell Schools/Necromancy", Some("Magic/Spell Schools"), Some("💀"), "necromancy sounds"),
+    ("Magic/Spell Schools/Illusion", Some("Magic/Spell Schools"), Some("👻"), "illusion sounds"),
+    ("Magic/Spell Schools/Enchantment", Some("Magic/Spell Schools"), Some("💖"), "enchantment sounds"),
+    ("Magic/Spell Schools/Divination", Some("Magic/Spell Schools"), Some("🔮"), "divination sounds"),
+    ("Magic/Spell Schools/Transmutation", Some("Magic/Spell Schools"), Some("🔄"), "transmutation sounds"),
+    ("Magic/Magical Creatures", Some("Magic"), Some("🐉"), "magical creatures sounds"),
+    ("Magic/Magical Creatures/Dragons", Some("Magic/Magical Creatures"), Some("🐉"), "dragons sounds"),
+    ("Magic/Magical Creatures/Fae", Some("Magic/Magical Creatures"), Some("🧚"), "fae sounds"),
+    ("Magic/Magical Creatures/Demons", Some("Magic/Magical Creatures"), Some("😈"), "demons sounds"),
+    ("Magic/Magical Creatures/Angels", Some("Magic/Magical Creatures"), Some("👼"), "angels sounds"),
+    ("Magic/Magical Creatures/Spirits", Some("Magic/Magical Creatures"), Some("👻"), "spirits sounds"),
+    ("Magic/Magical Creatures/Elementals", Some("Magic/Magical Creatures"), Some("🌪️"), "elementals sounds"),
+    ("Magic/Magical Environments", Some("Magic"), Some("🌌"), "magical environments sounds"),
+    ("Magic/Magical Environments/Ley Lines", Some("Magic/Magical Environments"), Some("⚡"), "ley lines sounds"),
+    ("Magic/Magical Environments/Portals", Some("Magic/Magical Environments"), Some("🌀"), "portals sounds"),
+    ("Magic/Magical Environments/Magical Laboratories", Some("Magic/Magical Environments"), Some("🧪"), "magical laboratories sounds"),
+    ("Magic/Magical Environments/Sacred Groves", Some("Magic/Magical Environments"), Some("🌳"), "sacred groves sounds"),
+    ("Magic/Magical Environments/Cursed Lands", Some("Magic/Magical Environments"), Some("☠️"), "cursed lands sounds"),
+    ("Magic/Magical Environments/Magical Storms", Some("Magic/Magical Environments"), Some("⛈️"), "magical storms sounds"),
+    ("Magic/Artifacts & Items", Some("Magic"), Some("🏺"), "artifacts & items sounds"),
+    ("Magic/Artifacts & Items/Enchanted Weapons", Some("Magic/Artifacts & Items"), Some("⚔️"), "enchanted weapons sounds"),
+    ("Magic/Artifacts & Items/Spell Components", Some("Magic/Artifacts & Items"), Some("🌿"), "spell components sounds"),
+    ("Magic/Artifacts & Items/Magical Books", Some("Magic/Artifacts & Items"), Some("📖"), "magical books sounds"),
+    ("Magic/Artifacts & Items/Crystals", Some("Magic/Artifacts & Items"), Some("💎"), "crystals sounds"),
+    ("Magic/Artifacts & Items/Potions", Some("Magic/Artifacts & Items"), Some("🧪"), "potions sounds"),
+    ("Magic/Artifacts & Items/Talismans", Some("Magic/Artifacts & Items"), Some("🪬"), "talismans sounds"),
+    ("Magic/Rituals & Ceremonies", Some("Magic"), Some("🕯️"), "rituals & ceremonies sounds"),
+    ("Magic/Rituals & Ceremonies/Summoning", Some("Magic/Rituals & Ceremonies"), Some("👹"), "summoning sounds"),
+    ("Magic/Rituals & Ceremonies/Banishment", Some("Magic/Rituals & Ceremonies"), Some("✋"), "banishment sounds"),
+    ("Magic/Rituals & Ceremonies/Binding", Some("Magic/Rituals & Ceremonies"), Some("🔗"), "binding sounds"),
+    ("Magic/Rituals & Ceremonies/Transformation", Some("Magic/Rituals & Ceremonies"), Some("🦋"), "transformation sounds"),
+    ("Magic/Rituals & Ceremonies/Communication", Some("Magic/Rituals & Ceremonies"), Some("📡"), "communication sounds"),
+    ("Magic/Rituals & Ceremonies/Protection", Some("Magic/Rituals & Ceremonies"), Some("🛡️"), "protection sounds"),
 
-### 🎵 **Music** - Musical compositions, tracks, and loops
-- **🎼 Orchestral** - Epic and cinematic orchestral music
-  - 🏆 Epic Orchestral - Heroic and triumphant compositions
-  - 🌑 Dark Orchestral - Ominous and foreboding pieces
-  - ⚡ Hybrid Orchestral - Modern orchestral with electronic elements
-  - 🕯️ Minimalist Orchestral - Sparse and contemplative
-  - 👼 Choir & Vocals - Choral and vocal pieces
-  - 🎻 Solo Instruments - Featured solo performances
-- **🤖 Electronic** - Synthesized and digital music
-  - 🌌 Ambient Electronic - Atmospheric electronic soundscapes
-  - 🌆 Synthwave - Retro-futuristic electronic
-  - ⚙️ Industrial - Harsh mechanical electronic
-  - 📺 Glitch - Fragmented digital textures
-  - 📡 Drone - Sustained electronic tones
-  - 🧠 IDM - Intelligent dance music
-- **🏛️ Folk & World** - Traditional and cultural music
-  - ☘️ Celtic - Irish and Scottish traditional
-  - 🏰 Medieval - Period-authentic compositions
-  - 🏮 Eastern - Asian and Middle Eastern styles
-  - 🛡️ Nordic - Scandinavian folk traditions
-  - 🪶 Tribal - Indigenous and primitive styles
-  - ⚓ Sea Shanties - Maritime folk songs
-- **😱 Horror & Tension** - Music for scary and suspenseful scenes
-  - 🔪 Atonal Horror - Dissonant and unsettling
-  - 🧠 Psychological - Subtle tension building
-  - ⚡ Jump Scare - Sharp musical stingers
-  - 🕯️ Ritual - Dark ceremonial music
-  - 👁️ Cosmic Horror - Otherworldly dread
-  - 🦇 Gothic - Dark romantic horror
-- **🎺 Jazz & Blues** - Swing, noir, and bluesy compositions
-  - 🕵️ Noir Jazz - Dark detective atmosphere
-  - 💃 Swing - Upbeat dance jazz
-  - 😢 Blues - Melancholic and soulful
-  - 🍸 Lounge - Smooth background jazz
-  - 🎷 Bebop - Complex improvisational
-- **🎸 Rock & Metal** - Guitar-driven compositions
-  - 🌊 Post Rock - Instrumental progressive rock
-  - 🔥 Metal - Heavy and aggressive
-  - 🖤 Gothic Rock - Dark atmospheric rock
-  - ⚔️ Folk Metal - Traditional meets metal
+    // Mood-based virtual folders
+    ("Mood", None, Some("😊"), "mood-based organization"),
+    ("Mood/Positive", Some("Mood"), Some("😊"), "positive moods"),
+    ("Mood/Positive/Heroic", Some("Mood/Positive"), Some("🦸"), "heroic sounds"),
+    ("Mood/Positive/Triumphant", Some("Mood/Positive"), Some("🏆"), "triumphant sounds"),
+    ("Mood/Positive/Noble", Some("Mood/Positive"), Some("👑"), "noble sounds"),
+    ("Mood/Positive/Uplifting", Some("Mood/Positive"), Some("⬆️"), "uplifting sounds"),
+    ("Mood/Positive/Hopeful", Some("Mood/Positive"), Some("🌟"), "hopeful sounds"),
+    ("Mood/Positive/Inspiring", Some("Mood/Positive"), Some("💡"), "inspiring sounds"),
+    ("Mood/Positive/Adventurous", Some("Mood/Positive"), Some("🗺️"), "adventurous sounds"),
+    ("Mood/Positive/Confident", Some("Mood/Positive"), Some("💪"), "confident sounds"),
+    ("Mood/Positive/Victorious", Some("Mood/Positive"), Some("🎉"), "victorious sounds"),
+    ("Mood/Playful", Some("Mood"), Some("🎭"), "playful moods"),
+    ("Mood/Playful/Festive", Some("Mood/Playful"), Some("🎪"), "festive sounds"),
+    ("Mood/Playful/Playful", Some("Mood/Playful"), Some("🎈"), "playful sounds"),
+    ("Mood/Playful/Whimsical", Some("Mood/Playful"), Some("🎠"), "whimsical sounds"),
+    ("Mood/Playful/Merry", Some("Mood/Playful"), Some("😄"), "merry sounds"),
+    ("Mood/Playful/Lighthearted", Some("Mood/Playful"), Some("☀️"), "lighthearted sounds"),
+    ("Mood/Romantic", Some("Mood"), Some("💕"), "romantic moods"),
+    ("Mood/Romantic/Tender", Some("Mood/Romantic"), Some("🌸"), "tender sounds"),
+    ("Mood/Romantic/Romantic", Some("Mood/Romantic"), Some("💖"), "romantic sounds"),
+    ("Mood/Romantic/Serene", Some("Mood/Romantic"), Some("🕊️"), "serene sounds"),
+    ("Mood/Romantic/Pastoral", Some("Mood/Romantic"), Some("🌾"), "pastoral sounds"),
+    ("Mood/Romantic/Warm", Some("Mood/Romantic"), Some("🔥"), "warm sounds"),
+    ("Mood/Romantic/Comforting", Some("Mood/Romantic"), Some("🤗"), "comforting sounds"),
+    ("Mood/Romantic/Nostalgic", Some("Mood/Romantic"), Some("📷"), "nostalgic sounds"),
+    ("Mood/Romantic/Bittersweet", Some("Mood/Romantic"), Some("🥀"), "bittersweet sounds"),
+    ("Mood/Mysterious", Some("Mood"), Some("🔍"), "mysterious moods"),
+    ("Mood/Mysterious/Mysterious", Some("Mood/Mysterious"), Some("❓"), "mysterious sounds"),
+    ("Mood/Mysterious/Enigmatic", Some("Mood/Mysterious"), Some("🧩"), "enigmatic sounds"),
+    ("Mood/Mysterious/Curious", Some("Mood/Mysterious"), Some("🔍"), "curious sounds"),
+    ("Mood/Mysterious/Contemplative", Some("Mood/Mysterious"), Some("🤔"), "contemplative sounds"),
+    ("Mood/Mysterious/Dreamlike", Some("Mood/Mysterious"), Some("💭"), "dreamlike sounds"),
+    ("Mood/Mysterious/Ethereal", Some("Mood/Mysterious"), Some("✨"), "ethereal sounds"),
+    ("Mood/Mysterious/Mythic", Some("Mood/Mysterious"), Some("🗿"), "mythic sounds"),
+    ("Mood/Mysterious/Arcane", Some("Mood/Mysterious"), Some("🔮"), "arcane sounds"),
+    ("Mood/Mysterious/Otherworldly", Some("Mood/Mysterious"), Some("👽"), "otherworldly sounds"),
+    ("Mood/Sacred", Some("Mood"), Some("🙏"), "sacred moods"),
+    ("Mood/Sacred/Solemn", Some("Mood/Sacred"), Some("⛪"), "solemn sounds"),
+    ("Mood/Sacred/Ceremonial", Some("Mood/Sacred"), Some("🎭"), "ceremonial sounds"),
+    ("Mood/Sacred/Sacred", Some("Mood/Sacred"), Some("✝️"), "sacred sounds"),
+    ("Mood/Sacred/Ritualistic", Some("Mood/Sacred"), Some("🕯️"), "ritualistic sounds"),
+    ("Mood/Sacred/Austere", Some("Mood/Sacred"), Some("🏛️"), "austere sounds"),
+    ("Mood/Sacred/Stoic", Some("Mood/Sacred"), Some("🗿"), "stoic sounds"),
+    ("Mood/Dark", Some("Mood"), Some("🌑"), "dark moods"),
+    ("Mood/Dark/Ominous", Some("Mood/Dark"), Some("⚡"), "ominous sounds"),
+    ("Mood/Dark/Foreboding", Some("Mood/Dark"), Some("🌩️"), "foreboding sounds"),
+    ("Mood/Dark/Tense", Some("Mood/Dark"), Some("😬"), "tense sounds"),
+    ("Mood/Dark/Suspenseful", Some("Mood/Dark"), Some("🔍"), "suspenseful sounds"),
+    ("Mood/Dark/Uneasy", Some("Mood/Dark"), Some("😰"), "uneasy sounds"),
+    ("Mood/Dark/Eerie", Some("Mood/Dark"), Some("👻"), "eerie sounds"),
+    ("Mood/Dark/Creepy", Some("Mood/Dark"), Some("🕷️"), "creepy sounds"),
+    ("Mood/Dark/Unsettling", Some("Mood/Dark"), Some("😨"), "unsettling sounds"),
+    ("Mood/Dark/Menacing", Some("Mood/Dark"), Some("👹"), "menacing sounds"),
+    ("Mood/Dark/Sinister", Some("Mood/Dark"), Some("😈"), "sinister sounds"),
+    ("Mood/Dark/Gothic", Some("Mood/Dark"), Some("🦇"), "gothic sounds"),
+    ("Mood/Tragic", Some("Mood"), Some("😢"), "tragic moods"),
+    ("Mood/Tragic/Dread", Some("Mood/Tragic"), Some("💀"), "dread sounds"),
+    ("Mood/Tragic/Grim", Some("Mood/Tragic"), Some("⚔️"), "grim sounds"),
+    ("Mood/Tragic/Bleak", Some("Mood/Tragic"), Some("🌫️"), "bleak sounds"),
+    ("Mood/Tragic/Oppressive", Some("Mood/Tragic"), Some("⚖️"), "oppressive sounds"),
+    ("Mood/Tragic/Claustrophobic", Some("Mood/Tragic"), Some("📦"), "claustrophobic sounds"),
+    ("Mood/Tragic/Tragic", Some("Mood/Tragic"), Some("😭"), "tragic sounds"),
+    ("Mood/Tragic/Melancholic", Some("Mood/Tragic"), Some("😔"), "melancholic sounds"),
+    ("Mood/Tragic/Sorrowful", Some("Mood/Tragic"), Some("💧"), "sorrowful sounds"),
+    ("Mood/Tragic/Desolate", Some("Mood/Tragic"), Some("🏜️"), "desolate sounds"),
+    ("Mood/Tragic/Lonely", Some("Mood/Tragic"), Some("🚶"), "lonely sounds"),
+    ("Mood/Intense", Some("Mood"), Some("🔥"), "intense moods"),
+    ("Mood/Intense/Driving", Some("Mood/Intense"), Some("🏎️"), "driving sounds"),
+    ("Mood/Intense/Relentless", Some("Mood/Intense"), Some("⚡"), "relentless sounds"),
+    ("Mood/Intense/Frenetic", Some("Mood/Intense"), Some("🌪️"), "frenetic sounds"),
+    ("Mood/Intense/Furious", Some("Mood/Intense"), Some("😡"), "furious sounds"),
+    ("Mood/Intense/Aggressive", Some("Mood/Intense"), Some("👊"), "aggressive sounds"),
+    ("Mood/Intense/Percussive", Some("Mood/Intense"), Some("🥁"), "percussive sounds"),
+    ("Mood/Intense/Charged", Some("Mood/Intense"), Some("⚡"), "charged sounds"),
+    ("Mood/Intense/Urgent", Some("Mood/Intense"), Some("🚨"), "urgent sounds"),
+    ("Mood/Intense/Chaotic", Some("Mood/Intense"), Some("🌀"), "chaotic sounds"),
+    ("Mood/Intense/Volatile", Some("Mood/Intense"), Some("💥"), "volatile sounds"),
+    ("Mood/Intense/Explosive", Some("Mood/Intense"), Some("💣"), "explosive sounds"),
 
-### 🎬 **SFX** - Sound effects and foley work
-- **⚔️ Weapons** - Combat and weapon sounds
-  - 🗡️ Melee Weapons - Swords, axes, clubs, daggers
-  - 🏹 Ranged Weapons - Bows, crossbows, firearms
-  - ✨ Magical Weapons - Enchanted and spell-based
-  - 🤲 Weapon Handling - Drawing, sheathing, loading
-  - 💥 Impacts - Weapon hitting various materials
-  - ⚡ Clashing - Weapon-on-weapon contact
-- **💥 Impacts & Crashes** - Collision and destruction sounds
-  - 🔧 Metal Impacts - Metallic collisions and clangs
-  - 🪵 Wood Impacts - Wooden crashes and breaks
-  - 🪨 Stone Impacts - Rock and masonry sounds
-  - 🪟 Glass Impacts - Shattering and breaking glass
-  - 👊 Body Impacts - Physical collision sounds
-  - 💣 Explosion Impacts - Blast-related debris
-- **🚶 Movement** - Locomotion and motion sounds
-  - 👢 Footsteps - Walking on various surfaces
-  - ⚙️ Armor Movement - Metal armor clanking
-  - 👕 Cloth Movement - Fabric rustling and swishing
-  - 🐾 Creature Movement - Non-human locomotion
-  - 🛞 Vehicle Movement - Carts, ships, mounts
-  - ✨ Magic Movement - Teleportation, flight
-- **🏺 Objects** - Everyday item and prop sounds
-  - 🚪 Doors - Opening, closing, creaking
-  - 📦 Containers - Chests, boxes, bags
-  - 🔨 Tools - Hammers, saws, picks
-  - 📖 Books - Pages, writing, scrolls
-  - 🪙 Coins - Jingling, dropping, counting
-  - ⚙️ Machinery - Gears, levers, mechanisms
-- **🗣️ Voice & Vocal** - Human vocal sounds
-  - 🎭 Chanting - Ritual and ceremonial vocals
-  - 👥 Crowd Voices - Multiple people speaking
-  - 😱 Emotional Vocals - Screams, laughter, crying
-  - 🔮 Spell Casting - Magical incantations
-  - 🫁 Breathing - Heavy breathing, gasps
-  - 🤫 Whispers - Quiet vocal sounds
-- **🪄 Magical Effects** - Supernatural sound effects
-  - ✨ Spell Casting - Magic being channeled
-  - 🌀 Teleportation - Dimensional travel sounds
-  - 🔄 Transformation - Shapeshifting effects
-  - ⚡ Energy Blasts - Magical projectiles
-  - 💚 Healing Magic - Restorative spell sounds
-  - 💀 Curses - Dark magic effects
+    // Genre-based virtual folders
+    ("Genre", None, Some("🎵"), "genre-based organization"),
+    ("Genre/General", Some("Genre"), Some("🎶"), "general genres"),
+    ("Genre/General/Post-Metal", Some("Genre/General"), Some("🎸"), "post-metal sounds"),
+    ("Genre/General/Blues", Some("Genre/General"), Some("😢"), "blues sounds"),
+    ("Genre/General/Lounge", Some("Genre/General"), Some("🍸"), "lounge sounds"),
+    ("Genre/General/Dieselpunk", Some("Genre/General"), Some("⚙️"), "dieselpunk sounds"),
+    ("Genre/General/Steampunk", Some("Genre/General"), Some("⚙️"), "steampunk sounds"),
+    ("Genre/General/Western", Some("Genre/General"), Some("🤠"), "western sounds"),
+    ("Genre/General/Mystery Noir", Some("Genre/General"), Some("🕵️"), "mystery noir sounds"),
+    ("Genre/General/Superhero", Some("Genre/General"), Some("🦸"), "superhero sounds"),
+    ("Genre/Ambient", Some("Genre"), Some("🌌"), "ambient genres"),
+    ("Genre/Ambient/Dark Ambient", Some("Genre/Ambient"), Some("🌑"), "dark ambient sounds"),
+    ("Genre/Ambient/Space Ambient", Some("Genre/Ambient"), Some("🚀"), "space ambient sounds"),
+    ("Genre/Ambient/Nature Ambient", Some("Genre/Ambient"), Some("🌿"), "nature ambient sounds"),
+    ("Genre/Ambient/Ritual", Some("Genre/Ambient"), Some("🕯️"), "ritual sounds"),
+    ("Genre/Ambient/Drone", Some("Genre/Ambient"), Some("📡"), "drone sounds"),
+    ("Genre/Ambient/Textural", Some("Genre/Ambient"), Some("🎨"), "textural sounds"),
+    ("Genre/Ambient/New Age", Some("Genre/Ambient"), Some("☮️"), "new age sounds"),
+    ("Genre/Ambient/Lofi Ambient", Some("Genre/Ambient"), Some("📼"), "lofi ambient sounds"),
+    ("Genre/Electronic", Some("Genre"), Some("🤖"), "electronic genres"),
+    ("Genre/Electronic/Cyberpunk", Some("Genre/Electronic"), Some("🦾"), "cyberpunk sounds"),
+    ("Genre/Electronic/IDM", Some("Genre/Electronic"), Some("🧠"), "idm sounds"),
+    ("Genre/Electronic/Glitch", Some("Genre/Electronic"), Some("📺"), "glitch sounds"),
+    ("Genre/Electronic/Industrial", Some("Genre/Electronic"), Some("⚙️"), "industrial sounds"),
+    ("Genre/Electronic/EBM", Some("Genre/Electronic"), Some("⚡"), "ebm sounds"),
+    ("Genre/Electronic/Techno", Some("Genre/Electronic"), Some("🎛️"), "techno sounds"),
+    ("Genre/Electronic/Trance", Some("Genre/Electronic"), Some("🌀"), "trance sounds"),
+    ("Genre/Electronic/DNB", Some("Genre/Electronic"), Some("🥁"), "dnb sounds"),
+    ("Genre/Electronic/Downtempo", Some("Genre/Electronic"), Some("🌙"), "downtempo sounds"),
+    ("Genre/Folk", Some("Genre"), Some("🏛️"), "folk genres"),
+    ("Genre/Folk/Celtic", Some("Genre/Folk"), Some("☘️"), "celtic sounds"),
+    ("Genre/Folk/Nordic", Some("Genre/Folk"), Some("🛡️"), "nordic sounds"),
+    ("Genre/Folk/Eastern", Some("Genre/Folk"), Some("🏮"), "eastern sounds"),
+    ("Genre/Folk/Mediterranean", Some("Genre/Folk"), Some("🌊"), "mediterranean sounds"),
+    ("Genre/Folk/African", Some("Genre/Folk"), Some("🦁"), "african sounds"),
+    ("Genre/Folk/Tribal", Some("Genre/Folk"), Some("🪶"), "tribal sounds"),
+    ("Genre/Folk/Sea Shanties", Some("Genre/Folk"), Some("⚓"), "sea shanties sounds"),
+    ("Genre/Fantasy", Some("Genre"), Some("🧙"), "fantasy genres"),
+    ("Genre/Fantasy/High Fantasy", Some("Genre/Fantasy"), Some("⚔️"), "high fantasy sounds"),
+    ("Genre/Fantasy/Grimdark", Some("Genre/Fantasy"), Some("☠️"), "grimdark sounds"),
+    ("Genre/Fantasy/Fairy", Some("Genre/Fantasy"), Some("🧚"), "fairy sounds"),
+    ("Genre/Horror", Some("Genre"), Some("😱"), "horror genres"),
+    ("Genre/Horror/Atonal Horror", Some("Genre/Horror"), Some("🔪"), "atonal horror sounds"),
+    ("Genre/Horror/Psychological", Some("Genre/Horror"), Some("🧠"), "psychological sounds"),
+    ("Genre/Horror/Jump Scare", Some("Genre/Horror"), Some("⚡"), "jump scare sounds"),
+    ("Genre/Horror/Ritual", Some("Genre/Horror"), Some("🕯️"), "ritual sounds"),
+    ("Genre/Horror/Cosmic Horror", Some("Genre/Horror"), Some("👁️"), "cosmic horror sounds"),
+    ("Genre/Horror/Gothic", Some("Genre/Horror"), Some("🦇"), "gothic sounds"),
+    ("Genre/Jazz", Some("Genre"), Some("🎺"), "jazz genres"),
+    ("Genre/Jazz/Noir Jazz", Some("Genre/Jazz"), Some("🕵️"), "noir jazz sounds"),
+    ("Genre/Jazz/Swing", Some("Genre/Jazz"), Some("💃"), "swing sounds"),
+    ("Genre/Jazz/Cool", Some("Genre/Jazz"), Some("😎"), "cool sounds"),
+    ("Genre/Jazz/Bebop", Some("Genre/Jazz"), Some("🎷"), "bebop sounds"),
+    ("Genre/Metal", Some("Genre"), Some("🤘"), "metal genres"),
+    ("Genre/Metal/Power Metal", Some("Genre/Metal"), Some("⚡"), "power metal sounds"),
+    ("Genre/Metal/Symphonic Metal", Some("Genre/Metal"), Some("🎼"), "symphonic metal sounds"),
+    ("Genre/Metal/Black Metal", Some("Genre/Metal"), Some("🖤"), "black metal sounds"),
+    ("Genre/Metal/Doom Metal", Some("Genre/Metal"), Some("💀"), "doom metal sounds"),
+    ("Genre/Metal/Folk Metal", Some("Genre/Metal"), Some("⚔️"), "folk metal sounds"),
+    ("Genre/Orchestral", Some("Genre"), Some("🎼"), "orchestral genres"),
+    ("Genre/Orchestral/Cinematic", Some("Genre/Orchestral"), Some("🎬"), "cinematic sounds"),
+    ("Genre/Orchestral/Hybrid", Some("Genre/Orchestral"), Some("⚡"), "hybrid sounds"),
+    ("Genre/Orchestral/Heroic", Some("Genre/Orchestral"), Some("🏆"), "heroic sounds"),
+    ("Genre/Orchestral/Dark", Some("Genre/Orchestral"), Some("🌑"), "dark sounds"),
+    ("Genre/Orchestral/Minimal", Some("Genre/Orchestral"), Some("🕯️"), "minimal sounds"),
 
-### 🌍 **Environments** - Ambient and atmospheric soundscapes
-- **🏞️ Natural Landscapes** - Outdoor natural environments
-  - 🌲 Forests - Tree sounds, wildlife, wind
-  - ⛰️ Mountains - Wind, echoes, altitude ambience
-  - 🏜️ Deserts - Sand, heat shimmer, sparse life
-  - 🌊 Oceans - Waves, deep water, marine life
-  - 🏞️ Rivers - Flowing water, rapids, streams
-  - 🕳️ Caves - Echo, dripping, underground ambience
-- **🌦️ Weather** - Atmospheric conditions
-  - 🌧️ Rain - Light drizzle to heavy downpours
-  - ⛈️ Storms - Thunder, lightning, wind
-  - ❄️ Snow - Falling snow, blizzards, cold wind
-  - 💨 Wind - Gentle breeze to howling gales
-  - 🌫️ Fog - Muffled atmospheric effects
-  - 🔥 Heat - Desert heat, shimmering air
-- **🏘️ Settlements** - Populated areas and buildings
-  - 🍺 Taverns - Drinking, conversation, music
-  - 🏪 Markets - Crowds, vendors, commerce
-  - 🏙️ Cities - Urban bustle, traffic, crowds
-  - 🏡 Villages - Rural community sounds
-  - ⛪ Temples - Religious ambience, chanting
-  - 🏰 Castles - Stone halls, guards, royalty
-- **🏛️ Dungeons & Ruins** - Underground and abandoned places
-  - 🗿 Ancient Ruins - Crumbling stone, history
-  - ⚱️ Tombs - Death, silence, supernatural
-  - 🕳️ Sewers - Water, rats, urban underground
-  - ⛏️ Mines - Pickaxes, carts, industrial
-  - 💀 Crypts - Undead, bones, gothic horror
-  - 🏛️ Forgotten Places - Lost civilizations
-- **✨ Magical Realms** - Supernatural environments
-  - 🧚 Fairy Realms - Whimsical, ethereal, light
-  - 🔥 Elemental Planes - Fire, ice, lightning
-  - 🌌 Astral Plane - Otherworldly, cosmic
-  - 🌑 Shadow Realm - Dark, twisted reality
-  - 😇 Divine Realms - Heavenly, sacred spaces
-  - 🕳️ Void - Emptiness, cosmic horror
-- **⏰ Time & Seasons** - Temporal atmospheric elements
-  - 🌅 Dawn - Morning awakening, birdsong
-  - ☀️ Day - Active, bright, energetic
-  - 🌇 Dusk - Evening settling, transition
-  - 🌙 Night - Darkness, nocturnal creatures
-  - 🌱 Spring - Growth, renewal, life
-  - ☀️ Summer - Heat, abundance, activity
-  - 🍂 Autumn - Decay, harvest, change
-  - ❄️ Winter - Cold, stillness, death
+    // Occasion-based virtual folders
+    ("Occasion", None, Some("🎯"), "occasion-based organization"),
+    ("Occasion/Session Management", Some("Occasion"), Some("📋"), "session management"),
+    ("Occasion/Session Management/Session Start", Some("Occasion/Session Management"), Some("🚀"), "session start sounds"),
+    ("Occasion/Session Management/Recap", Some("Occasion/Session Management"), Some("📖"), "recap sounds"),
+    ("Occasion/Session Management/Table Chatter", Some("Occasion/Session Management"), Some("💬"), "table chatter sounds"),
+    ("Occasion/Session Management/Break", Some("Occasion/Session Management"), Some("☕"), "break sounds"),
+    ("Occasion/Session Management/Session End", Some("Occasion/Session Management"), Some("🏁"), "session end sounds"),
+    ("Occasion/Session Management/Credits", Some("Occasion/Session Management"), Some("🎬"), "credits sounds"),
+    ("Occasion/Character Events", Some("Occasion"), Some("🎭"), "character events"),
+    ("Occasion/Character Events/Level Up", Some("Occasion/Character Events"), Some("⬆️"), "level up sounds"),
+    ("Occasion/Character Events/Quest Complete", Some("Occasion/Character Events"), Some("✅"), "quest complete sounds"),
+    ("Occasion/Character Events/Achievement", Some("Occasion/Character Events"), Some("🏆"), "achievement sounds"),
+    ("Occasion/Character Events/Loot Found", Some("Occasion/Character Events"), Some("💰"), "loot found sounds"),
+    ("Occasion/Character Events/Character Death", Some("Occasion/Character Events"), Some("💀"), "character death sounds"),
+    ("Occasion/Travel", Some("Occasion"), Some("🗺️"), "travel occasions"),
+    ("Occasion/Travel/Overworld Travel", Some("Occasion/Travel"), Some("🌍"), "overworld travel sounds"),
+    ("Occasion/Travel/Wilderness Exploration", Some("Occasion/Travel"), Some("🌲"), "wilderness exploration sounds"),
+    ("Occasion/Travel/Urban Exploration", Some("Occasion/Travel"), Some("🏙️"), "urban exploration sounds"),
+    ("Occasion/Travel/Dungeon Crawl", Some("Occasion/Travel"), Some("🏛️"), "dungeon crawl sounds"),
+    ("Occasion/Travel/Cave Exploration", Some("Occasion/Travel"), Some("🕳️"), "cave exploration sounds"),
+    ("Occasion/Travel/Sea Voyage", Some("Occasion/Travel"), Some("🚢"), "sea voyage sounds"),
+    ("Occasion/Travel/Mountain Pass", Some("Occasion/Travel"), Some("⛰️"), "mountain pass sounds"),
+    ("Occasion/Social", Some("Occasion"), Some("👥"), "social occasions"),
+    ("Occasion/Social/Tavern", Some("Occasion/Social"), Some("🍺"), "tavern sounds"),
+    ("Occasion/Social/Inn", Some("Occasion/Social"), Some("🏠"), "inn sounds"),
+    ("Occasion/Social/Market", Some("Occasion/Social"), Some("🏪"), "market sounds"),
+    ("Occasion/Social/Noble Court", Some("Occasion/Social"), Some("👑"), "noble court sounds"),
+    ("Occasion/Social/Festival", Some("Occasion/Social"), Some("🎪"), "festival sounds"),
+    ("Occasion/Social/Wedding", Some("Occasion/Social"), Some("💒"), "wedding sounds"),
+    ("Occasion/Social/Funeral", Some("Occasion/Social"), Some("⚱️"), "funeral sounds"),
+    ("Occasion/Entertainment", Some("Occasion"), Some("🎪"), "entertainment occasions"),
+    ("Occasion/Entertainment/Bard Performance", Some("Occasion/Entertainment"), Some("🎵"), "bard performance sounds"),
+    ("Occasion/Entertainment/Theater", Some("Occasion/Entertainment"), Some("🎭"), "theater sounds"),
+    ("Occasion/Entertainment/Gambling", Some("Occasion/Entertainment"), Some("🎲"), "gambling sounds"),
+    ("Occasion/Entertainment/Sports", Some("Occasion/Entertainment"), Some("⚽"), "sports sounds"),
+    ("Occasion/Combat", Some("Occasion"), Some("⚔️"), "combat occasions"),
+    ("Occasion/Combat/Boss Fight", Some("Occasion/Combat"), Some("👹"), "boss fight sounds"),
+    ("Occasion/Combat/Mass Battle", Some("Occasion/Combat"), Some("🏟️"), "mass battle sounds"),
+    ("Occasion/Combat/Duel", Some("Occasion/Combat"), Some("⚔️"), "duel sounds"),
+    ("Occasion/Combat/Ambush", Some("Occasion/Combat"), Some("🗡️"), "ambush sounds"),
+    ("Occasion/Combat/Chase", Some("Occasion/Combat"), Some("🏃"), "chase sounds"),
+    ("Occasion/Stealth", Some("Occasion"), Some("🥷"), "stealth occasions"),
+    ("Occasion/Stealth/Infiltration", Some("Occasion/Stealth"), Some("🔍"), "infiltration sounds"),
+    ("Occasion/Stealth/Lockpicking", Some("Occasion/Stealth"), Some("🗝️"), "lockpicking sounds"),
+    ("Occasion/Stealth/Surveillance", Some("Occasion/Stealth"), Some("👁️"), "surveillance sounds"),
+    ("Occasion/Stealth/Escape", Some("Occasion/Stealth"), Some("🏃"), "escape sounds"),
+    
+    // Creatures & People - Level 0
+    ("Creatures & People", None, Some("👥"), "creatures and people sounds"),
+    
+    // Level 1: Major Categories
+    ("Creatures & People/Monsters", Some("Creatures & People"), Some("👹"), "monster and creature sounds"),
+    ("Creatures & People/Humanoids", Some("Creatures & People"), Some("👤"), "humanoid creature sounds"),
+    ("Creatures & People/Supernatural", Some("Creatures & People"), Some("👻"), "supernatural entity sounds"),
+    ("Creatures & People/Organizations", Some("Creatures & People"), Some("⚖️"), "faction and organization sounds"),
+    ("Creatures & People/NPCs", Some("Creatures & People"), Some("🗨️"), "non-player character sounds"),
+    
+    // Level 2: Monsters
+    ("Creatures & People/Monsters/Dragons", Some("Creatures & People/Monsters"), Some("🐉"), "dragon creature sounds"),
+    ("Creatures & People/Monsters/Giants", Some("Creatures & People/Monsters"), Some("🦣"), "giant creature sounds"),
+    ("Creatures & People/Monsters/Beasts", Some("Creatures & People/Monsters"), Some("🐺"), "beast creature sounds"),
+    ("Creatures & People/Monsters/Aberrations", Some("Creatures & People/Monsters"), Some("🦑"), "aberrant creature sounds"),
+    ("Creatures & People/Monsters/Constructs", Some("Creatures & People/Monsters"), Some("🤖"), "construct creature sounds"),
+    ("Creatures & People/Monsters/Oozes", Some("Creatures & People/Monsters"), Some("🫧"), "ooze creature sounds"),
+    
+    // Level 2: Humanoids
+    ("Creatures & People/Humanoids/Fantasy Races", Some("Creatures & People/Humanoids"), Some("🧝"), "fantasy race sounds"),
+    ("Creatures & People/Humanoids/Monstrous", Some("Creatures & People/Humanoids"), Some("👹"), "monstrous humanoid sounds"),
+    ("Creatures & People/Humanoids/Hybrid", Some("Creatures & People/Humanoids"), Some("🐎"), "hybrid creature sounds"),
+    ("Creatures & People/Humanoids/Civilized", Some("Creatures & People/Humanoids"), Some("👑"), "civilized humanoid sounds"),
+    
+    // Level 2: Supernatural
+    ("Creatures & People/Supernatural/Undead", Some("Creatures & People/Supernatural"), Some("💀"), "undead creature sounds"),
+    ("Creatures & People/Supernatural/Fiends", Some("Creatures & People/Supernatural"), Some("😈"), "fiend creature sounds"),
+    ("Creatures & People/Supernatural/Celestials", Some("Creatures & People/Supernatural"), Some("😇"), "celestial creature sounds"),
+    ("Creatures & People/Supernatural/Fey", Some("Creatures & People/Supernatural"), Some("🧚"), "fey creature sounds"),
+    ("Creatures & People/Supernatural/Elementals", Some("Creatures & People/Supernatural"), Some("🔥"), "elemental creature sounds"),
+    ("Creatures & People/Supernatural/Eldritch", Some("Creatures & People/Supernatural"), Some("👁️"), "eldritch entity sounds"),
+    
+    // Level 2: Organizations
+    ("Creatures & People/Organizations/Kingdoms", Some("Creatures & People/Organizations"), Some("👑"), "kingdom faction sounds"),
+    ("Creatures & People/Organizations/Guilds", Some("Creatures & People/Organizations"), Some("🏪"), "guild faction sounds"),
+    ("Creatures & People/Organizations/Criminal", Some("Creatures & People/Organizations"), Some("🗡️"), "criminal faction sounds"),
+    ("Creatures & People/Organizations/Religious", Some("Creatures & People/Organizations"), Some("⛪"), "religious faction sounds"),
+    ("Creatures & People/Organizations/Military", Some("Creatures & People/Organizations"), Some("⚔️"), "military faction sounds"),
+    ("Creatures & People/Organizations/Corporate", Some("Creatures & People/Organizations"), Some("🏢"), "corporate faction sounds"),
+    
+    // Level 2: NPCs
+    ("Creatures & People/NPCs/Nobles", Some("Creatures & People/NPCs"), Some("👑"), "noble character sounds"),
+    ("Creatures & People/NPCs/Merchants", Some("Creatures & People/NPCs"), Some("💰"), "merchant character sounds"),
+    ("Creatures & People/NPCs/Scholars", Some("Creatures & People/NPCs"), Some("📚"), "scholar character sounds"),
+    ("Creatures & People/NPCs/Warriors", Some("Creatures & People/NPCs"), Some("⚔️"), "warrior character sounds"),
+    ("Creatures & People/NPCs/Rogues", Some("Creatures & People/NPCs"), Some("🗡️"), "rogue character sounds"),
+    ("Creatures & People/NPCs/Spellcasters", Some("Creatures & People/NPCs"), Some("🔮"), "spellcaster character sounds"),
+    ("Creatures & People/NPCs/Specialists", Some("Creatures & People/NPCs"), Some("🔧"), "specialist character sounds"),
+    
+    // Tech & Vehicles - Level 0
+    ("Tech & Vehicles", None, Some("🚗"), "technology and vehicle sounds"),
+    
+    // Level 1: Major Categories
+    ("Tech & Vehicles/Weapons", Some("Tech & Vehicles"), Some("⚔️"), "weapon technology sounds"),
+    ("Tech & Vehicles/Armor", Some("Tech & Vehicles"), Some("🛡️"), "armor and protection sounds"),
+    ("Tech & Vehicles/Tools", Some("Tech & Vehicles"), Some("🔧"), "tool and equipment sounds"),
+    ("Tech & Vehicles/Vehicles", Some("Tech & Vehicles"), Some("🚙"), "vehicle sounds"),
+    ("Tech & Vehicles/Technology", Some("Tech & Vehicles"), Some("💻"), "technology systems sounds"),
+    
+    // Level 2: Weapons
+    ("Tech & Vehicles/Weapons/Melee", Some("Tech & Vehicles/Weapons"), Some("⚔️"), "melee weapon sounds"),
+    ("Tech & Vehicles/Weapons/Ranged", Some("Tech & Vehicles/Weapons"), Some("🏹"), "ranged weapon sounds"),
+    ("Tech & Vehicles/Weapons/Firearms", Some("Tech & Vehicles/Weapons"), Some("🔫"), "firearm weapon sounds"),
+    ("Tech & Vehicles/Weapons/Energy", Some("Tech & Vehicles/Weapons"), Some("⚡"), "energy weapon sounds"),
+    ("Tech & Vehicles/Weapons/Explosive", Some("Tech & Vehicles/Weapons"), Some("💥"), "explosive weapon sounds"),
+    ("Tech & Vehicles/Weapons/Magical", Some("Tech & Vehicles/Weapons"), Some("🔮"), "magical weapon sounds"),
+    
+    // Level 2: Armor
+    ("Tech & Vehicles/Armor/Light", Some("Tech & Vehicles/Armor"), Some("👕"), "light armor sounds"),
+    ("Tech & Vehicles/Armor/Medium", Some("Tech & Vehicles/Armor"), Some("🦺"), "medium armor sounds"),
+    ("Tech & Vehicles/Armor/Heavy", Some("Tech & Vehicles/Armor"), Some("🛡️"), "heavy armor sounds"),
+    ("Tech & Vehicles/Armor/Shields", Some("Tech & Vehicles/Armor"), Some("🛡️"), "shield sounds"),
+    ("Tech & Vehicles/Armor/Powered", Some("Tech & Vehicles/Armor"), Some("🤖"), "powered armor sounds"),
+    ("Tech & Vehicles/Armor/Magical", Some("Tech & Vehicles/Armor"), Some("✨"), "magical armor sounds"),
+    
+    // Level 2: Tools
+    ("Tech & Vehicles/Tools/Basic", Some("Tech & Vehicles/Tools"), Some("🔨"), "basic tool sounds"),
+    ("Tech & Vehicles/Tools/Crafting", Some("Tech & Vehicles/Tools"), Some("⚒️"), "crafting tool sounds"),
+    ("Tech & Vehicles/Tools/Scientific", Some("Tech & Vehicles/Tools"), Some("🔬"), "scientific tool sounds"),
+    ("Tech & Vehicles/Tools/Medical", Some("Tech & Vehicles/Tools"), Some("💉"), "medical tool sounds"),
+    ("Tech & Vehicles/Tools/Electronic", Some("Tech & Vehicles/Tools"), Some("📱"), "electronic tool sounds"),
+    ("Tech & Vehicles/Tools/Magical", Some("Tech & Vehicles/Tools"), Some("🔮"), "magical tool sounds"),
+    
+    // Level 2: Vehicles
+    ("Tech & Vehicles/Vehicles/Land", Some("Tech & Vehicles/Vehicles"), Some("🚗"), "land vehicle sounds"),
+    ("Tech & Vehicles/Vehicles/Water", Some("Tech & Vehicles/Vehicles"), Some("🚢"), "water vehicle sounds"),
+    ("Tech & Vehicles/Vehicles/Air", Some("Tech & Vehicles/Vehicles"), Some("✈️"), "air vehicle sounds"),
+    ("Tech & Vehicles/Vehicles/Space", Some("Tech & Vehicles/Vehicles"), Some("🚀"), "space vehicle sounds"),
+    ("Tech & Vehicles/Vehicles/Mech", Some("Tech & Vehicles/Vehicles"), Some("🤖"), "mech vehicle sounds"),
+    ("Tech & Vehicles/Vehicles/Magical", Some("Tech & Vehicles/Vehicles"), Some("🦄"), "magical vehicle sounds"),
+    
+    // Level 2: Technology
+    ("Tech & Vehicles/Technology/Primitive", Some("Tech & Vehicles/Technology"), Some("🏺"), "primitive technology sounds"),
+    ("Tech & Vehicles/Technology/Industrial", Some("Tech & Vehicles/Technology"), Some("⚙️"), "industrial technology sounds"),
+    ("Tech & Vehicles/Technology/Modern", Some("Tech & Vehicles/Technology"), Some("💻"), "modern technology sounds"),
+    ("Tech & Vehicles/Technology/Advanced", Some("Tech & Vehicles/Technology"), Some("🛰️"), "advanced technology sounds"),
+    ("Tech & Vehicles/Technology/Biotech", Some("Tech & Vehicles/Technology"), Some("🧬"), "biotechnology sounds"),
+    ("Tech & Vehicles/Technology/AI", Some("Tech & Vehicles/Technology"), Some("🤖"), "artificial intelligence sounds"),
+]
+```
 
-### ⚔️ **Combat** - Action and conflict sounds
-- **🏟️ Battle Ambience** - Large-scale combat atmospheres
-  - ⚔️ Battlefield - Chaos of war, distant fighting
-  - 🏰 Siege - Catapults, battering rams, walls
-  - ⛵ Naval Combat - Ship battles, cannons, sea
-  - 🦅 Aerial Combat - Flying creatures, sky battles
-  - ✨ Magic Battles - Spell crossfire, energy clashes
-  - 🏛️ Arena - Gladiatorial, organized combat
-- **⏳ Combat Phases** - Different stages of conflict
-  - ⚡ Pre-Battle - Tension, preparation, anticipation
-  - ⚔️ Skirmish - Small group conflicts
-  - 🔥 Climax - Peak intensity combat
-  - 🏆 Victory - Triumphant resolution
-  - 💔 Defeat - Loss, retreat, consequences
-  - 🕊️ Aftermath - Post-battle cleanup, mourning
-- **🛡️ Armor & Defense** - Protective equipment sounds
-  - 🦾 Plate Armor - Heavy metal protection
-  - 🔗 Chain Mail - Linked metal armor
-  - 🧥 Leather Armor - Light protective gear
-  - 🛡️ Shields - Blocking, bashing, protection
-  - ✨ Magical Protection - Spell barriers, wards
-  - 💥 Breaking Armor - Damage and destruction
-- **👹 Monster Combat** - Creature-specific battle sounds
-  - 🐉 Dragon Fights - Roars, fire, massive scale
-  - 💀 Undead Combat - Bones, groans, supernatural
-  - 🦁 Beast Battles - Claws, growls, natural weapons
-  - 😈 Demon Fights - Hellish, otherworldly combat
-  - 👹 Giant Combat - Massive, earth-shaking
-  - 🐝 Swarm Attacks - Multiple small enemies
+## Folder Statistics
 
-### 🗣️ **Social** - Voices, crowds, and interactions
-- **💬 Conversations** - Dialogue and social interaction
-  - 🍺 Tavern Chatter - Casual drinking conversation
-  - 👑 Noble Court - Formal political discussion
-  - 🤝 Merchant Haggling - Commercial negotiations
-  - 🔍 Interrogation - Tense questioning scenes
-  - 💕 Intimate Conversations - Personal, quiet talks
-  - 😠 Arguments - Heated disagreements
-- **👥 Crowds** - Group vocal sounds
-  - 🎉 Celebration Crowds - Festivals, parties, joy
-  - 😡 Angry Mobs - Riots, protests, hostility
-  - 🏪 Market Crowds - Commercial bustle
-  - 🙏 Religious Gatherings - Prayer, worship
-  - 😢 Funeral Crowds - Mourning, grief
-  - 😱 Panic Crowds - Fear, chaos, emergency
-- **🎭 Ceremonies** - Ritual and formal events
-  - 💒 Weddings - Joyous union ceremonies
-  - 👑 Coronations - Royal ascension
-  - ⚱️ Funerals - Death rites, mourning
-  - ⛪ Religious Rites - Sacred ceremonies
-  - 🎯 Coming of Age - Initiation rituals
-  - 🔮 Secret Society - Mysterious gatherings
-- **🎪 Entertainment** - Performance and leisure
-  - 🎵 Bard Performances - Music, storytelling
-  - 🎭 Theater - Dramatic performances
-  - 🎲 Gambling - Cards, dice, betting
-  - 🎪 Festivals - Community celebrations
-  - ⚽ Sports - Competition, cheering
-  - 🎪 Street Performers - Public entertainment
-- **🏛️ Professional Interactions** - Work-related social sounds
-  - ⚒️ Guild Meetings - Craftsmen gatherings
-  - 🏛️ Council Sessions - Political discussions
-  - ⚖️ Court Proceedings - Legal matters
-  - 🎓 Academic Discourse - Scholarly debate
-  - 🪖 Military Orders - Command structures
-  - 💼 Trade Negotiations - Business deals
+- **Total folders**: 555 folder definitions
+- **Root folders**: 11 (Music, SFX, Environments, Combat, Social, Magic, Mood, Genre, Occasion, Creatures & People, Tech & Vehicles)
+- **Maximum depth**: 3 levels
+- **Folder categories**:
+  - Music & Audio (48 folders)
+  - SFX (42 folders)
+  - Environments (63 folders)
+  - Combat (28 folders)
+  - Social (36 folders)
+  - Magic (44 folders)
+  - Mood-based (81 folders)
+  - Genre-based (66 folders)
+  - Occasion-based (56 folders)
+  - Creatures & People (30 folders)
+  - Tech & Vehicles (36 folders)
 
-### ✨ **Magic** - Fantasy and supernatural sounds
-- **🔥 Elemental Magic** - Classical magical elements
-  - 🔥 Fire Magic - Flames, burning, heat
-  - 🧊 Ice Magic - Freezing, cold, crystalline
-  - ⚡ Lightning Magic - Electrical, storms, energy
-  - 🌍 Earth Magic - Stone, tremors, solid
-  - 💧 Water Magic - Flowing, healing, fluid
-  - 💨 Air Magic - Wind, flight, gaseous
-- **📚 Spell Schools** - Different types of magic
-  - 💚 Healing Magic - Restoration, life energy
-  - 💀 Necromancy - Death, undead, dark power
-  - 👻 Illusion - Deception, invisibility, mind
-  - 💖 Enchantment - Charm, control, influence
-  - 🔮 Divination - Foresight, knowledge, revelation
-  - 🔄 Transmutation - Change, transformation
-- **🐉 Magical Creatures** - Supernatural beings
-  - 🐉 Dragons - Ancient, powerful, elemental
-  - 🧚 Fae - Whimsical, otherworldly, nature
-  - 😈 Demons - Hellish, evil, corruption
-  - 👼 Angels - Divine, holy, pure
-  - 👻 Spirits - Ghostly, ethereal, departed
-  - 🌪️ Elementals - Living embodiments of elements
-- **🌌 Magical Environments** - Supernatural locations
-  - ⚡ Ley Lines - Magical energy convergence
-  - 🌀 Portals - Dimensional gateways
-  - 🧪 Magical Laboratories - Arcane research
-  - 🌳 Sacred Groves - Natural magic focus
-  - ☠️ Cursed Lands - Tainted, dangerous areas
-  - ⛈️ Magical Storms - Supernatural weather
-- **🏺 Artifacts & Items** - Magical objects
-  - ⚔️ Enchanted Weapons - Magical armaments
-  - 🌿 Spell Components - Ritual ingredients
-  - 📖 Magical Books - Grimoires, spellbooks
-  - 💎 Crystals - Magical gems, focusing stones
-  - 🧪 Potions - Alchemical preparations
-  - 🪬 Talismans - Protective charms
-- **🕯️ Rituals & Ceremonies** - Magical practices
-  - 👹 Summoning - Calling forth entities
-  - ✋ Banishment - Sending away threats
-  - 🔗 Binding - Magical restraint
-  - 🦋 Transformation - Changing form/nature
-  - 📡 Communication - Magical messaging
-  - 🛡️ Protection - Warding and shielding
+Each folder includes:
+- **Hierarchical path** for navigation
+- **Emoji icon** for visual identification
+- **Description** explaining the folder's purpose
+- **Parent-child relationships** for proper hierarchy
 
-## Implementation Strategy
+## Usage Notes
 
-### Phase 1: Folder Migration
-1. Map existing content to new structure
-2. Preserve all audio files during reorganization
-3. Update virtual folder definitions in code
-
-### Phase 2: Tag Enhancement
-1. Leverage existing 700+ RPG tag vocabulary
-2. Auto-suggest tags based on folder placement
-3. Enable hybrid folder/tag search
-
-### Phase 3: User Experience
-1. Quick-access favorites for most-used folders
-2. Recent folders history
-3. Search integration across folders and tags
-
-## Benefits of This Structure
-
-1. **Cognitive Efficiency**: 6 main categories easy to remember
-2. **Fast Navigation**: Maximum 3 clicks to any content
-3. **Intuitive Organization**: Function-based grouping
-4. **Scalable**: Room for growth without complexity explosion
-5. **Tag Integration**: Folders for browsing, tags for precise search
-6. **Professional Workflow**: Matches audio industry standards
-
-## Quick Reference
-
-**Finding Audio by Use Case:**
-- Need battle music? → 🎵 Music > 😱 Horror & Tension > ⚡ Jump Scare
-- Want sword sounds? → 🎬 SFX > ⚔️ Weapons > 🗡️ Melee Weapons  
-- Need tavern atmosphere? → 🗣️ Social > 💬 Conversations > 🍺 Tavern Chatter
-- Looking for forest ambience? → 🌍 Environments > 🏞️ Natural Landscapes > 🌲 Forests
-- Want spell casting? → ✨ Magic > 📚 Spell Schools > [Any school]
-- Need combat atmosphere? → ⚔️ Combat > 🏟️ Battle Ambience > [Battle type]
-
-**Remember**: When folders aren't specific enough, use the powerful tag search with 700+ RPG tags for precise filtering!
+This structure is designed for RPG audio organization with:
+- **Functional categorization** for intuitive browsing
+- **RPG-specific organization** with Combat, Magic, Creatures & People categories
+- **Mood and Genre folders** for atmosphere-based organization  
+- **Occasion folders** for session-specific audio (session management, travel, social events)
+- **Comprehensive SFX categorization** for foley and sound effects
+- **Rich metadata** with emoji icons and descriptions for each folder
