@@ -291,7 +291,7 @@ pub async fn get_auto_organization_suggestions(
     let state = app_handle.state::<crate::AppState>();
     let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
     
-    let threshold = threshold.unwrap_or(0.3); // Default 30% confidence threshold
+    let threshold = threshold.unwrap_or(0.8); // Default 80% confidence threshold with new scoring system
     
     db.get_auto_organization_suggestions(threshold)
         .map_err(|e| format!("Failed to get auto-organization suggestions: {}", e))
@@ -347,7 +347,7 @@ pub async fn auto_organize_sounds(
     }
     
     let db = state.db.lock().map_err(|e| format!("Database lock error: {}", e))?;
-    let threshold = confidence_threshold.unwrap_or(0.7); // Default 70% as requested
+    let threshold = confidence_threshold.unwrap_or(0.8); // Default 80% with new confidence scoring (8+/10 requirement)
     
     // Find all unorganized sounds with tags
     let unorganized_files = db.get_unorganized_tagged_files()

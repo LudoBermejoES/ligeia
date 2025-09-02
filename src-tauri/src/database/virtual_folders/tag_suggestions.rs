@@ -2,6 +2,17 @@ use rusqlite::{Connection, Result, params};
 use crate::models::{VirtualFolder, AudioFile, AutoOrganizationSuggestion};
 
 /// Tag-based folder suggestion operations
+/// 
+/// CONFIDENCE SCORING SYSTEM (Updated):
+/// - Individual tag mappings use 5-10 confidence scale (10 = perfect match)
+/// - Multiple tags can contribute to the same folder, scores are summed
+/// - THRESHOLD: Only folders with cumulative confidence >= 8 are included
+/// 
+/// Examples:
+/// - Single tag "portal-opening" -> Magic/Magical Environments/Portals (confidence=10) ✓ INCLUDED (10 >= 8)
+/// - Two tags both mapping to same folder with confidence=7 each -> Total=14 ✓ INCLUDED (14 >= 8)  
+/// - Single tag with confidence=7 -> Total=7 ✗ EXCLUDED (7 < 8)
+/// 
 pub struct VirtualFolderTagSuggestions;
 
 impl VirtualFolderTagSuggestions {
@@ -65,24 +76,42 @@ impl VirtualFolderTagSuggestions {
         
         let mut folder_suggestions: std::collections::HashMap<String, f64> = std::collections::HashMap::new();
         
-        // Process folder assignments with confidence scores
+        // Process folder assignments with NEW CONFIDENCE SCORING SYSTEM:
+        // - Each tag mapping has confidence 5-10 (where 10 = perfect match)
+        // - Multiple tags can map to same folder, scores are SUMMED
+        // - Only folders with cumulative score >= 8 are included
+        // 
+        // Examples:
+        // - "portal-opening" -> Magic/Magical Environments/Portals (conf=10) -> TOTAL=10 ✓ INCLUDED
+        // - "creature:dragon" + "mood:fierce" both -> Combat/Dragon (conf=7+7) -> TOTAL=14 ✓ INCLUDED  
+        // - "ambient" -> Music/Ambient (conf=7) -> TOTAL=7 ✗ EXCLUDED
+        
         for assignment in detailed_mappings.folder_assignments {
-            folder_suggestions.entry(assignment.folder_path)
-                .and_modify(|score| *score = (*score + assignment.confidence as f64).min(1.0))
-                .or_insert(assignment.confidence as f64);
+            // Convert normalized confidence (0.5-1.0) back to 5-10 scale for threshold logic
+            let raw_confidence = assignment.confidence * 10.0;
+            
+            folder_suggestions.entry(assignment.folder_path.clone())
+                .and_modify(|total_score| *total_score += raw_confidence as f64)
+                .or_insert(raw_confidence as f64);
         }
+        
+        // Apply 8+ threshold: only keep folders with cumulative confidence >= 8
+        folder_suggestions.retain(|_, &mut score| score >= 8.0);
         
         // Convert folder paths to actual folder objects and scores
         let mut folder_scores: Vec<(VirtualFolder, f64)> = Vec::new();
         
-        for (folder_path, score) in folder_suggestions {
+        for (folder_path, raw_score) in folder_suggestions {
             if let Some(folder) = Self::find_folder_by_path(conn, &folder_path)? {
                 // Only include leaf folders (folders without children)
                 if let Some(folder_id) = folder.id {
                     use crate::database::virtual_folders::hierarchy_ops::VirtualFolderHierarchy;
                     let children = VirtualFolderHierarchy::get_folder_children(conn, Some(folder_id))?;
                     if children.is_empty() {
-                        folder_scores.push((folder, score));
+                        // Convert raw confidence score (8-20+ range) to normalized score (0.8-1.0+ range)
+                        // Cap at 1.0 for display purposes
+                        let normalized_score = (raw_score / 10.0).min(1.0);
+                        folder_scores.push((folder, normalized_score));
                     }
                 }
             }
@@ -315,15 +344,16 @@ impl VirtualFolderTagSuggestions {
         for file in unorganized_files {
             let folder_suggestions = Self::suggest_folders_for_file(conn, file.id.unwrap(), Some(3))?;
             
-            // Only suggest if confidence is above threshold
+            // Only suggest if confidence is above threshold (converting back to normalized scale)
             if let Some((folder, score)) = folder_suggestions.first() {
-                if *score >= threshold {
+                let normalized_score = (*score / 10.0).min(1.0); // Convert back to 0-1 scale, cap at 1.0
+                if normalized_score >= threshold {
                     suggestions.push(AutoOrganizationSuggestion {
                         audio_file_id: file.id.unwrap(),
                         audio_file_title: file.title.unwrap_or_else(|| "Unknown".to_string()),
                         suggested_folder_id: folder.id.unwrap(),
                         suggested_folder_name: folder.name.clone(),
-                        confidence_score: *score,
+                        confidence_score: normalized_score,
                         matching_tags: Self::get_matching_tags(conn, file.id.unwrap(), folder.id.unwrap())?,
                     });
                 }
