@@ -1,145 +1,147 @@
 use std::collections::HashMap;
 
-/// All 105 genre tags explicitly mapped to virtual folders
-pub const GENRE_FOLDER_MAPPINGS: &[(&str, &[&str])] = &[
+/// Genre tag to folder mappings with confidence scores
+/// Format: (tag, [(folder_path, confidence_score)])
+/// Confidence: 5-10 (5=low, 10=perfect match)
+pub const GENRE_FOLDER_MAPPINGS: &[(&str, &[(&str, u8)])] = &[
     // General genres
-    ("post-metal", &["Music/Rock & Alternative/Post Rock"]),
-    ("blues", &["Music/Jazz & Blues/Blues"]),
-    ("lounge", &["Music/Jazz & Blues/Cool Jazz", "Social/Entertainment/Theater"]),
-    ("dieselpunk", &["Music/Electronic/Industrial", "Environments/Settlements/Industrial Towns"]),
-    ("steampunk", &["Music/Steampunk & Retro-Futurism/Victorian Steampunk", "Environments/Settlements/Industrial Towns"]),
-    ("atompunk", &["Music/Electronic/Industrial", "Environments/Futuristic/Atomic Age"]),
-    ("solarpunk", &["Music/Electronic/Ambient Electronic", "Environments/Natural Landscapes/Gardens"]),
-    ("post-apocalyptic", &["Music/Horror & Tension/Desolation", "Environments/Wastelands/Post-Apocalyptic"]),
-    ("western", &["Music/Folk & World/Wild West Folk", "Environments/Wastelands/Desert Towns"]),
-    ("mystery-noir", &["Music/Jazz & Blues/Noir Jazz", "Social/Intrigue/Mystery"]),
-    ("modern-urban", &["Music/Electronic/Urban Electronic", "Environments/Settlements/Modern Cities"]),
-    ("superhero", &["Music/Orchestral/Epic Orchestral", "Combat/Combat Phases/Victory"]),
+    ("post-metal", &[("Music/Rock & Metal/Post Rock", 10), ("Genre/General/Post-Metal", 10)]),
+    ("blues", &[("Music/Jazz & Blues/Blues", 10), ("Genre/General/Blues", 10)]),
+    ("lounge", &[("Music/Jazz & Blues/Lounge", 10), ("Genre/General/Lounge", 10)]),
+    ("dieselpunk", &[("Genre/General/Dieselpunk", 10), ("Music/Electronic/Industrial", 8)]),
+    ("steampunk", &[("Genre/General/Steampunk", 10), ("Tech & Vehicles/Technology/Industrial", 8)]),
+    ("atompunk", &[("Tech & Vehicles/Technology/Advanced", 8), ("Music/Electronic/Industrial", 7)]),
+    ("solarpunk", &[("Environments/Natural Landscapes", 7), ("Tech & Vehicles/Technology/Advanced", 6)]),
+    ("post-apocalyptic", &[("Music/Electronic/Industrial", 8), ("Environments/Dungeons & Ruins", 7)]),
+    ("western", &[("Music/Folk & World", 8), ("Genre/General/Western", 10)]),
+    ("mystery-noir", &[("Music/Jazz & Blues/Noir Jazz", 10), ("Genre/General/Mystery Noir", 10)]),
+    ("modern-urban", &[("Music/Electronic", 7), ("Environments/Settlements/Cities", 8)]),
+    ("superhero", &[("Music/Orchestral/Epic Orchestral", 9), ("Genre/General/Superhero", 10)]),
 
-    // Ambient
-    ("ambient:dark-ambient", &["Music/Ambient/Dark Ambient", "Magic/Magical Environments/Shadow Realms"]),
-    ("ambient:space-ambient", &["Music/Ambient/Space Ambient", "Environments/Elemental Planes/Void Spaces"]),
-    ("ambient:nature-ambient", &["Music/Ambient/Nature Ambient", "Environments/Natural Landscapes/Forests"]),
-    ("ambient:ritual", &["Music/Ambient/Ritual Ambient", "Magic/Rituals & Ceremonies/Arcane Rituals", "Social/Ceremonies/Religious Rites"]),
-    ("ambient:drone", &["Music/Ambient/Drone", "Magic/Magical Environments/Otherworldly Spaces"]),
-    ("ambient:textural", &["Music/Ambient/Textural", "Environments/Abstract/Liminal Spaces"]),
-    ("ambient:new-age", &["Music/Ambient/Healing & Meditation", "Magic/Healing & Restoration/Peaceful Sanctuaries"]),
-    ("ambient:lofi-ambient", &["Music/Ambient/Lo-Fi Ambient", "Social/Downtime/Meditation"]),
+    // Ambient Sub-genres
+    ("ambient:dark-ambient", &[("Music/Electronic/Ambient Electronic", 9), ("Genre/Ambient/Dark Ambient", 10)]),
+    ("ambient:space-ambient", &[("Music/Electronic/Ambient Electronic", 9), ("Genre/Ambient/Space Ambient", 10)]),
+    ("ambient:nature-ambient", &[("Environments/Natural Landscapes", 8), ("Genre/Ambient/Nature Ambient", 10)]),
+    ("ambient:ritual", &[("Magic/Rituals & Ceremonies", 9), ("Genre/Ambient/Ritual", 10)]),
+    ("ambient:drone", &[("Music/Electronic/Drone", 10), ("Genre/Ambient/Drone", 10)]),
+    ("ambient:textural", &[("Music/Electronic/Ambient Electronic", 8), ("Genre/Ambient/Textural", 10)]),
+    ("ambient:new-age", &[("Music/Electronic/Ambient Electronic", 8), ("Genre/Ambient/New Age", 10)]),
+    ("ambient:lofi-ambient", &[("Music/Electronic/Ambient Electronic", 8), ("Genre/Ambient/Lofi Ambient", 10)]),
 
-    // Diegetic
-    ("diegetic:tavern-band", &["Social/Conversations/Tavern Chatter", "Music/Folk & World/Celtic"]),
-    ("diegetic:radio", &["Social/Entertainment/Radio Shows", "Environments/Settlements/Modern Cities"]),
-    ("diegetic:gramophone", &["Social/Entertainment/Theater", "Environments/Settlements/Victorian Streets"]),
-    ("diegetic:street-musician", &["Social/Entertainment/Busking", "Environments/Settlements/Town Markets"]),
+    // Diegetic Sub-genres
+    ("diegetic:tavern-band", &[("Environments/Settlements/Taverns", 10), ("Social/Entertainment/Bard Performances", 9)]),
+    ("diegetic:radio", &[("Music/Electronic", 7), ("Environments/Settlements/Cities", 6)]),
+    ("diegetic:gramophone", &[("Music/Jazz & Blues", 8), ("Environments/Settlements", 6)]),
+    ("diegetic:street-musician", &[("Social/Entertainment/Street Performers", 10), ("Environments/Settlements/Cities", 7)]),
 
-    // Electronic
-    ("electronic:cyberpunk", &["Music/Electronic/Cyberpunk", "Environments/Futuristic/Cyberpunk Cities"]),
-    ("electronic:idm", &["Music/Electronic/IDM", "Magic/Magical Environments/Digital Realms"]),
-    ("electronic:glitch", &["Music/Electronic/Glitch", "Magic/Chaotic Magic/Glitch Phenomena"]),
-    ("electronic:industrial", &["Music/Electronic/Industrial", "Environments/Settlements/Industrial Towns"]),
-    ("electronic:ebm", &["Music/Electronic/EBM", "Combat/Battle Ambience/Mechanical Warfare"]),
-    ("electronic:techno", &["Music/Electronic/Techno", "Social/Entertainment/Dance Clubs"]),
-    ("electronic:trance", &["Music/Electronic/Trance", "Magic/Mind Magic/Hypnotic States"]),
-    ("electronic:dnb", &["Music/Electronic/Drum & Bass", "Combat/Combat Phases/High-Speed Chase"]),
-    ("electronic:downtempo", &["Music/Electronic/Downtempo", "Social/Downtime/Relaxation"]),
-    ("electronic:shoegaze-electronic", &["Music/Electronic/Shoegaze", "Magic/Magical Environments/Dreamscapes"]),
+    // Electronic Sub-genres
+    ("electronic:cyberpunk", &[("Music/Electronic", 8), ("Genre/Electronic/Cyberpunk", 10)]),
+    ("electronic:idm", &[("Music/Electronic/IDM", 10), ("Genre/Electronic/IDM", 10)]),
+    ("electronic:glitch", &[("Music/Electronic/Glitch", 10), ("Genre/Electronic/Glitch", 10)]),
+    ("electronic:industrial", &[("Music/Electronic/Industrial", 10), ("Genre/Electronic/Industrial", 10)]),
+    ("electronic:ebm", &[("Music/Electronic", 8), ("Genre/Electronic/EBM", 10)]),
+    ("electronic:techno", &[("Music/Electronic", 8), ("Genre/Electronic/Techno", 10)]),
+    ("electronic:trance", &[("Music/Electronic", 8), ("Genre/Electronic/Trance", 10)]),
+    ("electronic:dnb", &[("Music/Electronic", 8), ("Genre/Electronic/DNB", 10)]),
+    ("electronic:downtempo", &[("Music/Electronic", 8), ("Genre/Electronic/Downtempo", 10)]),
+    ("electronic:shoegaze-electronic", &[("Music/Electronic", 7), ("Music/Rock & Metal", 6)]),
 
-    // Fantasy
-    ("fantasy:high-fantasy", &["Music/Orchestral/Epic Orchestral", "Magic/Magical Environments/Enchanted Realms"]),
-    ("fantasy:grimdark", &["Music/Horror & Tension/Gothic", "Combat/Battle Ambience/Dark Battlefields"]),
-    ("fantasy:fairy", &["Music/Folk & World/Fairy Tale", "Magic/Magical Creatures/Fey Courts"]),
+    // Fantasy Sub-genres
+    ("fantasy:high-fantasy", &[("Music/Orchestral/Epic Orchestral", 9), ("Genre/Fantasy/High Fantasy", 10)]),
+    ("fantasy:grimdark", &[("Music/Orchestral/Dark Orchestral", 9), ("Genre/Fantasy/Grimdark", 10)]),
+    ("fantasy:fairy", &[("Environments/Magical Realms/Fairy Realms", 9), ("Genre/Fantasy/Fairy", 10)]),
 
-    // Folk
-    ("folk:celtic", &["Music/Folk & World/Celtic", "Environments/Natural Landscapes/Celtic Highlands"]),
-    ("folk:nordic", &["Music/Folk & World/Nordic", "Environments/Natural Landscapes/Frozen Tundra"]),
-    ("folk:middle-eastern", &["Music/Folk & World/Middle Eastern", "Environments/Settlements/Desert Oases"]),
-    ("folk:mediterranean", &["Music/Folk & World/Mediterranean", "Environments/Natural Landscapes/Coastal Cliffs"]),
-    ("folk:asian-east", &["Music/Folk & World/East Asian", "Environments/Settlements/Oriental Gardens"]),
-    ("folk:asian-south", &["Music/Folk & World/South Asian", "Environments/Settlements/Spice Markets"]),
-    ("folk:african", &["Music/Folk & World/African", "Environments/Natural Landscapes/Savannas"]),
-    ("folk:andino", &["Music/Folk & World/Andean", "Environments/Natural Landscapes/Mountain Peaks"]),
-    ("folk:balkan", &["Music/Folk & World/Balkan", "Social/Ceremonies/Cultural Festivals"]),
-    ("folk:sea-shanty", &["Music/Folk & World/Sea Shanty", "Environments/Natural Landscapes/Ocean Voyages"]),
-    ("folk:wild-west-folk", &["Music/Folk & World/Wild West Folk", "Environments/Wastelands/Desert Towns"]),
+    // Folk Sub-genres
+    ("folk:celtic", &[("Music/Folk & World/Celtic", 10), ("Genre/Folk/Celtic", 10)]),
+    ("folk:nordic", &[("Music/Folk & World/Nordic", 10), ("Genre/Folk/Nordic", 10)]),
+    ("folk:middle-eastern", &[("Music/Folk & World/Eastern", 10), ("Genre/Folk/Eastern", 9)]),
+    ("folk:mediterranean", &[("Music/Folk & World", 8), ("Genre/Folk/Mediterranean", 10)]),
+    ("folk:asian-east", &[("Music/Folk & World/Eastern", 10), ("Genre/Folk/Eastern", 9)]),
+    ("folk:asian-south", &[("Music/Folk & World/Eastern", 10), ("Genre/Folk/Eastern", 8)]),
+    ("folk:african", &[("Music/Folk & World/Tribal", 9), ("Genre/Folk/African", 10)]),
+    ("folk:andino", &[("Music/Folk & World", 8), ("Genre/Folk/Tribal", 8)]),
+    ("folk:balkan", &[("Music/Folk & World", 8), ("Genre/Folk/Eastern", 7)]),
+    ("folk:sea-shanty", &[("Music/Folk & World/Sea Shanties", 10), ("Genre/Folk/Sea Shanties", 10)]),
+    ("folk:wild-west-folk", &[("Music/Folk & World", 8), ("Genre/General/Western", 9)]),
 
-    // Historical
-    ("historical:baroque", &["Music/Classical & Traditional/Baroque", "Social/Ceremonies/Royal Courts"]),
-    ("historical:renaissance", &["Music/Classical & Traditional/Renaissance", "Social/Ceremonies/Renaissance Fairs"]),
-    ("historical:medieval", &["Music/Classical & Traditional/Medieval", "Social/Ceremonies/Medieval Feasts"]),
-    ("historical:romantic", &["Music/Classical & Traditional/Romantic", "Social/Romance/Courtship"]),
+    // Historical Sub-genres
+    ("historical:baroque", &[("Music/Orchestral", 8), ("Music/Folk & World/Medieval", 7)]),
+    ("historical:renaissance", &[("Music/Orchestral", 8), ("Music/Folk & World/Medieval", 8)]),
+    ("historical:medieval", &[("Music/Folk & World/Medieval", 10), ("Environments/Settlements/Castles", 7)]),
+    ("historical:romantic", &[("Music/Orchestral", 8), ("Social/Ceremonies/Weddings", 6)]),
 
-    // Horror
-    ("horror:atonal", &["Music/Horror & Tension/Atonal", "Magic/Dark Magic/Forbidden Rituals"]),
-    ("horror:dissonant-strings", &["Music/Horror & Tension/Psychological", "Combat/Monster Combat/Eldritch Horrors"]),
-    ("horror:sound-design", &["SFX/Horror & Supernatural/Otherworldly", "Magic/Dark Magic/Cursed Artifacts"]),
-    ("horror:psychological", &["Music/Horror & Tension/Psychological", "Magic/Mind Magic/Mental Intrusion"]),
-    ("horror:jump-scare", &["Music/Horror & Tension/Jump Scares", "SFX/Horror & Supernatural/Sudden Scares"]),
-    ("horror:ritual", &["Music/Horror & Tension/Ritualistic", "Magic/Dark Magic/Forbidden Rituals"]),
-    ("horror:cosmic", &["Music/Horror & Tension/Cosmic Dread", "Magic/Eldritch Magic/Cosmic Horrors"]),
-    ("horror:gothic", &["Music/Horror & Tension/Gothic", "Environments/Settlements/Gothic Cathedrals"]),
+    // Horror Sub-genres
+    ("horror:atonal", &[("Music/Horror & Tension/Atonal Horror", 10), ("Genre/Horror/Atonal Horror", 10)]),
+    ("horror:dissonant-strings", &[("Music/Horror & Tension", 9), ("Music/Orchestral/Dark Orchestral", 8)]),
+    ("horror:sound-design", &[("SFX", 8), ("Music/Horror & Tension", 7)]),
+    ("horror:psychological", &[("Music/Horror & Tension/Psychological", 10), ("Genre/Horror/Psychological", 10)]),
+    ("horror:jump-scare", &[("Music/Horror & Tension/Jump Scare", 10), ("Genre/Horror/Jump Scare", 10)]),
+    ("horror:ritual", &[("Music/Horror & Tension/Ritual", 10), ("Genre/Horror/Ritual", 10)]),
+    ("horror:cosmic", &[("Music/Horror & Tension/Cosmic Horror", 10), ("Genre/Horror/Cosmic Horror", 10)]),
+    ("horror:gothic", &[("Music/Horror & Tension/Gothic", 10), ("Genre/Horror/Gothic", 10)]),
 
-    // Jazz
-    ("jazz:noir", &["Music/Jazz & Blues/Noir Jazz", "Social/Intrigue/Mystery"]),
-    ("jazz:swing", &["Music/Jazz & Blues/Swing", "Social/Entertainment/Jazz Clubs"]),
-    ("jazz:cool", &["Music/Jazz & Blues/Cool Jazz", "Social/Entertainment/Upscale Lounges"]),
-    ("jazz:latin", &["Music/Jazz & Blues/Latin Jazz", "Social/Entertainment/Dance Clubs"]),
-    ("jazz:bebop", &["Music/Jazz & Blues/Bebop", "Social/Entertainment/Jazz Clubs"]),
+    // Jazz Sub-genres
+    ("jazz:noir", &[("Music/Jazz & Blues/Noir Jazz", 10), ("Genre/Jazz/Noir Jazz", 10)]),
+    ("jazz:swing", &[("Music/Jazz & Blues/Swing", 10), ("Genre/Jazz/Swing", 10)]),
+    ("jazz:cool", &[("Music/Jazz & Blues", 8), ("Genre/Jazz/Cool", 10)]),
+    ("jazz:latin", &[("Music/Jazz & Blues", 8), ("Music/Folk & World", 6)]),
+    ("jazz:bebop", &[("Music/Jazz & Blues/Bebop", 10), ("Genre/Jazz/Bebop", 10)]),
 
-    // Metal
-    ("metal:power", &["Music/Rock & Alternative/Power Metal", "Combat/Combat Phases/Victory"]),
-    ("metal:symphonic", &["Music/Orchestral/Symphonic Metal", "Combat/Epic Battles/Orchestral Battles"]),
-    ("metal:black", &["Music/Rock & Alternative/Black Metal", "Magic/Dark Magic/Shadow Rituals"]),
-    ("metal:doom", &["Music/Rock & Alternative/Doom Metal", "Environments/Dungeons & Ruins/Ancient Tombs"]),
-    ("metal:folk-metal", &["Music/Folk & World/Folk Metal", "Combat/Battle Ambience/Tribal Warfare"]),
-    ("metal:industrial-metal", &["Music/Electronic/Industrial Metal", "Combat/Battle Ambience/Mechanical Warfare"]),
+    // Metal Sub-genres
+    ("metal:power", &[("Music/Rock & Metal/Metal", 9), ("Genre/Metal/Power Metal", 10)]),
+    ("metal:symphonic", &[("Music/Rock & Metal/Metal", 8), ("Genre/Metal/Symphonic Metal", 10)]),
+    ("metal:black", &[("Music/Rock & Metal/Metal", 9), ("Genre/Metal/Black Metal", 10)]),
+    ("metal:doom", &[("Music/Rock & Metal/Metal", 9), ("Genre/Metal/Doom Metal", 10)]),
+    ("metal:folk-metal", &[("Music/Rock & Metal/Folk Metal", 10), ("Genre/Metal/Folk Metal", 10)]),
+    ("metal:industrial-metal", &[("Music/Rock & Metal/Metal", 8), ("Music/Electronic/Industrial", 8)]),
 
-    // Mythic
-    ("mythic:norse", &["Music/Folk & World/Nordic", "Magic/Mythological/Norse Legends", "Combat/Legendary Battles/Viking Raids"]),
-    ("mythic:greco-roman", &["Music/Classical & Traditional/Greek", "Magic/Mythological/Greek Myths", "Social/Ceremonies/Ancient Temples"]),
-    ("mythic:egyptian", &["Music/Folk & World/Egyptian", "Magic/Mythological/Egyptian Mysteries", "Environments/Settlements/Ancient Pyramids"]),
-    ("mythic:celtic", &["Music/Folk & World/Celtic", "Magic/Mythological/Celtic Legends", "Magic/Magical Creatures/Fey Courts"]),
-    ("mythic:japanese", &["Music/Folk & World/East Asian", "Magic/Mythological/Eastern Legends", "Social/Ceremonies/Tea Ceremonies"]),
-    ("mythic:mesoamerican", &["Music/Folk & World/Mesoamerican", "Magic/Mythological/Aztec Rituals", "Environments/Settlements/Temple Cities"]),
+    // Mythic Sub-genres
+    ("mythic:norse", &[("Music/Folk & World/Nordic", 9), ("Magic/Magical Creatures", 7)]),
+    ("mythic:greco-roman", &[("Music/Orchestral", 7), ("Environments/Settlements/Temples", 8)]),
+    ("mythic:egyptian", &[("Music/Folk & World/Eastern", 8), ("Environments/Dungeons & Ruins/Tombs", 8)]),
+    ("mythic:celtic", &[("Music/Folk & World/Celtic", 9), ("Magic/Magical Creatures/Fae", 8)]),
+    ("mythic:japanese", &[("Music/Folk & World/Eastern", 9), ("Magic/Magical Creatures/Spirits", 7)]),
+    ("mythic:mesoamerican", &[("Music/Folk & World/Tribal", 8), ("Environments/Dungeons & Ruins/Ancient Ruins", 7)]),
 
-    // Orchestral
-    ("orchestral:cinematic", &["Music/Orchestral/Epic Orchestral", "Combat/Epic Battles/Orchestral Battles"]),
-    ("orchestral:hybrid", &["Music/Orchestral/Hybrid Orchestral", "Combat/Epic Battles/Modern Warfare"]),
-    ("orchestral:heroic", &["Music/Orchestral/Heroic", "Combat/Combat Phases/Victory", "Social/Entertainment/Theater"]),
-    ("orchestral:dark", &["Music/Orchestral/Dark Orchestral", "Magic/Dark Magic/Shadow Realms"]),
-    ("orchestral:minimal", &["Music/Orchestral/Minimalist", "Social/Downtime/Contemplation"]),
-    ("orchestral:romantic", &["Music/Orchestral/Romantic", "Social/Romance/Courtship"]),
-    ("orchestral:baroque", &["Music/Classical & Traditional/Baroque", "Social/Ceremonies/Royal Courts"]),
-    ("orchestral:renaissance", &["Music/Classical & Traditional/Renaissance", "Social/Ceremonies/Renaissance Fairs"]),
-    ("orchestral:medieval", &["Music/Classical & Traditional/Medieval", "Social/Ceremonies/Medieval Feasts"]),
-    ("orchestral:percussive", &["Music/Orchestral/Percussive", "Combat/Battle Ambience/Battlefield"]),
+    // Orchestral Sub-genres
+    ("orchestral:cinematic", &[("Music/Orchestral", 9), ("Genre/Orchestral/Cinematic", 10)]),
+    ("orchestral:hybrid", &[("Music/Orchestral/Hybrid Orchestral", 10), ("Genre/Orchestral/Hybrid", 10)]),
+    ("orchestral:heroic", &[("Music/Orchestral/Epic Orchestral", 9), ("Genre/Orchestral/Heroic", 10)]),
+    ("orchestral:dark", &[("Music/Orchestral/Dark Orchestral", 10), ("Genre/Orchestral/Dark", 10)]),
+    ("orchestral:minimal", &[("Music/Orchestral/Minimalist Orchestral", 10), ("Genre/Orchestral/Minimal", 10)]),
+    ("orchestral:romantic", &[("Music/Orchestral", 8), ("Social/Ceremonies/Weddings", 6)]),
+    ("orchestral:baroque", &[("Music/Orchestral", 8), ("Music/Folk & World/Medieval", 6)]),
+    ("orchestral:renaissance", &[("Music/Orchestral", 8), ("Music/Folk & World/Medieval", 7)]),
+    ("orchestral:medieval", &[("Music/Folk & World/Medieval", 9), ("Music/Orchestral", 7)]),
+    ("orchestral:percussive", &[("Music/Orchestral", 8), ("Combat/Battle Ambience", 6)]),
 
-    // Rock
-    ("rock:post-rock", &["Music/Rock & Alternative/Post Rock", "Social/Downtime/Contemplation"]),
-    ("rock:gothic-rock", &["Music/Rock & Alternative/Gothic Rock", "Magic/Dark Magic/Gothic Mysteries"]),
-    ("rock:progressive", &["Music/Rock & Alternative/Progressive Rock", "Magic/Time Magic/Temporal Shifts"]),
+    // Rock Sub-genres
+    ("rock:post-rock", &[("Music/Rock & Metal/Post Rock", 10), ("Music/Rock & Metal", 8)]),
+    ("rock:gothic-rock", &[("Music/Rock & Metal/Gothic Rock", 10), ("Music/Horror & Tension/Gothic", 8)]),
+    ("rock:progressive", &[("Music/Rock & Metal", 9), ("Music/Orchestral", 6)]),
 
-    // Sci-Fi
-    ("sci-fi:space-opera", &["Music/Electronic/Space Opera", "Environments/Futuristic/Space Stations"]),
-    ("sci-fi:hard-sci-fi", &["Music/Electronic/Scientific", "Environments/Futuristic/Research Facilities"]),
-    ("sci-fi:cyberpunk", &["Music/Electronic/Cyberpunk", "Environments/Futuristic/Cyberpunk Cities"]),
-    ("sci-fi:biopunk", &["Music/Electronic/Biopunk", "Environments/Futuristic/Bio-Labs"]),
-    ("sci-fi:post-human", &["Music/Electronic/Post-Human", "Magic/Transformation Magic/Evolution"]),
+    // Sci-Fi Sub-genres
+    ("sci-fi:space-opera", &[("Music/Electronic", 7), ("Environments/Magical Realms/Astral Plane", 6)]),
+    ("sci-fi:hard-sci-fi", &[("Music/Electronic", 7), ("SFX/Objects/Machinery", 6)]),
+    ("sci-fi:cyberpunk", &[("Music/Electronic", 8), ("Genre/Electronic/Cyberpunk", 10)]),
+    ("sci-fi:biopunk", &[("Music/Electronic/Industrial", 7), ("Magic/Spell Schools/Transmutation", 5)]),
+    ("sci-fi:post-human", &[("Music/Electronic", 7), ("Environments/Magical Realms/Void", 5)]),
 
-    // Sound-Design
-    ("sound-design:risers", &["SFX/Musical Stingers/Risers", "Music/Transition & Utility/Build-Ups"]),
-    ("sound-design:impacts", &["SFX/Impacts & Crashes/General Impacts", "Combat/Combat SFX/Impact Sounds"]),
-    ("sound-design:whooshes", &["SFX/Movement/Whooshes", "Magic/Spell Effects/Air Magic"]),
-    ("sound-design:stingers", &["SFX/Musical Stingers/Dramatic Stings", "Music/Transition & Utility/Stingers"]),
-    ("sound-design:booms", &["SFX/Explosions & Destruction/Thunder", "Combat/Combat SFX/Explosive Impacts"]),
-    ("sound-design:weapons", &["SFX/Weapons/General Weapons", "Combat/Combat SFX/Weapon Sounds"]),
-    ("sound-design:movement", &["SFX/Movement/Footsteps", "SFX/Movement/General Movement"]),
-    ("sound-design:objects", &["SFX/Objects & Materials/General Objects"]),
-    ("sound-design:voice", &["SFX/Creatures & Voices/Vocal Effects", "Social/Conversations/Voice Acting"]),
-    ("sound-design:magic", &["SFX/Magical Effects/Spell Casting", "Magic/Spell Effects/General Magic"]),
+    // Sound-Design Sub-genres
+    ("sound-design:risers", &[("SFX", 9), ("Music/Electronic", 6)]),
+    ("sound-design:impacts", &[("SFX/Impacts & Crashes", 10), ("SFX/Weapons/Impacts", 9)]),
+    ("sound-design:whooshes", &[("SFX/Movement/Magic Movement", 9), ("SFX/Magical Effects", 8)]),
+    ("sound-design:stingers", &[("SFX", 8), ("Music/Horror & Tension/Jump Scare", 7)]),
+    ("sound-design:booms", &[("SFX/Impacts & Crashes/Explosion Impacts", 10), ("SFX/Weapons/Impacts", 8)]),
+    ("sound-design:weapons", &[("SFX/Weapons", 10), ("Combat", 7)]),
+    ("sound-design:movement", &[("SFX/Movement", 10), ("Combat/Battle Ambience", 6)]),
+    ("sound-design:objects", &[("SFX/Objects", 10), ("Environments/Settlements", 5)]),
+    ("sound-design:voice", &[("SFX/Voice & Vocal", 10), ("Social/Conversations", 6)]),
+    ("sound-design:magic", &[("SFX/Magical Effects", 10), ("Magic", 8)]),
 ];
 
-/// Lookup function for genre folders
-pub fn lookup_genre_folders(genre_tag: &str) -> Option<&'static [&'static str]> {
+/// Lookup function for genre folders with confidence scores
+pub fn lookup_genre_folders(genre_tag: &str) -> Option<&'static [(&'static str, u8)]> {
     GENRE_FOLDER_MAPPINGS.iter()
         .find(|(tag, _)| *tag == genre_tag)
         .map(|(_, folders)| *folders)
@@ -153,6 +155,6 @@ pub fn get_all_genre_tags() -> Vec<&'static str> {
 }
 
 /// Build lookup HashMap for efficient access
-pub fn build_genre_lookup() -> HashMap<&'static str, &'static [&'static str]> {
+pub fn build_genre_lookup() -> HashMap<&'static str, &'static [(&'static str, u8)]> {
     GENRE_FOLDER_MAPPINGS.iter().cloned().collect()
 }

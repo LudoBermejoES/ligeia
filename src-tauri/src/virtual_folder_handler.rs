@@ -359,9 +359,11 @@ pub async fn auto_organize_sounds(
     let mut organized_count = 0i32;
     let mut processed_count = 0i32;
     let mut results = Vec::new();
+    let mut unorganized_files_info: Vec<(String, f64, String)> = Vec::new();
     
     for file_id in unorganized_files {
         processed_count += 1;
+        let mut file_organized = false;
         
         // Log progress every 500 files
         if processed_count % 500 == 0 {
@@ -374,12 +376,16 @@ pub async fn auto_organize_sounds(
         let suggestions = db.suggest_folders_for_file(file_id, Some(5))
             .map_err(|e| format!("Failed to get suggestions for file {}: {}", file_id, e))?;
         
+        // Get best score before moving suggestions
+        let best_score = suggestions.first().map(|(_, score)| *score).unwrap_or(0.0);
+        
         // Filter by confidence threshold and apply the best match
         for (folder, score) in suggestions {
             if score >= threshold {
                 match db.add_file_to_virtual_folder(folder.id.unwrap(), file_id) {
                     Ok(_) => {
                         organized_count += 1;
+                        file_organized = true;
                         results.push(AutoOrganizeFileResult {
                             file_id,
                             folder_id: folder.id.unwrap(),
@@ -394,10 +400,56 @@ pub async fn auto_organize_sounds(
                 }
             }
         }
+        
+        // If file wasn't organized, collect info for logging
+        if !file_organized {
+            if let Ok(audio_file) = get_audio_file_by_id(&*db, file_id) {
+                let filename = std::path::Path::new(&audio_file.file_path)
+                    .file_name()
+                    .and_then(|f| f.to_str())
+                    .unwrap_or("unknown");
+                
+                // Get tags for this file
+                let file_tags = match db.get_rpg_tags_for_file(file_id) {
+                    Ok(tags) => {
+                        let tag_strings: Vec<String> = tags.iter()
+                            .map(|tag| format!("{}:{}", tag.tag_type, tag.tag_value))
+                            .collect();
+                        if tag_strings.is_empty() {
+                            "no tags".to_string()
+                        } else {
+                            tag_strings.join(", ")
+                        }
+                    },
+                    Err(_) => "error reading tags".to_string()
+                };
+                
+                unorganized_files_info.push((filename.to_string(), best_score, file_tags));
+            }
+        }
     }
     
     log::info!("Auto-organize completed: {} files processed, {} successfully organized", 
               processed_count, organized_count);
+    
+    // Log unorganized files with their best confidence scores and tags
+    if !unorganized_files_info.is_empty() {
+        log::info!("Files that were NOT organized ({} total):", unorganized_files_info.len());
+        for (filename, best_score, tags) in &unorganized_files_info {
+            log::info!("  - {} (best confidence: {:.2}%) | Tags: [{}]", filename, best_score * 100.0, tags);
+        }
+        
+        // Summary of why files weren't organized
+        let low_confidence_count = unorganized_files_info.iter()
+            .filter(|(_, score, _)| *score > 0.0 && *score < threshold)
+            .count();
+        let no_suggestions_count = unorganized_files_info.iter()
+            .filter(|(_, score, _)| *score == 0.0)
+            .count();
+            
+        log::info!("Unorganized files breakdown: {} had suggestions below {:.0}% threshold, {} had no folder suggestions", 
+                  low_confidence_count, threshold * 100.0, no_suggestions_count);
+    }
     
     Ok(AutoOrganizeResult {
         processed_files: processed_count,
@@ -504,7 +556,7 @@ fn log_file_tags_for_analysis(db: &crate::database::Database, file_id: i64, file
                 "genre" => genre_tags.push(tag_full),
                 "mood" => mood_tags.push(tag_full),
                 "occasion" => occasion_tags.push(tag_full),
-                "keyword" => keyword_tags.push(tag_full),
+                "keyword" | "keywords" => keyword_tags.push(tag_full),
                 _ => other_tags.push(tag_full),
             }
         }

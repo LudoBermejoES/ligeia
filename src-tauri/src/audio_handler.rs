@@ -159,6 +159,28 @@ impl AudioHandler {
             for frame in tag.frames() {
                 if let Some(extended_text) = frame.content().extended_text() {
                     match extended_text.description.as_str() {
+                        "Occasion" => {
+                            // Split semicolon-separated values as per TAGS.md
+                            for occasion_tag in extended_text.value.split(';').map(|s| s.trim()) {
+                                if !occasion_tag.is_empty() {
+                                    rpg_tags.push(("occasion".to_string(), occasion_tag.to_string()));
+                                }
+                            }
+                        }
+                        "Keywords" => {
+                            for keyword_tag in extended_text.value.split(';').map(|s| s.trim()) {
+                                if !keyword_tag.is_empty() {
+                                    rpg_tags.push(("keyword".to_string(), keyword_tag.to_string()));
+                                }
+                            }
+                        }
+                        "Quality" => {
+                            let quality_value = extended_text.value.trim();
+                            if !quality_value.is_empty() {
+                                rpg_tags.push(("quality".to_string(), quality_value.to_string()));
+                            }
+                        }
+                        // Legacy support for old RPG_ prefixed frames (if any exist)
                         "RPG_GENRE" => {
                             // Split semicolon-separated values
                             for genre_tag in extended_text.value.split(';').map(|s| s.trim()) {
@@ -184,7 +206,7 @@ impl AudioHandler {
                         "RPG_KEYWORDS" => {
                             for keyword_tag in extended_text.value.split(';').map(|s| s.trim()) {
                                 if !keyword_tag.is_empty() {
-                                    rpg_tags.push(("keywords".to_string(), keyword_tag.to_string()));
+                                    rpg_tags.push(("keyword".to_string(), keyword_tag.to_string()));
                                 }
                             }
                         }

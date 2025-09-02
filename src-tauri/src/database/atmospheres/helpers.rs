@@ -110,6 +110,10 @@ pub fn ensure_columns(conn: &Connection) -> Result<()> {
     let mut has_crossfade = false;
     let mut has_curve = false;
     let mut has_theme = false;
+    let mut has_subsubcategory = false;
+    let mut has_background_image = false;
+    let mut has_author_image = false;
+    let mut has_is_public = false;
     let mut rows = stmt.query([])?;
     
     while let Some(row) = rows.next()? {
@@ -117,6 +121,10 @@ pub fn ensure_columns(conn: &Connection) -> Result<()> {
         if col_name == "default_crossfade_ms" { has_crossfade = true; }
         if col_name == "fade_curve" { has_curve = true; }
         if col_name == "theme" { has_theme = true; }
+        if col_name == "subsubcategory" { has_subsubcategory = true; }
+        if col_name == "background_image" { has_background_image = true; }
+        if col_name == "author_image" { has_author_image = true; }
+        if col_name == "is_public" { has_is_public = true; }
     }
     
     if !has_crossfade {
@@ -127,6 +135,18 @@ pub fn ensure_columns(conn: &Connection) -> Result<()> {
     }
     if !has_curve {
         conn.execute("ALTER TABLE atmospheres ADD COLUMN fade_curve TEXT NOT NULL DEFAULT 'linear'", [])?;
+    }
+    if !has_subsubcategory {
+        conn.execute("ALTER TABLE atmospheres ADD COLUMN subsubcategory TEXT", [])?;
+    }
+    if !has_background_image {
+        conn.execute("ALTER TABLE atmospheres ADD COLUMN background_image TEXT", [])?;
+    }
+    if !has_author_image {
+        conn.execute("ALTER TABLE atmospheres ADD COLUMN author_image TEXT", [])?;
+    }
+    if !has_is_public {
+        conn.execute("ALTER TABLE atmospheres ADD COLUMN is_public INTEGER DEFAULT 0", [])?;
     }
     
     Ok(())

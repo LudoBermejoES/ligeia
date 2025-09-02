@@ -25,6 +25,8 @@ impl VirtualFolderTagSuggestions {
         let mut keyword_tags: Vec<String> = Vec::new();
         
         for tag in &file_tags {
+            // Tags come in format "tag_type:tag_value" from database
+            // We need to handle both simple tags (mood:dark) and prefixed tags (creature:dragon)
             if let Some(colon_pos) = tag.find(':') {
                 let tag_type = &tag[..colon_pos];
                 let tag_value = &tag[colon_pos + 1..];
@@ -37,7 +39,12 @@ impl VirtualFolderTagSuggestions {
                     },
                     "mood" => mood_tags.push(tag_value.to_string()),
                     "occasion" => occasion_tags.push(tag_value.to_string()),
-                    "keywords" => keyword_tags.push(tag_value.to_string()),
+                    // Handle both "keyword" and "keywords" for compatibility
+                    "keyword" | "keywords" => {
+                        // For keyword tags, we want to keep the full prefixed value
+                        // e.g., "creature:dragon" not just "dragon"
+                        keyword_tags.push(tag_value.to_string());
+                    },
                     _ => {}
                 }
             }
