@@ -72,6 +72,10 @@ export class UIController {
             this.closeLibraryActionsMenu();
             eventHandlers.storeTagsInFiles(e);
         });
+        this.getElementById('removeTagsFromFiles')?.addEventListener('click', (e) => {
+            this.closeLibraryActionsMenu();
+            eventHandlers.removeTagsFromFiles(e);
+        });
         this.getElementById('calculateDurations')?.addEventListener('click', (e) => {
             this.closeLibraryActionsMenu();
             eventHandlers.calculateDurations(e);

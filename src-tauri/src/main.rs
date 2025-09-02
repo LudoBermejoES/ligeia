@@ -20,6 +20,7 @@ mod audio_processing_handler;
 mod audio_file_handler;
 mod tag_handler;
 mod store_tags_handler;
+mod remove_tags_handler;
 mod virtual_folder_handler;
 mod gemini_tagger;
 mod gemini_handler;
@@ -170,6 +171,11 @@ async fn store_all_tags_in_files(app_handle: AppHandle) -> Result<StoreTagsResul
     store_tags_handler::store_all_tags_in_files(app_handle).await
 }
 
+#[tauri::command]
+async fn remove_all_tags_from_files(app_handle: AppHandle) -> Result<StoreTagsResult, String> {
+    remove_tags_handler::remove_all_tags_from_files(app_handle).await
+}
+
 // Atmosphere Commands
 #[tauri::command]
 async fn save_atmosphere(app_handle: AppHandle, atmosphere: AtmosphereSavePayload) -> Result<i64, String> {
@@ -299,6 +305,7 @@ pub fn run() {
             export_library_data,
             import_library_data,
             store_all_tags_in_files,
+            remove_all_tags_from_files,
             calculate_missing_durations,
             save_atmosphere,
             get_all_atmospheres,

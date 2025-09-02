@@ -30,132 +30,136 @@ Alright—here’s a **deep, software-ready taxonomy** for RPG audio. It’s des
 
 ---
 
-## 2) GENRE (hierarchical, broad → specific)
-> Use broad + 0–3 specifics. Example: `orchestral`, `orchestral:hybrid`, `orchestral:choir`.
+## 2) GENRE (hierarchical, specific only)
+> Use specific subcategories only. Examples: `orchestral:hybrid`, `orchestral:choral`, `electronic:synthwave`.
 
 ### Orchestral
-- `orchestral`
-  - `orchestral:cinematic`
-  - `orchestral:hybrid`
-  - `orchestral:heroic`
-  - `orchestral:dark`
-  - `orchestral:minimal`
-  - `orchestral:romantic`
-  - `orchestral:baroque`
-  - `orchestral:renaissance`
-  - `orchestral:medieval`
-  - `orchestral:choral` (alias: `choir`, `gregorian`)
-  - `orchestral:percussive`
-  - `orchestral:trailer` (alias: `trailer-music`)
+- `orchestral:cinematic`
+- `orchestral:hybrid`
+- `orchestral:heroic`
+- `orchestral:dark`
+- `orchestral:minimal`
+- `orchestral:romantic`
+- `orchestral:baroque`
+- `orchestral:renaissance`
+- `orchestral:medieval`
+- `orchestral:choral` (alias: `choir`, `gregorian`)
+- `orchestral:percussive`
+- `orchestral:trailer` (alias: `trailer-music`)
 
 ### Ambient & Drones
-- `ambient`
-  - `ambient:dark-ambient`
-  - `ambient:space-ambient`
-  - `ambient:nature-ambient`
-  - `ambient:ritual`
-  - `ambient:drone`
-  - `ambient:textural`
-  - `ambient:new-age`
-  - `ambient:lofi-ambient`
+- `ambient:dark-ambient`
+- `ambient:space-ambient`
+- `ambient:nature-ambient`
+- `ambient:ritual`
+- `ambient:drone`
+- `ambient:textural`
+- `ambient:new-age`
+- `ambient:lofi-ambient`
 
 ### Electronic
-- `electronic`
-  - `electronic:synthwave` (alias: `retrowave`, `outrun`)
-  - `electronic:cyberpunk`
-  - `electronic:idm`
-  - `electronic:glitch`
-  - `electronic:industrial`
-  - `electronic:ebm`
-  - `electronic:techno`
-  - `electronic:trance`
-  - `electronic:dnb`
-  - `electronic:downtempo`
-  - `electronic:chiptune` (alias: `8bit`)
-  - `electronic:shoegaze-electronic`
+- `electronic:synthwave` (alias: `retrowave`, `outrun`)
+- `electronic:cyberpunk`
+- `electronic:idm`
+- `electronic:glitch`
+- `electronic:industrial`
+- `electronic:ebm`
+- `electronic:techno`
+- `electronic:trance`
+- `electronic:dnb`
+- `electronic:downtempo`
+- `electronic:chiptune` (alias: `8bit`)
+- `electronic:shoegaze-electronic`
 
 ### Rock / Metal / Post-
-- `rock`
-  - `rock:post-rock`
-  - `rock:gothic-rock`
-  - `rock:progressive`
-- `metal`
-  - `metal:power`
-  - `metal:symphonic`
-  - `metal:black`
-  - `metal:doom`
-  - `metal:folk-metal`
-  - `metal:industrial-metal`
+- `rock:post-rock`
+- `rock:gothic-rock`
+- `rock:progressive`
+- `metal:power`
+- `metal:symphonic`
+- `metal:black`
+- `metal:doom`
+- `metal:folk-metal`
+- `metal:industrial-metal`
 - `post-metal`
 
 ### Folk / World / Traditional
-- `folk`
-  - `folk:celtic`
-  - `folk:nordic`
-  - `folk:middle-eastern`
-  - `folk:mediterranean`
-  - `folk:asian-east`
-  - `folk:asian-south`
-  - `folk:african`
-  - `folk:andino`
-  - `folk:balkan`
-  - `folk:sea-shanty`
-  - `folk:wild-west-folk`
+- `folk:celtic`
+- `folk:nordic`
+- `folk:middle-eastern`
+- `folk:mediterranean`
+- `folk:asian-east`
+- `folk:asian-south`
+- `folk:african`
+- `folk:andino`
+- `folk:balkan`
+- `folk:sea-shanty`
+- `folk:wild-west-folk`
 
 ### Jazz / Blues / Noir / Lounge
-- `jazz`
-  - `jazz:noir`
-  - `jazz:swing`
-  - `jazz:cool`
-  - `jazz:latin`
+- `jazz:noir`
+- `jazz:swing`
+- `jazz:cool`
+- `jazz:latin`
+- `jazz:bebop`
 - `blues`
 - `lounge`
 
 ### Horror / Sound-Design Forward
-- `horror`
-  - `horror:atonal`
-  - `horror:dissonant-strings`
-  - `horror:sound-design`
-- `sound-design`
-  - `sound-design:risers`
-  - `sound-design:impacts`
-  - `sound-design:whooshes`
-  - `sound-design:stingers`
-  - `sound-design:booms`
-  - `sound-design:braams` (alias: `brass-hits`)
+- `horror:atonal`
+- `horror:dissonant-strings`
+- `horror:sound-design`
+- `horror:psychological`
+- `horror:jump-scare`
+- `horror:ritual`
+- `horror:cosmic`
+- `horror:gothic`
+- `sound-design:risers`
+- `sound-design:impacts`
+- `sound-design:whooshes`
+- `sound-design:stingers`
+- `sound-design:booms`
+- `sound-design:braams` (alias: `brass-hits`)
+- `sound-design:weapons`
+- `sound-design:movement`
+- `sound-design:objects`
+- `sound-design:voice`
+- `sound-design:magic`
 
 ### Historical / Diegetic / Source
-- `diegetic`
-  - `diegetic:tavern-band`
-  - `diegetic:radio`
-  - `diegetic:gramophone`
-  - `diegetic:street-musician`
-- `historical`
-  - `historical:baroque`
-  - `historical:renaissance`
-  - `historical:medieval`
-  - `historical:romantic`
+- `diegetic:tavern-band`
+- `diegetic:radio`
+- `diegetic:gramophone`
+- `diegetic:street-musician`
+- `historical:baroque`
+- `historical:renaissance`
+- `historical:medieval`
+- `historical:romantic`
 
 ### Setting-Driven Blends
-- `fantasy`
-  - `fantasy:high-fantasy`
-  - `fantasy:grimdark`
-  - `fantasy:fairy`
-- `sci-fi`
-  - `sci-fi:space-opera`
-  - `sci-fi:hard-sci-fi`
-  - `sci-fi:cyberpunk`
-  - `sci-fi:biopunk`
-  - `sci-fi:post-human`
-- `punk-variants`
-  - `dieselpunk`, `steampunk`, `atompunk`, `solarpunk`
+- `fantasy:high-fantasy`
+- `fantasy:grimdark`
+- `fantasy:fairy`
+- `sci-fi:space-opera`
+- `sci-fi:hard-sci-fi`
+- `sci-fi:cyberpunk`
+- `sci-fi:biopunk`
+- `sci-fi:post-human`
+- `dieselpunk`
+- `steampunk`
+- `atompunk`
+- `solarpunk`
 - `post-apocalyptic`
 - `western`
 - `mystery-noir`
 - `modern-urban`
 - `superhero`
-- `mythic`
-  - `mythic:norse`, `mythic:greco-roman`, `mythic:egyptian`, `mythic:celtic`, `mythic:japanese`, `mythic:mesoamerican`
+- `mythic:norse`
+- `mythic:greco-roman`
+- `mythic:egyptian`
+- `mythic:celtic`
+- `mythic:japanese`
+- `mythic:mesoamerican`
 
 ---
 
@@ -192,7 +196,7 @@ Alright—here’s a **deep, software-ready taxonomy** for RPG audio. It’s des
 `overworld-travel`, `wilderness-exploration`, `urban-exploration`, `dungeon-crawl`, `ruin-delving`, `underdark-journey`, `sewers`, `cave-exploration`, `mountain-pass`, `desert-crossing`, `jungle-trek`, `swamp-march`, `arctic-trek`, `sea-voyage`, `river-journey`, `airship-voyage`, `space-cruise`, `hyperspace-transit`, `derelict-ship-exploration`, `space-station-walk`
 
 ### Social / Roleplay
-`tavern`, `inn`, `market`, `black-market`, `noble-court`, `audience-with-ruler`, `council-debate`, `negotiation`, `interrogation`, `trial`, `festival`, `wedding`, `funeral`, `ceremony`, `religious-service`, `gambling-den`, `speakeasy`, `noir-club`, `tea-house`
+`tavern`, `inn`, `market`, `black-market`, `noble-court`, `audience-with-ruler`, `council-debate`, `negotiation`, `interrogation`, `trial`, `festival`, `wedding`, `funeral`, `ceremony`, `religious-service`, `gambling-den`, `speakeasy`, `noir-club`, `tea-house`, `conversation`, `crowd-celebration`, `crowd-angry`, `crowd-market`, `crowd-religious`, `crowd-funeral`, `crowd-panic`, `entertainment`, `bard-performance`, `theater`, `gambling`, `sports`, `street-performance`, `guild-meeting`, `council-session`, `court-proceeding`, `academic-discourse`, `military-order`, `trade-negotiation`
 
 ### Investigation / Heist / Stealth
 `crime-scene`, `library-research`, `occult-research`, `stakeout`, `tailing`, `surveillance`, `infiltration`, `lockpicking`, `safecracking`, `hacking`, `netrun`, `vault-breach`, `disguise`, `escape`, `extraction`, `clean-getaway`
@@ -203,20 +207,20 @@ Alright—here’s a **deep, software-ready taxonomy** for RPG audio. It’s des
 ### Combat (phase-aware)
 `combat-ambush`, `combat-skirmish`, `combat-duel`, `combat-horde`, `combat-siege`, `combat-naval`, `combat-aerial`, `combat-vehicular`, `combat-mecha`, `combat-space-battle`,  
 `boss-intro`, `boss-loop`, `boss-final-phase`, `victory-fanfare`, `defeat-lament`,  
-`chase`, `car-chase`, `foot-chase`, `dogfight`, `boarding-action`
+`chase`, `car-chase`, `foot-chase`, `dogfight`, `boarding-action`, `battle-ambience`, `pre-battle`, `climax-combat`, `victory`, `defeat`, `aftermath`, `armor-defense`, `plate-armor`, `chain-mail`, `leather-armor`, `shields`, `magical-protection`, `breaking-armor`, `monster-combat`, `dragon-fight`, `undead-combat`, `beast-battle`, `demon-fight`, `giant-combat`, `swarm-attack`
 
 ### Horror / Supernatural
 `haunting`, `possession`, `ritual`, `summoning`, `banishment`, `eldritch-reveal`, `sanity-slip`, `ghost-encounter`, `vampire-lair`, `werewolf-hunt`, `zombie-siege`, `cult-gathering`, `sacrificial-altar`
 
 ### Magic / Psionics / Sci-Tech
 `spellcasting-prep`, `battle-magic`, `divination`, `telepathy`, `dream-walk`, `astral-travel`, `time-warp`, `portal-crossing`, `teleportation`,  
-`lab-experiment`, `biotech-lab`, `nanotech-swarm`, `ai-core`, `cyberdeck-dive`, `cyber-combat`, `drone-control`, `mech-dock`, `warp-jump`, `tractor-beam`, `ship-docking`, `eva-walk`
+`lab-experiment`, `biotech-lab`, `nanotech-swarm`, `ai-core`, `cyberdeck-dive`, `cyber-combat`, `drone-control`, `mech-dock`, `warp-jump`, `tractor-beam`, `ship-docking`, `eva-walk`, `elemental-magic`, `fire-magic`, `ice-magic`, `lightning-magic`, `earth-magic`, `water-magic`, `air-magic`, `healing-magic`, `necromancy`, `illusion-magic`, `enchantment`, `transmutation`, `magical-creatures`, `dragons`, `fae`, `demons`, `angels`, `spirits`, `elementals`, `magical-environments`, `ley-lines`, `portals`, `magical-laboratories`, `sacred-groves`, `cursed-lands`, `magical-storms`, `artifacts`, `enchanted-weapons`, `spell-components`, `magical-books`, `crystals`, `potions`, `talismans`, `rituals`, `summoning`, `banishment`, `binding`, `transformation`, `communication-magic`, `protection-magic`
 
 ### Survival / Downtime / Crafting
 `campfire`, `short-rest`, `long-rest`, `foraging`, `hunting`, `tracking`, `blacksmithing`, `fletching`, `alchemy`, `enchanting`, `cooking`, `base-building`, `training`, `shopping`, `bargain`, `healing`, `hospital-ward`
 
 ### Environment / Events
-`sunrise`, `sunset`, `night-watch`, `storm`, `rain`, `blizzard`, `sandstorm`, `earthquake`, `flood`, `eclipse`, `meteor-shower`, `radiation-storm`, `anomaly-event`, `void-rift`, `volcanic-eruption`
+`sunrise`, `sunset`, `night-watch`, `storm`, `rain`, `blizzard`, `sandstorm`, `earthquake`, `flood`, `eclipse`, `meteor-shower`, `radiation-storm`, `anomaly-event`, `void-rift`, `volcanic-eruption`, `natural-landscapes`, `forests`, `mountains`, `deserts`, `oceans`, `rivers`, `caves`, `weather`, `storms`, `snow`, `wind`, `fog`, `heat`, `settlements`, `taverns`, `markets`, `cities`, `villages`, `temples`, `castles`, `dungeons-ruins`, `ancient-ruins`, `tombs`, `sewers`, `mines`, `crypts`, `forgotten-places`, `magical-realms`, `fairy-realms`, `elemental-planes`, `astral-plane`, `shadow-realm`, `divine-realms`, `void`, `time-seasons`, `dawn`, `day`, `dusk`, `night`, `spring`, `summer`, `autumn`, `winter`
 
 ### Transitions & UI
 `scene-transition`, `reveal-stinger`, `jump-scare`, `mystery-sting`, `map-open`, `map-close`, `quest-accepted`, `quest-failed`, `dice-roll`, `success-cue`, `failure-cue`
@@ -257,7 +261,15 @@ Alright—here’s a **deep, software-ready taxonomy** for RPG audio. It’s des
 `timbre:strings-warm`, `timbre:strings-dissonant`, `timbre:low-brass`, `timbre:braams`, `timbre:solo-violin`, `timbre:solo-cello`, `timbre:harp`, `timbre:flute`, `timbre:whistle`, `timbre:bagpipes`, `timbre:nyckelharpa`, `timbre:hurdy-gurdy`, `timbre:oud`, `timbre:sitar`, `timbre:shakuhachi`, `timbre:erhu`, `timbre:guzheng`, `timbre:koto`, `timbre:gamelan`, `timbre:frame-drum`, `timbre:taiko`, `timbre:bodhran`, `timbre:dulcimer`, `timbre:lute`, `timbre:organ`, `timbre:church-choir`, `timbre:male-chant`, `timbre:female-vocalise`, `timbre:child-choir`, `timbre:synthetic-pad`, `timbre:analog-synth`, `timbre:fm-synth`, `timbre:granular`, `timbre:noise-texture`, `timbre:clockwork`, `timbre:metallic-hits`, `timbre:sub-boom`
 
 ### 5.10 SFX & Foley (diegetic cues)
-`sfx:footsteps`, `sfx:armor-clank`, `sfx:sword-clash`, `sfx:bow-release`, `sfx:gunshot`, `sfx:reload`, `sfx:ricochet`, `sfx:explosion`, `sfx:door-creak`, `sfx:gate-bang`, `sfx:chains`, `sfx:coins`, `sfx:pages-turning`, `sfx:quill-scratch`, `sfx:campfire`, `sfx:wood-crackle`, `sfx:water-drip`, `sfx:river`, `sfx:ocean-surf`, `sfx:thunder`, `sfx:wind`, `sfx:rain`, `sfx:market-crowd`, `sfx:tavern-murmur`, `sfx:church-bells`, `sfx:chant`, `sfx:chant-latin`, `sfx:monster-roar`, `sfx:dragon-breath`, `sfx:zombie-moans`, `sfx:ghost-wail`, `sfx:space-engine-hum`, `sfx:alarm`, `sfx:scanner-beeps`, `sfx:keyboard`, `sfx:hacking-glitches`, `sfx:warp`, `sfx:teleport`, `sfx:magic-whoosh`, `sfx:spell-impact`, `sfx:shield`, `sfx:portal-open`, `sfx:portal-close`
+**Weapon SFX**: `sfx:sword-clash`, `sfx:bow-release`, `sfx:gunshot`, `sfx:reload`, `sfx:ricochet`, `sfx:melee-impact`, `sfx:weapon-draw`, `sfx:weapon-sheath`  
+**Movement SFX**: `sfx:footsteps`, `sfx:armor-clank`, `sfx:cloth-rustle`, `sfx:creature-movement`, `sfx:vehicle-movement`  
+**Object SFX**: `sfx:door-creak`, `sfx:gate-bang`, `sfx:chains`, `sfx:coins`, `sfx:pages-turning`, `sfx:quill-scratch`, `sfx:container-open`, `sfx:tool-use`, `sfx:machinery`  
+**Voice SFX**: `sfx:chant`, `sfx:chant-latin`, `sfx:crowd-voices`, `sfx:emotional-vocals`, `sfx:spell-casting-voice`, `sfx:breathing`, `sfx:whispers`  
+**Impact SFX**: `sfx:explosion`, `sfx:metal-impact`, `sfx:wood-impact`, `sfx:stone-impact`, `sfx:glass-impact`, `sfx:body-impact`  
+**Environment SFX**: `sfx:campfire`, `sfx:wood-crackle`, `sfx:water-drip`, `sfx:river`, `sfx:ocean-surf`, `sfx:thunder`, `sfx:wind`, `sfx:rain`, `sfx:market-crowd`, `sfx:tavern-murmur`, `sfx:church-bells`  
+**Magic SFX**: `sfx:magic-whoosh`, `sfx:spell-impact`, `sfx:shield`, `sfx:portal-open`, `sfx:portal-close`, `sfx:teleport`, `sfx:transformation`, `sfx:energy-blast`, `sfx:healing-magic`, `sfx:curse`  
+**Creature SFX**: `sfx:monster-roar`, `sfx:dragon-breath`, `sfx:zombie-moans`, `sfx:ghost-wail`, `sfx:beast-sounds`  
+**Technology SFX**: `sfx:space-engine-hum`, `sfx:alarm`, `sfx:scanner-beeps`, `sfx:keyboard`, `sfx:hacking-glitches`, `sfx:warp`
 
 ### 5.11 Gamey / UI-ish
 `ui:ping`, `ui:notify`, `ui:confirm`, `ui:error`, `ui:upgrade`, `ui:inventory`, `ui:map-open`, `ui:map-close`, `ui:crafting-complete`, `ui:purchase`, `ui:sell`, `ui:quest-update`, `ui:skill-point`, `ui:dice-roll`
@@ -321,9 +333,9 @@ Alright—here’s a **deep, software-ready taxonomy** for RPG audio. It’s des
 `rock`, `rock:post-rock`, `rock:gothic-rock`, `rock:progressive`,  
 `metal`, `metal:power`, `metal:symphonic`, `metal:black`, `metal:doom`, `metal:folk-metal`, `metal:industrial-metal`, `post-metal`,  
 `folk`, `folk:celtic`, `folk:nordic`, `folk:middle-eastern`, `folk:mediterranean`, `folk:asian-east`, `folk:asian-south`, `folk:african`, `folk:andino`, `folk:balkan`, `folk:sea-shanty`, `folk:wild-west-folk`,  
-`jazz`, `jazz:noir`, `jazz:swing`, `jazz:cool`, `jazz:latin`, `blues`, `lounge`,  
-`horror`, `horror:atonal`, `horror:dissonant-strings`, `horror:sound-design`,  
-`sound-design`, `sound-design:risers`, `sound-design:impacts`, `sound-design:whooshes`, `sound-design:stingers`, `sound-design:booms`, `sound-design:braams`,  
+`jazz`, `jazz:noir`, `jazz:swing`, `jazz:cool`, `jazz:latin`, `jazz:bebop`, `blues`, `lounge`,  
+`horror`, `horror:atonal`, `horror:dissonant-strings`, `horror:sound-design`, `horror:psychological`, `horror:jump-scare`, `horror:ritual`, `horror:cosmic`, `horror:gothic`,  
+`sound-design`, `sound-design:risers`, `sound-design:impacts`, `sound-design:whooshes`, `sound-design:stingers`, `sound-design:booms`, `sound-design:braams`, `sound-design:weapons`, `sound-design:movement`, `sound-design:objects`, `sound-design:voice`, `sound-design:magic`,  
 `diegetic`, `diegetic:tavern-band`, `diegetic:radio`, `diegetic:gramophone`, `diegetic:street-musician`,  
 `historical`, `historical:baroque`, `historical:renaissance`, `historical:medieval`, `historical:romantic`,  
 `fantasy`, `fantasy:high-fantasy`, `fantasy:grimdark`, `fantasy:fairy`,  
@@ -367,7 +379,64 @@ Alright—here’s a **deep, software-ready taxonomy** for RPG audio. It’s des
 
 ---
 
-## 9) Implementation tips
+## 9) Folder Structure Integration
+
+This tag vocabulary is designed to work seamlessly with the 6-category folder structure:
+
+### 🎵 Music Folders → Genre Tags
+- **🎼 Orchestral** → `orchestral`, `orchestral:cinematic`, `orchestral:hybrid`, `orchestral:heroic`, `orchestral:dark`
+- **🤖 Electronic** → `electronic`, `electronic:synthwave`, `electronic:industrial`, `electronic:idm`, `electronic:glitch`
+- **🏛️ Folk & World** → `folk`, `folk:celtic`, `folk:nordic`, `folk:middle-eastern`, `folk:sea-shanty`
+- **😱 Horror & Tension** → `horror`, `horror:atonal`, `horror:psychological`, `horror:jump-scare`, `horror:cosmic`
+- **🎺 Jazz & Blues** → `jazz`, `jazz:noir`, `jazz:swing`, `jazz:bebop`, `blues`
+- **🎸 Rock & Metal** → `rock`, `rock:post-rock`, `metal`, `metal:folk-metal`, `post-metal`
+
+### 🎬 SFX Folders → Sound-Design Tags + SFX Keywords
+- **⚔️ Weapons** → `sound-design:weapons` + `sfx:sword-clash`, `sfx:bow-release`, `sfx:gunshot`
+- **💥 Impacts & Crashes** → `sound-design:impacts` + `sfx:metal-impact`, `sfx:explosion`, `sfx:body-impact`
+- **🚶 Movement** → `sound-design:movement` + `sfx:footsteps`, `sfx:armor-clank`, `sfx:creature-movement`
+- **🏺 Objects** → `sound-design:objects` + `sfx:door-creak`, `sfx:coins`, `sfx:machinery`
+- **🗣️ Voice & Vocal** → `sound-design:voice` + `sfx:chant`, `sfx:crowd-voices`, `sfx:whispers`
+- **🪄 Magical Effects** → `sound-design:magic` + `sfx:magic-whoosh`, `sfx:spell-impact`, `sfx:portal-open`
+
+### 🌍 Environment Folders → Location Keywords + Weather + Biome Tags
+- **🏞️ Natural Landscapes** → `biome:forest`, `biome:mountain`, `biome:desert`, `biome:ocean`
+- **🌦️ Weather** → `weather:rain`, `weather:storm`, `weather:snow`, `weather:wind`
+- **🏘️ Settlements** → `loc:tavern`, `loc:market`, `loc:castle`, `loc:temple`
+- **🏛️ Dungeons & Ruins** → `loc:dungeon`, `loc:ruins`, `loc:crypt`, `loc:mine`
+- **✨ Magical Realms** → `biome:astral`, `biome:void`, `loc:fairy-glen`
+- **⏰ Time & Seasons** → `sunrise`, `sunset`, `night-watch`, `spring`, `autumn`
+
+### ⚔️ Combat Folders → Combat Occasion Tags
+- **🏟️ Battle Ambience** → `combat-siege`, `combat-naval`, `combat-aerial`, `battle-ambience`
+- **⏳ Combat Phases** → `pre-battle`, `combat-skirmish`, `climax-combat`, `victory`, `defeat`
+- **🛡️ Armor & Defense** → `armor-defense`, `plate-armor`, `shields`, `magical-protection`
+- **👹 Monster Combat** → `dragon-fight`, `undead-combat`, `beast-battle`, `demon-fight`
+
+### 🗣️ Social Folders → Social Occasion Tags
+- **💬 Conversations** → `tavern`, `noble-court`, `negotiation`, `interrogation`
+- **👥 Crowds** → `crowd-celebration`, `crowd-angry`, `crowd-market`, `crowd-panic`
+- **🎭 Ceremonies** → `wedding`, `funeral`, `religious-service`, `ceremony`
+- **🎪 Entertainment** → `bard-performance`, `theater`, `gambling`, `festival`
+- **🏛️ Professional** → `guild-meeting`, `council-session`, `court-proceeding`
+
+### ✨ Magic Folders → Magic Keywords + Occasion Tags
+- **🔥 Elemental Magic** → `element:fire`, `element:ice`, `element:lightning`, `element:earth`
+- **📚 Spell Schools** → `magic:necromancy`, `magic:illusion`, `magic:enchantment`
+- **🐉 Magical Creatures** → `creature:dragon`, `creature:fae`, `creature:demon`, `creature:angel`
+- **🌌 Magical Environments** → `ley-lines`, `portals`, `magical-laboratories`, `cursed-lands`
+- **🏺 Artifacts & Items** → `enchanted-weapons`, `crystals`, `potions`, `magical-books`
+- **🕯️ Rituals & Ceremonies** → `summoning`, `banishment`, `binding`, `transformation`
+
+### Cross-Reference Usage Examples
+- **Tavern Scene**: Folder `🗣️ Social > 💬 Conversations > 🍺 Tavern Chatter` + Tags `tavern`, `diegetic:tavern-band`, `loc:tavern`
+- **Dragon Battle**: Folder `⚔️ Combat > 👹 Monster Combat > 🐉 Dragon Fights` + Tags `dragon-fight`, `creature:dragon`, `boss-loop`
+- **Forest Exploration**: Folder `🌍 Environments > 🏞️ Natural Landscapes > 🌲 Forests` + Tags `wilderness-exploration`, `biome:forest`, `nature-ambient`
+- **Fire Magic**: Folder `✨ Magic > 🔥 Elemental Magic > 🔥 Fire Magic` + Tags `element:fire`, `fire-magic`, `battle-magic`
+
+---
+
+## 10) Implementation tips
 - **Importers**: when scanning existing libraries, map free text to closest canonical slug using a synonym table; log misses for curation.
 - **Curation UI**: keyboard-only tagging, recent-tags bar, and quick sliders for `intensity`, `tension`.
 - **Playback logic**: when `occasion` changes, fade to track sharing ≥1 `mood` and ≥1 `genre` parent; if none, fall back to `keywords` + `intensity` proximity.

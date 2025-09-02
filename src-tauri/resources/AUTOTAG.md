@@ -27,36 +27,50 @@ Taxonomy rules (from TAGS.md)
 
 How to analyze and infer tags
 1) Parse path and filename
-   - Split file_path into segments and analyze folder structure and filename for context
+   - Split file_path into segments and analyze both folder names and filename for content context
    - Extract meaningful tokens from filenames (split on "_", "-", spaces, numbers)
-   - Consider folder names for thematic context (e.g., "Bullets Casings and Impacts" → combat/weapons theme)
+   - Look for descriptive words in paths that indicate audio content type (e.g., "Epic Battle", "Tavern Chatter", "Forest Ambience", "Fireball Cast")
 
 2) Genre
-   - Choose one primary genre slug from GENRE in TAGS.md. Examples for common audio types:
-     - Sound effects/impacts → "sound-design:impacts"
-     - Ambient/atmospheric → "ambient" or "ambient:dark-ambient"
-     - Weapons/combat sounds → "sound-design:impacts" or "sound-design:weapons"
-     - Horror sounds → "horror" or "sound-design:horror"
+   - Choose one primary genre slug from GENRE in TAGS.md based on audio content analysis:
+     - **Musical compositions**: "orchestral:cinematic", "electronic:synthwave", "jazz:bebop", "folk:celtic", "horror:psychological"
+     - **Sound effects**: "sound-design:impacts", "sound-design:weapons", "sound-design:movement", "sound-design:objects", "sound-design:voice", "sound-design:magic"
+     - **Ambient/atmospheric**: "ambient", "ambient:dark-ambient", "ambient:nature-ambient"
+     - **Horror audio**: "horror:atonal", "horror:jump-scare", "horror:ritual", "horror:cosmic"
 
 3) Mood
-   - Pick 1–4 distinct mood slugs from MOOD in TAGS.md based on context:
-     - Bullet/weapon sounds → "aggressive; intense; violent"  
-     - Ambient/atmospheric → "tense; ominous; mysterious"
-     - Impact/hit sounds → "percussive; driving; high-stakes"
-   - Store as a single semicolon-separated string (e.g., "aggressive; intense").
+   - Pick 1–4 distinct mood slugs from MOOD in TAGS.md based on audio content:
+     - **Combat/weapon audio** → "aggressive; violent; intense"  
+     - **Ambient/atmospheric audio** → "mysterious; ominous; ethereal"
+     - **Social/crowd audio** → "festive; warm; lighthearted"
+     - **Horror/scary audio** → "eerie; dread; unsettling"
+     - **Magic/mystical audio** → "arcane; otherworldly; sacred"
+     - **Nature/peaceful audio** → "serene; pastoral; comforting"
+     - **Epic/heroic audio** → "heroic; triumphant; inspiring"
+   - Store as a single semicolon-separated string (e.g., "mysterious; ethereal").
 
 4) RPG Occasion (array)
-   - Choose occasions that fit gameplay scenarios. Examples:
-     - Bullet impacts → ["combat-encounter", "gunfight", "action-sequence"]
-     - Ambient sounds → ["dungeon-crawl", "exploration", "stealth"]
-     - Horror sounds → ["jump-scare", "horror-ambience", "tension-building"]
+   - Choose occasions that fit the audio content for RPG gameplay scenarios:
+     - **Combat audio** → ["combat-skirmish", "boss-loop", "victory", "defeat"]
+     - **Social audio** → ["tavern", "market", "noble-court", "festival", "crowd-celebration"]
+     - **Environment audio** → ["wilderness-exploration", "dungeon-crawl", "cave-exploration", "night-watch"]
+     - **Magic audio** → ["spellcasting-prep", "battle-magic", "ritual", "summoning", "teleportation"]
+     - **Horror audio** → ["haunting", "jump-scare", "eldritch-reveal", "ghost-encounter"]
+     - **Musical compositions** → ["session-start", "boss-intro", "victory-fanfare", "scene-transition"]
 
 5) RPG Keywords (array)
    - Add specific facets from TAGS.md Keywords section:
-     - Weapon sounds → ["sfx:gunshot", "sfx:impact", "weapon:firearm"]
-     - Body impacts → ["sfx:flesh-impact", "creature:humanoid"]
-     - Material impacts → ["sfx:metal-clang", "sfx:concrete-hit", "sfx:dirt-impact"]
-     - Locations → ["loc:urban", "loc:battlefield", "loc:indoor"]
+     - **Weapon SFX** → ["sfx:sword-clash", "sfx:bow-release", "sfx:gunshot", "sfx:metal-impact"]
+     - **Movement SFX** → ["sfx:footsteps", "sfx:armor-clank", "sfx:creature-movement"]
+     - **Environment SFX** → ["sfx:wind", "sfx:rain", "sfx:campfire", "sfx:ocean-surf"]
+     - **Voice SFX** → ["sfx:chant", "sfx:crowd-voices", "sfx:whispers"]
+     - **Magic SFX** → ["sfx:magic-whoosh", "sfx:spell-impact", "sfx:portal-open"]
+     - **Locations** → ["loc:tavern", "loc:castle", "loc:dungeon", "loc:forest", "loc:market"]
+     - **Biomes** → ["biome:forest", "biome:mountain", "biome:desert", "biome:cave"]
+     - **Creatures** → ["creature:dragon", "creature:humanoid", "creature:undead", "creature:beast"]
+     - **Magic Elements** → ["element:fire", "element:ice", "element:lightning", "element:earth"]
+     - **Weather** → ["weather:storm", "weather:rain", "weather:snow", "weather:wind"]
+     - **Instruments** → ["timbre:strings-warm", "timbre:low-brass", "timbre:church-choir"]
 
 6) Quality
    - Use rpg_quality for audio quality assessment: "clean", "professional", "lofi", "distorted", etc.
@@ -66,37 +80,55 @@ Output Format
 - Each object must contain all required fields
 - Never alter file_path values - keep them exactly as provided in input
 
-Example Input:
+Example Input (diverse audio types):
 [
-  "I:\\Musica\\FX\\Blastwave FX - Bullets Casings and Impacts\\BulletImpactBody_BW.54388.wav",
-  "I:\\Musica\\FX\\Blastwave FX - Bullets Casings and Impacts\\BulletImpactDirt_BW.54405.wav",
-  "I:\\Musica\\FX\\Blastwave FX - Bullets Casings and Impacts\\BulletImpactFlesh_BW.54425.wav"
+  "C:\\Audio\\Music\\Orchestral\\Epic Battle Theme.mp3",
+  "C:\\Audio\\SFX\\Tavern\\TavernChatter_Crowd.wav", 
+  "C:\\Audio\\Ambient\\Forest\\Forest_Night_Ambience.wav",
+  "C:\\Audio\\Magic\\Fire\\Fireball_Cast.wav",
+  "C:\\Audio\\Combat\\Swords\\SwordClash_Metal.wav"
 ]
 
 Example Output:
 [
   {
-    "file_path": "I:\\Musica\\FX\\Blastwave FX - Bullets Casings and Impacts\\BulletImpactBody_BW.54388.wav",
-    "genre": "sound-design:impacts",
-    "mood": "aggressive; violent; intense",
-    "rpg_occasion": ["combat-encounter", "gunfight", "action-sequence"],
-    "rpg_keywords": ["sfx:impact", "sfx:flesh-impact", "weapon:firearm", "creature:humanoid"],
+    "file_path": "C:\\Audio\\Music\\Orchestral\\Epic Battle Theme.mp3",
+    "genre": "orchestral:cinematic",
+    "mood": "heroic; triumphant; driving",
+    "rpg_occasion": ["boss-intro", "combat-encounter", "victory-fanfare"],
+    "rpg_keywords": ["timbre:low-brass", "timbre:strings-warm", "loc:battlefield"],
     "rpg_quality": "clean"
   },
   {
-    "file_path": "I:\\Musica\\FX\\Blastwave FX - Bullets Casings and Impacts\\BulletImpactDirt_BW.54405.wav",
-    "genre": "sound-design:impacts",
-    "mood": "aggressive; percussive",
-    "rpg_occasion": ["combat-encounter", "gunfight"],
-    "rpg_keywords": ["sfx:impact", "sfx:dirt-impact", "weapon:firearm", "biome:earth"],
+    "file_path": "C:\\Audio\\SFX\\Tavern\\TavernChatter_Crowd.wav",
+    "genre": "sound-design:voice",
+    "mood": "festive; warm; lighthearted",
+    "rpg_occasion": ["tavern", "crowd-celebration", "entertainment"],
+    "rpg_keywords": ["sfx:crowd-voices", "loc:tavern", "npc:merchant"],
     "rpg_quality": "clean"
   },
   {
-    "file_path": "I:\\Musica\\FX\\Blastwave FX - Bullets Casings and Impacts\\BulletImpactFlesh_BW.54425.wav",
-    "genre": "sound-design:impacts",
-    "mood": "aggressive; violent; visceral",
-    "rpg_occasion": ["combat-encounter", "gunfight", "injury"],
-    "rpg_keywords": ["sfx:impact", "sfx:flesh-impact", "weapon:firearm", "creature:humanoid", "sfx:gore"],
+    "file_path": "C:\\Audio\\Ambient\\Forest\\Forest_Night_Ambience.wav",
+    "genre": "ambient:nature-ambient",
+    "mood": "mysterious; serene; ethereal",
+    "rpg_occasion": ["wilderness-exploration", "night-watch", "campfire"],
+    "rpg_keywords": ["biome:forest", "sfx:wind", "weather:clear", "creature:beast"],
+    "rpg_quality": "clean"
+  },
+  {
+    "file_path": "C:\\Audio\\Magic\\Fire\\Fireball_Cast.wav",
+    "genre": "sound-design:magic",
+    "mood": "arcane; intense; charged",
+    "rpg_occasion": ["battle-magic", "spellcasting-prep", "combat-encounter"],
+    "rpg_keywords": ["sfx:magic-whoosh", "element:fire", "magic:evocation", "sfx:spell-impact"],
+    "rpg_quality": "clean"
+  },
+  {
+    "file_path": "C:\\Audio\\Combat\\Swords\\SwordClash_Metal.wav",
+    "genre": "sound-design:weapons",
+    "mood": "aggressive; intense; percussive",
+    "rpg_occasion": ["combat-skirmish", "combat-duel", "boss-loop"],
+    "rpg_keywords": ["sfx:sword-clash", "sfx:metal-impact", "weapon:melee", "creature:humanoid"],
     "rpg_quality": "clean"
   }
 ]

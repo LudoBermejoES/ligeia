@@ -16,6 +16,7 @@ import { TagSearchController } from './ui/TagSearchController.js';
 import logger from './utils/logger.js';
 import { ImportExportManager } from './managers/ImportExportManager.js';
 import { StoreTagsManager } from './managers/StoreTagsManager.js';
+import { RemoveTagsManager } from './managers/RemoveTagsManager.js';
 import { AtmosphereManager } from './managers/AtmosphereManager.js';
 import { AtmosphereUIController } from './ui/AtmosphereUIController.js';
 import { AtmosphereMembershipEditor } from './ui/AtmosphereMembershipEditor.js';
@@ -48,6 +49,7 @@ export class AmbientMixerApp {
     this.soundPads = this.libraryManager.getSoundPads();
     this.importExportManager = new ImportExportManager(this.uiController, this.libraryManager);
     this.storeTagsManager = new StoreTagsManager(this.uiController);
+    this.removeTagsManager = new RemoveTagsManager(this.uiController);
     // Atmospheres (manager + UI)
     this.atmosphereUI = new AtmosphereUIController();
     this.atmosphereManager = new AtmosphereManager(this.libraryManager, this.uiController);
@@ -71,6 +73,7 @@ export class AmbientMixerApp {
             exportData: () => this.importExportManager.exportData(),
             importData: () => this.importExportManager.importData(),
             storeTagsInFiles: () => this.storeTagsManager.storeAllTagsInFiles(),
+            removeTagsFromFiles: () => this.removeTagsManager.removeAllTagsFromFiles(),
             calculateDurations: () => this.handleCalculateDurations(),
             autoOrganizeSounds: () => this.autoOrganizeManager.confirmAndAutoOrganize(0.7),
             autoTagWithAI: () => this.autoTagManager.startAutoTagging(),
