@@ -10,6 +10,8 @@ use std::sync::Arc;
 use tokio::sync::Semaphore;
 use futures::stream::{self, StreamExt};
 use log::{info, warn, error, debug};
+use std::collections::HashSet;
+use regex::Regex;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AudioFile {
@@ -51,6 +53,11 @@ pub struct TaggingProgress {
     pub status: String,
 }
 
+struct ValidationResult {
+    is_valid: bool,
+    errors: Vec<String>,
+}
+
 pub struct GeminiTagger {
     client: Gemini,
     session: Session,
@@ -58,6 +65,10 @@ pub struct GeminiTagger {
     max_parallel: usize,
     autotag_prompt: String,
     tags_vocabulary: String,
+    valid_genres: HashSet<String>,
+    valid_moods: HashSet<String>,
+    valid_occasions: HashSet<String>,
+    valid_keywords: HashSet<String>,
 }
 
 impl GeminiTagger {
@@ -73,7 +84,11 @@ impl GeminiTagger {
         
         // Load prompts from embedded resources
         let autotag_prompt = include_str!("../resources/AUTOTAG.md").to_string();
-        let tags_vocabulary = include_str!("../../TAGS.md").to_string();
+        let tags_vocabulary = include_str!("../resources/TAGS.md").to_string();
+        
+        // Parse valid tags from TAGS.md
+        let (valid_genres, valid_moods, valid_occasions, valid_keywords) = 
+            Self::parse_valid_tags(&tags_vocabulary)?;
         
         Ok(Self {
             client,
@@ -82,6 +97,10 @@ impl GeminiTagger {
             max_parallel: 3,
             autotag_prompt,
             tags_vocabulary,
+            valid_genres,
+            valid_moods,
+            valid_occasions,
+            valid_keywords,
         })
     }
     
@@ -156,6 +175,10 @@ impl GeminiTagger {
             max_parallel: self.max_parallel,
             autotag_prompt: self.autotag_prompt.clone(),
             tags_vocabulary: self.tags_vocabulary.clone(),
+            valid_genres: self.valid_genres.clone(),
+            valid_moods: self.valid_moods.clone(),
+            valid_occasions: self.valid_occasions.clone(),
+            valid_keywords: self.valid_keywords.clone(),
         }
     }
     
@@ -198,23 +221,45 @@ impl GeminiTagger {
         // Parse response
         let gemini_responses = self.parse_response(response)?;
         
-        // Match responses back to original files and create TaggedFile objects
-        let mut tagged_files = Vec::new();
-        for audio_file in batch {
-            if let Some(gemini_response) = gemini_responses.iter()
-                .find(|r| r.file_path == audio_file.file_path) {
-                tagged_files.push(TaggedFile {
-                    id: audio_file.id,
-                    file_path: audio_file.file_path,
-                    genre: gemini_response.genre.clone(),
-                    mood: gemini_response.mood.clone(),
-                    rpg_occasion: gemini_response.rpg_occasion.clone(),
-                    rpg_keywords: gemini_response.rpg_keywords.clone(),
-                });
+        // Validate tags and collect files with invalid tags
+        let mut valid_files = Vec::new();
+        let mut invalid_files = Vec::new();
+        
+        for gemini_response in gemini_responses {
+            let validation_result = self.validate_tags_detailed(&gemini_response);
+            if validation_result.is_valid {
+                // Find the matching audio file
+                if let Some(audio_file) = batch.iter()
+                    .find(|f| f.file_path == gemini_response.file_path) {
+                    valid_files.push(TaggedFile {
+                        id: audio_file.id,
+                        file_path: audio_file.file_path.clone(),
+                        genre: gemini_response.genre,
+                        mood: gemini_response.mood,
+                        rpg_occasion: gemini_response.rpg_occasion,
+                        rpg_keywords: gemini_response.rpg_keywords,
+                    });
+                }
+            } else {
+                warn!("Invalid tags found for {}: {}", 
+                    gemini_response.file_path, 
+                    validation_result.errors.join(", "));
+                // Find the matching audio file for retry
+                if let Some(audio_file) = batch.iter()
+                    .find(|f| f.file_path == gemini_response.file_path) {
+                    invalid_files.push(audio_file.clone());
+                }
             }
         }
         
-        Ok(tagged_files)
+        // If there are invalid files, retry them with a stricter prompt
+        if !invalid_files.is_empty() {
+            info!("Retrying {} files with invalid tags", invalid_files.len());
+            let retry_results = self.retry_with_strict_validation(invalid_files, batch_idx).await?;
+            valid_files.extend(retry_results);
+        }
+        
+        Ok(valid_files)
     }
     
     fn create_prompt(&self, file_paths: Vec<String>) -> String {
@@ -333,6 +378,173 @@ Example format:
             return Err(anyhow!("Mood is empty for file: {}", response.file_path));
         }
         Ok(())
+    }
+    
+    fn parse_valid_tags(tags_content: &str) -> Result<(HashSet<String>, HashSet<String>, HashSet<String>, HashSet<String>)> {
+        let mut valid_genres = HashSet::new();
+        let mut valid_moods = HashSet::new();
+        let mut valid_occasions = HashSet::new();
+        let mut valid_keywords = HashSet::new();
+        
+        // Parse genres (hierarchical tags like `orchestral:cinematic`)
+        let genre_regex = Regex::new(r"`([^`]+)`").unwrap();
+        let mut in_genre_section = false;
+        let mut in_mood_section = false;
+        let mut in_occasion_section = false;
+        let mut in_keyword_section = false;
+        
+        for line in tags_content.lines() {
+            // Section detection
+            if line.starts_with("## 2) GENRE") || line.starts_with("### Orchestral") {
+                in_genre_section = true;
+                in_mood_section = false;
+                in_occasion_section = false;
+                in_keyword_section = false;
+            } else if line.starts_with("## 3) MOOD") {
+                in_genre_section = false;
+                in_mood_section = true;
+                in_occasion_section = false;
+                in_keyword_section = false;
+            } else if line.starts_with("## 4) OCCASION") {
+                in_genre_section = false;
+                in_mood_section = false;
+                in_occasion_section = true;
+                in_keyword_section = false;
+            } else if line.starts_with("## 5) KEYWORDS") {
+                in_genre_section = false;
+                in_mood_section = false;
+                in_occasion_section = false;
+                in_keyword_section = true;
+            } else if line.starts_with("## 6)") {
+                // End of tags sections
+                break;
+            }
+            
+            // Extract tags from backticks
+            for cap in genre_regex.captures_iter(line) {
+                let tag = cap[1].to_string();
+                
+                if in_genre_section {
+                    valid_genres.insert(tag);
+                } else if in_mood_section {
+                    // For mood section, tags are in a different format (comma-separated)
+                    if line.starts_with("`") {
+                        for mood_tag in line.split(", ") {
+                            let cleaned = mood_tag.trim_matches('`').trim();
+                            if !cleaned.is_empty() {
+                                valid_moods.insert(cleaned.to_string());
+                            }
+                        }
+                    }
+                } else if in_occasion_section {
+                    valid_occasions.insert(tag);
+                } else if in_keyword_section {
+                    valid_keywords.insert(tag);
+                }
+            }
+        }
+        
+        info!("Parsed {} genres, {} moods, {} occasions, {} keywords", 
+            valid_genres.len(), valid_moods.len(), valid_occasions.len(), valid_keywords.len());
+        
+        Ok((valid_genres, valid_moods, valid_occasions, valid_keywords))
+    }
+    
+    fn validate_tags_detailed(&self, response: &GeminiTagResponse) -> ValidationResult {
+        let mut errors = Vec::new();
+        
+        // Validate genre
+        if !response.genre.is_empty() && !self.valid_genres.contains(&response.genre) {
+            errors.push(format!("Invalid genre: {}", response.genre));
+        }
+        
+        // Validate moods (semicolon-separated)
+        for mood in response.mood.split(';') {
+            let mood = mood.trim();
+            if !mood.is_empty() && !self.valid_moods.contains(mood) {
+                errors.push(format!("Invalid mood: {}", mood));
+            }
+        }
+        
+        // Validate occasions
+        for occasion in &response.rpg_occasion {
+            if !self.valid_occasions.contains(occasion) {
+                errors.push(format!("Invalid occasion: {}", occasion));
+            }
+        }
+        
+        // Validate keywords
+        for keyword in &response.rpg_keywords {
+            if !self.valid_keywords.contains(keyword) {
+                errors.push(format!("Invalid keyword: {}", keyword));
+            }
+        }
+        
+        ValidationResult {
+            is_valid: errors.is_empty(),
+            errors,
+        }
+    }
+    
+    async fn retry_with_strict_validation(&self, invalid_files: Vec<AudioFile>, batch_idx: usize) -> Result<Vec<TaggedFile>> {
+        let file_paths: Vec<String> = invalid_files.iter().map(|f| f.file_path.clone()).collect();
+        
+        // Create a stricter prompt emphasizing valid tags only
+        let prompt = format!(r#"{}
+
+TAGS.md Content:
+{}
+
+File Paths to Process:
+{}
+
+IMPORTANT: The previous attempt had invalid tags. Please analyze these file paths again and return ONLY tags that exist in the TAGS.md vocabulary provided above.
+
+CRITICAL RULES:
+1. For genre: use ONLY the exact genre tags shown in the GENRE section (e.g., 'orchestral:cinematic', 'ambient:dark-ambient')
+2. For mood: use ONLY the exact mood words from the MOOD section (e.g., 'mysterious', 'heroic', 'tense')
+3. For rpg_occasion: use ONLY the exact occasion tags from the OCCASION section (e.g., 'combat-encounter', 'dungeon-crawl')
+4. For rpg_keywords: use ONLY the exact keyword tags from the KEYWORDS section (e.g., 'biome:forest', 'creature:dragon')
+
+DO NOT invent or modify any tags. Use ONLY what is in TAGS.md.
+
+Return ONLY a valid JSON array starting with [ and ending with ].
+"#,
+            self.autotag_prompt,
+            self.tags_vocabulary,
+            serde_json::to_string_pretty(&file_paths).unwrap_or_else(|_| "[]".to_string())
+        );
+        
+        // Call Gemini API with stricter prompt
+        let response = self.call_gemini(prompt).await?;
+        
+        // Parse response
+        let gemini_responses = self.parse_response(response)?;
+        
+        // Validate again and only accept valid ones
+        let mut tagged_files = Vec::new();
+        for gemini_response in gemini_responses {
+            let validation_result = self.validate_tags_detailed(&gemini_response);
+            if validation_result.is_valid {
+                if let Some(audio_file) = invalid_files.iter()
+                    .find(|f| f.file_path == gemini_response.file_path) {
+                    tagged_files.push(TaggedFile {
+                        id: audio_file.id,
+                        file_path: audio_file.file_path.clone(),
+                        genre: gemini_response.genre,
+                        mood: gemini_response.mood,
+                        rpg_occasion: gemini_response.rpg_occasion,
+                        rpg_keywords: gemini_response.rpg_keywords,
+                    });
+                }
+            } else {
+                error!("Still invalid tags after retry for {}: {}", 
+                    gemini_response.file_path, 
+                    validation_result.errors.join(", "));
+            }
+        }
+        
+        Ok(tagged_files)
     }
     
     #[cfg(debug_assertions)]
