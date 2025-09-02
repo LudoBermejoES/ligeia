@@ -11,6 +11,7 @@ use gemini_handler::{check_gemini_api_key, get_untagged_files, auto_tag_files, g
 
 mod models;
 mod database;
+mod data;
 mod audio_handler;
 mod tag_manager;
 mod file_scanner;

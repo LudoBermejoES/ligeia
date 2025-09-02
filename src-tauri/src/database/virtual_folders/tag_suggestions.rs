@@ -7,43 +7,7 @@ pub struct VirtualFolderTagSuggestions;
 impl VirtualFolderTagSuggestions {
     /// Get folder suggestions for a file based on its RPG tags using enhanced mapping system
     pub fn suggest_folders_for_file(conn: &Connection, audio_file_id: i64, limit: Option<usize>) -> Result<Vec<(VirtualFolder, f64)>> {
-        // Load folder mappings from individual category files
-        let mut folder_tag_mappings = Vec::new();
-        
-        // Include all individual category mapping files
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_combat.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_environments.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_creatures.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_magic.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_social.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_horror.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_superhero.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_moods.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_sfx.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_activities.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_cultural.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_fantasy.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_session.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_scifi.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_instruments.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_mental_states.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_audio_structure.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_organizations.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_temporal_events.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_vehicles.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_ui.rs"));
-        folder_tag_mappings.extend_from_slice(&include!("../../data/tag_mappings/folder_tag_domestic.rs"));
-        
-        // Define tag weights for scoring algorithm
-        let tag_weights = &[
-            ("occasion", 10u8),
-            ("keyword:loc", 9),
-            ("keyword:creature", 8),
-            ("keyword:sfx", 8),
-            ("mood", 7),
-            ("genre", 6),
-            ("keyword", 5),
-        ];
+        use crate::data::tag_mappings;
         
         let limit = limit.unwrap_or(5);
         
@@ -54,21 +18,51 @@ impl VirtualFolderTagSuggestions {
             return Ok(Vec::new());
         }
         
-        let mut folder_suggestions: std::collections::HashMap<String, f64> = std::collections::HashMap::new();
+        // Parse tags into categories
+        let mut genre_tag: Option<String> = None;
+        let mut mood_tags: Vec<String> = Vec::new();
+        let mut occasion_tags: Vec<String> = Vec::new();
+        let mut keyword_tags: Vec<String> = Vec::new();
         
-        // Process tag mappings
-        for (tag_pattern, folder_path, weight, _description) in folder_tag_mappings {
-            for file_tag in &file_tags {
-                if Self::tag_matches(file_tag, tag_pattern) {
-                    // Calculate confidence based on tag type and weight
-                    let tag_type_weight = Self::get_tag_type_weight(file_tag, tag_weights);
-                    let confidence = (weight as f64 * tag_type_weight as f64) / 100.0;
-                    
-                    folder_suggestions.entry(folder_path.to_string())
-                        .and_modify(|score| *score = (*score + confidence).min(1.0))
-                        .or_insert(confidence);
+        for tag in &file_tags {
+            if let Some(colon_pos) = tag.find(':') {
+                let tag_type = &tag[..colon_pos];
+                let tag_value = &tag[colon_pos + 1..];
+                
+                match tag_type {
+                    "genre" => {
+                        if genre_tag.is_none() {
+                            genre_tag = Some(tag_value.to_string());
+                        }
+                    },
+                    "mood" => mood_tags.push(tag_value.to_string()),
+                    "occasion" => occasion_tags.push(tag_value.to_string()),
+                    "keywords" => keyword_tags.push(tag_value.to_string()),
+                    _ => {}
                 }
             }
+        }
+        
+        // Get folder mappings using the new system
+        let genre_ref = genre_tag.as_deref();
+        let mood_refs: Vec<&str> = mood_tags.iter().map(|s| s.as_str()).collect();
+        let occasion_refs: Vec<&str> = occasion_tags.iter().map(|s| s.as_str()).collect();
+        let keyword_refs: Vec<&str> = keyword_tags.iter().map(|s| s.as_str()).collect();
+        
+        let detailed_mappings = tag_mappings::get_detailed_folders_for_tags(
+            genre_ref,
+            &mood_refs,
+            &occasion_refs,
+            &keyword_refs
+        );
+        
+        let mut folder_suggestions: std::collections::HashMap<String, f64> = std::collections::HashMap::new();
+        
+        // Process folder assignments with confidence scores
+        for assignment in detailed_mappings.folder_assignments {
+            folder_suggestions.entry(assignment.folder_path)
+                .and_modify(|score| *score = (*score + assignment.confidence as f64).min(1.0))
+                .or_insert(assignment.confidence as f64);
         }
         
         // Convert folder paths to actual folder objects and scores
