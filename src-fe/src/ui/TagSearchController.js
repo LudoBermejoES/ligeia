@@ -118,7 +118,7 @@ export class TagSearchController {
     }
 
     /**
-     * Handle tag chip click to open group popup
+     * Handle tag chip click - immediate filter for single values, popup for multi-values
      */
     async handleTagChipClick(chipElement) {
         const tagType = chipElement.dataset.tagType;
@@ -129,10 +129,29 @@ export class TagSearchController {
         if (values.length === 0) return;
 
         try {
-            // Close any existing popup
+            // Close any existing popup first
             this.uiRenderer.closeTagGroupPopup();
 
-            // Create and show new popup
+            // For single-value tags, apply filter immediately
+            if (values.length === 1) {
+                const tagValue = values[0];
+                const wasActive = this.filterManager.isFilterActive(tagType, tagValue);
+                
+                // Toggle the filter
+                this.filterManager.toggleFilter(tagType, tagValue);
+                
+                // Update chip appearance
+                const newActiveCount = wasActive ? 0 : 1;
+                this.uiRenderer.updateGroupChipLabel(chipElement, base, newActiveCount);
+                
+                // Perform search immediately
+                this.performSearch();
+                
+                console.log(`Direct filter applied: ${tagType}:${tagValue} (${wasActive ? 'removed' : 'added'})`);
+                return;
+            }
+
+            // For multi-value tags, show popup as before
             const overlay = await this.uiRenderer.renderTagGroupPopup(tagType, base, values, this.filterManager);
             document.body.appendChild(overlay);
 
@@ -147,7 +166,7 @@ export class TagSearchController {
             });
 
         } catch (error) {
-            console.error('Failed to render tag group popup:', error);
+            console.error('Failed to handle tag chip click:', error);
         }
     }
 
