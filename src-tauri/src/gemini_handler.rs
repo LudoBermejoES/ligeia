@@ -7,7 +7,10 @@ use log::{error, info};
 use rusqlite::params;
 use serde_json::json;
 use std::env;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use tauri::{AppHandle, Emitter, Manager};
+use tokio::sync::Semaphore;
 
 // Check if Gemini API key exists in .env
 #[tauri::command]
@@ -162,72 +165,133 @@ async fn process_files_async(
     
     info!("Created {} batches for incremental processing", batches.len());
     
-    // Process each batch individually and save immediately
+    // Process batches with controlled concurrency (3 simultaneous)
+    let max_concurrent_batches = 3;
+    let semaphore = Arc::new(Semaphore::new(max_concurrent_batches));
+    let processed_counter = Arc::new(AtomicUsize::new(0));
+    let failed_counter = Arc::new(AtomicUsize::new(0));
+    let tagger_arc = Arc::new(tagger);
+    
+    info!("Processing {} batches with maximum {} concurrent batches", batches.len(), max_concurrent_batches);
+    
+    // Create tasks for concurrent batch processing
+    let mut batch_tasks = Vec::new();
+    
     for (batch_idx, batch) in batches.into_iter().enumerate() {
-        info!("=== PROCESSING BATCH {} OF {} ===", batch_idx + 1, total_batches);
+        let semaphore_clone = semaphore.clone();
+        let tagger_clone = tagger_arc.clone();
+        let cached_mappings_clone = cached_mappings.clone();
+        let app_handle_clone = app_handle.clone();
+        let processed_counter_clone = processed_counter.clone();
+        let failed_counter_clone = failed_counter.clone();
         
-        // Update progress
-        let _ = app_handle.emit("tagging-progress", TaggingProgress {
-            total_files,
-            processed_files: processed_count,
-            failed_files: failed_count,
-            current_batch: batch_idx + 1,
-            total_batches,
-            status: format!("Processing batch {} of {}", batch_idx + 1, total_batches),
-        });
-        
-        // Process this batch with Gemini API
-        let batch_len = batch.len(); // Get length before move
-        match tagger.process_single_batch_with_cache(batch, batch_idx, &cached_mappings).await {
-            Ok((tagged_files, new_mappings)) => {
-                info!("Batch {} processed successfully with {} tagged files", batch_idx, tagged_files.len());
-                
-                // Save tagged files to database immediately
-                match save_tagged_batch(&state, &tagged_files).await {
-                    Ok(saved_count) => {
-                        processed_count += saved_count;
-                        info!("Saved batch {} with {} files to database", batch_idx, saved_count);
-                    }
-                    Err(e) => {
-                        error!("Failed to save batch {} to database: {}", batch_idx, e);
-                        failed_count += tagged_files.len();
-                    }
-                }
-                
-                // Store any new mappings from this batch using connection pool
-                if !new_mappings.genre_mappings.is_empty() || !new_mappings.mood_mappings.is_empty() ||
-                   !new_mappings.occasion_mappings.is_empty() || !new_mappings.keyword_mappings.is_empty() {
+        let task = tokio::spawn(async move {
+            // Acquire semaphore permit (limits concurrent execution to 3)
+            let _permit = semaphore_clone.acquire().await.unwrap();
+            
+            info!("=== PROCESSING BATCH {} OF {} (CONCURRENT) ===", batch_idx + 1, total_batches);
+            
+            let batch_len = batch.len();
+            let mut batch_processed = 0;
+            let mut batch_failed = 0;
+            
+            // Process this batch with Gemini API
+            match tagger_clone.process_single_batch_with_cache(batch, batch_idx, &cached_mappings_clone).await {
+                Ok((tagged_files, new_mappings)) => {
+                    info!("Batch {} processed successfully with {} tagged files", batch_idx + 1, tagged_files.len());
                     
-                    match state.db_pool.get_connection() {
-                        Ok(conn) => {
-                            if let Err(e) = TagMappingCache::store_mappings(
-                                &conn,
-                                &new_mappings.genre_mappings,
-                                &new_mappings.mood_mappings,
-                                &new_mappings.occasion_mappings,
-                                &new_mappings.keyword_mappings,
-                            ) {
-                                error!("Failed to store new mappings from batch {}: {}", batch_idx, e);
-                            } else {
-                                let stored_count = new_mappings.genre_mappings.len() + 
-                                                 new_mappings.mood_mappings.len() + 
-                                                 new_mappings.occasion_mappings.len() + 
-                                                 new_mappings.keyword_mappings.len();
-                                info!("Stored {} new mappings from batch {} using pooled connection", stored_count, batch_idx);
-                            }
+                    // Save tagged files to database immediately using connection pool  
+                    let app_state_ref = app_handle_clone.state::<crate::AppState>();
+                    match save_tagged_batch(&app_state_ref, &tagged_files).await {
+                        Ok(saved_count) => {
+                            batch_processed = saved_count;
+                            info!("Saved batch {} with {} files to database", batch_idx + 1, saved_count);
                         }
                         Err(e) => {
-                            error!("Failed to get connection for storing mappings from batch {}: {}", batch_idx, e);
+                            error!("Failed to save batch {} to database: {}", batch_idx + 1, e);
+                            batch_failed = tagged_files.len();
+                        }
+                    }
+                    
+                    // Store any new mappings from this batch using connection pool
+                    if !new_mappings.genre_mappings.is_empty() || !new_mappings.mood_mappings.is_empty() ||
+                       !new_mappings.occasion_mappings.is_empty() || !new_mappings.keyword_mappings.is_empty() {
+                        
+                        match app_state_ref.db_pool.get_connection() {
+                            Ok(conn) => {
+                                if let Err(e) = TagMappingCache::store_mappings(
+                                    &conn,
+                                    &new_mappings.genre_mappings,
+                                    &new_mappings.mood_mappings,
+                                    &new_mappings.occasion_mappings,
+                                    &new_mappings.keyword_mappings,
+                                ) {
+                                    error!("Failed to store new mappings from batch {}: {}", batch_idx + 1, e);
+                                } else {
+                                    let stored_count = new_mappings.genre_mappings.len() + 
+                                                     new_mappings.mood_mappings.len() + 
+                                                     new_mappings.occasion_mappings.len() + 
+                                                     new_mappings.keyword_mappings.len();
+                                    info!("Stored {} new mappings from batch {} using pooled connection", stored_count, batch_idx + 1);
+                                }
+                            }
+                            Err(e) => {
+                                error!("Failed to get connection for storing mappings from batch {}: {}", batch_idx + 1, e);
+                            }
                         }
                     }
                 }
+                Err(e) => {
+                    error!("Failed to process batch {}: {}", batch_idx + 1, e);
+                    batch_failed = batch_len;
+                }
+            }
+            
+            // Update atomic counters
+            processed_counter_clone.fetch_add(batch_processed, Ordering::Relaxed);
+            failed_counter_clone.fetch_add(batch_failed, Ordering::Relaxed);
+            
+            // Emit progress update
+            let current_processed = processed_counter_clone.load(Ordering::Relaxed);
+            let current_failed = failed_counter_clone.load(Ordering::Relaxed);
+            
+            let _ = app_handle_clone.emit("tagging-progress", TaggingProgress {
+                total_files,
+                processed_files: current_processed,
+                failed_files: current_failed,
+                current_batch: batch_idx + 1,
+                total_batches,
+                status: format!("Batch {} completed (concurrent processing)", batch_idx + 1),
+            });
+            
+            (batch_processed, batch_failed)
+        });
+        
+        batch_tasks.push(task);
+    }
+    
+    // Wait for all batch tasks to complete
+    info!("Waiting for all {} concurrent batch tasks to complete...", batch_tasks.len());
+    
+    use futures::future::join_all;
+    let results = join_all(batch_tasks).await;
+    
+    // Collect final results and update counters
+    for (i, result) in results.into_iter().enumerate() {
+        match result {
+            Ok((batch_processed, batch_failed)) => {
+                info!("Batch {} completed: {} processed, {} failed", i + 1, batch_processed, batch_failed);
             }
             Err(e) => {
-                error!("Failed to process batch {}: {}", batch_idx, e);
-                failed_count += batch_len; // Use pre-computed length
+                error!("Batch {} task panicked: {}", i + 1, e);
+                failed_count += batch_size;
             }
         }
     }
+    
+    // Get final counts from atomic counters
+    processed_count = processed_counter.load(Ordering::Relaxed);
+    failed_count = failed_counter.load(Ordering::Relaxed);
     
     // Final progress update
     let _ = app_handle.emit("tagging-progress", TaggingProgress {
@@ -306,6 +370,7 @@ async fn save_tagged_batch(
     
     Ok(saved_count)
 }
+
 
 // Get tagging history for a file
 #[tauri::command]
