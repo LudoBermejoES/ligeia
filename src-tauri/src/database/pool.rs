@@ -120,11 +120,11 @@ impl std::fmt::Display for PoolStats {
 
 // Extension trait to add transaction support to pooled connections
 pub trait PooledConnectionExt {
-    fn begin_transaction(&mut self) -> Result<rusqlite::Transaction>;
+    fn begin_transaction(&mut self) -> Result<rusqlite::Transaction<'_>>;
 }
 
 impl PooledConnectionExt for DbPooledConnection {
-    fn begin_transaction(&mut self) -> Result<rusqlite::Transaction> {
+    fn begin_transaction(&mut self) -> Result<rusqlite::Transaction<'_>> {
         (**self).transaction()
             .map_err(|e| anyhow!("Failed to begin transaction: {}", e))
     }

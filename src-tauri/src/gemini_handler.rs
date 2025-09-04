@@ -143,7 +143,6 @@ async fn process_files_async(
     let state = app_handle.state::<crate::AppState>();
     let total_files = files.len();
     let total_batches = (total_files + batch_size - 1) / batch_size;
-    let mut processed_count = 0;
     let mut failed_count = 0;
     
     // Load cached mappings using connection pool
@@ -290,7 +289,7 @@ async fn process_files_async(
     }
     
     // Get final counts from atomic counters
-    processed_count = processed_counter.load(Ordering::Relaxed);
+    let processed_count = processed_counter.load(Ordering::Relaxed);
     failed_count = failed_counter.load(Ordering::Relaxed);
     
     // Final progress update
