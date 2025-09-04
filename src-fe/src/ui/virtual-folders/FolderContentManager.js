@@ -63,6 +63,7 @@ export class FolderContentManager {
     async renderFolderContents(subfolders, files) {
         const dropZone = this.elements.filesArea.querySelector('.vf-drop-zone');
         const isListView = this.elements.filesArea?.classList.contains('vf-list-view');
+        const isColumnsView = this.elements.filesArea?.classList.contains('vf-columns-view');
         
         // Ensure we have valid arrays
         const validSubfolders = Array.isArray(subfolders) ? subfolders : [];
@@ -78,7 +79,9 @@ export class FolderContentManager {
             return;
         }
         
-        if (isListView) {
+        if (isColumnsView) {
+            await this.renderColumnsView(validSubfolders, validFiles, dropZone);
+        } else if (isListView) {
             await this.renderListView(validSubfolders, validFiles, dropZone);
         } else {
             await this.renderGridView(validSubfolders, validFiles, dropZone);
@@ -122,6 +125,22 @@ export class FolderContentManager {
         
         const html = await TemplateLoader.loadAndRender('layouts/list-content.html', templateData);
         dropZone.innerHTML = html;
+        
+        // Add files to pad event handler context
+        this.addFilesToPadContext(files);
+    }
+
+    /**
+     * Render contents in columns view (similar to mixer columns view)
+     */
+    async renderColumnsView(subfolders, files, dropZone) {
+        // Group files by parent directory path for columns
+        const allItems = [...subfolders, ...files];
+        const groups = this.groupItemsByType(allItems);
+        
+        // Render all columns with their items
+        const columns = await this.renderAllColumns(groups);
+        dropZone.innerHTML = columns.join('');
         
         // Add files to pad event handler context
         this.addFilesToPadContext(files);
@@ -351,35 +370,50 @@ export class FolderContentManager {
 
         // Render grouped search results
         const isListView = this.elements.filesArea?.classList.contains('vf-list-view');
-        let html = '<div class="vf-search-files-content">';
+        const isColumnsView = this.elements.filesArea?.classList.contains('vf-columns-view');
         
-        for (const [folderId, folderData] of filesByFolder) {
-            html += `
-                <div class="vf-search-folder-group mb-4" data-folder-id="${folderId}">
-                    <div class="vf-search-folder-header p-2 bg-card border border-border rounded-t">
-                        <span class="vf-search-folder-name font-medium text-text">📁 ${this.escapeHtml(folderData.folderName)}</span>
-                        <span class="vf-search-folder-count text-xs text-muted ml-2">${folderData.files.length} file${folderData.files.length !== 1 ? 's' : ''}</span>
-                    </div>
-                    <div class="vf-search-folder-files border-l border-r border-b border-border rounded-b p-2">
-            `;
+        if (isColumnsView) {
+            // For columns view, create columns by folder
+            const columnGroups = new Map();
+            for (const [folderId, folderData] of filesByFolder) {
+                columnGroups.set(folderData.folderName, {
+                    items: folderData.files,
+                    type: 'file'
+                });
+            }
+            const columns = await this.renderAllColumns(columnGroups);
+            dropZone.innerHTML = `<div class="vf-search-columns-content">${columns.join('')}</div>`;
+        } else {
+            let html = '<div class="vf-search-files-content">';
             
-            if (isListView) {
-                for (const file of folderData.files) {
-                    html += await this.renderFileListRow(file);
+            for (const [folderId, folderData] of filesByFolder) {
+                html += `
+                    <div class="vf-search-folder-group mb-4" data-folder-id="${folderId}">
+                        <div class="vf-search-folder-header p-2 bg-card border border-border rounded-t">
+                            <span class="vf-search-folder-name font-medium text-text">📁 ${this.escapeHtml(folderData.folderName)}</span>
+                            <span class="vf-search-folder-count text-xs text-muted ml-2">${folderData.files.length} file${folderData.files.length !== 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="vf-search-folder-files border-l border-r border-b border-border rounded-b p-2">
+                `;
+                
+                if (isListView) {
+                    for (const file of folderData.files) {
+                        html += await this.renderFileListRow(file);
+                    }
+                } else {
+                    html += '<div class="vf-files-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">';
+                    for (const file of folderData.files) {
+                        html += await this.renderFileCard(file);
+                    }
+                    html += '</div>';
                 }
-            } else {
-                html += '<div class="vf-files-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">';
-                for (const file of folderData.files) {
-                    html += await this.renderFileCard(file);
-                }
-                html += '</div>';
+                
+                html += '</div></div>';
             }
             
-            html += '</div></div>';
+            html += '</div>';
+            dropZone.innerHTML = html;
         }
-        
-        html += '</div>';
-        dropZone.innerHTML = html;
         
         // Update file count
         this.updateFileCount(files.length);
@@ -471,6 +505,102 @@ export class FolderContentManager {
         });
 
         console.log('Added', files.length, 'files to virtual-folder pad context');
+    }
+
+    /**
+     * Group items by type for columns view
+     */
+    groupItemsByType(items) {
+        const groups = new Map();
+        
+        // Separate folders and files
+        const folders = items.filter(item => item.folder || item.type === 'folder');
+        const files = items.filter(item => !item.folder && item.type !== 'folder');
+        
+        if (folders.length > 0) {
+            groups.set('Subfolders', { items: folders, type: 'folder' });
+        }
+        if (files.length > 0) {
+            groups.set('Audio Files', { items: files, type: 'file' });
+        }
+        
+        return groups;
+    }
+
+    /**
+     * Render all columns with their items
+     */
+    async renderAllColumns(groups) {
+        const columnPromises = Array.from(groups.entries()).map(async ([groupName, groupData]) => {
+            const sortedItems = this.sortByName(groupData.items);
+            
+            const itemElements = await Promise.all(
+                sortedItems.map(async (item) => {
+                    if (groupData.type === 'folder') {
+                        return await this.renderFolderColumnItem(item);
+                    } else {
+                        return await this.renderFileColumnItem(item);
+                    }
+                })
+            );
+
+            const templateData = {
+                column_title: this.escapeHtml(groupName),
+                item_count: sortedItems.length,
+                items_label: sortedItems.length === 1 ? 'item' : 'items',
+                items_html: itemElements.join('')
+            };
+
+            return await TemplateLoader.loadAndRender('components/virtual-folders/folder-column.html', templateData);
+        });
+
+        return await Promise.all(columnPromises);
+    }
+
+    /**
+     * Render folder item for columns view
+     */
+    async renderFolderColumnItem(folder) {
+        const folderData = folder.folder || folder;
+        const fileCount = folder.total_file_count || folder.file_count || 0;
+
+        const templateData = {
+            id: folderData.id,
+            icon: folderData.icon || '📁',
+            name: this.escapeHtml(folderData.name),
+            subtitle: `${fileCount} files`
+        };
+        
+        return await TemplateLoader.loadAndRender('components/virtual-folders/column-folder-item.html', templateData);
+    }
+
+    /**
+     * Render file item for columns view
+     */
+    async renderFileColumnItem(file) {
+        const playState = this.getFilePlayState(file);
+        
+        const templateData = {
+            id: file.id,
+            name: this.escapeHtml(file.title || file.filename || 'Unknown'),
+            subtitle: file.duration ? this.formatDuration(file.duration) : 'Unknown',
+            playing_class: playState.isPlaying ? 'playing' : '',
+            play_button_color: playState.isPlaying ? '#e11d48' : '#007acc',
+            play_button_icon: playState.isPlaying ? '⏸' : '▶'
+        };
+        
+        return await TemplateLoader.loadAndRender('components/virtual-folders/column-file-item.html', templateData);
+    }
+
+    /**
+     * Sort items by name
+     */
+    sortByName(items) {
+        return items.sort((a, b) => {
+            const nameA = a.name || a.title || a.filename || '';
+            const nameB = b.name || b.title || b.filename || '';
+            return nameA.toLowerCase().localeCompare(nameB.toLowerCase());
+        });
     }
 
     /**

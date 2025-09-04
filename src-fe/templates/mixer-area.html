@@ -2,7 +2,19 @@
   <!-- Mixer Header -->
   <div class="mixer-header bg-card border-b border-border p-4 flex-shrink-0">
     <div class="flex items-center justify-between flex-wrap gap-3">
-      <h3 class="text-lg font-semibold text-text m-0">Soundscape Mixer</h3>
+      <!-- Mixer Tabs -->
+      <div class="mixer-tabs flex items-center gap-1">
+        <button class="mixer-tab-btn active bg-accent/20 border border-accent/30 text-accent px-3 py-2 rounded text-sm font-medium
+                       hover:bg-accent/30 transition-colors duration-200" 
+                data-tab="mixer" title="Mixer">
+          🎵 Mixer
+        </button>
+        <button class="mixer-tab-btn bg-card border border-border text-text px-3 py-2 rounded text-sm font-medium
+                       hover:bg-hover transition-colors duration-200" 
+                data-tab="virtual-folders" title="Virtual Folders">
+          📁 Folders
+        </button>
+      </div>
       
       <!-- Search and Info Row -->
       <div class="flex items-center gap-4 flex-1 justify-end">
@@ -51,11 +63,21 @@
     </div>
   </div>
   
-  <!-- Sound Groups -->
-  <div class="sound-groups flex-1 overflow-y-auto p-4">
-    <!-- All Sounds Section -->
-    <div class="sound-pads-grid grid gap-4 auto-fill-180" id="allSoundsPadsGrid">
-      <!-- All sound pads will be rendered here -->
+  <!-- Content Area -->
+  <div class="mixer-content-area flex-1 overflow-hidden">
+    <!-- Mixer Content (default) -->
+    <div class="mixer-content" id="mixer-content">
+      <div class="sound-groups flex-1 overflow-y-auto p-4">
+        <!-- All Sounds Section -->
+        <div class="sound-pads-grid grid gap-4 auto-fill-180" id="allSoundsPadsGrid">
+          <!-- All sound pads will be rendered here -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- Virtual Folders Content (hidden by default) -->
+    <div class="virtual-folders-content hidden" id="virtual-folders-content">
+      <!-- Virtual folders content will be loaded here dynamically -->
     </div>
   </div>
   

@@ -1,0 +1,31 @@
+<div class="vf-column-item" 
+     data-folder-id="{{id}}" 
+     data-type="folder"
+     style="display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; border-bottom: 1px solid rgb(var(--border)); background: transparent; transition: background-color 0.2s; cursor: pointer;">
+    
+    <!-- Icon for folders -->
+    <div class="folder-icon-container" style="flex-shrink: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+        <span style="font-size: 20px;">{{icon}}</span>
+    </div>
+    
+    <div class="item-info" style="min-width: 0; flex: 1;">
+        <div class="item-name" style="font-weight: 500; color: rgb(var(--text)); font-size: 0.85rem; margin-bottom: 0.125rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{name}}</div>
+        <div class="item-subtitle" style="color: rgb(var(--muted)); font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{subtitle}}</div>
+    </div>
+    
+    <!-- Folder controls -->
+    <div class="item-controls" style="display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0;">
+        <button class="vf-folder-action-btn" 
+                data-action="edit"
+                title="Edit folder"
+                style="background: none; border: none; color: rgb(var(--muted)); cursor: pointer; font-size: 12px; padding: 0.125rem;">
+            ✏️
+        </button>
+        <button class="vf-folder-action-btn" 
+                data-action="delete"
+                title="Delete folder"
+                style="background: none; border: none; color: rgb(var(--muted)); cursor: pointer; font-size: 12px; padding: 0.125rem;">
+            🗑️
+        </button>
+    </div>
+</div>

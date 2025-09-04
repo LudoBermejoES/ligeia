@@ -321,17 +321,46 @@ impl VirtualFolderTagSuggestions {
     
     /// Get all RPG tags for a file in "type:value" format
     fn get_file_tags(conn: &Connection, audio_file_id: i64) -> Result<Vec<String>> {
-        let mut stmt = conn.prepare(
+        let mut all_tags = Vec::new();
+        
+        // 1. Get existing RPG tags from rpg_tags table (current behavior)
+        let mut rpg_stmt = conn.prepare(
             "SELECT tag_type, tag_value FROM rpg_tags WHERE audio_file_id = ?"
         )?;
         
-        let tags: Vec<String> = stmt.query_map([audio_file_id], |row| {
+        let rpg_tags: Vec<String> = rpg_stmt.query_map([audio_file_id], |row| {
             let tag_type: String = row.get(0)?;
             let tag_value: String = row.get(1)?;
             Ok(format!("{}:{}", tag_type, tag_value))
         })?.collect::<Result<Vec<_>, _>>()?;
+        all_tags.extend(rpg_tags);
         
-        Ok(tags)
+        // 2. ALSO get genres from audio_files.genre field
+        let mut genre_stmt = conn.prepare(
+            "SELECT genre FROM audio_files WHERE id = ?"
+        )?;
+        
+        if let Ok(genre_row) = genre_stmt.query_row([audio_file_id], |row| {
+            let genre: Option<String> = row.get(0)?;
+            Ok(genre)
+        }) {
+            if let Some(genre_field) = genre_row {
+                if !genre_field.trim().is_empty() {
+                    // Parse multi-genre field: "ambient:textural; electronic:idm; sci-fi:hard-sci-fi"
+                    let genre_parts: Vec<&str> = genre_field.split(';')
+                        .map(|s| s.trim())
+                        .filter(|s| !s.is_empty())
+                        .collect();
+                        
+                    for genre_part in genre_parts {
+                        // Convert to RPG tag format: "genre:ambient:textural"
+                        all_tags.push(format!("genre:{}", genre_part));
+                    }
+                }
+            }
+        }
+        
+        Ok(all_tags)
     }
     
     /// Get auto-organization suggestions based on tag patterns

@@ -379,20 +379,21 @@ pub async fn auto_organize_sounds(
         // Get best score before moving suggestions
         let best_score = suggestions.first().map(|(_, score)| *score).unwrap_or(0.0);
         
-        // Filter by confidence threshold and apply the best match
+        // Filter by confidence threshold and add to ALL qualifying folders
         for (folder, score) in suggestions {
             if score >= threshold {
                 match db.add_file_to_virtual_folder(folder.id.unwrap(), file_id) {
                     Ok(_) => {
-                        organized_count += 1;
-                        file_organized = true;
+                        if !file_organized {
+                            organized_count += 1;
+                            file_organized = true;
+                        }
                         results.push(AutoOrganizeFileResult {
                             file_id,
                             folder_id: folder.id.unwrap(),
                             folder_name: folder.name.clone(),
                             confidence_score: score,
                         });
-                        break; // Only add to one folder (the best match)
                     },
                     Err(e) => {
                         log::error!("Failed to add file {} to folder {}: {}", file_id, folder.name, e);

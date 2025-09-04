@@ -708,14 +708,24 @@ export class VirtualFoldersPanelManager {
             }
         });
         
-        // Apply view mode to files area
+        // Apply view mode to files area (matching mixer pattern)
         const filesArea = this.elements.filesArea;
         if (filesArea) {
-            // Only use vf-list-view class - absence means grid view
-            if (view === 'list') {
-                filesArea.classList.add('vf-list-view');
-            } else {
-                filesArea.classList.remove('vf-list-view');
+            // Remove all view classes first
+            filesArea.classList.remove('vf-list-view', 'vf-grid-view', 'vf-columns-view');
+            
+            // Apply the specific view class
+            switch (view) {
+                case 'list':
+                    filesArea.classList.add('vf-list-view');
+                    break;
+                case 'columns':
+                    filesArea.classList.add('vf-columns-view');
+                    break;
+                case 'grid':
+                default:
+                    filesArea.classList.add('vf-grid-view');
+                    break;
             }
         }
         

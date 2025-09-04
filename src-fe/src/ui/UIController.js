@@ -120,6 +120,14 @@ export class UIController {
             });
         });
         
+        // Mixer tab buttons
+        document.querySelectorAll('.mixer-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                this.setMixerTab(tab);
+            });
+        });
+        
         // Initialize mouse-based drag and drop system for Tauri webview
         this.initMouseBasedDragDrop();
     }
@@ -144,6 +152,95 @@ export class UIController {
         // Update infinite scroll controller
         if (this.infiniteScrollController) {
             this.infiniteScrollController.setViewMode(view);
+        }
+    }
+
+    /**
+     * Set the mixer tab mode (mixer or virtual-folders)
+     */
+    async setMixerTab(tab) {
+        // Update tab button states
+        document.querySelectorAll('.mixer-tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tab);
+            // Update visual states
+            if (btn.dataset.tab === tab) {
+                btn.classList.remove('bg-card', 'border-border', 'text-text');
+                btn.classList.add('bg-accent/20', 'border-accent/30', 'text-accent');
+            } else {
+                btn.classList.remove('bg-accent/20', 'border-accent/30', 'text-accent');
+                btn.classList.add('bg-card', 'border-border', 'text-text');
+            }
+        });
+        
+        // Show/hide content areas
+        const mixerContent = document.getElementById('mixer-content');
+        const vfContent = document.getElementById('virtual-folders-content');
+        
+        if (tab === 'virtual-folders') {
+            // Hide mixer content, show virtual folders content
+            if (mixerContent) mixerContent.classList.add('hidden');
+            if (vfContent) {
+                vfContent.classList.remove('hidden');
+                await this.loadVirtualFoldersContent();
+            }
+        } else {
+            // Show mixer content, hide virtual folders content
+            if (mixerContent) mixerContent.classList.remove('hidden');
+            if (vfContent) vfContent.classList.add('hidden');
+        }
+    }
+
+    /**
+     * Load virtual folders content into the mixer area
+     */
+    async loadVirtualFoldersContent() {
+        const vfContent = document.getElementById('virtual-folders-content');
+        if (!vfContent) return;
+        
+        // Access the virtual folder manager from the global app
+        const app = window.ambientMixerApp;
+        if (!app || !app.virtualFolderManager) {
+            console.error('Virtual folder manager not available');
+            vfContent.innerHTML = '<div class="p-4 text-center text-muted">Virtual Folders not available</div>';
+            return;
+        }
+        
+        try {
+            // Load the virtual folders panel template content
+            const { TemplateLoader } = await import('./core/TemplateLoader.js');
+            const vfPanelHTML = await TemplateLoader.loadAndRender('layouts/virtual-folders-main-panel.html', {});
+            vfContent.innerHTML = vfPanelHTML;
+            
+            // Initialize virtual folder functionality in this embedded context
+            const { VirtualFoldersPanelManager } = await import('./VirtualFoldersPanelManager.js');
+            const embeddedVFManager = new VirtualFoldersPanelManager(
+                app.virtualFolderManager.service,
+                app.libraryManager,
+                app.uiController
+            );
+            
+            // Override the panel element to use the embedded one
+            embeddedVFManager.panel = vfContent;
+            embeddedVFManager.isVisible = true;
+            
+            // Initialize the embedded virtual folders panel
+            await embeddedVFManager.initializePanel();
+            embeddedVFManager.initializeComponents();
+            embeddedVFManager.setupEventListeners();
+            await embeddedVFManager.loadInitialData();
+            
+            // Store reference for cleanup
+            this.embeddedVFManager = embeddedVFManager;
+            
+        } catch (error) {
+            console.error('Failed to load virtual folders content:', error);
+            vfContent.innerHTML = `
+                <div class="p-4 text-center text-muted">
+                    <div class="text-lg mb-2">⚠️</div>
+                    <div>Failed to load Virtual Folders</div>
+                    <div class="text-sm mt-2">${error.message}</div>
+                </div>
+            `;
         }
     }
 
@@ -477,18 +574,21 @@ export class UIController {
         let dragStartPos = { x: 0, y: 0 };
         let dragThreshold = 5; // pixels
         
-        // Mouse down on sound pads, list rows, or column rows
+        // Mouse down on sound pads, list rows, column rows, or virtual folder files
         document.addEventListener('mousedown', (e) => {
-            // Check for pad, list row, or column row
+            // Check for pad, list row, column row, or virtual folder file elements
             const pad = e.target.closest('.sound-pad');
             const listRow = e.target.closest('.mixer-list-row');
             const columnRow = e.target.closest('.column-row');
-            const draggableElement = pad || listRow || columnRow;
+            const vfFileItem = e.target.closest('.vf-file-item');
+            const vfFileListRow = e.target.closest('.vf-file-list-row');
+            const vfColumnFileItem = e.target.closest('.vf-column-file-item');
+            const draggableElement = pad || listRow || columnRow || vfFileItem || vfFileListRow || vfColumnFileItem;
             
             if (!draggableElement) return;
             
             // Ignore if clicking on buttons or controls
-            if (e.target.matches('button, input[type="range"], .edit-tags-btn, .suggest-folders-btn, .pad-btn')) {
+            if (e.target.matches('button, input[type="range"], .edit-tags-btn, .suggest-folders-btn, .pad-btn, .vf-file-action-btn, .vf-folder-action-btn, .play-pause-btn')) {
                 return;
             }
             

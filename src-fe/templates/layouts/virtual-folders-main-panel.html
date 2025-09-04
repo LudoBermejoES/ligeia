@@ -94,7 +94,8 @@
             <div class="vf-breadcrumb text-sm text-text font-medium">
                 Select a folder
             </div>
-            <div class="vf-content-controls flex gap-1">
+            <!-- View Toggle Buttons (matching mixer pattern) -->
+            <div class="vf-view-controls flex gap-1">
                 <button class="vf-view-btn active bg-accent/20 border border-accent/30 text-accent px-2 py-1.5 rounded text-xs
                                hover:bg-accent/30 transition-colors duration-200" 
                         data-view="grid" title="Grid view">
@@ -104,6 +105,11 @@
                                hover:bg-hover transition-colors duration-200" 
                         data-view="list" title="List view">
                     ☰
+                </button>
+                <button class="vf-view-btn bg-card border border-border text-text px-2 py-1.5 rounded text-xs
+                               hover:bg-hover transition-colors duration-200" 
+                        data-view="columns" title="Column view">
+                    |||
                 </button>
             </div>
         </div>
