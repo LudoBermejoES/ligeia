@@ -464,8 +464,8 @@ fn get_unassigned_folder_contents(
     db: &crate::database::Database, 
     folder: crate::models::VirtualFolder
 ) -> Result<crate::models::VirtualFolderWithContents, rusqlite::Error> {
-    use crate::models::{VirtualFolderWithContents, AudioFile};
-    use rusqlite::params;
+    use crate::models::VirtualFolderWithContents;
+    
     
     // Get all files that are not in any virtual folder (not just tagged ones)
     let conn = db.connection();

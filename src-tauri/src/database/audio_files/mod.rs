@@ -3,8 +3,6 @@ mod metadata;
 mod helpers;
 mod migration;
 
-pub use crud::*;
-pub use metadata::*;
 
 use rusqlite::{Connection, Result};
 

@@ -1,5 +1,5 @@
 use crate::gemini_tagger::{AudioFile, GeminiTagger, TaggedFile, TaggingProgress};
-use crate::database::{TagMappingCache, DatabasePool};
+use crate::database::TagMappingCache;
 use crate::AppState;
 use anyhow::Result;
 use dotenv::dotenv;

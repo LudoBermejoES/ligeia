@@ -19,7 +19,7 @@ pub use search::SearchRepository;
 pub use atmospheres::AtmosphereOps;
 pub use virtual_folders::VirtualFolderOps;
 pub use tag_mapping::TagMappingCache;
-pub use pool::{DatabasePool, DbPooledConnection, PoolStats};
+pub use pool::DatabasePool;
 
 /// Main database struct that coordinates all database operations
 pub struct Database {

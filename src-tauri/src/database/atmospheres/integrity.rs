@@ -1,4 +1,4 @@
-use rusqlite::{Connection, params, Result};
+use rusqlite::{Connection, Result};
 use crate::models::{AtmosphereIntegrity, AtmosphereIntegrityBatchEntry};
 use super::AtmosphereOps;
 

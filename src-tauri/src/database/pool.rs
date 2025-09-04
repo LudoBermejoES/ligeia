@@ -1,9 +1,8 @@
 use anyhow::{anyhow, Result};
 use r2d2::{Pool, PooledConnection};
 use r2d2_sqlite::SqliteConnectionManager;
-use rusqlite::Connection;
 use std::time::Duration;
-use log::{info, warn, error};
+use log::{info, error};
 
 /// Database connection pool for managing SQLite connections
 /// Provides concurrent access to database without blocking

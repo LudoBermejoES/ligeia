@@ -1567,7 +1567,7 @@ Map each invalid tag to the closest valid alternative from the list above:"#,
     #[cfg(debug_assertions)]
     fn save_debug_response(&self, batch_num: usize, response: &str) -> Result<()> {
         use std::fs;
-        use std::path::PathBuf;
+        
         
         // Get the project root (parent of src-tauri)
         let current_exe = std::env::current_exe()?;
