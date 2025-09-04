@@ -321,6 +321,7 @@ export class AmbientMixerApp {
         if (panel && resizer) {
             panel.classList.add('active');
             panel.classList.remove('hidden');
+            panel.style.width = ''; // Reset width style that was set by close button
             resizer.classList.remove('hidden');
             resizer.setAttribute('aria-hidden','false');
             this.initMembershipResize();

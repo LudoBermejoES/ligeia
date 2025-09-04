@@ -456,13 +456,56 @@ export class PadEventHandler {
   }
 
   /**
+   * Handle membership panel action buttons
+   * @param {string} action - The action to handle ('maximize', 'close')
+   */
+  async handleMembershipPanelAction(action) {
+    try {
+      logger.debug('pad-events', `Handling membership panel action: ${action}`);
+      
+      const membershipEditor = window.ambientMixer?.atmoMembershipEditor;
+      if (!membershipEditor) {
+        logger.warn('pad-events', 'Membership editor not found');
+        return;
+      }
+
+      switch (action) {
+        case 'maximize':
+          membershipEditor.toggleMaximize();
+          break;
+        case 'close':
+          // Hide the membership panel
+          const panel = document.getElementById('membership-container');
+          if (panel) {
+            panel.classList.remove('active');
+            panel.style.width = '0px';
+          }
+          break;
+        default:
+          logger.warn('pad-events', `Unknown membership panel action: ${action}`);
+      }
+    } catch (error) {
+      logger.error('pad-events', `Error handling membership panel action ${action}:`, error);
+    }
+  }
+
+  /**
    * Initialize global event delegation for all pad actions
    */
   _initializeEventDelegation() {
-    // Handle click events on pad buttons
+    // Handle click events on pad buttons and membership panel buttons
     document.addEventListener('click', async (event) => {
       const action = event.target.dataset?.action;
       if (!action) return;
+
+      // Check for membership panel actions first
+      const membershipPanelActions = event.target.closest('.membership-panel-actions');
+      if (membershipPanelActions) {
+        event.preventDefault();
+        event.stopPropagation();
+        await this.handleMembershipPanelAction(action);
+        return;
+      }
 
       // Look for both .sound-pad (grid/list view) and .column-row (column view) containers
       const pad = event.target.closest('.sound-pad') || event.target.closest('.column-row');

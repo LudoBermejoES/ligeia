@@ -71,7 +71,7 @@ export class AtmosphereMembershipEditor {
      * Toggle panel maximize state
      */
     toggleMaximize() {
-        const panel = document.getElementById('membershipPanel');
+        const panel = document.getElementById('membership-container');
         if (!panel) return;
 
         if (panel.classList.contains('maximized')) {
@@ -85,8 +85,8 @@ export class AtmosphereMembershipEditor {
      * Maximize the membership panel
      */
     maximizePanel() {
-        const panel = document.getElementById('membershipPanel');
-        const btn = document.getElementById('maximizeMembershipBtn');
+        const panel = document.getElementById('membership-container');
+        const btn = panel?.querySelector('.membership-maximize-btn');
         
         if (panel && btn) {
             panel.classList.add('maximized');
@@ -100,13 +100,13 @@ export class AtmosphereMembershipEditor {
      * Restore panel to normal size
      */
     restorePanel() {
-        const panel = document.getElementById('membershipPanel');
-        const btn = document.getElementById('maximizeMembershipBtn');
+        const panel = document.getElementById('membership-container');
+        const btn = panel?.querySelector('.membership-maximize-btn');
         
         if (panel && btn) {
             panel.classList.remove('maximized');
-            btn.innerHTML = '🗖';
-            btn.title = 'Maximize';
+            btn.innerHTML = '⬌';
+            btn.title = 'Maximize panel';
             logger.debug('membership', 'Panel restored');
         }
     }
