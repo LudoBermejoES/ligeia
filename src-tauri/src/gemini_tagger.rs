@@ -9,7 +9,6 @@ use std::env;
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 use futures::stream::{self, StreamExt};
-use futures::TryStreamExt;
 use log::{info, warn, error, debug};
 use std::collections::{HashSet, HashMap};
 use regex::Regex;
@@ -1280,7 +1279,7 @@ Example output format (but verify all tags exist in vocabulary above):
         Ok((tagged_files, new_mappings))
     }
     
-    async fn map_invalid_tags_and_fix(&self, invalid_responses: Vec<GeminiTagResponse>, invalid_files: Vec<AudioFile>, db_conn: Option<&Connection>) -> Result<Vec<TaggedFile>> {
+    async fn map_invalid_tags_and_fix(&self, invalid_responses: Vec<GeminiTagResponse>, invalid_files: Vec<AudioFile>, _db_conn: Option<&Connection>) -> Result<Vec<TaggedFile>> {
         debug!("=== MAPPING INVALID TAGS (FALLBACK WITHOUT CACHE) ===");
         debug!("Processing {} responses with invalid tags", invalid_responses.len());
         

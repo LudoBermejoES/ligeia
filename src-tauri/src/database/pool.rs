@@ -22,12 +22,12 @@ impl DatabasePool {
             .with_init(|conn| {
                 // Enable foreign key constraints
                 conn.execute("PRAGMA foreign_keys = ON", [])?;
-                // Set WAL mode for better concurrent access
-                conn.execute("PRAGMA journal_mode = WAL", [])?;
+                // Set WAL mode for better concurrent access - use pragma_update for pragmas that return results
+                conn.pragma_update(None, "journal_mode", "WAL")?;
                 // Optimize for concurrent reads
-                conn.execute("PRAGMA synchronous = NORMAL", [])?;
+                conn.pragma_update(None, "synchronous", "NORMAL")?;
                 // Set reasonable timeout
-                conn.execute("PRAGMA busy_timeout = 30000", [])?;
+                conn.pragma_update(None, "busy_timeout", "30000")?;
                 Ok(())
             });
 
