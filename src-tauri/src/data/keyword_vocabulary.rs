@@ -318,6 +318,7 @@
     ("keywords", "sfx:container-open", Some("Container Open"), None::<&str>),
     ("keywords", "sfx:tool-use", Some("Tool Use"), None::<&str>),
     ("keywords", "sfx:machinery", Some("Machinery"), None::<&str>),
+    ("keywords", "sound-design:objects", Some("Sound Design Objects"), None::<&str>),
     ("keywords", "sfx:chant", Some("Chant"), None::<&str>),
     ("keywords", "sfx:chant-latin", Some("Chant Latin"), None::<&str>),
     ("keywords", "sfx:crowd-voices", Some("Crowd Voices"), None::<&str>),
