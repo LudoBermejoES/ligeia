@@ -2,18 +2,11 @@
   <!-- Mixer Header -->
   <div class="mixer-header bg-card border-b border-border p-4 flex-shrink-0">
     <div class="flex items-center justify-between flex-wrap gap-3">
-      <!-- Mixer Tabs -->
-      <div class="mixer-tabs flex items-center gap-1">
-        <button class="mixer-tab-btn active bg-accent/20 border border-accent/30 text-accent px-3 py-2 rounded text-sm font-medium
-                       hover:bg-accent/30 transition-colors duration-200" 
-                data-tab="mixer" title="Mixer">
+      <!-- Mixer Title -->
+      <div class="mixer-title flex items-center gap-1">
+        <h2 class="text-accent px-3 py-2 text-sm font-medium">
           🎵 Mixer
-        </button>
-        <button class="mixer-tab-btn bg-card border border-border text-text px-3 py-2 rounded text-sm font-medium
-                       hover:bg-hover transition-colors duration-200" 
-                data-tab="virtual-folders" title="Virtual Folders">
-          📁 Folders
-        </button>
+        </h2>
       </div>
       
       <!-- Search and Info Row -->
@@ -73,11 +66,6 @@
           <!-- All sound pads will be rendered here -->
         </div>
       </div>
-    </div>
-    
-    <!-- Virtual Folders Content (hidden by default) -->
-    <div class="virtual-folders-content hidden" id="virtual-folders-content">
-      <!-- Virtual folders content will be loaded here dynamically -->
     </div>
   </div>
   
