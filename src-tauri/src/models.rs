@@ -89,6 +89,11 @@ pub struct AudioFile {
     pub tempo: Option<String>,
     pub content_type: Option<String>,
     pub category: Option<String>,
+    
+    // Auto-tagging metadata
+    pub auto_tagged: Option<bool>,
+    pub auto_tag_date: Option<String>,
+    pub auto_tag_version: Option<String>,
 }
 
 impl Default for AudioFile {
@@ -145,6 +150,9 @@ impl Default for AudioFile {
             tempo: None,
             content_type: None,
             category: None,
+            auto_tagged: None,
+            auto_tag_date: None,
+            auto_tag_version: None,
         }
     }
 }

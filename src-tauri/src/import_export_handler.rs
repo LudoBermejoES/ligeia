@@ -309,6 +309,9 @@ impl ImportExportHandler {
             tempo: None,
             content_type: None,
             category: None,
+            auto_tagged: None,
+            auto_tag_date: None,
+            auto_tag_version: None,
         }
     }
 

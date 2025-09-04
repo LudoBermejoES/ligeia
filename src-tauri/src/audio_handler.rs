@@ -65,6 +65,9 @@ impl AudioHandler {
             tempo: None,
             content_type: None,
             category: None,
+            auto_tagged: None,
+            auto_tag_date: None,
+            auto_tag_version: None,
         };
 
         if let Ok(tag) = Tag::read_from_path(file_path) {

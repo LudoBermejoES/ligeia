@@ -22,7 +22,8 @@ impl SearchRepository {
                     af.release_time, af.tagging_time, af.encoding_time, af.encoding_settings,
                     af.encoded_by, af.copyright, af.file_owner, af.internet_radio_station_name,
                     af.internet_radio_station_owner, af.isrc, af.publisher, af.mood,
-                    af.occasion, af.tempo, af.content_type, af.category
+                    af.occasion, af.tempo, af.content_type, af.category, af.auto_tagged,
+                    af.auto_tag_date, af.auto_tag_version
              FROM audio_files af
              ORDER BY af.artist, af.album, af.track_number"
         )?;
@@ -80,6 +81,9 @@ impl SearchRepository {
                 tempo: row.get(48)?,
                 content_type: row.get(49)?,
                 category: row.get(50)?,
+                auto_tagged: row.get(51)?,
+                auto_tag_date: row.get(52)?,
+                auto_tag_version: row.get(53)?,
             })
         })?;
 
@@ -200,7 +204,8 @@ impl SearchRepository {
                     release_time, tagging_time, encoding_time, encoding_settings,
                     encoded_by, copyright, file_owner, internet_radio_station_name,
                     internet_radio_station_owner, isrc, publisher, mood,
-                    occasion, tempo, content_type, category
+                    occasion, tempo, content_type, category, auto_tagged,
+                    auto_tag_date, auto_tag_version
              FROM audio_files WHERE id = ?1"
         )?;
 
@@ -257,6 +262,9 @@ impl SearchRepository {
                 tempo: row.get(48)?,
                 content_type: row.get(49)?,
                 category: row.get(50)?,
+                auto_tagged: row.get(51)?,
+                auto_tag_date: row.get(52)?,
+                auto_tag_version: row.get(53)?,
             })
         })
     }

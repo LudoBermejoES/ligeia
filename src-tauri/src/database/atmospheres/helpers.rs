@@ -95,6 +95,7 @@ pub fn get_audio_file_by_id(conn: &Connection, id: i64) -> Result<AudioFile> {
             tempo: row.get(48)?,
             content_type: row.get(49)?,
             category: row.get(50)?,
+            ..Default::default()
         })
     })
 }

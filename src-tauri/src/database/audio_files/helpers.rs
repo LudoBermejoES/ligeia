@@ -28,7 +28,8 @@ pub fn build_select_query(existing_columns: &HashSet<String>) -> (String, Vec<St
         "playlist_delay", "recording_time", "release_time", "tagging_time", 
         "encoding_time", "encoding_settings", "encoded_by", "copyright", 
         "file_owner", "internet_radio_station_name", "internet_radio_station_owner", 
-        "isrc", "publisher", "mood", "occasion", "tempo", "content_type", "category"
+        "isrc", "publisher", "mood", "occasion", "tempo", "content_type", "category",
+        "auto_tagged", "auto_tag_date", "auto_tag_version"
     ];
     
     let mut selected_columns = Vec::new();
@@ -80,6 +81,15 @@ pub fn map_row_to_audio_file(
     
     // Helper to get optional f64 value
     let get_optional_f64 = |col_name: &str| -> Result<Option<f64>> {
+        if let Some(idx) = get_value_by_name(col_name) {
+            row.get(idx)
+        } else {
+            Ok(None)
+        }
+    };
+    
+    // Helper to get optional bool value
+    let get_optional_bool = |col_name: &str| -> Result<Option<bool>> {
         if let Some(idx) = get_value_by_name(col_name) {
             row.get(idx)
         } else {
@@ -154,5 +164,8 @@ pub fn map_row_to_audio_file(
         tempo: get_optional("tempo")?,
         content_type: get_optional("content_type")?,
         category: get_optional("category")?,
+        auto_tagged: get_optional_bool("auto_tagged")?,
+        auto_tag_date: get_optional("auto_tag_date")?,
+        auto_tag_version: get_optional("auto_tag_version")?,
     })
 }

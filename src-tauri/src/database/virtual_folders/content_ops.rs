@@ -113,6 +113,9 @@ impl VirtualFolderContent {
                 tempo: row.get("tempo")?,
                 content_type: row.get("content_type")?,
                 category: row.get("category")?,
+                auto_tagged: row.get("auto_tagged")?,
+                auto_tag_date: row.get("auto_tag_date")?,
+                auto_tag_version: row.get("auto_tag_version")?,
             })
         })?;
         

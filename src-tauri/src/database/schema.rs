@@ -248,6 +248,20 @@ impl SchemaManager {
             [],
         )?;
         
+        // Tag mapping cache table for storing invalid -> valid tag mappings
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS tag_mapping_cache (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                invalid_tag TEXT NOT NULL,
+                valid_tag TEXT NOT NULL,
+                tag_type TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                usage_count INTEGER DEFAULT 1,
+                UNIQUE(invalid_tag, tag_type)
+            )",
+            [],
+        )?;
+        
         Ok(())
     }
 
@@ -296,6 +310,12 @@ impl SchemaManager {
 
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_folder_contents_order ON virtual_folder_contents(file_order)",
+            [],
+        )?;
+
+        // Tag mapping cache indexes
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_tag_mapping_cache_lookup ON tag_mapping_cache(invalid_tag, tag_type)",
             [],
         )?;
 

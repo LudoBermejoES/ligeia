@@ -1,4 +1,6 @@
 use crate::gemini_tagger::{AudioFile, GeminiTagger, TaggedFile, TaggingProgress};
+use crate::database::TagMappingCache;
+use std::collections::HashMap;
 use crate::AppState;
 use anyhow::Result;
 use dotenv::dotenv;
@@ -132,19 +134,37 @@ async fn process_files_async(
     app_handle: AppHandle,
     batch_size: usize,
 ) -> Result<String, String> {
+    info!("=== PROCESS FILES ASYNC STARTED ===");
+    info!("Processing {} files with batch size {} - INCREMENTAL SAVE MODE", files.len(), batch_size);
+    
     let state = app_handle.state::<crate::AppState>();
     let total_files = files.len();
     let total_batches = (total_files + batch_size - 1) / batch_size;
     let mut processed_count = 0;
     let mut failed_count = 0;
     
-    // Process files
-    let tagged_files = tagger.process_untagged_files(files).await
-        .map_err(|e| format!("Failed to process files: {}", e))?;
+    // Load cached mappings synchronously before async processing
+    let cached_mappings = {
+        let db = state.db.lock().unwrap();
+        TagMappingCache::get_all_cached_mappings(db.get_connection())
+            .map_err(|e| format!("Failed to load cached mappings: {}", e))?
+    };
     
-    // Process in batches for database operations
+    // Process files in batches and save each batch immediately
+    info!("About to process {} files in {} batches with incremental saving", files.len(), total_batches);
     
-    for (batch_idx, batch) in tagged_files.chunks(batch_size).enumerate() {
+    // Create batches
+    let batches: Vec<Vec<AudioFile>> = files
+        .chunks(batch_size)
+        .map(|chunk| chunk.to_vec())
+        .collect();
+    
+    info!("Created {} batches for incremental processing", batches.len());
+    
+    // Process each batch individually and save immediately
+    for (batch_idx, batch) in batches.into_iter().enumerate() {
+        info!("=== PROCESSING BATCH {} OF {} ===", batch_idx + 1, total_batches);
+        
         // Update progress
         let _ = app_handle.emit("tagging-progress", TaggingProgress {
             total_files,
@@ -155,15 +175,49 @@ async fn process_files_async(
             status: format!("Processing batch {} of {}", batch_idx + 1, total_batches),
         });
         
-        // Save batch to database  
-        match save_tagged_batch(&state, batch) {
-            Ok(saved_count) => {
-                processed_count += saved_count;
-                info!("Saved batch {} with {} files", batch_idx, saved_count);
+        // Process this batch with Gemini API
+        let batch_len = batch.len(); // Get length before move
+        match tagger.process_single_batch_with_cache(batch, batch_idx, &cached_mappings).await {
+            Ok((tagged_files, new_mappings)) => {
+                info!("Batch {} processed successfully with {} tagged files", batch_idx, tagged_files.len());
+                
+                // Save tagged files to database immediately
+                match save_tagged_batch(&state, &tagged_files) {
+                    Ok(saved_count) => {
+                        processed_count += saved_count;
+                        info!("Saved batch {} with {} files to database", batch_idx, saved_count);
+                    }
+                    Err(e) => {
+                        error!("Failed to save batch {} to database: {}", batch_idx, e);
+                        failed_count += tagged_files.len();
+                    }
+                }
+                
+                // Store any new mappings from this batch
+                if !new_mappings.genre_mappings.is_empty() || !new_mappings.mood_mappings.is_empty() ||
+                   !new_mappings.occasion_mappings.is_empty() || !new_mappings.keyword_mappings.is_empty() {
+                    
+                    let db = state.db.lock().unwrap();
+                    if let Err(e) = TagMappingCache::store_mappings(
+                        db.get_connection(),
+                        &new_mappings.genre_mappings,
+                        &new_mappings.mood_mappings,
+                        &new_mappings.occasion_mappings,
+                        &new_mappings.keyword_mappings,
+                    ) {
+                        error!("Failed to store new mappings from batch {}: {}", batch_idx, e);
+                    } else {
+                        let stored_count = new_mappings.genre_mappings.len() + 
+                                         new_mappings.mood_mappings.len() + 
+                                         new_mappings.occasion_mappings.len() + 
+                                         new_mappings.keyword_mappings.len();
+                        info!("Stored {} new mappings from batch {}", stored_count, batch_idx);
+                    }
+                }
             }
             Err(e) => {
-                error!("Failed to save batch {}: {}", batch_idx, e);
-                failed_count += batch.len();
+                error!("Failed to process batch {}: {}", batch_idx, e);
+                failed_count += batch_len; // Use pre-computed length
             }
         }
     }
@@ -194,12 +248,13 @@ fn save_tagged_batch(
         // Use the database methods that handle the connection properly
         let db = state.db.lock().unwrap();
         
-        // Update the audio file with genre and mood
+        // Update the audio file with genre and mood, and mark as auto-tagged
         let audio_file = crate::models::AudioFile {
             id: Some(file.id as i64),
             file_path: file.file_path.clone(),
             genre: Some(file.genre.clone()),
             mood: Some(file.mood.clone()),
+            auto_tagged: Some(true), // Mark as auto-tagged to prevent reprocessing
             ..Default::default()
         };
         

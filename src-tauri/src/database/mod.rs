@@ -8,6 +8,7 @@ pub mod vocabulary;
 pub mod search;
 pub mod atmospheres;
 pub mod virtual_folders;
+pub mod tag_mapping;
 
 pub use schema::SchemaManager;
 pub use audio_files::AudioFileOps;
@@ -16,6 +17,7 @@ pub use vocabulary::VocabularyRepository;
 pub use search::SearchRepository;
 pub use atmospheres::AtmosphereOps;
 pub use virtual_folders::VirtualFolderOps;
+pub use tag_mapping::TagMappingCache;
 
 /// Main database struct that coordinates all database operations
 pub struct Database {
@@ -63,6 +65,11 @@ impl Database {
         VirtualFolderOps::initialize_default_virtual_folders(&db.conn)?;
         
         Ok(db)
+    }
+    
+    /// Get a reference to the database connection for advanced operations
+    pub fn get_connection(&self) -> &Connection {
+        &self.conn
     }
 
     /// Get a reference to the database connection for complex operations
