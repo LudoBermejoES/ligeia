@@ -332,6 +332,12 @@ impl SchemaManager {
 
         Ok(())
     }
+
+    /// Static method for pool initialization - creates tables without instance
+    pub fn create_tables_static(conn: &Connection) -> Result<()> {
+        let schema = SchemaManager;
+        schema.create_tables(conn)
+    }
 }
 
 #[cfg(test)]

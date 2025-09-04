@@ -119,6 +119,12 @@ impl VocabularyRepository {
         let keywords = include!("../data/keyword_vocabulary.rs");
         self.insert_batch(conn, &keywords)
     }
+
+    /// Static method for pool initialization - initializes vocabulary without instance
+    pub fn initialize_tag_vocabulary_static(conn: &Connection) -> Result<()> {
+        let vocab = VocabularyRepository;
+        vocab.initialize_tag_vocabulary(conn)
+    }
 }
 
 #[cfg(test)]

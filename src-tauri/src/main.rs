@@ -27,7 +27,7 @@ mod gemini_tagger;
 mod gemini_handler;
 
 use models::*;
-use database::Database;
+use database::{Database, DatabasePool};
 use audio_handler::AudioHandler;
 use tag_manager::TagManager;
 use file_scanner::FileScanner;
@@ -38,7 +38,8 @@ use audio_file_handler::AudioFileHandler;
 use tag_handler::TagHandler;
 
 struct AppState {
-    db: Mutex<Database>,
+    db: Mutex<Database>, // Keep for backward compatibility during transition
+    db_pool: DatabasePool, // New connection pool
     tag_manager: TagManager,
 }
 
@@ -261,12 +262,22 @@ use tauri_plugin_log::{Target, TargetKind};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Create traditional database for backward compatibility
     let db = Database::new().expect("Failed to create database");
     let tag_manager = TagManager::new().expect("Failed to create tag manager");
+    
+    // Create new connection pool (max 5 connections for concurrent operations)
+    let db_pool = DatabasePool::new("../db/audio_player.db", 5)
+        .expect("Failed to create database connection pool");
+    
+    // Initialize database schema using the pool
+    db_pool.initialize_database()
+        .expect("Failed to initialize database schema");
     
     tauri::Builder::default()
         .manage(AppState {
             db: Mutex::new(db),
+            db_pool,
             tag_manager,
         })
         .plugin(tauri_plugin_dialog::init())

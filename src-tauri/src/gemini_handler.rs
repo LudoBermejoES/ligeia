@@ -1,6 +1,5 @@
 use crate::gemini_tagger::{AudioFile, GeminiTagger, TaggedFile, TaggingProgress};
-use crate::database::TagMappingCache;
-use std::collections::HashMap;
+use crate::database::{TagMappingCache, DatabasePool};
 use crate::AppState;
 use anyhow::Result;
 use dotenv::dotenv;
@@ -23,8 +22,9 @@ pub async fn get_untagged_files(
     app_handle: AppHandle,
 ) -> Result<Vec<AudioFile>, String> {
     let state = app_handle.state::<AppState>();
-    let db = state.db.lock().unwrap();
-    let conn = db.connection();
+    // Use connection pool instead of single connection
+    let conn = state.db_pool.get_connection()
+        .map_err(|e| format!("Failed to get database connection: {}", e))?;
     
     let query = r#"
         SELECT DISTINCT af.id, af.file_path, af.title, af.artist, af.album, af.genre, af.mood
@@ -134,8 +134,8 @@ async fn process_files_async(
     app_handle: AppHandle,
     batch_size: usize,
 ) -> Result<String, String> {
-    info!("=== PROCESS FILES ASYNC STARTED ===");
-    info!("Processing {} files with batch size {} - INCREMENTAL SAVE MODE", files.len(), batch_size);
+    info!("=== PROCESS FILES ASYNC STARTED (POOLED VERSION) ===");
+    info!("Processing {} files with batch size {} - POOLED CONNECTION MODE", files.len(), batch_size);
     
     let state = app_handle.state::<crate::AppState>();
     let total_files = files.len();
@@ -143,10 +143,11 @@ async fn process_files_async(
     let mut processed_count = 0;
     let mut failed_count = 0;
     
-    // Load cached mappings synchronously before async processing
+    // Load cached mappings using connection pool
     let cached_mappings = {
-        let db = state.db.lock().unwrap();
-        TagMappingCache::get_all_cached_mappings(db.get_connection())
+        let conn = state.db_pool.get_connection()
+            .map_err(|e| format!("Failed to get connection for cache loading: {}", e))?;
+        TagMappingCache::get_all_cached_mappings(&conn)
             .map_err(|e| format!("Failed to load cached mappings: {}", e))?
     };
     
@@ -182,7 +183,7 @@ async fn process_files_async(
                 info!("Batch {} processed successfully with {} tagged files", batch_idx, tagged_files.len());
                 
                 // Save tagged files to database immediately
-                match save_tagged_batch(&state, &tagged_files) {
+                match save_tagged_batch(&state, &tagged_files).await {
                     Ok(saved_count) => {
                         processed_count += saved_count;
                         info!("Saved batch {} with {} files to database", batch_idx, saved_count);
@@ -193,25 +194,31 @@ async fn process_files_async(
                     }
                 }
                 
-                // Store any new mappings from this batch
+                // Store any new mappings from this batch using connection pool
                 if !new_mappings.genre_mappings.is_empty() || !new_mappings.mood_mappings.is_empty() ||
                    !new_mappings.occasion_mappings.is_empty() || !new_mappings.keyword_mappings.is_empty() {
                     
-                    let db = state.db.lock().unwrap();
-                    if let Err(e) = TagMappingCache::store_mappings(
-                        db.get_connection(),
-                        &new_mappings.genre_mappings,
-                        &new_mappings.mood_mappings,
-                        &new_mappings.occasion_mappings,
-                        &new_mappings.keyword_mappings,
-                    ) {
-                        error!("Failed to store new mappings from batch {}: {}", batch_idx, e);
-                    } else {
-                        let stored_count = new_mappings.genre_mappings.len() + 
-                                         new_mappings.mood_mappings.len() + 
-                                         new_mappings.occasion_mappings.len() + 
-                                         new_mappings.keyword_mappings.len();
-                        info!("Stored {} new mappings from batch {}", stored_count, batch_idx);
+                    match state.db_pool.get_connection() {
+                        Ok(conn) => {
+                            if let Err(e) = TagMappingCache::store_mappings(
+                                &conn,
+                                &new_mappings.genre_mappings,
+                                &new_mappings.mood_mappings,
+                                &new_mappings.occasion_mappings,
+                                &new_mappings.keyword_mappings,
+                            ) {
+                                error!("Failed to store new mappings from batch {}: {}", batch_idx, e);
+                            } else {
+                                let stored_count = new_mappings.genre_mappings.len() + 
+                                                 new_mappings.mood_mappings.len() + 
+                                                 new_mappings.occasion_mappings.len() + 
+                                                 new_mappings.keyword_mappings.len();
+                                info!("Stored {} new mappings from batch {} using pooled connection", stored_count, batch_idx);
+                            }
+                        }
+                        Err(e) => {
+                            error!("Failed to get connection for storing mappings from batch {}: {}", batch_idx, e);
+                        }
                     }
                 }
             }
@@ -238,16 +245,21 @@ async fn process_files_async(
     ))
 }
 
-fn save_tagged_batch(
-    state: &tauri::State<crate::AppState>, 
+async fn save_tagged_batch(
+    state: &tauri::State<'_, crate::AppState>, 
     batch: &[TaggedFile]
 ) -> Result<usize, String> {
+    // Get a dedicated connection from the pool for this batch transaction
+    let mut conn = state.db_pool.get_connection()
+        .map_err(|e| format!("Failed to get database connection: {}", e))?;
+    
+    // Begin transaction for atomic batch operations
+    let tx = conn.transaction()
+        .map_err(|e| format!("Failed to begin transaction: {}", e))?;
+    
     let mut saved_count = 0;
     
     for file in batch {
-        // Use the database methods that handle the connection properly
-        let db = state.db.lock().unwrap();
-        
         // Update the audio file with genre and mood, and mark as auto-tagged
         let audio_file = crate::models::AudioFile {
             id: Some(file.id as i64),
@@ -258,31 +270,39 @@ fn save_tagged_batch(
             ..Default::default()
         };
         
-        db.update_audio_file(&audio_file)
+        // Use the database abstraction methods with the transaction connection
+        crate::database::AudioFileOps::update(&tx, &audio_file)
             .map_err(|e| format!("Failed to update audio file {}: {}", file.id, e))?;
+        
+        // Use repository instance for tag operations
+        let rpg_repo = crate::database::RpgTagRepository::new();
         
         // Remove existing occasion and keyword tags
         for occasion in &file.rpg_occasion {
-            let _ = db.remove_rpg_tag(file.id as i64, "occasion", occasion);
+            let _ = rpg_repo.remove(&tx, file.id as i64, "occasion", occasion);
         }
         for keyword in &file.rpg_keywords {
-            let _ = db.remove_rpg_tag(file.id as i64, "keyword", keyword);
+            let _ = rpg_repo.remove(&tx, file.id as i64, "keyword", keyword);
         }
         
         // Add new occasion tags
         for occasion in &file.rpg_occasion {
-            db.add_rpg_tag(file.id as i64, "occasion", occasion)
+            rpg_repo.add(&tx, file.id as i64, "occasion", occasion)
                 .map_err(|e| format!("Failed to add occasion tag '{}' for file {}: {}", occasion, file.id, e))?;
         }
         
         // Add new keyword tags  
         for keyword in &file.rpg_keywords {
-            db.add_rpg_tag(file.id as i64, "keyword", keyword)
+            rpg_repo.add(&tx, file.id as i64, "keyword", keyword)
                 .map_err(|e| format!("Failed to add keyword tag '{}' for file {}: {}", keyword, file.id, e))?;
         }
         
         saved_count += 1;
     }
+    
+    // Commit the entire batch transaction
+    tx.commit()
+        .map_err(|e| format!("Failed to commit batch transaction: {}", e))?;
     
     Ok(saved_count)
 }

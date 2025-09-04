@@ -9,6 +9,7 @@ pub mod search;
 pub mod atmospheres;
 pub mod virtual_folders;
 pub mod tag_mapping;
+pub mod pool;
 
 pub use schema::SchemaManager;
 pub use audio_files::AudioFileOps;
@@ -18,6 +19,7 @@ pub use search::SearchRepository;
 pub use atmospheres::AtmosphereOps;
 pub use virtual_folders::VirtualFolderOps;
 pub use tag_mapping::TagMappingCache;
+pub use pool::{DatabasePool, DbPooledConnection, PoolStats};
 
 /// Main database struct that coordinates all database operations
 pub struct Database {
